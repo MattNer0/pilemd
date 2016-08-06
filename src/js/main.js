@@ -1,6 +1,9 @@
 const path = require('path');
 const fs = require('fs');
 
+const settings = require('./utils/settings');
+settings.init();
+
 const Vue = require('vue');
 const moment = require('moment');
 
@@ -18,7 +21,6 @@ const dialog = remote.dialog;
 
 const arr = require('./utils/arr');
 
-
 // Vue.js plugins
 Vue.use(require('./components/flashmessage'));
 Vue.use(require('./components/modal'));
@@ -33,7 +35,6 @@ require('../css/materialicons.css');
 require('../css/mystyle.css');
 require('../css/highlight.css');
 
-
 // Not to accept image dropping and so on.
 // Electron will be show local images without this.
 document.addEventListener('dragover', (e) => {
@@ -44,14 +45,16 @@ document.addEventListener('drop', (e) => {
   e.stopPropagation();
 });
 
+var settings_baseLibraryPath = settings.get('baseLibraryPath');
+if(settings_baseLibraryPath) models.setBaseLibraryPath(settings_baseLibraryPath);
 
 new Vue({
   el: '#main-editor',
   template: require('../html/app.html'),
   replace: false,
   data: {
-    isFullScreen: false,
-    isPreview: false,
+    isFullScreen: settings.get('vue_isFullScreen') || false,
+    isPreview: settings.get('vue_isPreview') || false,
     preview: "",
     racks: [],
     editingRack: null,
@@ -76,49 +79,53 @@ new Vue({
   },
   created: function() {
     var notes;
+    var folders;
+    var racks;
     if (!models.getBaseLibraryPath()) {
       // Hey, this is first time.
       // * Setting up directory
       // * Create new notes
       initialModels.initialFolder();
-      notes = initialModels.migrateFromLocalStorage();
-      if (!notes) {
-        notes = initialModels.makeInitialNotes();
-      } else {
-        Vue.nextTick(() => {
-          this.$message('info', 'Migrated data to local file', 4000);
-          setTimeout(() => {
-            this.$message('info', 'Select File->Move Sync Folder to change the place', 8000);
-          }, 4000);
-        });
-      }
-    } else {
-      try {
-        notes = models.Note.getModelsSync();
-      } catch(e) {
-        // Broken file or invalid directory
-        initialModels.initialFolder();
-        notes = initialModels.makeInitialNotes();
-        Vue.nextTick(() => {
-          this.$message('error', 'Broken data or folder, reverted to pmlibrary at home', 5000);
-        });
-      }
     }
 
-    if (notes.length == 0) {
-      notes = initialModels.makeInitialNotes();
+    try {
+      notes = models.Note.getModelsSync();
+    } catch(e) {
+
     }
+
+    //if(!notes) notes = initialModels.migrateFromLocalStorage();
+    if (!notes) {
+      notes = initialModels.makeInitialNotes();
+    } else {
+      Vue.nextTick(() => {
+        this.$message('info', 'Opened folder '+models.getBaseLibraryPath(), 4000);
+        /*setTimeout(() => {
+          this.$message('info', 'Select File->Move Sync Folder to change the place', 8000);
+        }, 4000);*/
+      });
+    }
+
     this.$set('notes', notes);
     // Should select latest selected note.
     this.selectedNote = models.Note.latestUpdatedNote(notes);
 
-    initialModels.makeInitialRacks();
     try {
-      var folders = models.Folder.getModelsSync();
-      var racks = models.Rack.getModelsSync();
+      folders = models.Folder.getModelsSync();
+      racks = models.Rack.getModelsSync();
       this.$set('folders', folders);
       this.$set('racks', racks);
     } catch(e) {}  // TODO
+
+    if (racks.length == 0) {
+      initialModels.makeInitialRacks();
+      try {
+        folders = models.Folder.getModelsSync();
+        racks = models.Rack.getModelsSync();
+        this.$set('folders', folders);
+        this.$set('racks', racks);
+      } catch(e) {}  // TODO
+    }
 
     this.$watch('selectedNote.body', () => {
       models.Note.setModel(this.selectedNote);
@@ -159,9 +166,14 @@ new Vue({
     this.watcher = models.makeWatcher(this.racks, this.folders, this.notes);
   },
   methods: {
-    toggleFullScreen: function() { this.isFullScreen = !this.isFullScreen },
+    toggleFullScreen: function() { 
+      this.isFullScreen = !this.isFullScreen;
+      settings.set('vue_isFullScreen', this.isFullScreen);
+    },
     togglePreview: function() {
       this.isPreview = !this.isPreview;
+      settings.set('vue_isPreview', this.isPreview);
+
       if (this.isPreview) {
         var menu = new ApplicationMenu();
         // FIXME as same as componets/codemirror.js Fucking hell
@@ -313,6 +325,7 @@ new Vue({
       var newPath = newPaths[0];
 
       models.setBaseLibraryPath(newPath);
+      settings.set('baseLibraryPath', newPath);
       remote.getCurrentWindow().reload();
     },
     qiitaLogin: function() {
