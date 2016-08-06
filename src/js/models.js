@@ -9,22 +9,17 @@ const Datauri = require('datauri');
 const arr = require('./utils/arr');
 const uid = require('./utils/uid');
 
-const electron = require('electron');
-
-
 const BASE_LIB_PATH_KEY = 'libpath';
-
 
 function setBaseLibraryPath(path) {
   return localStorage.setItem(BASE_LIB_PATH_KEY, path);
 }
 
-
 function getBaseLibraryPath() {
   return localStorage.getItem(BASE_LIB_PATH_KEY);
 }
 
-const DATA_REG = /\/(notes|folders|racks)\/([a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})\.json$/;
+const DATA_REG = /\/(notes|folders|racks|meta)\/([a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})\.json$/;
 
 function detectPath(path) {
   var m = DATA_REG.exec(path);
@@ -34,7 +29,7 @@ function detectPath(path) {
   var dataType = m[1];
   var uid = m[2];
   return {
-    dataType: dataType,
+    dataType: dataType == 'meta' ? 'notes' : dataType,
     uid: uid
   }
 }
@@ -50,6 +45,9 @@ class Model {
   }
 
   static buildSaveDirPath() {
+    if( this.storagePrefix == 'notes'){
+      return path.join(getBaseLibraryPath(), 'meta');
+    }
     return path.join(getBaseLibraryPath(), this.storagePrefix);
   }
 
@@ -57,11 +55,23 @@ class Model {
     return path.join(this.buildSaveDirPath(), uid) + '.json';
   }
 
+  static getMdFilePath(fileName) {
+    return path.join(getBaseLibraryPath(), 'notes', fileName) + '.md';
+  }
+
   static setModel(model) {
     if (!model) { return }
     var p = this.buildSavePath(model.uid);
     fs.mkdir(this.buildSaveDirPath(), (err) => {
       if (err) {}
+      
+      if(model.data.mdFilename && model.body){
+        var md = this.getMdFilePath(model.data.mdFilename);
+        fs.writeFile(md, model.body);
+        if( model.currentMdFilename && model.currentMdFilename != model.data.mdFilename){
+          fs.unlink( this.getMdFilePath(model.currentMdFilename) ); // Remove Old File if Name Changed
+        }
+      }
       fs.writeFile(p, JSON.stringify(model.data));
     });
   }
@@ -69,6 +79,7 @@ class Model {
   static removeModelFromStorage(model) {
     if (!model) { return }
     var p = this.buildSavePath(model.uid);
+    //@TODO remove md file
     fs.unlink(p);
   }
 
@@ -108,7 +119,10 @@ class Note extends Model {
   constructor(data) {
     super(data);
 
-    this._body = data.body || '';
+    this._body = data.body;
+    this.currentMdFilename = data.mdFilename || '';
+    this.loadBody(data);
+
     this.folderUid = data.folderUid || null;
     this.doc = null;  // Codemirror.Doc object.
     this.qiitaURL = data.qiitaURL || null;
@@ -127,7 +141,8 @@ class Note extends Model {
 
   get data() {
     return _.assign(super.data, {
-      body: this.body,
+      body: "",
+      mdFilename: this.mdFilename,
       folderUid: this.folderUid,
       updated_at: this.updatedAt,
       created_at: this.createdAt,
@@ -135,12 +150,25 @@ class Note extends Model {
     })
   }
 
+  get mdFilename() {
+    return this.title ? this.title.replace(/[^\w _-]/g, '')+" ["+ this.uid +"]" : "["+ this.uid +"]";
+  }
+
   update(data) {
     super.update(data);
+
     this._body = data.body;
+    this.loadBody(data);
+
     this.folderUid = data.folderUid;
     this.updated_at = data.updated_at;
     this.created_at = data.created_at;
+  }
+
+  loadBody(data) {
+    if(data.mdFilename){
+      this._body = fs.readFileSync(Note.getMdFilePath(data.mdFilename)).toString();
+    }
   }
 
   get body() {
