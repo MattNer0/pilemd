@@ -1,19 +1,20 @@
+function s4() {
+	return Math.floor((1 + Math.random()) * 0x10000)
+		.toString(16)
+		.substring(1);
+}
+
 function guid() {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
+	return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+		s4() + '-' + s4() + s4() + s4();
 }
 
 function timeUID() {
 	var d = new Date();
-	return d.valueOf();
+	return d.valueOf() + '-' + s4() + s4();
 }
 
 module.exports = {
-  guid: guid,
-  timeUID: timeUID
+	guid: guid,
+	timeUID: timeUID
 };
