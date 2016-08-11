@@ -8,6 +8,12 @@ function guid() {
     s4() + '-' + s4() + s4() + s4();
 }
 
+function timeUID() {
+	var d = new Date();
+	return d.valueOf();
+}
+
 module.exports = {
-  guid: guid
+  guid: guid,
+  timeUID: timeUID
 };

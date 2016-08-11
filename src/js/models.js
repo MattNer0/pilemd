@@ -36,7 +36,7 @@ function detectPath(path) {
 
 class Model {
   constructor(data) {
-    this.uid = data.uid || uid.guid();
+    this.uid = data.uid || uid.timeUID();
   }
   get data() { return { uid: this.uid } }
 
@@ -56,7 +56,11 @@ class Model {
   }
 
   static getMdFilePath(fileName) {
-    return path.join(getBaseLibraryPath(), 'notes', fileName) + '.md';
+    return path.join( this.getMdFolderPath(), fileName) + '.md';
+  }
+
+  static getMdFolderPath(fileName) {
+    return path.join(getBaseLibraryPath(), 'notes');
   }
 
   static setModel(model) {
@@ -68,9 +72,13 @@ class Model {
       if(model.data.mdFilename && model.body){
         var md = this.getMdFilePath(model.data.mdFilename);
         fs.writeFile(md, model.body);
-        if( model.currentMdFilename && model.currentMdFilename != model.data.mdFilename){
-          fs.unlink( this.getMdFilePath(model.currentMdFilename) ); // Remove Old File if Name Changed
-        }
+
+        var files = fs.readdirSync( this.getMdFolderPath() );
+        files.forEach((f) => {
+          if( f.indexOf(model.uid) >= 0 && f != model.data.mdFilename+'.md'){
+            fs.unlink( path.join( this.getMdFolderPath(), f) );
+          }
+        });
       }
       fs.writeFile(p, JSON.stringify(model.data));
     });

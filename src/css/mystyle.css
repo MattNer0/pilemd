@@ -107,7 +107,7 @@ body {
 }
 
 .my-shelf {
-    width: 90px;
+    width: 120px;
     height: calc(100vh - 68px - 4px);
     padding-top: 4px;
     background: transparent;

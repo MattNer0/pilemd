@@ -280,7 +280,7 @@ class ApplicationMenu {
     viewTmp.submenu.push(TOGGLE_WIDESCREEN);
     viewTmp.submenu.push(TOGGLE_PREVIEW);
 
-    if (IS_DEBUG) {
+    //if (IS_DEBUG) {
       viewTmp.submenu.push({
         label: 'Toggle Developer Tools',
         accelerator: (function() {
@@ -294,7 +294,7 @@ class ApplicationMenu {
             focusedWindow.toggleDevTools();
         }
       })
-    }
+    //}
     var temp = [
       {label: 'File',
        submenu: [
