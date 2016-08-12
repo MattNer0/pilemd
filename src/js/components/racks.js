@@ -110,6 +110,12 @@ module.exports = function(Vue, options) {
       selectFolder: function(folder) {
         this.selectedRackOrFolder = folder;
       },
+      openRack: function(rack) {
+        rack.openFolders = true;
+      },
+      closeRack: function(rack) {
+        rack.openFolders = false;
+      },
       // Dragging
       rackDragStart: function(event, rack) {
         event.dataTransfer.setDragImage(event.target, 0, 0);

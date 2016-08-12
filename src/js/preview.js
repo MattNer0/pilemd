@@ -112,9 +112,10 @@ renderer.listitem = function(text) {
   if (/^\s*\[[x ]\]\s*/.test(text)) {
     var matched = /^(.*?)(<|$)/.exec(text)[1];
     text = text
-      .replace(/^\s*\[ \]\s*/, '<input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" /> ')
-      .replace(/^\s*\[x\]\s*/, '<input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" checked />  ');
-    return '<li style="list-style: none">' + text + '</li>';
+      .replace(/^\s*\[ \]\s*/, '<label><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" /></label> ')
+      .replace(/^\s*\[x\]\s*/, '<label><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" checked /></label> ');
+
+    return '<li class="checkbox" style="list-style: none">' + text + '</li>';
   } else {
     return '<li>' + text + '</li>';
   }

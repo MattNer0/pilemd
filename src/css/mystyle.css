@@ -316,6 +316,70 @@ span.cm-piled-formatting-task {
     padding-left: 28px;
 }
 
+.my-editor-preview ul li.checkbox{
+    padding-left: 40px;
+    padding-top: 2px;
+    position: relative;
+    margin: 1em 0;
+}
+
+.my-editor-preview ul li.checkbox label{
+    position: absolute;
+    left: -10px;
+    top: 0;
+}
+
+.my-editor-preview ul li.checkbox input[type='checkbox']{
+    cursor: pointer;
+    position: relative;
+    overflow: visible;
+    width: 20px;
+    height: 20px;
+    box-sizing: border-box;
+    padding: 0;
+    display: block;
+    opacity: 0.6;
+}
+
+.my-editor-preview ul li.checkbox input[type=checkbox]:checked{
+    opacity: 1;
+}
+
+.my-editor-preview ul li.checkbox input[type=checkbox]:checked:before {
+    background-color: #5b9fa3;
+    box-shadow: 0 0 0 1px #5aa0a5;
+}
+
+.my-editor-preview ul li.checkbox input[type=checkbox]:before, .my-editor-preview ul li.checkbox input[type=checkbox]:after {
+    content: "";
+    position: absolute;
+}
+
+.my-editor-preview ul li.checkbox input[type=checkbox]:before {
+    width: 200%;
+    background-color: #89afb1;
+    box-shadow: 0 0 0 1px #89afb1;
+    transform: translate(-25%, 0);
+    border-radius: 30px;
+    height: 100%;
+    transition: all 0.25s ease-in-out;
+}
+
+.my-editor-preview ul li.checkbox input[type=checkbox]:checked:after {
+    transform: translate(60%, 0);
+}
+.my-editor-preview ul li.checkbox input[type=checkbox]:after {
+    width: 80%;
+    height: 80%;
+    margin-top: 10%;
+    margin-left: 10%;
+    background-color: #FFF;
+    border-radius: 30px;
+    transform: translate(-60%, 0);
+}
+
+/* --- */
+
 .CodeMirror span.cm-piled-header-1,
 .my-editor-preview h1 {
     font-size: 26px;

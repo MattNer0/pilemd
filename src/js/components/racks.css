@@ -1,13 +1,11 @@
 .my-shelf-rack {
     position: relative;
-    padding-top: 6px;
-    padding-bottom: 6px;
-    padding-left: 6px;
+    padding: 2px 5px;
 }
 .my-shelf-rack h5 {
     min-width: 96px;
-    margin: 0 auto 4px auto;
-    padding: 1px 8px 1px 8px;
+    margin: 0 auto;
+    padding: 4px 8px 4px 8px;
     font-weight: 500;
     border-radius: 0 2px 2px 0 / 0 2px 2px 0;
     white-space: initial;
@@ -19,6 +17,42 @@
 
 .my-shelf-rack h5 input {
     width: 62px;
+}
+
+.my-shelf-rack > div{
+    display: none;
+}
+
+.my-shelf-rack h5 > span{
+    box-sizing: border-box;
+    border: 1px solid #FFF;
+    border-radius: 100%;
+    line-height: 1.25em;
+    height: 1.2em;
+    width: 1.2em;
+    text-align: center;
+    vertical-align: top;
+}
+
+.my-shelf-rack .plus-open{
+    display: inline-block;
+}
+
+.my-shelf-rack .minus-close{
+    display: none;
+    line-height: 1em;
+}
+
+.my-shelf-rack.openFolders > div{
+    display: block;
+}
+
+.my-shelf-rack.openFolders .minus-close{
+    display: inline-block;
+}
+
+.my-shelf-rack.openFolders .plus-open{
+    display: none;
 }
 
 .my-shelf-rack.sortUpper:after {
@@ -44,7 +78,7 @@
     position: relative;
     font-size: 12px;
 
-    padding: 3px 2px 3px 6px;
+    padding: 3px 2px 3px 20px;
 
     border-radius: 0 2px 2px 0 / 0 2px 2px 0;
     transition: background-color 200ms;
@@ -80,8 +114,6 @@
 .my-shelf-folder-name {
     min-width: 86px;
     width: 100%;
-    word-wrap: break-word;
-    word-break: break-all;
     white-space: initial;
 }
 .my-shelf-folder span input {

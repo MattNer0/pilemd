@@ -8,6 +8,7 @@ const Datauri = require('datauri');
 
 const arr = require('./utils/arr');
 const uid = require('./utils/uid');
+const util_file = require('./utils/file');
 
 const BASE_LIB_PATH_KEY = 'libpath';
 
@@ -78,6 +79,8 @@ function readLibrary(){
 											body: fs.readFileSync(notePath).toString(),
 											path: notePath,
 											folderUid: current_folder.data.uid,
+											rack: current_rack,
+											folder: current_folder,
 											created_at: noteStat.birthtime,
 											updated_at: noteStat.mtime
 										}));
@@ -130,28 +133,6 @@ class Model {
 
 	static setModel(model) {
 		if (!model) { return }
-
-		if(this.storagePrefix == 'notes'){
-			var outer_folder = path.dirname(model.data.path);
-			if(model.data.mdFilename){
-				var new_path = path.join(outer_folder, model.data.mdFilename) + '.md';
-				if(new_path != model.data.path){
-					var num = 1;
-					while(num > 0){
-						try{
-							fs.statSync(new_path);
-							new_path = path.join(outer_folder, model.data.mdFilename)+num+'.md';
-						} catch(e){
-							break; //path doesn't exist, I don't have to worry about overwriting something
-						}
-					}
-				}
-				fs.writeFile(new_path, model.body);
-				model.path = new_path;
-			}
-		} else {
-			var outer_folder = path.normalize(model.data.path + '/..');
-		}
 		/*
 		var p = this.buildSavePath(model.uid);
 		fs.mkdir(this.buildSaveDirPath(), (err) => {
@@ -175,9 +156,10 @@ class Model {
 
 	static removeModelFromStorage(model) {
 		if (!model) { return }
+		/*
 		var p = this.buildSavePath(model.uid);
-		//@TODO remove md file
 		fs.unlink(p);
+		*/
 	}
 
 	static getModelsSync() {
@@ -218,6 +200,8 @@ class Note extends Model {
 
 		this._body = data.body;
 		this._path = data.path;
+		this._rack = data.rack;
+		this._folder = data.folder;
 
 		this.folderUid = data.folderUid || null;
 		this.doc = null;
@@ -243,19 +227,27 @@ class Note extends Model {
 			folderUid: this.folderUid,
 			updated_at: this.updatedAt,
 			created_at: this.createdAt,
+			rack: this._rack,
+			folder: this._folder,
 			qiitaURL: this.qiitaURL
 		})
 	}
 
 	set path(newValue) {
 		if(newValue != this._path){
-			fs.unlink(this._path);
+			try{
+				if(fs.existsSync(this._path)){
+					fs.unlink(this._path);
+				}
+			} catch(e){
+				// it's ok
+			}
 			this._path = newValue;
 		}
 	}
 
 	get mdFilename() {
-		return this.title ? this.title.replace(/[^\w _-]/g, '') : "";
+		return this.title ? this.title.replace(/[^\w _-]/g, '').substr(0, 40) : "";
 	}
 
 	update(data) {
@@ -356,6 +348,41 @@ class Note extends Model {
 	static newEmptyNote(uid) {
 		return new Note({body:"", folderUid: uid || null});
 	}
+
+	static setModel(model) {
+		if (!model) { return }
+
+		var outer_folder = path.join( getBaseLibraryPath(), model.data.rack.data.fsName, model.data.folder.data.name );
+		//path.dirname(model.data.path);
+		if(model.data.mdFilename){
+			var new_path = path.join(outer_folder, model.data.mdFilename) + '.md';
+
+			if(new_path != model.data.path){
+				var num = 1;
+				while(num > 0){
+					try{
+						fs.statSync(new_path);
+						if( model.body != fs.readFileSync(new_path).toString() ){
+							new_path = path.join(outer_folder, model.data.mdFilename)+num+'.md';
+						} else {
+							break;
+						}
+					} catch(e){
+						break; //path doesn't exist, I don't have to worry about overwriting something
+					}
+				}
+
+				console.log('>> Note Save', new_path);
+				fs.writeFileSync(new_path, model.body);
+				model.path = new_path;
+			} else {
+				if( model.body != fs.readFileSync(new_path).toString() ){
+					console.log('>> Note Save', new_path);
+					fs.writeFileSync(new_path, model.body);
+				}
+			}
+		}
+	}
 }
 Note.storagePrefix = 'notes';
 
@@ -386,8 +413,9 @@ class Folder extends Model {
 	get data() {
 		return _.assign(super.data, {
 			name: this.name,
-			rackUid: this.rackUid,
+			fsName: '['+this.ordering+'] '+this.name,
 			ordering: this.ordering,
+			rackUid: this.rackUid,
 			path: this.path
 		});
 	}
@@ -407,23 +435,32 @@ class Rack extends Model {
 
 		super(data);
 
-		this.name = data.name || '';
+		this.name = data.name.replace(/^\[\d+\] /, "") || '';
 		this.ordering = data.ordering || 0;
-		this.path = data.path;
+		this._path = data.path;
 
 		this.dragHover = false;
 		this.sortUpper = false;
 		this.sortLower = false;
+		this.openFolders = false;
 
-		this.folders = []
+		this.folders = [];
+		this.notes = [];
 	}
 
 	get data() {
 		return _.assign(super.data, {
 			name: this.name,
+			fsName: '['+this.ordering+'] '+this.name.replace(/[^\w _-]/g, ''),
 			ordering: this.ordering,
-			path: this.path,
+			path: this._path,
 		});
+	}
+
+	set path(newValue) {
+		if(newValue != this._path){
+			this._path = newValue;
+		}
 	}
 
 	update(data) {
@@ -439,6 +476,25 @@ class Rack extends Model {
 			}
 		});
 		Rack.removeModelFromStorage(this);
+	}
+
+	static setModel(model) {
+		if (!model) { return }
+
+		var new_path = path.join( getBaseLibraryPath(), model.data.fsName );
+		if(new_path != model.data.path){
+			try{
+				fs.statSync(new_path);
+			} catch(e){
+
+				try{
+					util_file.moveFolderRecursiveSync(model.data.path, getBaseLibraryPath(), model.data.fsName);
+					model.path = new_path;
+				} catch(e){
+					return console.error(e);
+				}
+			}
+		}
 	}
 }
 Rack.storagePrefix = 'racks';
@@ -504,6 +560,7 @@ function makeWatcher(racks, folders, notes) {
 
 
 function copyData(fromDir, toDir) {
+	/*
 	Object.keys(CLASS_MAPPER).forEach((name) => {
 		var toModelsPath = path.join(toDir, name);
 		fs.mkdirSync(toModelsPath);
@@ -515,6 +572,7 @@ function copyData(fromDir, toDir) {
 			fs.writeFileSync(toPath, fs.readFileSync(fromPath));
 		});
 	});
+	*/
 }
 
 

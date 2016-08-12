@@ -6,11 +6,14 @@
      @drop.stop="dropToRack($event, rack)"
      @contextmenu.prevent.stop="rackMenu(rack)"
      :class="{'sortUpper': rack.sortUpper,
-              'sortLower': rack.sortLower}"
+              'sortLower': rack.sortLower,
+              'openFolders' : rack.openFolders}"
      :draggable="editingFolder === null && editingRack === null ? 'true' : 'false'">
   <h5 @click.prevent.stop="selectRack(rack)"
       :class="{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote()) ||
                                    rack.dragHover}">
+    <span @click.prevent.stop="openRack(rack)" class="plus-open">+</span>
+    <span @click.prevent.stop="closeRack(rack)" class="minus-close">-</span>
     <a v-if="editingRack != rack">{{ rack.name }}</a>
     <input v-if="editingRack == rack" v-model="rack.name"
            v-focus="editingRack == rack"
