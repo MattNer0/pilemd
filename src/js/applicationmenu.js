@@ -282,6 +282,9 @@ class ApplicationMenu {
 
     //if (IS_DEBUG) {
       viewTmp.submenu.push({
+        type: 'separator'
+      });
+      viewTmp.submenu.push({
         label: 'Toggle Developer Tools',
         accelerator: (function() {
           if (IS_DARWIN)

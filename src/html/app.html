@@ -47,7 +47,7 @@
               :note="selectedNote"
               :is-full-screen="isFullScreen"
               :is-preview="isPreview"></codemirror>
-  <div v-show="isPreview" v-html="preview" class="my-editor-preview"></div>
+  <div v-show="isPreview" v-html="preview" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()"></div>
 
   <flashmessage :messages="messages"></flashmessage>
 </div>

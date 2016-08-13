@@ -247,6 +247,8 @@ module.exports = function(Vue, options) {
               menu.append(new MenuItem({label: 'Open Link In Browser',
                 enabled: false}));
             }
+            menu.append(new MenuItem({type: 'separator'}));
+            menu.append(new MenuItem({label: 'Toggle Preview', click: () => {this.togglePreview()}}));
             menu.popup(remote.getCurrentWindow());
           }, 90);
         });
@@ -318,7 +320,10 @@ module.exports = function(Vue, options) {
           return {name: name, path: notePath}
         });
         uploadFiles(cm, files, this);
-      }
+      },
+      togglePreview: function() {
+        this.$dispatch('togglePreview');
+      },
     }
   });
 };

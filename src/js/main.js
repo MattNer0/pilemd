@@ -143,11 +143,7 @@ new Vue({
 		
 		//this.watcher = models.makeWatcher(this.racks, this.folders, this.notes);
 	},
-	methods: {
-		toggleFullScreen: function() { 
-			this.isFullScreen = !this.isFullScreen;
-			settings.set('vue_isFullScreen', this.isFullScreen);
-		},
+	events: {
 		togglePreview: function() {
 			this.isPreview = !this.isPreview;
 			settings.set('vue_isPreview', this.isPreview);
@@ -173,6 +169,15 @@ new Vue({
 					}]);
 				menu.setMenu();
 			}
+		}
+	},
+	methods: {
+		toggleFullScreen: function() { 
+			this.isFullScreen = !this.isFullScreen;
+			settings.set('vue_isFullScreen', this.isFullScreen);
+		},
+		togglePreview: function() {
+			this.$dispatch('togglePreview');
 		},
 		addRack: function() {
 			var rack = new models.Rack({name: "", ordering: 0});
@@ -260,6 +265,11 @@ new Vue({
 		shelfMenu: function() {
 			var menu = new Menu();
 			menu.append(new MenuItem({label: 'Add Rack', click: () => {this.addRack()}}));
+			menu.popup(remote.getCurrentWindow());
+		},
+		previewMenu: function() {
+			var menu = new Menu();
+			menu.append(new MenuItem({label: 'Toggle Preview', click: () => {this.togglePreview()}}));
 			menu.popup(remote.getCurrentWindow());
 		},
 		importNotes: function() {
