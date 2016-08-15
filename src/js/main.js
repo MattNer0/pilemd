@@ -204,15 +204,31 @@ new Vue({
 				return null;
 			}
 		},
+		getCurrentFolder: function() {
+			if (this.selectedRackOrFolder instanceof models.Rack) {
+				var f = this.selectedRackOrFolder.folders;
+				if (!f || f.length == 0) {
+					return null;
+				} else {
+					return f[0];
+				}
+			} else if (this.selectedRackOrFolder instanceof models.Folder) {
+				return this.selectedRackOrFolder;
+			} else {
+				return null;
+			}
+		},
 		addNote: function() {
-			var newNote = models.Note.newEmptyNote(this.calcSaveUid());
-			this.notes.unshift(newNote);
-			models.Note.setModel(newNote);
-			this.selectedNote = newNote;
-			this.isPreview = false;
+			var newNote = models.Note.newEmptyNote(this.getCurrentFolder());
+			if(newNote){
+				this.notes.unshift(newNote);
+				models.Note.setModel(newNote);
+				this.selectedNote = newNote;
+				this.isPreview = false;
 
-			if (this.search.length > 0) {
-				this.search = '';
+				if (this.search.length > 0) {
+					this.search = '';
+				}
 			}
 		},
 		addNotes: function(noteTexts) {

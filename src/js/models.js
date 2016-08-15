@@ -63,6 +63,7 @@ function readLibrary(){
 								name: folder,
 								ordering: valid_folders.length,
 								path: path.join( current_rack.data.path, folder),
+								rack: current_rack,
 								rackUid: current_rack.data.uid
 							});
 							valid_folders.push(current_folder);
@@ -345,8 +346,18 @@ class Note extends Model {
 		}
 	}
 
-	static newEmptyNote(uid) {
-		return new Note({body:"", folderUid: uid || null});
+	static newEmptyNote(folder) {
+		if(folder){
+			return new Note({
+				body:"",
+				path: "",
+				rack: folder.data.rack,
+				folder: folder,
+				folderUid: folder.uid
+			});
+		} else {
+			return false;
+		}
 	}
 
 	static setModel(model) {
@@ -383,6 +394,13 @@ class Note extends Model {
 			}
 		}
 	}
+
+	static removeModelFromStorage(model) {
+		if (!model) { return }
+		if(fs.existsSync(model.data.path)) {
+			fs.unlink(model.data.path);
+		}
+	}
 }
 Note.storagePrefix = 'notes';
 
@@ -390,6 +408,8 @@ Note.storagePrefix = 'notes';
 class Folder extends Model {
 	constructor(data) {
 		super(data);
+
+		this._rack = data.rack;
 
 		this.name = data.name || '';
 		this.rackUid = data.rackUid || null;
@@ -415,6 +435,7 @@ class Folder extends Model {
 			name: this.name,
 			fsName: '['+this.ordering+'] '+this.name,
 			ordering: this.ordering,
+			rack: this._rack,
 			rackUid: this.rackUid,
 			path: this.path
 		});
