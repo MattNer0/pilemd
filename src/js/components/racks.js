@@ -77,8 +77,12 @@ module.exports = function(Vue, options) {
         this.selectedRackOrFolder = null
       },
       addFolder: function(rack) {
-        var folder = new Folder({name: '', rackUid: rack.uid,
-                                ordering: 0});
+        var folder = new Folder({
+          name: '',
+          rack: rack,
+          rackUid: rack.uid,
+          ordering: 0
+        });
         var folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
         folders.unshift(folder);
         folders.forEach((f, i) => {

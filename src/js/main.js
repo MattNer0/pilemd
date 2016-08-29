@@ -3,6 +3,7 @@ const fs = require('fs');
 
 const settings = require('./utils/settings');
 settings.init();
+settings.loadWindowSize();
 
 const Vue = require('vue');
 const moment = require('moment');
@@ -44,6 +45,10 @@ document.addEventListener('drop', (e) => {
 	e.preventDefault();
 	e.stopPropagation();
 });
+window.addEventListener('resize', (e) => {
+	e.preventDefault();
+	settings.saveWindowSize();
+});
 
 var settings_baseLibraryPath = settings.get('baseLibraryPath');
 if(settings_baseLibraryPath) models.setBaseLibraryPath(settings_baseLibraryPath);
@@ -62,7 +67,7 @@ new Vue({
 		notes: [],
 		selectedRackOrFolder: null,
 		search: "",
-		selectedNote: null,
+		selectedNote: {},
 		draggingNote: null,
 		allDragHover: false,
 		messages: [],
@@ -98,22 +103,24 @@ new Vue({
 		this.$set('folders', folders);
 		this.$set('notes', notes);
 
-		// Should select latest selected note.
-		if(notes.length > 0){
-			this.selectedNote = models.Note.latestUpdatedNote(notes);
-		}
-
 		this.$watch('selectedNote.body', () => {
 			models.Note.setModel(this.selectedNote);
 		});
+
 		this.$watch('selectedNote', () => {
 			if (this.isPreview) {
 				this.$set('preview', preview.render(this.selectedNote, this));
 			}
 		});
+
 		this.$watch('isPreview', () => {
 			this.$set('preview', preview.render(this.selectedNote, this));
 		});
+
+		// Should select latest selected note.
+		/*if(notes.length > 0){
+			this.selectedNote = models.Note.latestUpdatedNote(notes);
+		}*/
 
 		// Flash message
 		this.$on('flashmessage-push', function(message) {

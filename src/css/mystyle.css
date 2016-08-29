@@ -1,8 +1,21 @@
 @font-face {
-    font-family: 'Inconsolata';
+    font-family: 'Roboto';
     font-style: normal;
     font-weight: 400;
-    src: local('Inconsolata'), url(../fonts/inconsolata.woff2) format('woff2');
+    src: local('Roboto'), local('Roboto-Regular'), url(../fonts/Roboto/Roboto-Regular.woff2) format('woff2');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 700;
+    src: local('Roboto Bold'), local('Roboto-Bold'), url(../fonts/Roboto/Roboto-Bold.woff2) format('woff2');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: italic, oblique;
+    src: local('Roboto Italic'), local('Roboto-Italic'), url(../fonts/Roboto/Roboto-Italic.woff2) format('woff2');
 }
 
 body {
@@ -10,6 +23,7 @@ body {
     font-family: "Helvetica","Arial",sans-serif;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+    background: linear-gradient(#50A6B3, #619C9C);
 }
 ::-webkit-scrollbar {
     height: 0;
@@ -128,6 +142,7 @@ body {
     cursor: pointer;
 }
 .my-shelf-all {
+    display: none;
     font-size: 14px;
     font-weight: 500;
     padding: 1px 0 1px 15px;
@@ -145,8 +160,7 @@ body {
     box-sizing: border-box;
 
     color: #424242;
-
-    width: 180px;
+    width: 190px;
     height: calc(100vh - 68px);
 
     overflow-y: auto;
@@ -158,17 +172,20 @@ body {
 .my-sidebar-toggle {
     position: fixed;
 
-    top: calc(50vh - 50px);
+    /*top: calc(50vh - 50px);*/
+    top: 0;
     width: 8px;
-    height: 100px;
+    height: 100vh;
 
     border: 0;
     padding: 0;
 
-    border-radius: 0 2px 2px 0 / 0 2px 2px 0;
+    /*border-radius: 0 2px 2px 0 / 0 2px 2px 0;*/
     background-color: #bdbdbd;
 
-    z-index: 5;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 200ms;
 }
 .my-sidebar-toggle:hover {
     cursor: pointer;
@@ -185,8 +202,11 @@ body {
     transform: rotate(180deg);
 }
 
+.my-sidebar:hover + .my-sidebar-toggle, .my-sidebar-toggle:hover{
+    opacity: 1;
+}
+
 .my-editor {
-    background-color: #fefefe;
     height: 100vh;
     flex-basis: calc(100vw - 180px - 110px);
     flex-grow: 1;
@@ -224,16 +244,19 @@ body {
 }
 .CodeMirror,
 .my-editor-preview {
-    margin: 30px 4vw 16px 4vw;
+    margin: 0;
+    padding: 30px 4vw 16px 4vw;
 
     width: auto;
     min-height: calc(100vh - 46px);
     min-width: 206px;
     height: auto;
 
+    background-color: #fefefe;
+
     color: #333;
 
-    font-family: "Inconsolata", "Myrica", monospace;
+    font-family: "Roboto", monospace;
     font-size: 14px;
     line-height: 20px;
 }

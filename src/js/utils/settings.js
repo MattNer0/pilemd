@@ -26,7 +26,27 @@ module.exports = {
 	set(key, value) {
 		settings_data[key] = value;
 		fs.writeFile(settings_path, JSON.stringify(settings_data), (err) => {
-			console.log(err);
+			if(err) console.log(err);
 		});
 	},
+
+	loadWindowSize() {
+		var win = remote.getCurrentWindow();
+		if(settings_data['screen_width'] && settings_data['screen_height']){
+			win.setSize(settings_data['screen_width'] , settings_data['screen_height']);
+			win.center();
+		}
+	},
+
+	saveWindowSize() {
+		var win = remote.getCurrentWindow();
+		var current_size = win.getSize();
+
+		settings_data['screen_width'] = current_size[0];
+		settings_data['screen_height'] = current_size[1];
+
+		fs.writeFile(settings_path, JSON.stringify(settings_data), (err) => {
+			if(err) console.log(err);
+		});
+	}
 };

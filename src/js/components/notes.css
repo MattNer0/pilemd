@@ -62,7 +62,7 @@ h5.my-notes-note-title {
 
 .my-notes-note.my-notes-note-selected {
     background-color: #fafafa;
-    margin-left: 8px;
+    margin-left: 14px;
 }
 .my-notes-note.my-notes-note-selected.inFolderNote:after {
     background-color: rgba(0, 0, 0, 0.1);
@@ -70,7 +70,7 @@ h5.my-notes-note-title {
 
 .my-notes-note-text {
     white-space: pre-line;
-    max-height: 180px;
+    max-height: 110px;
     overflow-y: hidden;
     word-wrap: break-word;
 }

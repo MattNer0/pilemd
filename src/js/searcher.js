@@ -27,6 +27,9 @@ function allWords(text, words) {
 }
 
 function searchNotes(selectedRackOrFolder, searchInput, notes) {
+  if (selectedRackOrFolder === null) {
+    return [];
+  }
   var searchPayload = calculateSearchMeaning(selectedRackOrFolder, searchInput);
   return notes.filter((note) => {
     return (!searchPayload.folderUids || _.includes(searchPayload.folderUids, note.folderUid)) &&

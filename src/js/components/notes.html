@@ -1,26 +1,24 @@
 <div class="my-notes" id="ln-fullscreen">
-  <div v-for="separated in notes | dateSeparated notesDisplayOrder" track-by="dateStr"
-       class="my-separator">
-    <div class="my-separator-date">{{ separated.dateStr }}</div>
-    <div v-for="note in separated.notes" track-by="uid"
-      @click="selectNote(note)"
-      @dblclick="selectNoteAndWide(note)"
-      @contextmenu="noteMenu(note)"
-      @dragstart="noteDragStart($event, note)"
-      @dragend="noteDragEnd()"
-      :class="{'my-notes-note-selected': selectedNote === note}"
-      draggable="true"
-      class="my-notes-note">
-      <h5 v-if="note.title" class="my-notes-note-title">{{ note.title }}</h5>
-      <div v-if="note.body == 0" class="emptyBody">
-        (No content)
-      </div>
-      <div v-if="note.img">
-        <img :src="note.img"/>
-      </div>
-      <div class="my-notes-note-text" v-if="!note.img && note.body.length != 0">
-        {{ note.bodyWithoutTitle|truncate 200 }}
-      </div>
-    </div>
-  </div>
+	<div v-for="separated in notes | dateSeparated notesDisplayOrder" track-by="dateStr"
+			 class="my-separator">
+		<div class="my-separator-date">{{ separated.dateStr }}</div>
+		<div v-for="note in separated.notes" track-by="uid"
+			@click="selectNote(note)"
+			@dblclick="selectNoteAndWide(note)"
+			@contextmenu="noteMenu(note)"
+			@dragstart="noteDragStart($event, note)"
+			@dragend="noteDragEnd()"
+			:class="{'my-notes-note-selected': selectedNote === note}"
+			draggable="true"
+			class="my-notes-note">
+			<h5 v-if="note.title" class="my-notes-note-title">{{ note.title }}</h5>
+			<div v-if="note.body == 0" class="emptyBody"></div>
+			<div v-if="note.img">
+				<img :src="note.img"/>
+			</div>
+			<div class="my-notes-note-text" v-if="!note.img && note.body.length != 0">
+				{{ note.bodyWithoutTitle|truncate 200 }}
+			</div>
+		</div>
+	</div>
 </div>
