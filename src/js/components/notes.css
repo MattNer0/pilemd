@@ -12,9 +12,9 @@
     position: relative;
 
     background-color: rgba(230, 230, 230, 0.84);
-    border-radius: 2px;
+    border-radius: 0px;
 
-    margin: 5px;
+    margin: 8px 4px;
     width: 146px;
     min-height: 12px;
     padding: 10px;

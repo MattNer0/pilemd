@@ -23,7 +23,7 @@ body {
     font-family: "Helvetica","Arial",sans-serif;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
-    background: linear-gradient(#50A6B3, #619C9C);
+    background: linear-gradient(#49568c, #61709c);
 }
 ::-webkit-scrollbar {
     height: 0;
@@ -55,11 +55,10 @@ body {
 }
 
 .my-sidebar {
-    background: linear-gradient(#50A6B3, #619C9C);
+    background: linear-gradient(#49568c, #61709c);
     display: flex;
     flex-flow: column nowrap;
     flex-basis: 270px;
-
     z-index: 15;
 }
 
@@ -68,10 +67,14 @@ body {
     overflow-y: hidden;
     display: flex;
     flex-flow: row nowrap;
-    height: 42px;
-    padding-top: 18px;
-    padding-bottom: 8px;
+    height: 10px;
+    /*padding-top: 18px;
+    padding-bottom: 8px;*/
     align-items: center;
+}
+
+.my-sidebar-header > *{
+    display: none;
 }
 
 .my-search {
@@ -121,8 +124,8 @@ body {
 }
 
 .my-shelf {
-    width: 140px;
-    height: calc(100vh - 68px - 4px);
+    width: 170px;
+    height: calc(100vh - 10px - 4px);
     padding-top: 4px;
     background: transparent;
     color: rgba(250,250,250,0.9);
@@ -132,8 +135,8 @@ body {
     white-space: nowrap;
 }
 .isShelfSelected {
-    background-color: rgb(115, 202, 181);
-    color: #fefefe;
+    background-color: rgb(54, 62, 93);
+    color: #FFF;
 }
 .noteIsHere {
     font-weight: 600;
@@ -161,7 +164,7 @@ body {
 
     color: #424242;
     width: 190px;
-    height: calc(100vh - 68px);
+    height: calc(100vh - 10px);
 
     overflow-y: auto;
     overflow-x: hidden;

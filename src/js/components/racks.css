@@ -76,10 +76,8 @@
 
 .my-shelf-folder {
     position: relative;
-    font-size: 12px;
-
+    font-size: 13px;
     padding: 3px 2px 3px 20px;
-
     border-radius: 0 2px 2px 0 / 0 2px 2px 0;
     transition: background-color 200ms;
 }
@@ -108,7 +106,7 @@
     -webkit-user-select: none;
 }
 .my-shelf-folder i {
-    font-size: 12px;
+    font-size: 14px;
     margin-right: 3px;
 }
 .my-shelf-folder-name {

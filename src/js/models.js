@@ -231,17 +231,18 @@ class Note extends Model {
 		}
 	}
 
-	get mdFilename() {
-		return this.title ? this.title.replace(/[^\w _-]/g, '').substr(0, 40) : "";
+	get path() {
+		if(this._path && fs.existsSync(this._path)){
+			return this._path;
+		} else {
+			var new_path = path.join( getBaseLibraryPath(), this.data.rack.data.fsName, this.data.folder.data.fsName, this.data.mdFilename)+'.md';
+			console.log(new_path);
+			return new_path;
+		}
 	}
 
-	update(data) {
-		super.update(data);
-
-		this._body = data.body;
-		this.folderUid = data.folderUid;
-		this.updated_at = data.updated_at;
-		this.created_at = data.created_at;
+	get mdFilename() {
+		return this.title ? this.title.replace(/[^\w _-]/g, '').substr(0, 40) : "";
 	}
 
 	get body() {
@@ -256,13 +257,20 @@ class Note extends Model {
 	}
 
 	loadBody() {
-		if(this._path){
-			var content = fs.readFileSync(this._path).toString();
-			content = content.replace(/    /g, '\t');
-			if(content && content != this._body){
-				this._body = content;
-			}
+		var content = fs.readFileSync(this.path).toString();
+		content = content.replace(/    /g, '\t');
+		if(content && content != this._body){
+			this._body = content;
 		}
+	}
+
+	update(data) {
+		super.update(data);
+
+		this._body = data.body;
+		this.folderUid = data.folderUid;
+		this.updated_at = data.updated_at;
+		this.created_at = data.created_at;
 	}
 
 	splitTitleFromBody() {
@@ -277,9 +285,13 @@ class Note extends Model {
 				};
 			}
 		});
-		if (ret) {return ret}
+
+		if(ret){
+			return ret;
+		}
+		
 		return {
-			title: '',
+			title: "",
 			body: this.body
 		}
 	}
@@ -294,7 +306,7 @@ class Note extends Model {
 
 	get title() {
 		if(this.body){
-			return this.splitTitleFromBody().title;
+			return this.splitTitleFromBody().title || this._name;
 		} else {
 			return this._name;
 		}
@@ -364,7 +376,7 @@ class Note extends Model {
 	}
 
 	static setModel(model) {
-		if (!model) { return }
+		if(!model){ return }
 
 		var outer_folder = path.join( getBaseLibraryPath(), model.data.rack.data.fsName, model.data.folder.data.fsName );
 		//path.dirname(model.data.path);
