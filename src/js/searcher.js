@@ -2,42 +2,43 @@ const _ = require('lodash');
 const models = require('./models');
 
 function calculateSearchMeaning(selectedRackOrFolder, searchInput) {
-  var words = searchInput.toLowerCase().split(' ');
-  var folderUids;
-  if (selectedRackOrFolder === null) {
-    folderUids = null;
-  } else if (selectedRackOrFolder instanceof models.Rack) {
-    folderUids = selectedRackOrFolder.folders.map((f) => {return f.uid});
-  } else {
-    folderUids = [selectedRackOrFolder.uid]
-  }
+	var words = searchInput.toLowerCase().split(' ');
+	var folderUids;
+	if (selectedRackOrFolder === null) {
+		folderUids = null;
+	} else if (selectedRackOrFolder instanceof models.Rack) {
+		folderUids = selectedRackOrFolder.folders.map((f) => {return f.uid});
+	} else {
+		folderUids = [selectedRackOrFolder.uid]
+	}
 
-  return {
-    folderUids: folderUids,
-    words: words
-  };
+	return {
+		folderUids: folderUids,
+		words: words
+	};
 }
 
 function allWords(text, words) {
-  /**
-   * allWords("Hello Goodbye", ["ell", "oo"]) => true
-   * allWords("Hi Goodbye", ["ell", "oo"]) => false
-   */
-  return _.all(_.map(words, (word) => { return _.includes(text, word) }))
+	/**
+	 * allWords("Hello Goodbye", ["ell", "oo"]) => true
+	 * allWords("Hi Goodbye", ["ell", "oo"]) => false
+	 */
+	return _.all(_.map(words, (word) => { return _.includes(text, word) }))
 }
 
 function searchNotes(selectedRackOrFolder, searchInput, notes) {
-  if (selectedRackOrFolder === null) {
-    return [];
-  }
-  var searchPayload = calculateSearchMeaning(selectedRackOrFolder, searchInput);
-  return notes.filter((note) => {
-    return (!searchPayload.folderUids || _.includes(searchPayload.folderUids, note.folderUid)) &&
-      (searchPayload.words.length == 0 || allWords(note.body.toLowerCase(), searchPayload.words))
-  });
+	if (selectedRackOrFolder === null) {
+		return [];
+	}
+	var searchPayload = calculateSearchMeaning(selectedRackOrFolder, searchInput);
+	var filteredNotes = notes.filter((note) => {
+		return (!searchPayload.folderUids || _.includes(searchPayload.folderUids, note.folderUid)) &&
+			(searchPayload.words.length == 0 || allWords(note.body.toLowerCase(), searchPayload.words))
+	});
+	return filteredNotes;
 }
 
 module.exports = {
-  searchNotes: searchNotes,
-  calculateSearchMeaning: calculateSearchMeaning
+	searchNotes: searchNotes,
+	calculateSearchMeaning: calculateSearchMeaning
 };

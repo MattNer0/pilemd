@@ -113,6 +113,15 @@ new Vue({
 			}
 		});
 
+		this.$watch('selectedRackOrFolder', () => {
+			if (this.selectedRackOrFolder instanceof models.Folder) {
+				var filteredNotes = searcher.searchNotes(this.selectedRackOrFolder, this.search, this.notes);
+				filteredNotes.forEach(function(note){
+					note.loadBody();
+				});
+			}
+		});
+
 		this.$watch('isPreview', () => {
 			this.$set('preview', preview.render(this.selectedNote, this));
 		});

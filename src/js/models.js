@@ -256,11 +256,23 @@ class Note extends Model {
 		}
 	}
 
+	set folder(f) {
+		if(!f){ return; }
+
+		if(f.folderExists){
+			this._rack = f.data.rack;
+			this._folder = f;
+			this.folderUid = f.uid;
+		}
+	}
+
 	loadBody() {
-		var content = fs.readFileSync(this.path).toString();
-		content = content.replace(/    /g, '\t');
-		if(content && content != this._body){
-			this._body = content;
+		if(fs.existsSync(this.path)){
+			var content = fs.readFileSync(this.path).toString();
+			content = content.replace(/    /g, '\t');
+			if(content && content != this._body){
+				this._body = content;
+			}
 		}
 	}
 
@@ -470,6 +482,10 @@ class Folder extends Model {
 		if(newValue != this._path){
 			this._path = newValue;
 		}
+	}
+
+	get folderExists() {
+		return fs.existsSync(this._path);
 	}
 
 	update(data) {

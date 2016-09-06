@@ -162,6 +162,15 @@
 				}
 			});
 
+			this.$watch('selectedRackOrFolder', function () {
+				if (_this.selectedRackOrFolder instanceof models.Folder) {
+					var filteredNotes = searcher.searchNotes(_this.selectedRackOrFolder, _this.search, _this.notes);
+					filteredNotes.forEach(function (note) {
+						note.loadBody();
+					});
+				}
+			});
+
 			this.$watch('isPreview', function () {
 				_this.$set('preview', preview.render(_this.selectedNote, _this));
 			});
@@ -25567,10 +25576,12 @@
 		_createClass(Note, [{
 			key: 'loadBody',
 			value: function loadBody() {
-				var content = fs.readFileSync(this.path).toString();
-				content = content.replace(/    /g, '\t');
-				if (content && content != this._body) {
-					this._body = content;
+				if (fs.existsSync(this.path)) {
+					var content = fs.readFileSync(this.path).toString();
+					content = content.replace(/    /g, '\t');
+					if (content && content != this._body) {
+						this._body = content;
+					}
 				}
 			}
 		}, {
@@ -25661,6 +25672,19 @@
 				if (newValue != this._body) {
 					this._body = newValue;
 					this.updatedAt = moment();
+				}
+			}
+		}, {
+			key: 'folder',
+			set: function set(f) {
+				if (!f) {
+					return;
+				}
+
+				if (f.folderExists) {
+					this._rack = f.data.rack;
+					this._folder = f;
+					this.folderUid = f.uid;
 				}
 			}
 		}, {
@@ -25877,6 +25901,11 @@
 				if (newValue != this._path) {
 					this._path = newValue;
 				}
+			}
+		}, {
+			key: 'folderExists',
+			get: function get() {
+				return fs.existsSync(this._path);
 			}
 		}], [{
 			key: 'setModel',
@@ -50214,47 +50243,48 @@
 	var models = __webpack_require__(112);
 
 	function calculateSearchMeaning(selectedRackOrFolder, searchInput) {
-	  var words = searchInput.toLowerCase().split(' ');
-	  var folderUids;
-	  if (selectedRackOrFolder === null) {
-	    folderUids = null;
-	  } else if (selectedRackOrFolder instanceof models.Rack) {
-	    folderUids = selectedRackOrFolder.folders.map(function (f) {
-	      return f.uid;
-	    });
-	  } else {
-	    folderUids = [selectedRackOrFolder.uid];
-	  }
+		var words = searchInput.toLowerCase().split(' ');
+		var folderUids;
+		if (selectedRackOrFolder === null) {
+			folderUids = null;
+		} else if (selectedRackOrFolder instanceof models.Rack) {
+			folderUids = selectedRackOrFolder.folders.map(function (f) {
+				return f.uid;
+			});
+		} else {
+			folderUids = [selectedRackOrFolder.uid];
+		}
 
-	  return {
-	    folderUids: folderUids,
-	    words: words
-	  };
+		return {
+			folderUids: folderUids,
+			words: words
+		};
 	}
 
 	function allWords(text, words) {
-	  /**
-	   * allWords("Hello Goodbye", ["ell", "oo"]) => true
-	   * allWords("Hi Goodbye", ["ell", "oo"]) => false
-	   */
-	  return _.all(_.map(words, function (word) {
-	    return _.includes(text, word);
-	  }));
+		/**
+	  * allWords("Hello Goodbye", ["ell", "oo"]) => true
+	  * allWords("Hi Goodbye", ["ell", "oo"]) => false
+	  */
+		return _.all(_.map(words, function (word) {
+			return _.includes(text, word);
+		}));
 	}
 
 	function searchNotes(selectedRackOrFolder, searchInput, notes) {
-	  if (selectedRackOrFolder === null) {
-	    return [];
-	  }
-	  var searchPayload = calculateSearchMeaning(selectedRackOrFolder, searchInput);
-	  return notes.filter(function (note) {
-	    return (!searchPayload.folderUids || _.includes(searchPayload.folderUids, note.folderUid)) && (searchPayload.words.length == 0 || allWords(note.body.toLowerCase(), searchPayload.words));
-	  });
+		if (selectedRackOrFolder === null) {
+			return [];
+		}
+		var searchPayload = calculateSearchMeaning(selectedRackOrFolder, searchInput);
+		var filteredNotes = notes.filter(function (note) {
+			return (!searchPayload.folderUids || _.includes(searchPayload.folderUids, note.folderUid)) && (searchPayload.words.length == 0 || allWords(note.body.toLowerCase(), searchPayload.words));
+		});
+		return filteredNotes;
 	}
 
 	module.exports = {
-	  searchNotes: searchNotes,
-	  calculateSearchMeaning: calculateSearchMeaning
+		searchNotes: searchNotes,
+		calculateSearchMeaning: calculateSearchMeaning
 	};
 
 /***/ },
@@ -50736,307 +50766,308 @@
 	__webpack_require__(233);
 
 	module.exports = function (Vue, options) {
-	  Vue.component('racks', {
-	    replace: true,
-	    props: ['racks', 'folders', 'notes', 'selectedRackOrFolder', 'selectedNote', 'editingRack', 'draggingNote'],
-	    data: function data() {
-	      return {
-	        draggingRack: null,
-	        draggingFolder: null,
-	        draggingFolderRack: null,
-	        editingFolder: null
-	      };
-	    },
-	    template: __webpack_require__(235),
-	    directives: {
-	      'focus': function focus(value) {
-	        if (!value) {
-	          return;
-	        }
-	        var el = this.el;
-	        Vue.nextTick(function () {
-	          el.focus();
-	        });
-	      }
-	    },
-	    computed: {
-	      racksWithFolders: function racksWithFolders() {
-	        var folders = this.folders;
-	        var racks = this.racks;
-	        racks.forEach(function (r) {
-	          r.folders = folders.filter(function (f) {
-	            return f.rackUid == r.uid;
-	          });
-	        });
-	        return racks;
-	      }
-	    },
-	    methods: {
-	      isDraggingNote: function isDraggingNote() {
-	        return !!this.draggingNote;
-	      },
-	      doneRackEdit: function doneRackEdit(rack) {
-	        if (!this.editingRack) {
-	          return;
-	        }
-	        Rack.setModel(rack);
-	        this.editingRack = null;
-	        this.selectedRackOrFolder = rack;
-	      },
-	      addRack: function addRack() {
-	        // Same with the method in main.js
-	        var rack = new models.Rack({ name: "", ordering: 0 });
-	        var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
-	        racks.push(rack);
-	        racks.forEach(function (r, i) {
-	          r.ordering = i;
-	          Rack.setModel(r);
-	        });
-	        this.racks = racks;
-	        this.editingRack = rack;
-	      },
-	      removeRack: function removeRack(rack) {
-	        rack.remove(this.notes, this.folders);
-	        this.racks.$remove(rack);
-	        this.selectedRackOrFolder = null;
-	      },
-	      addFolder: function addFolder(rack) {
-	        var folder = new Folder({
-	          name: '',
-	          rack: rack,
-	          rackUid: rack.uid,
-	          ordering: 0
-	        });
-	        var folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
-	        folders.unshift(folder);
-	        folders.forEach(function (f, i) {
-	          f.ordering = i;
-	          Folder.setModel(f);
-	        });
-	        this.folders.push(folder);
-	        this.editingFolder = folder;
-	      },
-	      doneFolderEdit: function doneFolderEdit(rack, folder) {
-	        if (!this.editingFolder) {
-	          return;
-	        }
-	        Folder.setModel(folder);
-	        this.editingFolder = null;
-	        this.selectedRackOrFolder = folder;
-	      },
-	      removeFolder: function removeFolder(rack, folder) {
-	        folder.remove(this.notes);
-	        this.selectedRackOrFolder = rack;
-	      },
-	      isSelectedRack: function isSelectedRack(rack) {
-	        return this.selectedRackOrFolder === rack;
-	      },
-	      isSelectedFolder: function isSelectedFolder(folder) {
-	        return this.selectedRackOrFolder === folder;
-	      },
-	      selectRack: function selectRack(rack) {
-	        this.selectedRackOrFolder = rack;
-	      },
-	      selectFolder: function selectFolder(folder) {
-	        this.selectedRackOrFolder = folder;
-	      },
-	      openRack: function openRack(rack) {
-	        rack.openFolders = true;
-	      },
-	      closeRack: function closeRack(rack) {
-	        rack.openFolders = false;
-	      },
-	      // Dragging
-	      rackDragStart: function rackDragStart(event, rack) {
-	        event.dataTransfer.setDragImage(event.target, 0, 0);
-	        this.draggingRack = rack;
-	      },
-	      rackDragEnd: function rackDragEnd() {
-	        console.log("Dragging Rack ended");
-	        this.draggingRack = null;
-	      },
-	      rackDragOver: function rackDragOver(event, rack) {
-	        if (this.draggingFolder) {
-	          event.preventDefault();
-	          rack.dragHover = true;
-	        } else if (this.draggingRack && this.draggingRack != rack) {
-	          event.preventDefault();
-	          var per = dragging.dragOverPercentage(event.currentTarget, event.clientY);
-	          if (per > 0.5) {
-	            rack.sortLower = true;
-	            rack.sortUpper = false;
-	          } else {
-	            rack.sortLower = false;
-	            rack.sortUpper = true;
-	          }
-	        } else {
-	          event.preventDefault();
-	        }
-	      },
-	      rackDragLeave: function rackDragLeave(rack) {
-	        rack.dragHover = false;
-	        rack.sortUpper = false;
-	        rack.sortLower = false;
-	      },
-	      dropToRack: function dropToRack(event, rack) {
-	        var _this = this;
+		Vue.component('racks', {
+			replace: true,
+			props: ['racks', 'folders', 'notes', 'selectedRackOrFolder', 'selectedNote', 'editingRack', 'draggingNote'],
+			data: function data() {
+				return {
+					draggingRack: null,
+					draggingFolder: null,
+					draggingFolderRack: null,
+					editingFolder: null
+				};
+			},
+			template: __webpack_require__(235),
+			directives: {
+				'focus': function focus(value) {
+					if (!value) {
+						return;
+					}
+					var el = this.el;
+					Vue.nextTick(function () {
+						el.focus();
+					});
+				}
+			},
+			computed: {
+				racksWithFolders: function racksWithFolders() {
+					var folders = this.folders;
+					var racks = this.racks;
+					racks.forEach(function (r) {
+						r.folders = folders.filter(function (f) {
+							return f.rackUid == r.uid;
+						});
+					});
+					return racks;
+				}
+			},
+			methods: {
+				isDraggingNote: function isDraggingNote() {
+					return !!this.draggingNote;
+				},
+				doneRackEdit: function doneRackEdit(rack) {
+					if (!this.editingRack) {
+						return;
+					}
+					Rack.setModel(rack);
+					this.editingRack = null;
+					this.selectedRackOrFolder = rack;
+				},
+				addRack: function addRack() {
+					// Same with the method in main.js
+					var rack = new models.Rack({ name: "", ordering: 0 });
+					var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
+					racks.push(rack);
+					racks.forEach(function (r, i) {
+						r.ordering = i;
+						Rack.setModel(r);
+					});
+					this.racks = racks;
+					this.editingRack = rack;
+				},
+				removeRack: function removeRack(rack) {
+					rack.remove(this.notes, this.folders);
+					this.racks.$remove(rack);
+					this.selectedRackOrFolder = null;
+				},
+				addFolder: function addFolder(rack) {
+					var folder = new Folder({
+						name: '',
+						rack: rack,
+						rackUid: rack.uid,
+						ordering: 0
+					});
+					var folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
+					folders.unshift(folder);
+					folders.forEach(function (f, i) {
+						f.ordering = i;
+						Folder.setModel(f);
+					});
+					this.folders.push(folder);
+					this.editingFolder = folder;
+				},
+				doneFolderEdit: function doneFolderEdit(rack, folder) {
+					if (!this.editingFolder) {
+						return;
+					}
+					Folder.setModel(folder);
+					this.editingFolder = null;
+					this.selectedRackOrFolder = folder;
+				},
+				removeFolder: function removeFolder(rack, folder) {
+					folder.remove(this.notes);
+					this.selectedRackOrFolder = rack;
+				},
+				isSelectedRack: function isSelectedRack(rack) {
+					return this.selectedRackOrFolder === rack;
+				},
+				isSelectedFolder: function isSelectedFolder(folder) {
+					return this.selectedRackOrFolder === folder;
+				},
+				selectRack: function selectRack(rack) {
+					this.selectedRackOrFolder = rack;
+				},
+				selectFolder: function selectFolder(folder) {
+					this.selectedRackOrFolder = folder;
+				},
+				openRack: function openRack(rack) {
+					rack.openFolders = true;
+				},
+				closeRack: function closeRack(rack) {
+					rack.openFolders = false;
+				},
+				// Dragging
+				rackDragStart: function rackDragStart(event, rack) {
+					event.dataTransfer.setDragImage(event.target, 0, 0);
+					this.draggingRack = rack;
+				},
+				rackDragEnd: function rackDragEnd() {
+					console.log("Dragging Rack ended");
+					this.draggingRack = null;
+				},
+				rackDragOver: function rackDragOver(event, rack) {
+					if (this.draggingFolder) {
+						event.preventDefault();
+						rack.dragHover = true;
+					} else if (this.draggingRack && this.draggingRack != rack) {
+						event.preventDefault();
+						var per = dragging.dragOverPercentage(event.currentTarget, event.clientY);
+						if (per > 0.5) {
+							rack.sortLower = true;
+							rack.sortUpper = false;
+						} else {
+							rack.sortLower = false;
+							rack.sortUpper = true;
+						}
+					} else {
+						event.preventDefault();
+					}
+				},
+				rackDragLeave: function rackDragLeave(rack) {
+					rack.dragHover = false;
+					rack.sortUpper = false;
+					rack.sortLower = false;
+				},
+				dropToRack: function dropToRack(event, rack) {
+					var _this = this;
 
-	        console.log("Dropping to rack");
-	        if (this.draggingFolder) {
-	          // Drop Folder to Rack
-	          rack.folders.forEach(function (f) {
-	            f.ordering += 1;
-	            Folder.setModel(f);
-	          });
-	          this.draggingFolder.rackUid = rack.uid;
-	          this.draggingFolder.ordering = 0;
-	          Folder.setModel(this.draggingFolder);
-	          rack.dragHover = false;
-	          this.draggingFolder = null;
-	          this.draggingFolderRack = null;
-	        } else if (this.draggingRack && this.draggingRack != rack) {
-	          console.log("Dropping Rack for sorting");
-	          var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
-	          arr.remove(racks, function (r) {
-	            return r == _this.draggingRack;
-	          });
-	          var i = racks.indexOf(rack);
-	          if (rack.sortUpper) {
-	            racks.splice(i, 0, this.draggingRack);
-	          } else {
-	            racks.splice(i + 1, 0, this.draggingRack);
-	          }
-	          racks.forEach(function (r, i) {
-	            r.ordering = i;
-	            Rack.setModel(r);
-	          });
-	          this.draggingRack = null;
-	          rack.sortUpper = false;
-	          rack.sortLower = false;
-	        } else {
-	          event.preventDefault();
-	          event.stopPropagation();
-	        }
-	      },
-	      folderDragStart: function folderDragStart(event, rack, folder) {
-	        event.dataTransfer.setDragImage(event.target, 8, 0);
-	        this.draggingFolder = folder;
-	        this.draggingFolderRack = rack;
-	      },
-	      folderDragEnd: function folderDragEnd() {
-	        this.draggingFolder = null;
-	        this.draggingFolderRack = null;
-	      },
-	      folderDragOver: function folderDragOver(event, rack, folder) {
-	        if (this.draggingNote && this.draggingNote.folderUid != folder.uid) {
-	          event.stopPropagation();
-	          event.preventDefault();
-	          folder.dragHover = true;
-	        } else if (this.draggingFolder) {
-	          event.stopPropagation();
-	          if (folder != this.draggingFolder) {
-	            event.preventDefault();
-	            var per = dragging.dragOverPercentage(event.currentTarget, event.clientY);
-	            if (per > 0.5) {
-	              folder.sortLower = true;
-	              folder.sortUpper = false;
-	            } else {
-	              folder.sortLower = false;
-	              folder.sortUpper = true;
-	            }
-	          }
-	        } else {
-	          event.preventDefault();
-	        }
-	      },
-	      folderDragLeave: function folderDragLeave(folder) {
-	        if (this.draggingNote) {
-	          folder.dragHover = false;
-	        } else if (this.draggingFolder) {
-	          folder.sortLower = false;
-	          folder.sortUpper = false;
-	        }
-	      },
-	      dropToFolder: function dropToFolder(event, rack, folder) {
-	        var _this2 = this;
+					console.log("Dropping to rack");
+					if (this.draggingFolder) {
+						// Drop Folder to Rack
+						rack.folders.forEach(function (f) {
+							f.ordering += 1;
+							Folder.setModel(f);
+						});
+						this.draggingFolder.rackUid = rack.uid;
+						this.draggingFolder.ordering = 0;
+						Folder.setModel(this.draggingFolder);
+						rack.dragHover = false;
+						this.draggingFolder = null;
+						this.draggingFolderRack = null;
+					} else if (this.draggingRack && this.draggingRack != rack) {
+						console.log("Dropping Rack for sorting");
+						var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
+						arr.remove(racks, function (r) {
+							return r == _this.draggingRack;
+						});
+						var i = racks.indexOf(rack);
+						if (rack.sortUpper) {
+							racks.splice(i, 0, this.draggingRack);
+						} else {
+							racks.splice(i + 1, 0, this.draggingRack);
+						}
+						racks.forEach(function (r, i) {
+							r.ordering = i;
+							Rack.setModel(r);
+						});
+						this.draggingRack = null;
+						rack.sortUpper = false;
+						rack.sortLower = false;
+					} else {
+						event.preventDefault();
+						event.stopPropagation();
+					}
+				},
+				folderDragStart: function folderDragStart(event, rack, folder) {
+					event.dataTransfer.setDragImage(event.target, 8, 0);
+					this.draggingFolder = folder;
+					this.draggingFolderRack = rack;
+				},
+				folderDragEnd: function folderDragEnd() {
+					this.draggingFolder = null;
+					this.draggingFolderRack = null;
+				},
+				folderDragOver: function folderDragOver(event, rack, folder) {
+					if (this.draggingNote && this.draggingNote.folderUid != folder.uid) {
+						event.stopPropagation();
+						event.preventDefault();
+						folder.dragHover = true;
+					} else if (this.draggingFolder) {
+						event.stopPropagation();
+						if (folder != this.draggingFolder) {
+							event.preventDefault();
+							var per = dragging.dragOverPercentage(event.currentTarget, event.clientY);
+							if (per > 0.5) {
+								folder.sortLower = true;
+								folder.sortUpper = false;
+							} else {
+								folder.sortLower = false;
+								folder.sortUpper = true;
+							}
+						}
+					} else {
+						event.preventDefault();
+					}
+				},
+				folderDragLeave: function folderDragLeave(folder) {
+					if (this.draggingNote) {
+						folder.dragHover = false;
+					} else if (this.draggingFolder) {
+						folder.sortLower = false;
+						folder.sortUpper = false;
+					}
+				},
+				dropToFolder: function dropToFolder(event, rack, folder) {
+					var _this2 = this;
 
-	        if (this.draggingNote && this.draggingNote.folderUid != folder.uid) {
-	          event.stopPropagation();
-	          // Dropping note to folder
-	          folder.dragHover = false;
-	          var note = this.draggingNote;
-	          note.folderUid = folder.uid;
-	          Note.setModel(note);
-	          this.draggingNote = null;
-	          var s = this.selectedRackOrFolder;
-	          this.selectedRackOrFolder = null;
-	          Vue.nextTick(function () {
-	            _this2.selectedRackOrFolder = s;
-	          });
-	        } else if (this.draggingFolder && this.draggingFolder != folder) {
-	          event.stopPropagation();
-	          var folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
-	          arr.remove(folders, function (f) {
-	            return f == _this2.draggingFolder;
-	          });
-	          var i = folders.indexOf(folder);
-	          if (folder.sortUpper) {
-	            folders.splice(i, 0, this.draggingFolder);
-	          } else {
-	            folders.splice(i + 1, 0, this.draggingFolder);
-	          }
-	          this.draggingFolder.rackUid = rack.uid;
-	          folders.forEach(function (f, i) {
-	            f.ordering = i;
-	            Folder.setModel(f);
-	          });
-	          folder.sortUpper = false;
-	          folder.sortLower = false;
-	        }
-	      },
-	      rackMenu: function rackMenu(rack) {
-	        var _this3 = this;
+					if (this.draggingNote && this.draggingNote.folderUid != folder.uid) {
+						event.stopPropagation();
+						// Dropping note to folder
+						folder.dragHover = false;
+						var note = this.draggingNote;
+						//note.folderUid = folder.uid;
+						note.folder = folder;
+						Note.setModel(note);
+						this.draggingNote = null;
+						var s = this.selectedRackOrFolder;
+						this.selectedRackOrFolder = null;
+						Vue.nextTick(function () {
+							_this2.selectedRackOrFolder = s;
+						});
+					} else if (this.draggingFolder && this.draggingFolder != folder) {
+						event.stopPropagation();
+						var folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
+						arr.remove(folders, function (f) {
+							return f == _this2.draggingFolder;
+						});
+						var i = folders.indexOf(folder);
+						if (folder.sortUpper) {
+							folders.splice(i, 0, this.draggingFolder);
+						} else {
+							folders.splice(i + 1, 0, this.draggingFolder);
+						}
+						this.draggingFolder.rackUid = rack.uid;
+						folders.forEach(function (f, i) {
+							f.ordering = i;
+							Folder.setModel(f);
+						});
+						folder.sortUpper = false;
+						folder.sortLower = false;
+					}
+				},
+				rackMenu: function rackMenu(rack) {
+					var _this3 = this;
 
-	        var menu = new Menu();
-	        menu.append(new MenuItem({ label: 'Rename Rack', click: function click() {
-	            _this3.editingRack = rack;
-	          } }));
-	        menu.append(new MenuItem({ label: 'Add Folder', click: function click() {
-	            _this3.addFolder(rack);
-	          } }));
-	        menu.append(new MenuItem({ label: 'Add Rack', click: function click() {
-	            _this3.addRack();
-	          } }));
-	        menu.append(new MenuItem({ type: 'separator' }));
-	        menu.append(new MenuItem({
-	          label: 'Delete Rack', click: function click() {
-	            if (confirm('Delete Rack "' + rack.name + '" and Folders/Notes in it?')) {
-	              _this3.removeRack(rack);
-	            }
-	          }
-	        }));
-	        menu.popup(remote.getCurrentWindow());
-	      },
-	      folderMenu: function folderMenu(rack, folder) {
-	        var _this4 = this;
+					var menu = new Menu();
+					menu.append(new MenuItem({ label: 'Rename Rack', click: function click() {
+							_this3.editingRack = rack;
+						} }));
+					menu.append(new MenuItem({ label: 'Add Folder', click: function click() {
+							_this3.addFolder(rack);
+						} }));
+					menu.append(new MenuItem({ label: 'Add Rack', click: function click() {
+							_this3.addRack();
+						} }));
+					menu.append(new MenuItem({ type: 'separator' }));
+					menu.append(new MenuItem({
+						label: 'Delete Rack', click: function click() {
+							if (confirm('Delete Rack "' + rack.name + '" and Folders/Notes in it?')) {
+								_this3.removeRack(rack);
+							}
+						}
+					}));
+					menu.popup(remote.getCurrentWindow());
+				},
+				folderMenu: function folderMenu(rack, folder) {
+					var _this4 = this;
 
-	        var menu = new Menu();
-	        menu.append(new MenuItem({ label: 'Rename Folder', click: function click() {
-	            _this4.editingFolder = folder;
-	          } }));
-	        menu.append(new MenuItem({ label: 'Add Folder', click: function click() {
-	            _this4.addFolder(rack);
-	          } }));
-	        menu.append(new MenuItem({ type: 'separator' }));
-	        menu.append(new MenuItem({ label: 'Delete Folder', click: function click() {
-	            if (confirm('Delete Folder "' + folder.name + '" and Notes in it?')) {
-	              _this4.removeFolder(rack, folder);
-	            }
-	          } }));
-	        menu.popup(remote.getCurrentWindow());
-	      }
-	    }
-	  });
+					var menu = new Menu();
+					menu.append(new MenuItem({ label: 'Rename Folder', click: function click() {
+							_this4.editingFolder = folder;
+						} }));
+					menu.append(new MenuItem({ label: 'Add Folder', click: function click() {
+							_this4.addFolder(rack);
+						} }));
+					menu.append(new MenuItem({ type: 'separator' }));
+					menu.append(new MenuItem({ label: 'Delete Folder', click: function click() {
+							if (confirm('Delete Folder "' + folder.name + '" and Notes in it?')) {
+								_this4.removeFolder(rack, folder);
+							}
+						} }));
+					menu.popup(remote.getCurrentWindow());
+				}
+			}
+		});
 	};
 
 /***/ },
