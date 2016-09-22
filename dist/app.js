@@ -148,6 +148,16 @@
 			folders = loadedLibrary.folders;
 			notes = loadedLibrary.notes;
 
+			if (racks.length == 0) {
+				initialModels.initialSetup();
+
+				loadedLibrary = models.readLibrary();
+
+				racks = loadedLibrary.racks;
+				folders = loadedLibrary.folders;
+				notes = loadedLibrary.notes;
+			}
+
 			this.$set('racks', racks);
 			this.$set('folders', folders);
 			this.$set('notes', notes);
@@ -362,6 +372,7 @@
 				menu.append(new MenuItem({ label: 'Toggle Preview', click: function click() {
 						_this5.togglePreview();
 					} }));
+				//menu.append(new MenuItem({label: 'Copy', accelerator: 'CmdOrCtrl+C', click: () => {} }));
 				menu.popup(remote.getCurrentWindow());
 			},
 			importNotes: function importNotes() {
@@ -25411,8 +25422,7 @@
 									ordering: valid_folders.length,
 									load_ordering: true,
 									path: path.join(current_rack.data.path, folder),
-									rack: current_rack,
-									rackUid: current_rack.data.uid
+									rack: current_rack
 								});
 								valid_folders.push(current_folder);
 								folders_count += 1;
@@ -25428,7 +25438,6 @@
 												name: note,
 												body: "", //fs.readFileSync(notePath).toString(),
 												path: notePath,
-												folderUid: current_folder.data.uid,
 												rack: current_rack,
 												folder: current_folder,
 												created_at: noteStat.birthtime,
@@ -25557,7 +25566,7 @@
 			this._rack = data.rack;
 			this._folder = data.folder;
 
-			this.folderUid = data.folderUid || null;
+			this.folderUid = data.folder ? data.folder.data.uid : null;
 			this.doc = null;
 			//this.qiitaURL = data.qiitaURL || null;
 
@@ -25849,7 +25858,7 @@
 				this.ordering = data.ordering || 0;
 			}
 
-			this.rackUid = data.rackUid || null;
+			this.rackUid = data.rack ? data.rack.data.uid : null;
 			this._rack = data.rack;
 			this._path = data.path || '';
 			this.dragHover = false;
@@ -25915,20 +25924,16 @@
 				}
 
 				var new_path = path.join(getBaseLibraryPath(), model.data.rack.data.fsName, model.data.fsName);
-				if (new_path != model.data.path) {
+				if (new_path != model.data.path || !fs.existsSync(new_path)) {
 					try {
-						fs.statSync(new_path);
-					} catch (e) {
-						try {
-							if (model.data.path && fs.existsSync(model.data.path)) {
-								util_file.moveFolderRecursiveSync(model.data.path, path.join(getBaseLibraryPath(), model.data.rack.data.fsName), model.data.fsName);
-							} else {
-								fs.mkdirSync(new_path);
-							}
-							model.path = new_path;
-						} catch (e) {
-							return console.error(e);
+						if (model.data.path && fs.existsSync(model.data.path)) {
+							util_file.moveFolderRecursiveSync(model.data.path, path.join(getBaseLibraryPath(), model.data.rack.data.fsName), model.data.fsName);
+						} else {
+							fs.mkdirSync(new_path);
 						}
+						model.path = new_path;
+					} catch (e) {
+						return console.error(e);
 					}
 				}
 				model.saveOrdering();
@@ -26030,20 +26035,16 @@
 				}
 
 				var new_path = path.join(getBaseLibraryPath(), model.data.fsName);
-				if (new_path != model.data.path) {
+				if (new_path != model.data.path || !fs.existsSync(new_path)) {
 					try {
-						fs.statSync(new_path);
-					} catch (e) {
-						try {
-							if (model.data.path && fs.existsSync(model.data.path)) {
-								util_file.moveFolderRecursiveSync(model.data.path, getBaseLibraryPath(), model.data.fsName);
-							} else {
-								fs.mkdirSync(new_path);
-							}
-							model.path = new_path;
-						} catch (e) {
-							return console.error(e);
+						if (model.data.path && fs.existsSync(model.data.path)) {
+							util_file.moveFolderRecursiveSync(model.data.path, getBaseLibraryPath(), model.data.fsName);
+						} else {
+							fs.mkdirSync(new_path);
 						}
+						model.path = new_path;
+					} catch (e) {
+						return console.error(e);
 					}
 				}
 				model.saveOrdering();
@@ -38795,12 +38796,17 @@
 		}
 	}
 
-	function makeInitialNotes() {
+	function makeInitialNotes(rack, folder) {
+
 		var note = new models.Note({
+			name: "Welcome to PileMd",
 			body: "# Welcome to PileMd\n\n" + "Pile **Markdown** notes.\n\n" + "* Phenomenon User Interface\n" + "* Beautiful highlight, comfortable completing\n\n" + "## Features\n\n" + "* Note listing as time line (updated / created)\n" + "* Syncing with local files\n" + "* Text searching\n" + "* Beautiful inline code highlight\n" + "* Comfy completing by syntax\n" + "* Pasting images\n" + "* Exporting notes\n" + "* Share on [Qiita](http://qiita.com/)",
+			rack: rack,
+			folder: folder,
 			updated_at: moment(),
 			created_at: moment()
 		});
+
 		models.Note.setModel(note);
 		return [note];
 	}
@@ -38809,21 +38815,50 @@
 		if (localStorage.getItem('initializedracks')) {
 			return false;
 		}
-		var rack1 = new models.Rack({ name: "Work", ordering: 0 });
-		var folder1 = new models.Folder({ name: "Todo", ordering: 0, rackUid: rack1.uid });
-		var folder2 = new models.Folder({ name: "Meeting", ordering: 1, rackUid: rack1.uid });
+
+		var rack1 = new models.Rack({
+			name: "Work",
+			ordering: 0,
+			load_ordering: false
+		});
+
+		var folder1 = new models.Folder({
+			name: "Todo",
+			ordering: 0,
+			load_ordering: false,
+			rack: rack1
+		});
+
+		var folder2 = new models.Folder({
+			name: "Meeting",
+			ordering: 1,
+			load_ordering: false,
+			rack: rack1
+		});
+
 		models.Rack.setModel(rack1);
 		models.Folder.setModel(folder1);
 		models.Folder.setModel(folder2);
+
 		localStorage.setItem('initializedracks', '1');
-		return true;
+		return {
+			rack1: rack1,
+			folder1: folder1,
+			folder2: folder2
+		};
+	}
+
+	function initialSetup() {
+		var initialData = makeInitialRacks();
+		makeInitialNotes(initialData.rack1, initialData.folder1);
 	}
 
 	module.exports = {
 		initialFolder: initialFolder,
 		migrateFromLocalStorage: migrateFromLocalStorage,
 		makeInitialNotes: makeInitialNotes,
-		makeInitialRacks: makeInitialRacks
+		makeInitialRacks: makeInitialRacks,
+		initialSetup: initialSetup
 	};
 
 /***/ },
@@ -38836,11 +38871,12 @@
 	var remote = electron.remote;
 
 	function homePath() {
-	  return remote.process.env.HOME || remote.process.env.USERPROFILE || '/';
+		//return remote.process.env.HOME || remote.process.env.USERPROFILE || '/';
+		return remote.app.getPath('home');
 	}
 
 	module.exports = {
-	  homePath: homePath
+		homePath: homePath
 	};
 
 /***/ },
@@ -50865,6 +50901,14 @@
 					return this.selectedRackOrFolder === folder;
 				},
 				selectRack: function selectRack(rack) {
+					if (this.selectedRackOrFolder) {
+						if (this.selectedRackOrFolder instanceof models.Folder) {
+							this.selectedRackOrFolder.data.rack.openFolders = false;
+						} else {
+							this.selectedRackOrFolder.openFolders = false;
+						}
+					}
+					rack.openFolders = true;
 					this.selectedRackOrFolder = rack;
 				},
 				selectFolder: function selectFolder(folder) {
@@ -51120,7 +51164,7 @@
 
 
 	// module
-	exports.push([module.id, ".my-shelf-rack {\n    position: relative;\n    padding: 2px 5px;\n}\n.my-shelf-rack h5 {\n    min-width: 96px;\n    margin: 0 auto;\n    padding: 4px 8px 4px 8px;\n    font-weight: 500;\n    border-radius: 0 2px 2px 0 / 0 2px 2px 0;\n    white-space: initial;\n    word-wrap: break-word;\n\n    -webkit-user-select: none;\n    transition: background-color 200ms;\n}\n\n.my-shelf-rack h5 input {\n    width: 62px;\n}\n\n.my-shelf-rack > div{\n    display: none;\n}\n\n.my-shelf-rack h5 > span{\n    box-sizing: border-box;\n    border: 1px solid #FFF;\n    border-radius: 100%;\n    line-height: 1.25em;\n    height: 1.2em;\n    width: 1.2em;\n    text-align: center;\n    vertical-align: top;\n}\n\n.my-shelf-rack .plus-open{\n    display: inline-block;\n}\n\n.my-shelf-rack .minus-close{\n    display: none;\n    line-height: 1em;\n}\n\n.my-shelf-rack.openFolders > div{\n    display: block;\n}\n\n.my-shelf-rack.openFolders .minus-close{\n    display: inline-block;\n}\n\n.my-shelf-rack.openFolders .plus-open{\n    display: none;\n}\n\n.my-shelf-rack.sortUpper:after {\n    position: absolute;\n    top: -1px;\n    left: 0;\n    width: 110px;\n    height: 2px;\n    content: \"\";\n    background-color: #62c8f3\n}\n.my-shelf-rack.sortLower:after {\n    position: absolute;\n    bottom: -1px;\n    left: 0;\n    width: 110px;\n    height: 2px;\n    content: \"\";\n    background-color: #62c8f3\n}\n\n.my-shelf-folder {\n    position: relative;\n    font-size: 13px;\n    padding: 3px 2px 3px 20px;\n    border-radius: 0 2px 2px 0 / 0 2px 2px 0;\n    transition: background-color 200ms;\n}\n.my-shelf-folder.sortUpper:after {\n    position: absolute;\n    top: -1px;\n    left: 0;\n    width: 110px;\n    height: 2px;\n    content: \"\";\n    background-color: #62c8f3\n}\n.my-shelf-folder.sortLower:after {\n    position: absolute;\n    bottom: -1px;\n    left: 0;\n    width: 110px;\n    height: 2px;\n    content: \"\";\n    background-color: #62c8f3\n}\n.my-shelf-folder a {\n    display: flex;\n    flex-flow: row nowrap;\n\n    -webkit-user-select: none;\n}\n.my-shelf-folder i {\n    font-size: 14px;\n    margin-right: 3px;\n}\n.my-shelf-folder-name {\n    min-width: 86px;\n    width: 100%;\n    white-space: initial;\n}\n.my-shelf-folder span input {\n    width: 48px;\n}\n\n.my-shelf-folder.noteDragging {\n    color: #fefefe;\n}\n", ""]);
+	exports.push([module.id, ".my-shelf-rack {\n    position: relative;\n    padding: 2px 5px;\n}\n.my-shelf-rack h5 {\n    min-width: 96px;\n    margin: 0 auto;\n    padding: 4px 8px 4px 8px;\n    font-weight: 500;\n    border-radius: 0 2px 2px 0 / 0 2px 2px 0;\n    white-space: initial;\n    word-wrap: break-word;\n\n    -webkit-user-select: none;\n    transition: background-color 200ms;\n}\n\n.my-shelf-rack h5 input {\n    width: 62px;\n}\n\n.my-shelf-rack > div{\n    display: none;\n}\n\n.my-shelf-rack h5 > span{\n    box-sizing: border-box;\n    border: 1px solid #FFF;\n    border-radius: 100%;\n    line-height: 1.25em;\n    height: 1.2em;\n    width: 1.2em;\n    text-align: center;\n    vertical-align: top;\n}\n\n.my-shelf-rack .rack-icon{\n    font-size: 100%;\n    vertical-align: middle;\n}\n\n.my-shelf-rack.openFolders > div{\n    display: block;\n}\n\n.my-shelf-rack.sortUpper:after {\n    position: absolute;\n    top: -1px;\n    left: 0;\n    width: 110px;\n    height: 2px;\n    content: \"\";\n    background-color: #62c8f3\n}\n.my-shelf-rack.sortLower:after {\n    position: absolute;\n    bottom: -1px;\n    left: 0;\n    width: 110px;\n    height: 2px;\n    content: \"\";\n    background-color: #62c8f3\n}\n\n.my-shelf-folder {\n    position: relative;\n    font-size: 13px;\n    padding: 3px 2px 3px 20px;\n    border-radius: 0 2px 2px 0 / 0 2px 2px 0;\n    transition: background-color 200ms;\n}\n.my-shelf-folder.sortUpper:after {\n    position: absolute;\n    top: -1px;\n    left: 0;\n    width: 110px;\n    height: 2px;\n    content: \"\";\n    background-color: #62c8f3\n}\n.my-shelf-folder.sortLower:after {\n    position: absolute;\n    bottom: -1px;\n    left: 0;\n    width: 110px;\n    height: 2px;\n    content: \"\";\n    background-color: #62c8f3\n}\n.my-shelf-folder a {\n    display: flex;\n    flex-flow: row nowrap;\n\n    -webkit-user-select: none;\n}\n.my-shelf-folder i {\n    font-size: 14px;\n    margin-right: 3px;\n}\n.my-shelf-folder-name {\n    min-width: 86px;\n    width: 100%;\n    white-space: initial;\n}\n.my-shelf-folder span input {\n    width: 48px;\n}\n\n.my-shelf-folder.noteDragging {\n    color: #fefefe;\n}\n", ""]);
 
 	// exports
 
@@ -51129,7 +51173,7 @@
 /* 235 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"my-shelf-rack\" v-for=\"rack in racksWithFolders | orderBy 'ordering'\"\n     @dragstart.stop=\"rackDragStart($event, rack)\"\n     @dragend.stop=\"rackDragEnd()\"\n     @dragover.stop=\"rackDragOver($event, rack)\"\n     @dragleave.stop=\"rackDragLeave(rack)\"\n     @drop.stop=\"dropToRack($event, rack)\"\n     @contextmenu.prevent.stop=\"rackMenu(rack)\"\n     :class=\"{'sortUpper': rack.sortUpper,\n              'sortLower': rack.sortLower,\n              'openFolders' : rack.openFolders}\"\n     :draggable=\"editingFolder === null && editingRack === null ? 'true' : 'false'\">\n  <h5 @click.prevent.stop=\"selectRack(rack)\"\n      :class=\"{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote()) ||\n                                   rack.dragHover}\">\n    <span @click.prevent.stop=\"openRack(rack)\" class=\"plus-open\">+</span>\n    <span @click.prevent.stop=\"closeRack(rack)\" class=\"minus-close\">-</span>\n    <a v-if=\"editingRack != rack\">{{ rack.name }}</a>\n    <input v-if=\"editingRack == rack\" v-model=\"rack.name\"\n           v-focus=\"editingRack == rack\"\n           @blur=\"doneRackEdit(rack)\"\n           @keyup.enter=\"doneRackEdit(rack)\"\n           @keyup.esc=\"doneRackEdit(rack)\"/>\n  </h5>\n  <!-- Folder -->\n  <div :class=\"{'isShelfSelected': (isSelectedFolder(folder) && !isDraggingNote()) ||\n                                    folder.dragHover,\n                'noteDragging': isDraggingNote(),\n                'noteIsHere': !isDraggingNote() && selectedNote.folderUid == folder.uid,\n                'sortUpper': folder.sortUpper,\n                'sortLower': folder.sortLower}\"\n       class=\"my-shelf-folder\" v-for=\"folder in rack.folders | orderBy 'ordering'\"\n       @click.prevent.stop=\"selectFolder(folder)\"\n       :draggable=\"editingFolder === null && editingRack === null ? 'true' : 'false'\"\n       @contextmenu.prevent.stop=\"folderMenu(rack, folder)\"\n       @dragstart.stop=\"folderDragStart($event, rack, folder)\"\n       @dragend.stop=\"folderDragEnd(folder)\"\n       @dragover=\"folderDragOver($event, rack, folder)\"\n       @dragleave=\"folderDragLeave(folder)\"\n       @drop=\"dropToFolder($event, rack, folder)\">\n    <a\n       v-if=\"editingFolder != folder\">\n      <i v-if=\"!(isDraggingNote() && draggingNote.folderUid != folder.uid)\" class=\"material-icons\">folder</i>\n      <i v-if=\"isDraggingNote() && draggingNote.folderUid != folder.uid\" class=\"material-icons\">folder_open</i>\n      <div class=\"my-shelf-folder-name\">{{ folder.name }}</div>\n    </a>\n    <span v-if=\"editingFolder == folder\" >\n      <i class=\"material-icons\">folder</i>\n      <input v-model=\"folder.name\"\n             v-focus=\"editingFolder == folder\"\n             @blur=\"doneFolderEdit(rack, folder)\"\n             @keyup.enter=\"doneFolderEdit(rack, folder)\"\n             @keyup.esc=\"doneFolderEdit(rack, folder)\"/>\n    </span>\n  </div>\n</div>\n";
+	module.exports = "<div class=\"my-shelf-rack\" v-for=\"rack in racksWithFolders | orderBy 'ordering'\"\n\t\t@dragstart.stop=\"rackDragStart($event, rack)\"\n\t\t@dragend.stop=\"rackDragEnd()\"\n\t\t@dragover.stop=\"rackDragOver($event, rack)\"\n\t\t@dragleave.stop=\"rackDragLeave(rack)\"\n\t\t@drop.stop=\"dropToRack($event, rack)\"\n\t\t@contextmenu.prevent.stop=\"rackMenu(rack)\"\n\t\t:class=\"{'sortUpper': rack.sortUpper, 'sortLower': rack.sortLower, 'openFolders' : rack.openFolders}\"\n\t\t:draggable=\"editingFolder === null && editingRack === null ? 'true' : 'false'\">\n\t<h5 @click.prevent.stop=\"selectRack(rack)\" :class=\"{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote()) || rack.dragHover}\">\n\t\t<i v-if=\"!rack.openFolders\" @click.prevent.stop=\"openRack(rack)\" class=\"material-icons rack-icon\">label</i>\n\t\t<i v-if=\"rack.openFolders\" @click.prevent.stop=\"closeRack(rack)\" class=\"material-icons rack-icon\">label_outline</i>\n\t\t<a v-if=\"editingRack != rack\">{{ rack.name }}</a>\n\t\t<input v-if=\"editingRack == rack\" v-model=\"rack.name\"\n\t\t\tv-focus=\"editingRack == rack\"\n\t\t\t@blur=\"doneRackEdit(rack)\"\n\t\t\t@keyup.enter=\"doneRackEdit(rack)\"\n\t\t\t@keyup.esc=\"doneRackEdit(rack)\"/>\n\t</h5>\n\t<!-- Folder -->\n\t<div :class=\"{'isShelfSelected': (isSelectedFolder(folder) && !isDraggingNote()) ||\n\t\t\tfolder.dragHover,\n\t\t\t'noteDragging': isDraggingNote(),\n\t\t\t'noteIsHere': !isDraggingNote() && selectedNote.folderUid == folder.uid,\n\t\t\t'sortUpper': folder.sortUpper,\n\t\t\t'sortLower': folder.sortLower}\"\n\t\t\tclass=\"my-shelf-folder\" v-for=\"folder in rack.folders | orderBy 'ordering'\"\n\t\t\t@click.prevent.stop=\"selectFolder(folder)\"\n\t\t\t:draggable=\"editingFolder === null && editingRack === null ? 'true' : 'false'\"\n\t\t\t@contextmenu.prevent.stop=\"folderMenu(rack, folder)\"\n\t\t\t@dragstart.stop=\"folderDragStart($event, rack, folder)\"\n\t\t\t@dragend.stop=\"folderDragEnd(folder)\"\n\t\t\t@dragover=\"folderDragOver($event, rack, folder)\"\n\t\t\t@dragleave=\"folderDragLeave(folder)\"\n\t\t\t@drop=\"dropToFolder($event, rack, folder)\">\n\t\t<a v-if=\"editingFolder != folder\">\n\t\t\t<i v-if=\"!(isDraggingNote() && draggingNote.folderUid != folder.uid)\" class=\"material-icons\">folder</i>\n\t\t\t<i v-if=\"isDraggingNote() && draggingNote.folderUid != folder.uid\" class=\"material-icons\">folder_open</i>\n\t\t\t<div class=\"my-shelf-folder-name\">{{ folder.name }}</div>\n\t\t</a>\n\t\t<span v-if=\"editingFolder == folder\" >\n\t\t\t<i class=\"material-icons\">folder</i>\n\t\t\t<input v-model=\"folder.name\"\n\t\t\t\tv-focus=\"editingFolder == folder\"\n\t\t\t\t@blur=\"doneFolderEdit(rack, folder)\"\n\t\t\t\t@keyup.enter=\"doneFolderEdit(rack, folder)\"\n\t\t\t\t@keyup.esc=\"doneFolderEdit(rack, folder)\"/>\n\t\t</span>\n\t</div>\n</div>\n";
 
 /***/ },
 /* 236 */
@@ -73054,7 +73098,7 @@
 
 
 	// module
-	exports.push([module.id, "@font-face {\n    font-family: 'Roboto';\n    font-style: normal;\n    font-weight: 400;\n    src: local('Roboto'), local('Roboto-Regular'), url(" + __webpack_require__(297) + ") format('woff2');\n}\n\n@font-face {\n    font-family: 'Roboto';\n    font-style: normal;\n    font-weight: 700;\n    src: local('Roboto Bold'), local('Roboto-Bold'), url(" + __webpack_require__(298) + ") format('woff2');\n}\n\n@font-face {\n    font-family: 'Roboto';\n    font-style: italic, oblique;\n    src: local('Roboto Italic'), local('Roboto-Italic'), url(" + __webpack_require__(299) + ") format('woff2');\n}\n\nbody {\n    margin: 0;\n    font-family: \"Helvetica\",\"Arial\",sans-serif;\n    text-rendering: optimizeLegibility;\n    -webkit-font-smoothing: antialiased;\n    background: linear-gradient(#49568c, #61709c);\n}\n::-webkit-scrollbar {\n    height: 0;\n    overflow: visible;\n    width: 6px;\n}\n::-webkit-scrollbar-thumb {\n    background-color: rgba(0, 0, 0, .2);\n    background-clip: padding-box;\n    min-height: 28px;\n    padding: 100px 0 0;\n    border-width: 1px 1px 1px 6px;\n    border-radius: 3px;\n}\n::-webkit-scrollbar-button {\n    height: 0;\n    width: 0;\n}\n::-webkit-scrollbar-track {\n    background: transparent;\n}\n::-webkit-scrollbar-corner {\n    background: transparent;\n}\n\n.my-main {\n    display: flex;\n    flex-flow: row nowrap;\n}\n\n.my-sidebar {\n    background: linear-gradient(#49568c, #61709c);\n    display: flex;\n    flex-flow: column nowrap;\n    flex-basis: 270px;\n    z-index: 15;\n}\n\n.my-sidebar-header {\n    overflow-x: hidden;\n    overflow-y: hidden;\n    display: flex;\n    flex-flow: row nowrap;\n    height: 10px;\n    /*padding-top: 18px;\n    padding-bottom: 8px;*/\n    align-items: center;\n}\n\n.my-sidebar-header > *{\n    display: none;\n}\n\n.my-search {\n    font-size: 12px;\n    color: #fefefe;\n    background-color: transparent;\n    border: 1px solid #fefefe;\n    border-radius: 16px;\n    height: 32px;\n    width: 200px;\n\n    margin: 0 12px 0 28px;\n    padding-left: 12px;\n\n    transition: width 200ms, margin 200ms;\n}\n.my-search::-webkit-input-placeholder {\n    color: rgba(250, 250, 250, 0.9);\n}\n.my-search:focus {\n    outline: none;\n    width: 250px;\n    margin-left: 8px;\n}\n\n.my-add-note {\n    border: solid 1px #fefefe;\n    height: 45px;\n    border-radius: 50%;\n    width: 45px;\n    color: #eee;\n    background-color: transparent;\n    transition: background-color 200ms, border 200ms;\n}\n.my-add-note:hover {\n    cursor: pointer;\n    border: solid 1px rgb(115, 202, 181);\n    background-color: rgb(115, 202, 181);\n}\n.my-add-note:focus {\n    outline: none;\n}\n\n.my-sidebar-body {\n    display: flex;\n    flex-flow: row nowrap;\n}\n\n.my-shelf {\n    width: 170px;\n    height: calc(100vh - 10px - 4px);\n    padding-top: 4px;\n    background: transparent;\n    color: rgba(250,250,250,0.9);\n    font-weight: 200;\n    overflow-x: hidden;\n    overflow-y: auto;\n    white-space: nowrap;\n}\n.isShelfSelected {\n    background-color: rgb(54, 62, 93);\n    color: #FFF;\n}\n.noteIsHere {\n    font-weight: 600;\n}\n.my-shelf-wrapper:hover {\n    cursor: pointer;\n}\n.my-shelf-all {\n    display: none;\n    font-size: 14px;\n    font-weight: 500;\n    padding: 1px 0 1px 15px;\n    border-radius: 0 2px 2px 0 / 0 2px 2px 0;\n\n    -webkit-user-select: none;\n    transition: background-color 200ms;\n}\n.my-shelf-all:hover {\n    cursor: pointer;\n}\n\n.my-notes {\n    background-color: transparent;\n    box-sizing: border-box;\n\n    color: #424242;\n    width: 190px;\n    height: calc(100vh - 10px);\n\n    overflow-y: auto;\n    overflow-x: hidden;\n\n    -webkit-user-select: none;\n}\n\n.my-sidebar-toggle {\n    position: fixed;\n\n    /*top: calc(50vh - 50px);*/\n    top: 0;\n    width: 8px;\n    height: 100vh;\n\n    border: 0;\n    padding: 0;\n\n    /*border-radius: 0 2px 2px 0 / 0 2px 2px 0;*/\n    background-color: #bdbdbd;\n\n    z-index: 20;\n    opacity: 0;\n    transition: opacity 200ms;\n}\n.my-sidebar-toggle:hover {\n    cursor: pointer;\n}\n.my-sidebar-toggle:focus {\n    outline: none;\n}\n.my-sidebar-toggle i {\n    color: #eee;\n    font-size: 12px;\n    margin-left: -2px;\n}\n.my-sidebar-toggle.isFullScreen i {\n    transform: rotate(180deg);\n}\n\n.my-sidebar:hover + .my-sidebar-toggle, .my-sidebar-toggle:hover{\n    opacity: 1;\n}\n\n.my-editor {\n    height: 100vh;\n    flex-basis: calc(100vw - 180px - 110px);\n    flex-grow: 1;\n    margin: 0 auto;\n    overflow-y: auto;\n}\n\n.my-editor-header {\n    margin: 4px auto auto 16px;\n    overflow: hidden;\n    padding: 0 16px 8px;\n    width: auto;\n}\n\n.my-editor-tag-icon {\n    color: #888;\n    font-size: small;\n    line-height: 40px;\n    height:40px;\n    margin: auto;\n}\n\n.my-editor-tags {\n    background-color: transparent;\n    border: 0 solid;\n    border-bottom: 1px solid #ddd;\n    height: 24px;\n    width: 280px\n}\n\n.CodeMirror {\n    text-rendering: optimizeSpeed;\n    background-color: transparent;\n    background-image: url(" + __webpack_require__(300) + ");\n}\n.CodeMirror,\n.my-editor-preview {\n    margin: 0;\n    padding: 30px 4vw 16px 4vw;\n\n    width: auto;\n    min-height: calc(100vh - 46px);\n    min-width: 206px;\n    height: auto;\n\n    background-color: #fefefe;\n\n    color: #333;\n\n    font-family: \"Roboto\", monospace;\n    font-size: 14px;\n    line-height: 20px;\n}\n\n.CodeMirror-scroll {\n    overflow-y: hidden !important;\n    width: auto;\n    min-height: calc(100vh - 46px);\n    height: auto;\n}\n.CodeMirror-sizer {\n    margin-bottom: 72px !important;\n}\n.CodeMirror-vscrollbar {\n    display: none !important;\n}\n\n.cm-piled-em {font-style: italic;}\n.cm-piled-strikethrough {text-decoration: line-through;}\n\n.CodeMirror span.cm-piled-header,\n.CodeMirror span.cm-piled-code,\n.CodeMirror span.cm-piled-quote,\n.CodeMirror span.cm-piled-list1,\n.CodeMirror span.cm-piled-list2,\n.CodeMirror span.cm-piled-list3,\n.CodeMirror span.cm-piled-hr,\n.CodeMirror span.cm-piled-image,\n.CodeMirror span.cm-piled-formatting,\n.CodeMirror span.cm-piled-link-inline,\n.CodeMirror span.cm-piled-link-email,\n.CodeMirror span.cm-piled-link-text,\n.CodeMirror span.cm-piled-link-href,\n.CodeMirror span.cm-piled-em,\n.CodeMirror span.cm-piledstrong,\n.CodeMirror span.cm-piled-strikethrough {\n}\n\n.CodeMirror span.cm-comment,\n.CodeMirror span.cm-atom,\n.CodeMirror span.cm-number,\n.CodeMirror span.cm-property,\n.CodeMirror span.cm-attribute,\n.CodeMirror span.cm-keyword,\n.CodeMirror span.cm-string,\n.CodeMirror span.cm-variable,\n.CodeMirror span.cm-variable-2,\n.CodeMirror span.cm-def,\n.CodeMirror span.cm-bracket,\n.CodeMirror span.cm-tag,\n.CodeMirror span.cm-link,\n.CodeMirror span.cm-error {\n}\n\npre.CodeMirror-placeholder {\n    color: rgba(153, 153, 153, 0.8);\n}\n\nspan.cm-piled-list1,\nspan.cm-piled-list2,\nspan.cm-piled-list3 {\n    color: #333;\n}\nspan.cm-piled-formatting-list-ul,\nspan.cm-piled-formatting-list-ol {\n    font-weight: bold;\n    color: #777 !important;\n}\nspan.cm-piled-formatting-task {\n    font-weight: 600;\n    font-family: monospace;\n}\n\n.CodeMirror span.cm-meta {\n    font-style: normal;\n}\n\n.my-editor-preview ul,\n.my-editor-preview ol{\n    padding-left: 28px;\n}\n\n.my-editor-preview ul li.checkbox{\n    padding-left: 25px;\n    padding-top: 2px;\n    position: relative;\n    margin: 1em 0;\n}\n\n.my-editor-preview ul li.checkbox label{\n    position: absolute;\n    left: -10px;\n    top: 0;\n}\n\n.my-editor-preview ul li.checkbox input[type='checkbox']{\n    cursor: pointer;\n    position: relative;\n    overflow: visible;\n    width: 20px;\n    height: 20px;\n    box-sizing: border-box;\n    padding: 0;\n    display: block;\n    opacity: 0.6;\n}\n\n.my-editor-preview ul li.checkbox input[type=checkbox]:checked{\n    opacity: 1;\n}\n\n.my-editor-preview ul li.checkbox input[type=checkbox]:checked:before {\n    background-color: #ffffff;\n    box-shadow: 0 0 0 1px #5aa0a5;\n}\n\n.my-editor-preview ul li.checkbox input[type=checkbox]:before, .my-editor-preview ul li.checkbox input[type=checkbox]:after {\n    content: \"\";\n    position: absolute;\n}\n\n.my-editor-preview ul li.checkbox input[type=checkbox]:before {\n    width: 100%;\n    background-color: #ffffff;\n    box-shadow: 0 0 0 1px #89afb1;\n    border-radius: 5px;\n    height: 100%;\n    transition: all 0.25s ease-in-out;\n}\n\n.my-editor-preview ul li.checkbox input[type=checkbox]:checked:after {\n    color: #333;\n    content: \"\\2713\";\n    text-align: right;\n    font-weight: bold;\n    font-size: 1.2em;\n}\n.my-editor-preview ul li.checkbox input[type=checkbox]:after {\n    width: 80%;\n    height: 80%;\n    margin-top: 10%;\n    margin-left: 10%;\n}\n\n/* --- */\n\n.CodeMirror span.cm-piled-header-1,\n.my-editor-preview h1 {\n    font-size: 26px;\n    color: #3f51b5;\n    font-weight: 700;\n    line-height: 40px;\n    border-bottom: solid 1px rgba(10, 11, 207, 0.1)\n}\n.my-editor-preview blockquote {\n    margin: 0;\n    padding: 8px 14px;\n    background-color: #F5F3F3;\n    border-left: solid 4px #ccc;\n    color: #777;\n}\n.my-editor-preview blockquote p {\n    margin: 0;\n}\n\n.my-editor-preview h1 {\n    margin-top: 0;\n}\n\n.CodeMirror span.cm-piled-header-2,\n.my-editor-preview h2 {\n    font-size: 22px;\n    font-weight: 600;\n    line-height: 30px;\n}\n.my-editor-preview h2 {\n    padding-left: 10px;\n    border-left: solid 4px #333;\n}\n\n.CodeMirror span.cm-piled-header-3,\n.my-editor-preview h3 {\n    font-size: 18px;\n    line-height: 30px;\n    font-weight: 600;\n}\n\n.CodeMirror span.cm-string {\n    color: #DD1144;\n}\n.CodeMirror span.cm-variable-2 {\n    color: #121289;\n}\n.CodeMirror span.cm-keyword {\n    color: #708;\n    font-weight: bold;\n}\n.CodeMirror span.cm-def {\n    color: #458;\n    font-weight: bold;\n}\n\n.CodeMirror span.cm-piled-code, code {\n    color: #0A3ABF;\n}\n\n.CodeMirror span.cm-piled-strong,\n.my-editor-preview strong {\n    color: #b6455d;\n    font-weight: 800;\n}\n\n.cm-piled-quote {\n    color: #777;\n}\n\n.cm-piled-link,\n.cm-piled-link-href:not(.cm-piled-formatting) {\n    color: #0000ee;\n    text-decoration: underline;\n}\n.cm-piled-link-text {\n    font-weight: 800;\n    font-family: monospace;\n}\n.CodeMirror span.cm-piled-image {\n    font-weight: 800;\n    font-family: monospace;\n}\n\n.my-editor-preview h2,.my-editor-preview h3 { margin: 18px 0 12px 0 }\n.my-editor-preview h3 { line-height: 30px }\n.my-editor-preview h4 { font-size: 18px }\n.my-editor-preview h5 { font-size: 16px }\n.my-editor-preview li {\n    line-height: 20px;\n}\n\n.my-editor-preview img {\n    max-width: 500px;\n    max-height: 500px;\n    height: auto;\n}\n\n.CodeMirror-focused .CodeMirror-selected { background: #add5ff; }\n.CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: #add5ff; }\n.CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: #add5ff; }\n\n/* Search dialog */\n\n.CodeMirror-dialog.CodeMirror-dialog-bottom {\n    width: 100%;\n    position: fixed;\n    bottom: 0;\n    background-color: #fdfdfd;\n    margin-left: -30px;\n    border-top: solid 1px #d0d0d0;\n    padding: 8px 8px 8px 16px;\n    z-index: 5;\n}\n\n.CodeMirror-search-field {\n    border-radius: 4px;\n    width: 220px;\n}\n\n.CodeMirror-dialog button {\n    background-color: #fafafa;\n    border: solid 1px #eaeaea;\n    margin-right: 4px;\n}\n.CodeMirror-dialog button:hover {\n    background-color: #eeeeee;\n}\n", ""]);
+	exports.push([module.id, "@font-face {\n    font-family: 'Roboto';\n    font-style: normal;\n    font-weight: 400;\n    src: local('Roboto'), local('Roboto-Regular'), url(" + __webpack_require__(297) + ") format('woff2');\n}\n\n@font-face {\n    font-family: 'Roboto';\n    font-style: normal;\n    font-weight: 700;\n    src: local('Roboto Bold'), local('Roboto-Bold'), url(" + __webpack_require__(298) + ") format('woff2');\n}\n\n@font-face {\n    font-family: 'Roboto';\n    font-style: italic, oblique;\n    src: local('Roboto Italic'), local('Roboto-Italic'), url(" + __webpack_require__(299) + ") format('woff2');\n}\n\nbody {\n    margin: 0;\n    font-family: \"Helvetica\",\"Arial\",sans-serif;\n    text-rendering: optimizeLegibility;\n    -webkit-font-smoothing: antialiased;\n    background: linear-gradient(#49568c, #61709c);\n}\n::-webkit-scrollbar {\n    height: 0;\n    overflow: visible;\n    width: 10px;\n}\n::-webkit-scrollbar-thumb {\n    background-color: rgba(0, 0, 0, .2);\n    background-clip: padding-box;\n    min-height: 28px;\n    padding: 100px 0 0;\n    border-width: 1px 1px 1px 6px;\n    border-radius: 3px;\n}\n::-webkit-scrollbar-thumb:hover{\n    background-color: rgba(0, 0, 0, .3);\n}\n::-webkit-scrollbar-button {\n    height: 0;\n    width: 0;\n}\n::-webkit-scrollbar-track {\n    background-color: rgba(0, 0, 0, .1);\n}\n::-webkit-scrollbar-corner {\n    background: transparent;\n}\n\n.my-main {\n    display: flex;\n    flex-flow: row nowrap;\n}\n\n.my-sidebar {\n    background: linear-gradient(#49568c, #61709c);\n    display: flex;\n    flex-flow: column nowrap;\n    flex-basis: 270px;\n    z-index: 15;\n}\n\n.my-sidebar-header {\n    overflow-x: hidden;\n    overflow-y: hidden;\n    display: flex;\n    flex-flow: row nowrap;\n    height: 10px;\n    /*padding-top: 18px;\n    padding-bottom: 8px;*/\n    align-items: center;\n}\n\n.my-sidebar-header > *{\n    display: none;\n}\n\n.my-search {\n    font-size: 12px;\n    color: #fefefe;\n    background-color: transparent;\n    border: 1px solid #fefefe;\n    border-radius: 16px;\n    height: 32px;\n    width: 200px;\n\n    margin: 0 12px 0 28px;\n    padding-left: 12px;\n\n    transition: width 200ms, margin 200ms;\n}\n.my-search::-webkit-input-placeholder {\n    color: rgba(250, 250, 250, 0.9);\n}\n.my-search:focus {\n    outline: none;\n    width: 250px;\n    margin-left: 8px;\n}\n\n.my-add-note {\n    border: solid 1px #fefefe;\n    height: 45px;\n    border-radius: 50%;\n    width: 45px;\n    color: #eee;\n    background-color: transparent;\n    transition: background-color 200ms, border 200ms;\n}\n.my-add-note:hover {\n    cursor: pointer;\n    border: solid 1px rgb(115, 202, 181);\n    background-color: rgb(115, 202, 181);\n}\n.my-add-note:focus {\n    outline: none;\n}\n\n.my-sidebar-body {\n    display: flex;\n    flex-flow: row nowrap;\n}\n\n.my-shelf {\n    width: 170px;\n    height: calc(100vh - 10px - 4px);\n    padding-top: 4px;\n    background: transparent;\n    color: rgba(250,250,250,0.9);\n    font-weight: 200;\n    overflow-x: hidden;\n    overflow-y: auto;\n    white-space: nowrap;\n}\n.isShelfSelected {\n    background-color: rgb(54, 62, 93);\n    color: #FFF;\n}\n.noteIsHere {\n    font-weight: 600;\n}\n.my-shelf-wrapper:hover {\n    cursor: pointer;\n}\n.my-shelf-all {\n    display: none;\n    font-size: 14px;\n    font-weight: 500;\n    padding: 1px 0 1px 15px;\n    border-radius: 0 2px 2px 0 / 0 2px 2px 0;\n\n    -webkit-user-select: none;\n    transition: background-color 200ms;\n}\n.my-shelf-all:hover {\n    cursor: pointer;\n}\n\n.my-notes {\n    background-color: transparent;\n    box-sizing: border-box;\n\n    color: #424242;\n    width: 190px;\n    height: calc(100vh - 10px);\n\n    overflow-y: auto;\n    overflow-x: hidden;\n\n    -webkit-user-select: none;\n}\n\n.my-sidebar-toggle {\n    position: fixed;\n\n    /*top: calc(50vh - 50px);*/\n    top: 0;\n    width: 8px;\n    height: 100vh;\n\n    border: 0;\n    padding: 0;\n\n    /*border-radius: 0 2px 2px 0 / 0 2px 2px 0;*/\n    background-color: #bdbdbd;\n\n    z-index: 20;\n    opacity: 0;\n    transition: opacity 200ms;\n}\n.my-sidebar-toggle:hover {\n    cursor: pointer;\n}\n.my-sidebar-toggle:focus {\n    outline: none;\n}\n.my-sidebar-toggle i {\n    color: #eee;\n    font-size: 12px;\n    margin-left: -2px;\n}\n.my-sidebar-toggle.isFullScreen i {\n    transform: rotate(180deg);\n}\n\n.my-sidebar:hover + .my-sidebar-toggle, .my-sidebar-toggle:hover{\n    opacity: 1;\n}\n\n.my-editor {\n    height: 100vh;\n    flex-basis: calc(100vw - 180px - 110px);\n    flex-grow: 1;\n    margin: 0 auto;\n    overflow-y: auto;\n}\n\n.my-editor-header {\n    margin: 4px auto auto 16px;\n    overflow: hidden;\n    padding: 0 16px 8px;\n    width: auto;\n}\n\n.my-editor-tag-icon {\n    color: #888;\n    font-size: small;\n    line-height: 40px;\n    height:40px;\n    margin: auto;\n}\n\n.my-editor-tags {\n    background-color: transparent;\n    border: 0 solid;\n    border-bottom: 1px solid #ddd;\n    height: 24px;\n    width: 280px\n}\n\n.CodeMirror {\n    text-rendering: optimizeSpeed;\n    background-color: transparent;\n    background-image: url(" + __webpack_require__(300) + ");\n}\n.CodeMirror,\n.my-editor-preview {\n    margin: 0;\n    padding: 30px 4vw 16px 4vw;\n\n    width: auto;\n    min-height: calc(100vh - 46px);\n    min-width: 206px;\n    height: auto;\n\n    background-color: #fefefe;\n\n    color: #333;\n\n    font-family: \"Roboto\", monospace;\n    font-size: 14px;\n    line-height: 20px;\n}\n\n.CodeMirror-scroll {\n    overflow-y: hidden !important;\n    width: auto;\n    min-height: calc(100vh - 46px);\n    height: auto;\n}\n.CodeMirror-sizer {\n    margin-bottom: 72px !important;\n}\n.CodeMirror-vscrollbar {\n    display: none !important;\n}\n\n.cm-piled-em {font-style: italic;}\n.cm-piled-strikethrough {text-decoration: line-through;}\n\n.CodeMirror span.cm-piled-header,\n.CodeMirror span.cm-piled-code,\n.CodeMirror span.cm-piled-quote,\n.CodeMirror span.cm-piled-list1,\n.CodeMirror span.cm-piled-list2,\n.CodeMirror span.cm-piled-list3,\n.CodeMirror span.cm-piled-hr,\n.CodeMirror span.cm-piled-image,\n.CodeMirror span.cm-piled-formatting,\n.CodeMirror span.cm-piled-link-inline,\n.CodeMirror span.cm-piled-link-email,\n.CodeMirror span.cm-piled-link-text,\n.CodeMirror span.cm-piled-link-href,\n.CodeMirror span.cm-piled-em,\n.CodeMirror span.cm-piledstrong,\n.CodeMirror span.cm-piled-strikethrough {\n}\n\n.CodeMirror span.cm-comment,\n.CodeMirror span.cm-atom,\n.CodeMirror span.cm-number,\n.CodeMirror span.cm-property,\n.CodeMirror span.cm-attribute,\n.CodeMirror span.cm-keyword,\n.CodeMirror span.cm-string,\n.CodeMirror span.cm-variable,\n.CodeMirror span.cm-variable-2,\n.CodeMirror span.cm-def,\n.CodeMirror span.cm-bracket,\n.CodeMirror span.cm-tag,\n.CodeMirror span.cm-link,\n.CodeMirror span.cm-error {\n}\n\npre.CodeMirror-placeholder {\n    color: rgba(153, 153, 153, 0.8);\n}\n\nspan.cm-piled-list1,\nspan.cm-piled-list2,\nspan.cm-piled-list3 {\n    color: #333;\n}\nspan.cm-piled-formatting-list-ul,\nspan.cm-piled-formatting-list-ol {\n    font-weight: bold;\n    color: #777 !important;\n}\nspan.cm-piled-formatting-task {\n    font-weight: 600;\n    font-family: monospace;\n}\n\n.CodeMirror span.cm-meta {\n    font-style: normal;\n}\n\n.my-editor-preview ul,\n.my-editor-preview ol{\n    padding-left: 28px;\n}\n\n.my-editor-preview ul li.checkbox{\n    padding-left: 25px;\n    padding-top: 2px;\n    position: relative;\n    margin: 1em 0;\n}\n\n.my-editor-preview ul li.checkbox label{\n    position: absolute;\n    left: -10px;\n    top: 0;\n}\n\n.my-editor-preview ul li.checkbox input[type='checkbox']{\n    cursor: pointer;\n    position: relative;\n    overflow: visible;\n    width: 20px;\n    height: 20px;\n    box-sizing: border-box;\n    padding: 0;\n    display: block;\n    opacity: 0.6;\n}\n\n.my-editor-preview ul li.checkbox input[type=checkbox]:checked{\n    opacity: 1;\n}\n\n.my-editor-preview ul li.checkbox input[type=checkbox]:checked:before {\n    background-color: #ffffff;\n    box-shadow: 0 0 0 1px #5aa0a5;\n}\n\n.my-editor-preview ul li.checkbox input[type=checkbox]:before, .my-editor-preview ul li.checkbox input[type=checkbox]:after {\n    content: \"\";\n    position: absolute;\n}\n\n.my-editor-preview ul li.checkbox input[type=checkbox]:before {\n    width: 100%;\n    background-color: #ffffff;\n    box-shadow: 0 0 0 1px #89afb1;\n    border-radius: 5px;\n    height: 100%;\n    transition: all 0.25s ease-in-out;\n}\n\n.my-editor-preview ul li.checkbox input[type=checkbox]:checked:after {\n    color: #333;\n    content: \"\\2713\";\n    text-align: right;\n    font-weight: bold;\n    font-size: 1.2em;\n}\n.my-editor-preview ul li.checkbox input[type=checkbox]:after {\n    width: 80%;\n    height: 80%;\n    margin-top: 10%;\n    margin-left: 10%;\n}\n\n/* --- */\n\n.CodeMirror span.cm-piled-header-1,\n.my-editor-preview h1 {\n    font-size: 26px;\n    color: #3f51b5;\n    font-weight: 700;\n    line-height: 40px;\n    border-bottom: solid 1px rgba(10, 11, 207, 0.1)\n}\n.my-editor-preview blockquote {\n    margin: 0;\n    padding: 8px 14px;\n    background-color: #F5F3F3;\n    border-left: solid 4px #ccc;\n    color: #777;\n}\n.my-editor-preview blockquote p {\n    margin: 0;\n}\n\n.my-editor-preview h1 {\n    margin-top: 0;\n}\n\n.CodeMirror span.cm-piled-header-2,\n.my-editor-preview h2 {\n    font-size: 22px;\n    font-weight: 600;\n    line-height: 30px;\n}\n.my-editor-preview h2 {\n    padding-left: 10px;\n    border-left: solid 4px #333;\n}\n\n.CodeMirror span.cm-piled-header-3,\n.my-editor-preview h3 {\n    font-size: 18px;\n    line-height: 30px;\n    font-weight: 600;\n}\n\n.CodeMirror span.cm-string {\n    color: #DD1144;\n}\n.CodeMirror span.cm-variable-2 {\n    color: #121289;\n}\n.CodeMirror span.cm-keyword {\n    color: #708;\n    font-weight: bold;\n}\n.CodeMirror span.cm-def {\n    color: #458;\n    font-weight: bold;\n}\n\n.CodeMirror span.cm-piled-code, code {\n    color: #0A3ABF;\n}\n\n.CodeMirror span.cm-piled-strong,\n.my-editor-preview strong {\n    color: #b6455d;\n    font-weight: 800;\n}\n\n.cm-piled-quote {\n    color: #777;\n}\n\n.cm-piled-link,\n.cm-piled-link-href:not(.cm-piled-formatting) {\n    color: #0000ee;\n    text-decoration: underline;\n}\n.cm-piled-link-text {\n    font-weight: 800;\n    font-family: monospace;\n}\n.CodeMirror span.cm-piled-image {\n    font-weight: 800;\n    font-family: monospace;\n}\n\n.my-editor-preview h2,.my-editor-preview h3 { margin: 18px 0 12px 0 }\n.my-editor-preview h3 { line-height: 30px }\n.my-editor-preview h4 { font-size: 18px }\n.my-editor-preview h5 { font-size: 16px }\n.my-editor-preview li {\n    line-height: 20px;\n}\n\n.my-editor-preview img {\n    max-width: 500px;\n    max-height: 500px;\n    height: auto;\n}\n\n.CodeMirror-focused .CodeMirror-selected { background: #add5ff; }\n.CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: #add5ff; }\n.CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: #add5ff; }\n\n/* Search dialog */\n\n.CodeMirror-dialog.CodeMirror-dialog-bottom {\n    width: 100%;\n    position: fixed;\n    bottom: 0;\n    background-color: #fdfdfd;\n    margin-left: -30px;\n    border-top: solid 1px #d0d0d0;\n    padding: 8px 8px 8px 16px;\n    z-index: 5;\n}\n\n.CodeMirror-search-field {\n    border-radius: 4px;\n    width: 220px;\n}\n\n.CodeMirror-dialog button {\n    background-color: #fafafa;\n    border: solid 1px #eaeaea;\n    margin-right: 4px;\n}\n.CodeMirror-dialog button:hover {\n    background-color: #eeeeee;\n}\n", ""]);
 
 	// exports
 

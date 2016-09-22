@@ -66,8 +66,7 @@ function readLibrary(){
 								ordering: valid_folders.length,
 								load_ordering: true,
 								path: path.join( current_rack.data.path, folder),
-								rack: current_rack,
-								rackUid: current_rack.data.uid
+								rack: current_rack
 							});
 							valid_folders.push(current_folder);
 							folders_count += 1;
@@ -83,7 +82,6 @@ function readLibrary(){
 											name: note,
 											body: "", //fs.readFileSync(notePath).toString(),
 											path: notePath,
-											folderUid: current_folder.data.uid,
 											rack: current_rack,
 											folder: current_folder,
 											created_at: noteStat.birthtime,
@@ -188,7 +186,7 @@ class Note extends Model {
 		this._rack = data.rack;
 		this._folder = data.folder;
 
-		this.folderUid = data.folderUid || null;
+		this.folderUid = data.folder ? data.folder.data.uid : null;
 		this.doc = null;
 		//this.qiitaURL = data.qiitaURL || null;
 
@@ -450,7 +448,7 @@ class Folder extends Model {
 			this.ordering = data.ordering || 0;
 		}
 
-		this.rackUid = data.rackUid || null;
+		this.rackUid = data.rack ? data.rack.data.uid : null;
 		this._rack = data.rack;
 		this._path = data.path || '';
 		this.dragHover = false;
@@ -504,22 +502,18 @@ class Folder extends Model {
 		if (!model || !model.data.name) { return }
 
 		var new_path = path.join( getBaseLibraryPath(), model.data.rack.data.fsName, model.data.fsName );
-		if(new_path != model.data.path){
+		if(new_path != model.data.path || !fs.existsSync(new_path) ) {
 			try{
-				fs.statSync(new_path);
-			} catch(e){
-				try{
-					if(model.data.path && fs.existsSync(model.data.path)) {
-						util_file.moveFolderRecursiveSync(model.data.path,
-							path.join( getBaseLibraryPath(), model.data.rack.data.fsName ),model.data.fsName);
+				if(model.data.path && fs.existsSync(model.data.path)) {
+					util_file.moveFolderRecursiveSync(model.data.path,
+						path.join( getBaseLibraryPath(), model.data.rack.data.fsName ),model.data.fsName);
 
-					} else {
-						fs.mkdirSync(new_path);
-					}
-					model.path = new_path;
-				} catch(e){
-					return console.error(e);
+				} else {
+					fs.mkdirSync(new_path);
 				}
+				model.path = new_path;
+			} catch(e){
+				return console.error(e);
 			}
 		}
 		model.saveOrdering();
@@ -601,20 +595,16 @@ class Rack extends Model {
 		if (!model || !model.data.name) { return }
 
 		var new_path = path.join( getBaseLibraryPath(), model.data.fsName );
-		if(new_path != model.data.path){
+		if(new_path != model.data.path || !fs.existsSync(new_path) ) {
 			try{
-				fs.statSync(new_path);
-			} catch(e){
-				try{
-					if(model.data.path && fs.existsSync(model.data.path)) {
-						util_file.moveFolderRecursiveSync(model.data.path, getBaseLibraryPath(), model.data.fsName);
-					} else {
-						fs.mkdirSync(new_path);
-					}
-					model.path = new_path;
-				} catch(e){
-					return console.error(e);
+				if(model.data.path && fs.existsSync(model.data.path)) {
+					util_file.moveFolderRecursiveSync(model.data.path, getBaseLibraryPath(), model.data.fsName);
+				} else {
+					fs.mkdirSync(new_path);
 				}
+				model.path = new_path;
+			} catch(e){
+				return console.error(e);
 			}
 		}
 		model.saveOrdering();

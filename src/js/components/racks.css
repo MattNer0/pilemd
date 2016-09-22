@@ -34,25 +34,13 @@
     vertical-align: top;
 }
 
-.my-shelf-rack .plus-open{
-    display: inline-block;
-}
-
-.my-shelf-rack .minus-close{
-    display: none;
-    line-height: 1em;
+.my-shelf-rack .rack-icon{
+    font-size: 100%;
+    vertical-align: middle;
 }
 
 .my-shelf-rack.openFolders > div{
     display: block;
-}
-
-.my-shelf-rack.openFolders .minus-close{
-    display: inline-block;
-}
-
-.my-shelf-rack.openFolders .plus-open{
-    display: none;
 }
 
 .my-shelf-rack.sortUpper:after {

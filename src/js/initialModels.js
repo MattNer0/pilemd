@@ -47,8 +47,10 @@ function migrateFromLocalStorage() {
 }
 
 
-function makeInitialNotes() {
+function makeInitialNotes(rack, folder) {
+	
 	var note = new models.Note({
+		name: "Welcome to PileMd",
 		body: "# Welcome to PileMd\n\n" +
 		"Pile **Markdown** notes.\n\n" +
 		"* Phenomenon User Interface\n" +
@@ -62,9 +64,12 @@ function makeInitialNotes() {
 		"* Pasting images\n" +
 		"* Exporting notes\n" +
 		"* Share on [Qiita](http://qiita.com/)",
+		rack: rack,
+		folder: folder,
 		updated_at: moment(),
 		created_at: moment()
 	});
+	
 	models.Note.setModel(note);
 	return [note];
 }
@@ -73,14 +78,42 @@ function makeInitialRacks() {
 	if (localStorage.getItem('initializedracks')) {
 		return false
 	}
-	var rack1 = new models.Rack({name: "Work", ordering: 0});
-	var folder1 = new models.Folder({name: "Todo", ordering: 0, rackUid: rack1.uid});
-	var folder2 = new models.Folder({name: "Meeting", ordering: 1, rackUid: rack1.uid});
+	
+	var rack1 = new models.Rack({
+		name: "Work",
+		ordering: 0,
+		load_ordering: false
+	});
+
+	var folder1 = new models.Folder({
+		name: "Todo",
+		ordering: 0,
+		load_ordering: false,
+		rack: rack1
+	});
+
+	var folder2 = new models.Folder({
+		name: "Meeting",
+		ordering: 1,
+		load_ordering: false,
+		rack: rack1
+	});
+	
 	models.Rack.setModel(rack1);
 	models.Folder.setModel(folder1);
 	models.Folder.setModel(folder2);
+	
 	localStorage.setItem('initializedracks', '1');
-	return true
+	return {
+		rack1: rack1,
+		folder1: folder1,
+		folder2: folder2
+	};
+}
+
+function initialSetup() {
+	var initialData = makeInitialRacks();
+	makeInitialNotes(initialData.rack1, initialData.folder1);
 }
 
 
@@ -88,5 +121,6 @@ module.exports = {
 	initialFolder: initialFolder,
 	migrateFromLocalStorage: migrateFromLocalStorage,
 	makeInitialNotes: makeInitialNotes,
-	makeInitialRacks: makeInitialRacks
+	makeInitialRacks: makeInitialRacks,
+	initialSetup: initialSetup
 };

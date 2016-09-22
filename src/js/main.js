@@ -98,6 +98,16 @@ new Vue({
 		racks = loadedLibrary.racks;
 		folders = loadedLibrary.folders;
 		notes = loadedLibrary.notes;
+
+		if( racks.length == 0 ){
+			initialModels.initialSetup();
+
+			loadedLibrary = models.readLibrary();
+
+			racks = loadedLibrary.racks;
+			folders = loadedLibrary.folders;
+			notes = loadedLibrary.notes;
+		}
 		
 		this.$set('racks', racks);
 		this.$set('folders', folders);
@@ -302,6 +312,7 @@ new Vue({
 		previewMenu: function() {
 			var menu = new Menu();
 			menu.append(new MenuItem({label: 'Toggle Preview', click: () => {this.togglePreview()}}));
+			//menu.append(new MenuItem({label: 'Copy', accelerator: 'CmdOrCtrl+C', click: () => {} }));
 			menu.popup(remote.getCurrentWindow());
 		},
 		importNotes: function() {
