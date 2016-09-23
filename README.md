@@ -1,15 +1,36 @@
 # PileMd
 
-https://pilemd.com/
+*PileMd is a Markdown Note App.*
+*with Beautiful Markdown Editor, Comfortable Notes, and Local File Syncing.*
 
-![PileMd](https://pilemd.com/images/top1.png)
+---
+
+**Website**: https://pilemd.com/
+**Original Repository**: https://github.com/hirokiky/pilemd
+
+---
+
+> **Note**:
+> I'm kind of going my own way with this right now...
+
+## Quick list of changes
+
+- file system folder structure with **racks**, **folders** and `.md` note files for easy access
+- `.rack` and `.folder` files to store metadata like display order
+- **note** contents are only loaded when the **folder** or the **note** itself is opened (instead of loading everything on startup)
+- sidebar with expandable tree menu list of the **folders** inside **racks**
+- application settings saved inside `appData` folder (window size, last open folder, preview toggle, etc.) 
+- added preview mode toggle from right click menu for quicker access
+- checkbox display and interaction in preview mode
+- style changes all around for the heck of it
+- disabled search bar for now
 
 ## Run
 
 ```
 npm install
 NODE_ENV=development webpack
-Electron .
+electron .
 ```
 
 ## Build
@@ -18,11 +39,3 @@ Electron .
 * `PM_OSX_SIGN='...' gulp electron`
 * `gulp electron-linux`
 * `gulp electron-windows`
-
-## Zen of PileMd
-
-* Product Design Fast
-* Light Weight
-* Easy to Start
-* Small to Big
-* Any Platform, Same Experience
