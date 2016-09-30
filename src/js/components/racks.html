@@ -1,7 +1,7 @@
 <div class="my-shelf-rack" v-for="rack in racksWithFolders | orderBy 'ordering'"
 		@dragstart.stop="rackDragStart($event, rack)"
 		@dragend.stop="rackDragEnd()"
-		@dragover.stop="rackDragOver($event, rack)"
+		@dragover="rackDragOver($event, rack)"
 		@dragleave.stop="rackDragLeave(rack)"
 		@drop.stop="dropToRack($event, rack)"
 		@contextmenu.prevent.stop="rackMenu(rack)"

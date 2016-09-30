@@ -8,6 +8,8 @@ settings.loadWindowSize();
 const Vue = require('vue');
 const moment = require('moment');
 
+const Handler = require('./resizeHandler');
+
 const ApplicationMenu = require('./applicationmenu').ApplicationMenu;
 const models = require('./models');
 const initialModels = require('./initialModels');
@@ -75,7 +77,9 @@ new Vue({
 		modalTitle: 'Title',
 		modalDescription: 'description',
 		modalPrompts: [],
-		modalOkcb: null
+		modalOkcb: null,
+		racksWidth: 180,
+		notesWidth: 180
 	},
 	computed: {
 		filteredNotes: function() {
@@ -278,7 +282,7 @@ new Vue({
 				event.preventDefault();
 				return false
 			}
-			event.preventDefault();
+			//event.preventDefault();
 			this.allDragHover = true;
 		},
 		allDragLeave: function(event) {
@@ -362,5 +366,9 @@ new Vue({
 		qiitaLogin: function() {
 			this.$qiitaAuth();
 		}
+	},
+	components: {
+		handlerStack: Handler.handlerStack,
+		handlerNotes: Handler.handlerNotes
 	}
 });

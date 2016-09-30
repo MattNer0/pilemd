@@ -152,7 +152,7 @@ module.exports = function(Vue, options) {
 						rack.sortUpper = true;
 					}
 				} else {
-					event.preventDefault();
+					//event.preventDefault();
 				}
 			},
 			rackDragLeave: function(rack) {
@@ -161,8 +161,8 @@ module.exports = function(Vue, options) {
 				rack.sortLower = false;
 			},
 			dropToRack: function(event, rack) {
-				console.log("Dropping to rack");
 				if (this.draggingFolder) {
+					console.log("Dropping to rack");
 					// Drop Folder to Rack
 					rack.folders.forEach((f) => {
 						f.ordering += 1;
