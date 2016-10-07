@@ -7,6 +7,7 @@
     margin-left: 16px;
     line-height: 18px;
     font-size: 12px;
+    cursor: default;
 }
 .my-notes-note {
     position: relative;
@@ -19,7 +20,7 @@
 
     margin: 8px 5px;
     width: 146px;
-    min-height: 12px;
+    min-height: 130px;
     padding: 10px;
 
     overflow-x: hidden;

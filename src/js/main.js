@@ -122,7 +122,7 @@ new Vue({
 		});
 
 		this.$watch('selectedNote', () => {
-			if (this.isPreview) {
+			if(this.isPreview) {
 				this.$set('preview', preview.render(this.selectedNote, this));
 			}
 		});
@@ -137,7 +137,9 @@ new Vue({
 		});
 
 		this.$watch('isPreview', () => {
-			this.$set('preview', preview.render(this.selectedNote, this));
+			if(this.selectedNote.data){
+				this.$set('preview', preview.render(this.selectedNote, this));
+			}
 		});
 
 		// Should select latest selected note.
@@ -365,6 +367,25 @@ new Vue({
 		},
 		qiitaLogin: function() {
 			this.$qiitaAuth();
+		},
+		menu_close: function() {
+			var win = remote.getCurrentWindow();
+			win.close();
+		},
+		menu_max: function() {
+			var win = remote.getCurrentWindow();
+			if(win.isMaximized()){
+				win.unmaximize();
+			} else {
+				win.maximize();
+			}
+		},
+		menu_min: function() {
+			var win = remote.getCurrentWindow();
+			win.minimize();
+		},
+		menu_preview: function() {
+			this.isPreview = !this.isPreview;
 		}
 	},
 	components: {

@@ -15,135 +15,152 @@ var mainWindow = null;
 
 const APP_NAME = app.getName();
 const DARWIN_ALL_CLOSED_MENU = [
-  {
-    label: APP_NAME,
-    submenu: [
-      {
-        label: 'About ' + APP_NAME,
-        role: 'about'
-      },
-      {
-        type: 'separator'
-      },
-      {
-        label: 'Services',
-        role: 'services',
-        submenu: []
-      },
-      {
-        type: 'separator'
-      },
-      {
-        label: 'Hide ' + APP_NAME,
-        accelerator: 'Command+H',
-        role: 'hide'
-      },
-      {
-        label: 'Hide Others',
-        accelerator: 'Command+Shift+H',
-        role: 'hideothers'
-      },
-      {
-        label: 'Show All',
-        role: 'unhide'
-      },
+	{
+		label: APP_NAME,
+		submenu: [
+			{
+				label: 'About ' + APP_NAME,
+				role: 'about'
+			},
+			{
+				type: 'separator'
+			},
+			{
+				label: 'Services',
+				role: 'services',
+				submenu: []
+			},
+			{
+				type: 'separator'
+			},
+			{
+				label: 'Hide ' + APP_NAME,
+				accelerator: 'Command+H',
+				role: 'hide'
+			},
+			{
+				label: 'Hide Others',
+				accelerator: 'Command+Shift+H',
+				role: 'hideothers'
+			},
+			{
+				label: 'Show All',
+				role: 'unhide'
+			},
 
-      {
-        type: 'separator'
-      },
-      {
-        label: 'Quit ' + APP_NAME,
-        accelerator: 'Command+Q',
-        click: function () {
-          app.quit();
-        }
-      }
-    ]
-  },
-  {
-    label: 'File',
-    submenu: [
-      {
-        label: 'New ' + APP_NAME +' Window',
-        click: makeWindow
-      }
-    ]
-  }
+			{
+				type: 'separator'
+			},
+			{
+				label: 'Quit ' + APP_NAME,
+				accelerator: 'Command+Q',
+				click: function () {
+					app.quit();
+				}
+			}
+		]
+	},
+	{
+		label: 'File',
+		submenu: [
+			{
+				label: 'New ' + APP_NAME +' Window',
+				click: makeWindow
+			}
+		]
+	}
 ];
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform != 'darwin') {
-    app.quit();
-  } else {
-    Menu.setApplicationMenu(Menu.buildFromTemplate(DARWIN_ALL_CLOSED_MENU));
-  }
+	// On OS X it is common for applications and their menu bar
+	// to stay active until the user quits explicitly with Cmd + Q
+	if (process.platform != 'darwin') {
+		app.quit();
+	} else {
+		Menu.setApplicationMenu(Menu.buildFromTemplate(DARWIN_ALL_CLOSED_MENU));
+	}
 });
 
 function makeWindow() {
-  // Create the browser window.
-  var conf = {
-    width: 1024, height: 768,
-    minWidth: 270, minHeight: 437,
-    titleBarStyle: 'hidden'
-  };
-  if (process.platform == 'linux') {
-    conf['icon'] = __dirname + '/icon.png';
-  }
-  mainWindow = new BrowserWindow(conf);
+	// Create the browser window.
+	var conf = {
+		width: 1024,
+		height: 768,
+		minWidth: 270,
+		minHeight: 437,
+		center: true,
+		title: "PileMd",
+		titleBarStyle: 'hidden',
+		backgroundColor: '#61709c',
+		show: true,
+		frame: false,
+		webPreferences: {
+			devTools: true
+		}
+	};
 
-  // Set ApplicationMenu bar
+	if (process.platform == 'linux') {
+		conf['icon'] = __dirname + '/icon.png';
+	}
 
-  // and load the index.html of the app.
-  mainWindow.loadURL('file://' + __dirname + '/index.html');
+	mainWindow = new BrowserWindow(conf);
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+	// Set ApplicationMenu bar
 
-  // Emitted when the window is closed.
-  mainWindow.on('closed', function() {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null;
-  });
+	// and load the index.html of the app.
+	mainWindow.loadURL('file://' + __dirname + '/index.html');
+
+	// Open the DevTools.
+	mainWindow.webContents.openDevTools();
+
+	// Emitted when the window is closed.
+	mainWindow.on('closed', () => {
+		// Dereference the window object, usually you would store windows
+		// in an array if your app supports multi windows, this is the time
+		// when you should delete the corresponding element.
+		mainWindow = null;
+	});
+
+	mainWindow.once('ready-to-show', () => {
+		mainWindow.show();
+		mainWindow.focus();
+	});
 }
 
 function applyUpdater() {
-  var feedUrl = 'https://zwkuawed8b.execute-api.ap-northeast-1.amazonaws.com/prod?version=' + app.getVersion();
+	var feedUrl = 'https://zwkuawed8b.execute-api.ap-northeast-1.amazonaws.com/prod?version=' + app.getVersion();
 
-  autoUpdater.on('update-downloaded', function (event, releaseNotes, releaseName, releaseDate, updateUrl, quitAndUpdate) {
+	autoUpdater.on('update-downloaded', function (event, releaseNotes, releaseName, releaseDate, updateUrl, quitAndUpdate) {
 
-    var index = dialog.showMessageBox(mainWindow, {
-      type: 'info',
-      buttons: ['Restart', 'Later'],
-      title: "PileMd",
-      message: 'The new version has been downloaded. Please restart the application to apply the updates.',
-      detail: releaseName + "\n\n" + releaseNotes
-    });
+		var index = dialog.showMessageBox(mainWindow, {
+			type: 'info',
+			buttons: ['Restart', 'Later'],
+			title: "PileMd",
+			message: 'The new version has been downloaded. Please restart the application to apply the updates.',
+			detail: releaseName + "\n\n" + releaseNotes
+		});
 
-    if (index === 1) {
-      return;
-    }
+		if (index === 1) {
+			return;
+		}
 
-    quitAndUpdate();
-  });
-  autoUpdater.on("error", (error) => {});
-  autoUpdater.setFeedURL(feedUrl);
-  autoUpdater.checkForUpdates();
+		quitAndUpdate();
+	});
+	autoUpdater.on("error", (error) => {});
+	autoUpdater.setFeedURL(feedUrl);
+	autoUpdater.checkForUpdates();
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
-  makeWindow();
-  applyUpdater();
+	makeWindow();
+	//applyUpdater();
 });
 
 app.on('activate', function() {
-  if(!mainWindow){
-    makeWindow();
-    autoUpdater.checkForUpdates();
-  }
+	if(!mainWindow){
+		makeWindow();
+		//autoUpdater.checkForUpdates();
+	}
 });

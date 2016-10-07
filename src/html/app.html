@@ -1,64 +1,146 @@
-<div class="outer_wrapper">
-	<!--div class="my-sidebar-header">
-		<input v-model="search" class="my-search" type="search" id="sample1" placeholder="Search notes..." />
-		<button title="Click to add note" class="my-add-note" @click="addNote()"><i class="material-icons">edit</i></button>
-	</div-->
-	<!--button @click="toggleFullScreen"
-		class="my-sidebar-toggle"
-		:class="{'isFullScreen': isFullScreen}"
-		title="Toggle Widescreen">
-		<i class="material-icons">keyboard_arrow_left</i>
-	</button>
-	@dragover.stop="allDragOver($event)"
-	@dragleave.prevent.stop="allDragLeave($event)"
-	@drop.prevent.stop="dropToAll($event)"
-	-->
+<div id="title-bar">
+	<nav id="cssmenu">
+		<ul>
+			<li class="has-sub">
+				<a href="#">PileMd</a>
+				<ul>
+					<li>
+						<a @click="addNote()" href="#">
+							<i class="icon icon-new-note"></i>
+							New Note
+						</a>
+					</li>
+					<li><hr></li>
+					<li>
+						<a @click="openSync()" href="#">
+							<i class="icon icon-folder"></i>
+							Open Existing Sync Folder
+						</a>
+					</li>
+					<li>
+						<a @click="moveSync()" href="#">
+							<i class="icon icon-folder"></i>
+							Move Sync Folder
+						</a>
+					</li>
+					<li><hr></li>
+					<li>
+						<a @click="menu_close()" href="#">
+							<i class="icon icon-quit"></i>
+							Quit
+						</a>
+					</li>
+				</ul>
+			</li>
+			<li v-if="selectedRackOrFolder">
+				<a @click="addNote()" href="#">
+					<i class="icon icon-new-note"></i>
+					New Note
+				</a>
+			</li>
+			<li v-if="selectedNote.data">
+				<a @click="toggleFullScreen()" href="#">
+					<span v-if="isFullScreen">
+						<i class="icon icon-sidebar-open"></i>
+						Open Sidebar
+					</span>
+					<span v-if="!isFullScreen">
+						<i class="icon icon-sidebar-close"></i>
+						Close Sidebar
+					</span>
+				</a>
+			</li>
+			<li v-if="selectedNote.data">
+				<a @click="menu_preview()" href="#">
+					<span v-if="!isPreview">
+						<i class="icon icon-show"></i>
+						Show Preview
+					</span>
+					<span v-if="isPreview">
+						<i class="icon icon-hide"></i>
+						Hide Preview
+					</span>
+				</a>
+			</li>
+			
+		</ul>
+	</nav>
+	<div id="title-bar-btns">
+		<button id="min-btn" @click="menu_min()">
+			<i class="material-icons">remove</i>
+		</button>
+		<button id="max-btn" @click="menu_max()">
+			<i class="material-icons">web_asset</i>
+		</button>
+		<button id="close-btn" @click="menu_close()">
+			<i class="material-icons">clear</i>
+		</button>
+	</div>
+</div>
+<div class="my-main">
+	<div class="outer_wrapper">
 
-	<div class="cell-container" v-show="!isFullScreen" :style="{ width: racksWidth+'px' }">
-		<div class="my-shelf" @contextmenu="shelfMenu()">
-			<div class="my-shelf-wrapper">
-				<div :class="{'isShelfSelected': ((isSearchAll() && !draggingNote) || allDragHover), 'noteIsHere': selectedNote.folderUid === null}"
-					@click.prevent.stop="selectAll()"
-					@dragover.stop="allDragOver($event)"
-					@dragleave.prevent.stop="allDragLeave($event)"
-					@drop.prevent.stop="dropToAll($event)"
-					class="my-shelf-all">
-					<a>All</a>
+		<!--div class="my-sidebar-header">
+			<input v-model="search" class="my-search" type="search" id="sample1" placeholder="Search notes..." />
+			<button title="Click to add note" class="my-add-note" @click="addNote()"><i class="material-icons">edit</i></button>
+		</div-->
+		<!--button @click="toggleFullScreen"
+			class="my-sidebar-toggle"
+			:class="{'isFullScreen': isFullScreen}"
+			title="Toggle Widescreen">
+			<i class="material-icons">keyboard_arrow_left</i>
+		</button>
+		@dragover.stop="allDragOver($event)"
+		@dragleave.prevent.stop="allDragLeave($event)"
+		@drop.prevent.stop="dropToAll($event)"
+		-->
+
+		<div class="cell-container" v-show="!isFullScreen" :style="{ width: racksWidth+'px' }">
+			<div class="my-shelf" @contextmenu="shelfMenu()">
+				<div class="my-shelf-wrapper">
+					<div :class="{'isShelfSelected': ((isSearchAll() && !draggingNote) || allDragHover), 'noteIsHere': selectedNote.folderUid === null}"
+						@click.prevent.stop="selectAll()"
+						@dragover.stop="allDragOver($event)"
+						@dragleave.prevent.stop="allDragLeave($event)"
+						@drop.prevent.stop="dropToAll($event)"
+						class="my-shelf-all">
+						<a>All</a>
+					</div>
+					<racks :racks.sync="racks"
+						:folders.sync="folders"
+						:notes="notes"
+						:selected-rack-or-folder.sync="selectedRackOrFolder"
+						:dragging-note.sync="draggingNote"
+						:editing-rack.sync="editingRack"
+						:selected-note="selectedNote">
+					</racks>
 				</div>
-				<racks :racks.sync="racks"
-					:folders.sync="folders"
-					:notes="notes"
-					:selected-rack-or-folder.sync="selectedRackOrFolder"
-					:dragging-note.sync="draggingNote"
-					:editing-rack.sync="editingRack"
-					:selected-note="selectedNote">
-				</racks>
 			</div>
 		</div>
-	</div>
 
-	<handler-stack v-show="!isFullScreen"></handler-stack>
+		<handler-stack v-show="!isFullScreen"></handler-stack>
 
-	<div class="cell-container" v-show="!isFullScreen" :style="{ width: notesWidth+'px' }">
-		<notes :notes="filteredNotes"
-		:toggle-full-screen="toggleFullScreen"
-		:original-notes.sync="notes"
-		:selected-note.sync="selectedNote"
-		:dragging-note.sync="draggingNote">
-		</notes>
-	</div>
+		<div class="cell-container" v-show="!isFullScreen" :style="{ width: notesWidth+'px' }">
+			<notes :notes="filteredNotes"
+			:toggle-full-screen="toggleFullScreen"
+			:original-notes.sync="notes"
+			:selected-note.sync="selectedNote"
+			:dragging-note.sync="draggingNote">
+			</notes>
+		</div>
 
-	<handler-notes v-show="!isFullScreen"></handler-notes>
+		<handler-notes v-show="!isFullScreen"></handler-notes>
 
-	<div class="cell-container">
-		<div class="my-editor">
-			<codemirror v-show="!isPreview && selectedNote.title"
-				:note="selectedNote"
-				:is-full-screen="isFullScreen"
-				:is-preview="isPreview">
-			</codemirror>
-			<div v-show="isPreview && selectedNote.title" v-html="preview" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()"></div>
-			<flashmessage :messages="messages"></flashmessage>
+		<div class="cell-container">
+			<div class="my-editor">
+				<codemirror v-show="!isPreview && selectedNote.title"
+					:note="selectedNote"
+					:is-full-screen="isFullScreen"
+					:is-preview="isPreview">
+				</codemirror>
+				<div v-show="isPreview && selectedNote.title" v-html="preview" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()"></div>
+				<flashmessage :messages="messages"></flashmessage>
+			</div>
 		</div>
 	</div>
 </div>
