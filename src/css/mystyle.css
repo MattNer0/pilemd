@@ -27,6 +27,10 @@ body {
 	background-color: #444444;
 }
 
+html, body, h5{
+	font-size: 14px;
+}
+
 #main-editor{
 	background: linear-gradient(#49568c, #61709c);
 }
@@ -37,7 +41,7 @@ body {
 	width: 0.5em;
 }
 ::-webkit-scrollbar-thumb {
-	background-color: #555555;
+	background-color: #666666;
 	background-clip: padding-box;
 	min-height: 1.4em;
 	padding: 0;
@@ -45,7 +49,7 @@ body {
 	border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover{
-	background-color: #666666;
+	background-color: #777777;
 }
 ::-webkit-scrollbar-button {
 	height: 0;
@@ -66,6 +70,7 @@ body {
 	margin: 0;
 	background: #444444;
 	color: #F1F1F1;
+	overflow: visible;
 	font-family: sans-serif;
 }
 
@@ -95,10 +100,10 @@ body {
 }
 
 #title-bar #title-bar-btns button {
-	height: 2.3em;
-	width: 2.3em;
+	height: 2.1em;
+	width: 2.1em;
 	padding: 0;
-	line-height: 3.8em;
+	line-height: 3.3em;
 	background-color: transparent;
 	border: none;
 	outline: none;
@@ -147,6 +152,7 @@ nav a {
 
 nav a i{
 	vertical-align: sub;
+	margin-right: 0.1em;
 }
 
 nav li:hover a, nav li:hover ul {
@@ -160,9 +166,7 @@ nav li ul {
 	top: 3em;
 	width: 15em;
 	visibility: hidden;
-	z-index: 1;
-	/*-webkit-transition: all .25s ease;
-	transition: all .25s ease;*/
+	z-index: 10;
 }
 nav li:hover ul {
 	opacity: 1;
@@ -293,7 +297,6 @@ nav li ul a:hover {
 }
 .my-shelf-all {
 	display: none;
-	font-size: 14px;
 	font-weight: 500;
 	padding: 1px 0 1px 15px;
 	border-radius: 0 2px 2px 0 / 0 2px 2px 0;
@@ -356,9 +359,10 @@ nav li ul a:hover {
 
 .my-editor {
 	height: calc( 100vh - 2.3em );
-	width: 100%;
+	width: auto;
 	margin: 0 auto;
 	overflow-y: auto;
+	position: relative;
 }
 
 .my-editor-header {
@@ -425,6 +429,10 @@ i.icon.icon-quit{
 	background-image: url('../images/cross.png');
 }
 
+i.icon.icon-tool{
+	background-image: url('../images/tool.png');
+}
+
 /* end icons */
 
 .CodeMirror {
@@ -435,11 +443,11 @@ i.icon.icon-quit{
 .CodeMirror,
 .my-editor-preview {
 	margin: 0;
-	padding: 30px 4vw 16px 4vw;
+	padding: 3em 4vw 3em 4vw;
 
 	width: auto;
 	min-height: calc(100vh - 46px);
-	min-width: 206px;
+	min-width: 15em;
 	height: auto;
 
 	background-color: #fefefe;
@@ -447,18 +455,19 @@ i.icon.icon-quit{
 	color: #333;
 
 	font-family: "Roboto", monospace;
-	font-size: 14px;
-	line-height: 20px;
+	line-height: 1.6em;
 }
 
 .CodeMirror-scroll {
 	overflow-y: hidden !important;
+	margin: 0;
 	width: auto;
 	min-height: calc(100vh - 46px);
 	height: auto;
 }
 .CodeMirror-sizer {
-	margin-bottom: 72px !important;
+	margin-bottom: 0 !important;
+	border-right-width: 0 !important;
 }
 .CodeMirror-vscrollbar {
 	display: none !important;
@@ -526,19 +535,35 @@ span.cm-piled-formatting-task {
 
 .my-editor-preview ul,
 .my-editor-preview ol{
-	padding-left: 28px;
+	padding-left: 1.0em;
+	margin: 1em 0;
+}
+
+.my-editor-preview ul li > p,
+.my-editor-preview ol li > p{
+	margin: 0;
+}
+
+.my-editor-preview ul ul,
+.my-editor-preview ol ol{
+	padding-left: 1.5em;
+	margin: 0;
+}
+
+.my-editor-preview li {
+    line-height: 1.6em;
 }
 
 .my-editor-preview ul li.checkbox{
-	padding-left: 25px;
-	padding-top: 2px;
+	padding-left: 1.4em;
+	padding-top: 0.1em;
 	position: relative;
-	margin: 1em 0;
+	margin: 0.5em 0;
 }
 
 .my-editor-preview ul li.checkbox label{
 	position: absolute;
-	left: -10px;
+	left: -0.8em;
 	top: 0;
 }
 
@@ -546,8 +571,8 @@ span.cm-piled-formatting-task {
 	cursor: pointer;
 	position: relative;
 	overflow: visible;
-	width: 20px;
-	height: 20px;
+	width: 1.2em;
+	height: 1.2em;
 	box-sizing: border-box;
 	padding: 0;
 	display: block;
@@ -569,36 +594,40 @@ span.cm-piled-formatting-task {
 }
 
 .my-editor-preview ul li.checkbox input[type=checkbox]:before {
-	width: 100%;
 	background-color: #ffffff;
 	box-shadow: 0 0 0 1px #89afb1;
-	border-radius: 5px;
-	height: 100%;
+	border-radius: 4px;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 	transition: all 0.25s ease-in-out;
 }
 
-.my-editor-preview ul li.checkbox input[type=checkbox]:checked:after {
+.my-editor-preview ul li.checkbox input[type=checkbox]:after {
 	color: #333;
-	content: "\2713";
-	text-align: right;
+	text-align: center;
 	font-weight: bold;
 	font-size: 1.2em;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 }
-.my-editor-preview ul li.checkbox input[type=checkbox]:after {
-	width: 80%;
-	height: 80%;
-	margin-top: 10%;
-	margin-left: 10%;
+
+.my-editor-preview ul li.checkbox input[type=checkbox]:checked:after {
+	content: "\2713";	
 }
 
 /* --- */
 
 .CodeMirror span.cm-piled-header-1,
 .my-editor-preview h1 {
-	font-size: 26px;
+	font-size: 180%;
 	color: #3f51b5;
 	font-weight: 700;
-	line-height: 40px;
+	margin-top: 0.4em;
+	line-height: 1.4em;
 	border-bottom: solid 1px rgba(10, 11, 207, 0.1)
 }
 .my-editor-preview blockquote {
@@ -612,15 +641,11 @@ span.cm-piled-formatting-task {
 	margin: 0;
 }
 
-.my-editor-preview h1 {
-	margin-top: 0;
-}
-
 .CodeMirror span.cm-piled-header-2,
 .my-editor-preview h2 {
-	font-size: 22px;
+	font-size: 160%;
 	font-weight: 600;
-	line-height: 30px;
+	line-height: 1.4em;
 }
 .my-editor-preview h2 {
 	padding-left: 10px;
@@ -629,8 +654,8 @@ span.cm-piled-formatting-task {
 
 .CodeMirror span.cm-piled-header-3,
 .my-editor-preview h3 {
-	font-size: 18px;
-	line-height: 30px;
+	font-size: 130%;
+	line-height: 1.4em;
 	font-weight: 600;
 }
 
@@ -651,6 +676,12 @@ span.cm-piled-formatting-task {
 
 .CodeMirror span.cm-piled-code, code {
 	color: #0A3ABF;
+}
+
+pre > code{
+	display: block;
+    line-height: 0;
+    width: 100%;
 }
 
 .CodeMirror span.cm-piled-strong,
@@ -677,17 +708,17 @@ span.cm-piled-formatting-task {
 	font-family: monospace;
 }
 
-.my-editor-preview h2,.my-editor-preview h3 { margin: 18px 0 12px 0 }
-.my-editor-preview h3 { line-height: 30px }
-.my-editor-preview h4 { font-size: 18px }
-.my-editor-preview h5 { font-size: 16px }
+.my-editor-preview h2,.my-editor-preview h3 { margin: 1.4em 0 1.2em 0 }
+.my-editor-preview h3 { line-height: 2em }
+.my-editor-preview h4 { font-size: 1.4em }
+.my-editor-preview h5 { font-size: 1.2em }
 .my-editor-preview li {
-	line-height: 20px;
+	line-height: 1.4em;
 }
 
 .my-editor-preview img {
-	max-width: 500px;
-	max-height: 500px;
+	max-width: 36em;
+	max-height: 36em;
 	height: auto;
 }
 
@@ -698,13 +729,15 @@ span.cm-piled-formatting-task {
 /* Search dialog */
 
 .CodeMirror-dialog.CodeMirror-dialog-bottom {
+	position: absolute;
+	top: 0;
+	background-color: #444444;
+	color: #F1F1F1;
 	width: 100%;
-	position: fixed;
-	bottom: 0;
-	background-color: #fdfdfd;
-	margin-left: -30px;
-	border-top: solid 1px #d0d0d0;
-	padding: 8px 8px 8px 16px;
+	margin-left: -4vw;
+	margin-right: -4vw;
+	border-bottom: solid 1px #333333;
+	padding: 0.6em;
 	z-index: 5;
 }
 

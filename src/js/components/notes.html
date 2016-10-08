@@ -16,9 +16,7 @@
 			<div v-if="note.img">
 				<img :src="note.img"/>
 			</div>
-			<div class="my-notes-note-text" v-if="!note.img && note.body.length != 0">
-				{{ note.bodyWithoutTitle|truncate 200 }}
-			</div>
+			<div class="my-notes-note-text" v-if="!note.img && note.body.length != 0">{{ note.bodyWithoutTitle|truncate 200 }}</div>
 		</div>
 	</div>
 </div>

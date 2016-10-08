@@ -308,7 +308,7 @@ class Note extends Model {
 
 	get bodyWithoutTitle() {
 		if(this.body){
-			return this.splitTitleFromBody().body;
+			return this.splitTitleFromBody().body.replace(/^\n/, "");
 		} else {
 			return "";
 		}	

@@ -386,6 +386,10 @@ new Vue({
 		},
 		menu_preview: function() {
 			this.isPreview = !this.isPreview;
+		},
+		menu_devTools: function() {
+			var win = remote.getCurrentWindow();
+			win.webContents.openDevTools();
 		}
 	},
 	components: {

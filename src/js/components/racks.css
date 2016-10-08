@@ -1,11 +1,11 @@
 .my-shelf-rack {
     position: relative;
-    padding: 2px 5px;
+    padding: 0.2em;
+    margin: 0.2em 0;
 }
 .my-shelf-rack h5 {
-    min-width: 96px;
     margin: 0 auto;
-    padding: 4px 8px 4px 8px;
+    padding: 0.3em;
     font-weight: 500;
     border-radius: 0 2px 2px 0 / 0 2px 2px 0;
     white-space: initial;
@@ -64,8 +64,8 @@
 
 .my-shelf-folder {
     position: relative;
-    font-size: 13px;
-    padding: 3px 2px 3px 20px;
+    font-size: 90%;
+    padding: 0.2em 0.2em 0.2em 1.4em;
     border-radius: 0 2px 2px 0 / 0 2px 2px 0;
     transition: background-color 200ms;
 }
