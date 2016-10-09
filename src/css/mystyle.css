@@ -70,6 +70,7 @@ html, body, h5{
 	margin: 0;
 	background: #444444;
 	color: #F1F1F1;
+	border-bottom: 2px solid #333333;
 	overflow: visible;
 	font-family: sans-serif;
 }
@@ -185,7 +186,7 @@ nav li ul a:hover {
 
 .outer_wrapper {
 	display: table;
-	height: calc( 100vh - 2.3em );
+	height: 100%;
 	width: 100%;
 }
 
@@ -204,31 +205,10 @@ nav li ul a:hover {
 
 .my-main {
 	width: 100%;
+	height: calc( 100vh - 2.38em );
 	display: flex;
 	flex-flow: row nowrap;
 }
-
-/*
-.my-sidebar {
-	background: linear-gradient(#49568c, #61709c);
-	display: flex;
-	flex-flow: column nowrap;
-	flex-basis: 270px;
-	z-index: 15;
-}
-
-.my-sidebar-header {
-	overflow-x: hidden;
-	overflow-y: hidden;
-	display: flex;
-	flex-flow: row nowrap;
-	align-items: center;
-}
-
-.my-sidebar-header > *{
-	display: none;
-}
-*/
 
 .my-search {
 	font-size: 12px;
@@ -314,51 +294,15 @@ nav li ul a:hover {
 
 	color: #424242;
 	width: auto;
-	height: calc( 100vh - 2.3em );
+	height: 100%;
 
 	overflow-y: auto;
 	overflow-x: hidden;
 	-webkit-user-select: none;
 }
 
-/*
-.my-sidebar-toggle {
-	position: fixed;
-
-	top: 0;
-	width: 8px;
-	height: 100vh;
-
-	border: 0;
-	padding: 0;
-	background-color: #bdbdbd;
-
-	z-index: 20;
-	opacity: 0;
-	transition: opacity 200ms;
-}
-.my-sidebar-toggle:hover {
-	cursor: pointer;
-}
-.my-sidebar-toggle:focus {
-	outline: none;
-}
-.my-sidebar-toggle i {
-	color: #eee;
-	font-size: 12px;
-	margin-left: -2px;
-}
-.my-sidebar-toggle.isFullScreen i {
-	transform: rotate(180deg);
-}
-
-.my-sidebar:hover + .my-sidebar-toggle, .my-sidebar-toggle:hover{
-	opacity: 1;
-}
-*/
-
 .my-editor {
-	height: calc( 100vh - 2.3em );
+	height: 100%;
 	width: auto;
 	margin: 0 auto;
 	overflow-y: auto;
@@ -433,7 +377,35 @@ i.icon.icon-tool{
 	background-image: url('../images/tool.png');
 }
 
+i.icon.icon-code{
+	background-image: url('../images/code.png');
+}
+
+i.icon.icon-check{
+	background-image: url('../images/check_mark.png');
+}
+
 /* end icons */
+
+.CodeMirror-menu{
+	padding: 0;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	background: #444444;
+	color: #F1F1F1;
+	height: 2em;
+	z-index: 5;
+}
+
+.CodeMirror-menu:after{
+	clear: both;
+    content: "";
+    display: block;
+}
+
+/* end menu */
 
 .CodeMirror {
 	text-rendering: optimizeSpeed;
@@ -446,7 +418,7 @@ i.icon.icon-tool{
 	padding: 3em 4vw 3em 4vw;
 
 	width: auto;
-	min-height: calc(100vh - 46px);
+	min-height: 100%;
 	min-width: 15em;
 	height: auto;
 
@@ -462,7 +434,7 @@ i.icon.icon-tool{
 	overflow-y: hidden !important;
 	margin: 0;
 	width: auto;
-	min-height: calc(100vh - 46px);
+	min-height: 100%;
 	height: auto;
 }
 .CodeMirror-sizer {

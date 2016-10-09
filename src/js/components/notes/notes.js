@@ -2,8 +2,8 @@ const marked = require('marked');
 
 const fs = require('fs');
 
-const ApplicationMenu = require('../applicationmenu').ApplicationMenu;
-const fileUtils = require('../utils/file');
+const ApplicationMenu = require('../../applicationmenu').ApplicationMenu;
+const fileUtils = require('../../utils/file');
 
 // Electron things
 const remote = require('electron').remote;
@@ -13,16 +13,16 @@ const MenuItem = remote.MenuItem;
 const clipboard = require('electron').clipboard;
 const dialog = remote.dialog;
 
-const Note = require('../models').Note;
+const Note = require('../../models').Note;
 
 const NOTE_DISPLAY_ORDER_KEY = 'notes.notesDisplayOrder';
 
 require('./notes.css');
 
 module.exports = function(Vue, options) {
-	Vue.use(require('../filters/truncate'));
-	Vue.use(require('../filters/dateSplitted'));
-	Vue.use(require('../coops/qiita'));
+	Vue.use(require('../../filters/truncate'));
+	Vue.use(require('../../filters/dateSplitted'));
+	Vue.use(require('../../coops/qiita'));
 
 	Vue.component('notes', {
 		replace: true,

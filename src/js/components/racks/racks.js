@@ -5,10 +5,10 @@ const MenuItem = remote.MenuItem;
 const fs = require('fs');
 const path = require('path');
 
-const arr = require('../utils/arr');
-const dragging = require('../utils/dragging');
+const arr = require('../../utils/arr');
+const dragging = require('../../utils/dragging');
 
-const models = require('../models');
+const models = require('../../models');
 const Rack = models.Rack;
 const Folder = models.Folder;
 const Note = models.Note;

@@ -143,7 +143,7 @@ function enterHandler(before, after) {
     'Ctrl-W': cutText,
     'Ctrl-K': killLine,
     'Ctrl-Z': 'undo',
-    'Ctrl-S': 'findPersistent',
+    'Ctrl-F': 'findPersistent',
     'Ctrl-R': 'replace',
     'Cmd-Left': "goLineStart", 'Cmd-Right': 'goLineEnd',
     //'Cmd-Up': 'goDocStart', 'Cmd-Down': 'goDocEnd',

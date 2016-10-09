@@ -1,0 +1,62 @@
+<nav id="cssmenu">
+	<ul>
+		<li class="has-sub">
+			<a href="#">PileMd</a>
+			<ul>
+				<li>
+					<a @click="$root.addNote()" href="#">
+						New Note
+					</a>
+				</li>
+				<li><hr></li>
+				<li>
+					<a @click="$root.openSync()" href="#">
+						Open Existing Sync Folder
+					</a>
+				</li>
+				<li>
+					<a @click="$root.moveSync()" href="#">
+						Move Sync Folder
+					</a>
+				</li>
+				<li><hr></li>
+				<li>
+					<a @click="menu_devTools()" href="#">
+						Open DevTools
+					</a>
+				</li>
+				<li><hr></li>
+				<li>
+					<a @click="$root.menu_close()" href="#">
+						Quit
+					</a>
+				</li>
+			</ul>
+		</li>
+		<li v-if="$root.selectedRackOrFolder">
+			<a @click="$root.addNote()" href="#">
+				New Note
+			</a>
+		</li>
+		<li v-if="$root.selectedNote.data">
+			<a @click="$root.toggleFullScreen()" href="#">
+				<span v-if="$root.isFullScreen">
+					Open Sidebar
+				</span>
+				<span v-if="!$root.isFullScreen">
+					Close Sidebar
+				</span>
+			</a>
+		</li>
+		<li v-if="$root.selectedNote.data">
+			<a @click="menu_preview()" href="#">
+				<span v-if="!$root.isPreview">
+					Show Preview
+				</span>
+				<span v-if="$root.isPreview">
+					Hide Preview
+				</span>
+			</a>
+		</li>
+	</ul>
+</nav>

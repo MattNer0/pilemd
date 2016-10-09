@@ -28,7 +28,7 @@ module.exports = function(Vue, options) {
 
 	const CodeMirror = require('codemirror');
 	require('codemirror/addon/search/searchcursor');
-	require('../codemirror/piledsearch');
+	//require('../codemirror/piledsearch');
 	require('codemirror/addon/edit/closebrackets');
 	require('codemirror/addon/mode/overlay');
 	require('../codemirror/placeholder');
@@ -40,7 +40,7 @@ module.exports = function(Vue, options) {
 	require('codemirror/mode/python/python');
 	require('codemirror/mode/javascript/javascript');
 	require('codemirror/mode/coffeescript/coffeescript');
-	require('codemirror/mode/jade/jade');
+	require('codemirror/mode/pug/pug');
 	require('codemirror/mode/css/css');
 	require('codemirror/mode/htmlmixed/htmlmixed');
 	require('codemirror/mode/clike/clike');
@@ -102,9 +102,10 @@ module.exports = function(Vue, options) {
 					cursorBlinkRate: 540,
 					addModeClass: true,
 					autoCloseBrackets: true,
-					placeholder: 'Start writing Markdown...'
+					placeholder: 'Start writing...'
 				});
 				this.cm = cm;
+				this.$parent.codeMirror = cm;
 
 				var updateBody = Vue.util.debounce(() => {
 					this.note.body = cm.getValue();
@@ -112,6 +113,7 @@ module.exports = function(Vue, options) {
 				cm.on('change', function() {
 					updateBody();
 				});
+
 				cm.on('drop', (cm, event) => {
 					if (event.dataTransfer.files.length > 0) {
 						var p = cm.coordsChar({ top: event.y, left: event.x });
@@ -211,27 +213,32 @@ module.exports = function(Vue, options) {
 					// Makidng timeout Cause codemirror's contextmenu handler using setTimeout on 50ms or so.
 					setTimeout(() => {
 						var menu = new Menu();
+
 						menu.append(new MenuItem({
 							label: 'Cut',
 							accelerator: 'CmdOrCtrl+X',
 							click: () => { cutText(cm) }
 						}));
+
 						menu.append(new MenuItem({
 							label: 'Copy',
 							accelerator: 'CmdOrCtrl+C',
 							click: () => { copyText(cm) }
 						}));
+
 						menu.append(new MenuItem({
 							label: 'Paste',
 							accelerator: 'CmdOrCtrl+V',
 							click: () => { pasteText(cm) }
 						}));
+
 						menu.append(new MenuItem({ type: 'separator' }));
 						menu.append(new MenuItem({
 							label: 'Attach Image',
 							accelerator: 'Shift+CmdOrCtrl+A',
 							click: () => { this.uploadFile() }
 						}));
+
 						var c = cm.getCursor();
 						var token = cm.getTokenAt(c, true);
 						menu.append(new MenuItem({ type: 'separator' }));
@@ -301,6 +308,7 @@ module.exports = function(Vue, options) {
 						cm.swapDoc(doc);
 					}
 				}, { immediate: true });
+				
 				this.$watch('note.body', function(value) {
 					if (cm.doc.getValue() != value) {
 						// Note updated by outers.
@@ -309,10 +317,11 @@ module.exports = function(Vue, options) {
 						cm.doc.setValue(value);
 						cm.doc.setCursor(c);
 					}
-				})
+				});
 			});
 		},
 		methods: {
+
 			uploadFile: function() {
 				var cm = this.cm;
 				var notePaths = dialog.showOpenDialog({
@@ -335,6 +344,7 @@ module.exports = function(Vue, options) {
 				});
 				uploadFiles(cm, files, this);
 			},
+
 			togglePreview: function() {
 				this.$dispatch('togglePreview');
 			},

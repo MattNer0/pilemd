@@ -1,0 +1,18 @@
+<div v-show="!$root.isPreview && $root.selectedNote.title" class="CodeMirror-menu">
+	<nav>
+		<ul>
+			<li>
+				<a @click="menu_codeBlock()" href="#">
+					<i class="icon icon-code"></i>
+					Add Code block
+				</a>
+			</li>
+			<li>
+				<a @click="menu_checkMark()" href="#">
+					<i class="icon icon-check"></i>
+					Add Check mark
+				</a>
+			</li>
+		</ul>
+	</nav>
+</div>

@@ -8,7 +8,7 @@ settings.loadWindowSize();
 const Vue = require('vue');
 const moment = require('moment');
 
-const Handler = require('./resizeHandler');
+//const Handler = require('./resizeHandler');
 
 const ApplicationMenu = require('./applicationmenu').ApplicationMenu;
 const models = require('./models');
@@ -26,12 +26,16 @@ const arr = require('./utils/arr');
 
 // Vue.js plugins
 Vue.use(require('./components/flashmessage'));
-Vue.use(require('./components/modal'));
-Vue.use(require('./components/racks'));
-Vue.use(require('./components/notes'));
+Vue.use(require('./components/modal/modal'));
+Vue.use(require('./components/racks/racks'));
+Vue.use(require('./components/notes/notes'));
 Vue.use(require('./components/codemirror'),
 	{imageURL: '', imageParamName: 'image'});
 Vue.use(require('./coops/qiita'));
+Vue.use(require('./components/resizeHandler').handlerStack);
+Vue.use(require('./components/resizeHandler').handlerNotes);
+Vue.use(require('./components/menu/titleMenu'));
+Vue.use(require('./components/menu/codemirrorMenu'));
 
 // Loading CSSs
 require('../css/materialicons.css');
@@ -383,17 +387,6 @@ new Vue({
 		menu_min: function() {
 			var win = remote.getCurrentWindow();
 			win.minimize();
-		},
-		menu_preview: function() {
-			this.isPreview = !this.isPreview;
-		},
-		menu_devTools: function() {
-			var win = remote.getCurrentWindow();
-			win.webContents.openDevTools();
 		}
-	},
-	components: {
-		handlerStack: Handler.handlerStack,
-		handlerNotes: Handler.handlerNotes
 	}
 });
