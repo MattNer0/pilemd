@@ -63,7 +63,7 @@ html, body, h5{
 }
 
 #title-bar {
-	height: 2em;
+	height: 2.5em;
 	width: 100%;
 	-webkit-app-region: drag;
 	padding: 0;
@@ -73,6 +73,13 @@ html, body, h5{
 	border-bottom: 2px solid #333333;
 	overflow: visible;
 	font-family: sans-serif;
+}
+
+.my-main {
+	width: 100%;
+	height: calc( 100vh - 2.9em );
+	display: flex;
+	flex-flow: row nowrap;
 }
 
 #title-bar:after {
@@ -98,13 +105,15 @@ html, body, h5{
 #title-bar #title-bar-btns {
 	float: right;
 	-webkit-app-region: no-drag;
+	height: 100%;
 }
 
 #title-bar #title-bar-btns button {
-	height: 2.1em;
-	width: 2.1em;
+	height: 2.6em;
+	width: 2.6em;
 	padding: 0;
-	line-height: 3.3em;
+	line-height: 4.0em;
+	margin-left: 0.2em;
 	background-color: transparent;
 	border: none;
 	outline: none;
@@ -141,19 +150,25 @@ nav li hr{
 nav a {
 	color: #F1F1F1;
 	display: block;
-	padding: 0 1.0em;
+	padding: 0.25em 0.5em;
 	line-height: 2.2em;
 	height: 2em;
-	text-align: left;
+	min-width: 8em;
+	text-align: center;
 	outline: none;
 	text-decoration: none;
 	-webkit-transition: all .25s ease;
 	transition: all .25s ease;
 }
+nav li:first-child a{
+	text-align: left;
+	min-width: initial;
+	padding-left: 1.0em;
+	padding-right: 1.0em;
+}
 
 nav a i{
 	vertical-align: sub;
-	margin-right: 0.1em;
 }
 
 nav li:hover a, nav li:hover ul {
@@ -164,22 +179,29 @@ nav li ul {
 	left: 0;
 	opacity: 0;
 	position: absolute;
-	top: 3em;
+	top: 2.5em;
 	width: 15em;
 	visibility: hidden;
 	z-index: 10;
 }
 nav li:hover ul {
 	opacity: 1;
-	top: 2em;
 	visibility: visible;
 }
 nav li ul li {
 	float: none;
 	width: 100%;
 }
+nav li ul a{
+	text-align: left;
+}
 nav li ul a:hover {
 	background: #666666;
+}
+
+.CodeMirror-menu nav a{
+	padding-top: 0;
+	padding-bottom: 0;
 }
 
 /* menu end */
@@ -201,13 +223,6 @@ nav li ul a:hover {
 	height: 100%;
 	width: 4px;
 	cursor: col-resize;
-}
-
-.my-main {
-	width: 100%;
-	height: calc( 100vh - 2.38em );
-	display: flex;
-	flex-flow: row nowrap;
 }
 
 .my-search {
@@ -418,7 +433,7 @@ i.icon.icon-check{
 	padding: 3em 4vw 3em 4vw;
 
 	width: auto;
-	min-height: 100%;
+	min-height: calc( 100% - 6em );
 	min-width: 15em;
 	height: auto;
 
@@ -428,6 +443,11 @@ i.icon.icon-check{
 
 	font-family: "Roboto", monospace;
 	line-height: 1.6em;
+}
+
+.CodeMirror{
+	padding-top: 4em;
+	min-height: calc( 100% - 7em );
 }
 
 .CodeMirror-scroll {

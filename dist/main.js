@@ -1,4 +1,6 @@
 const electron = require('electron');
+const fs = require('fs');
+const path = require('path');
 const app = electron.app;  // Module to control application life.
 const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
 const Menu = electron.Menu;
@@ -82,10 +84,19 @@ app.on('window-all-closed', function() {
 });
 
 function makeWindow() {
+
+	var settings_path = path.join( electron.app.getPath('appData'), "pilemdConfig.json");
+	var settings_data = null;
+	try{
+		settings_data = JSON.parse(fs.readFileSync( settings_path ));
+	} catch(e){
+		settings_data = {};
+	}
+
 	// Create the browser window.
 	var conf = {
-		width: 1024,
-		height: 768,
+		width: settings_data['screen_width'] || 1024,
+		height: settings_data['screen_height'] || 768,
 		minWidth: 270,
 		minHeight: 437,
 		center: true,

@@ -35,15 +35,20 @@
 		</li>
 		<li v-if="$root.selectedRackOrFolder">
 			<a @click="$root.addNote()" href="#">
-				New Note
+				<span>
+					<i class="icon icon-new-note"></i>
+					New Note
+				</span>
 			</a>
 		</li>
 		<li v-if="$root.selectedNote.data">
 			<a @click="$root.toggleFullScreen()" href="#">
 				<span v-if="$root.isFullScreen">
+					<i class="icon icon-sidebar-open"></i>
 					Open Sidebar
 				</span>
 				<span v-if="!$root.isFullScreen">
+					<i class="icon icon-sidebar-close"></i>
 					Close Sidebar
 				</span>
 			</a>
@@ -51,9 +56,11 @@
 		<li v-if="$root.selectedNote.data">
 			<a @click="menu_preview()" href="#">
 				<span v-if="!$root.isPreview">
+					<i class="icon icon-show"></i>
 					Show Preview
 				</span>
 				<span v-if="$root.isPreview">
+					<i class="icon icon-hide"></i>
 					Hide Preview
 				</span>
 			</a>
