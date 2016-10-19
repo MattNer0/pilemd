@@ -20,22 +20,8 @@ function getBaseLibraryPath() {
 	return localStorage.getItem(BASE_LIB_PATH_KEY);
 }
 
-const DATA_REG = /\/(notes|folders|racks|meta)\/([a-f0-9]{8}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{4}\-[a-f0-9]{12})\.json$/;
-
-function detectPath(path) {
-	var m = DATA_REG.exec(path);
-	if (!m) {
-		return null
-	}
-	var dataType = m[1];
-	var uid = m[2];
-	return {
-		dataType: dataType == 'meta' ? 'notes' : dataType,
-		uid: uid
-	}
-}
-
 function readLibrary(){
+	var valid_formats = [ '.md', '.markdown', '.txt' ];
 	var valid_racks = [],
 		valid_folders = [],
 		valid_notes = [];
@@ -77,11 +63,13 @@ function readLibrary(){
 									var note = notes[ni];
 									var notePath = path.join( current_folder.data.path, note);
 									var noteStat = fs.statSync(notePath);
-									if(noteStat.isFile() && path.extname(note) == '.md'){
+									var noteExt = path.extname(note);
+									if(noteStat.isFile() && valid_formats.indexOf(noteExt) >= 0 ){
 										valid_notes.push(new Note({
 											name: note,
 											body: "", //fs.readFileSync(notePath).toString(),
 											path: notePath,
+											extension: noteExt,
 											rack: current_rack,
 											folder: current_folder,
 											created_at: noteStat.birthtime,
@@ -109,78 +97,25 @@ class Model {
 	constructor(data) {
 		this.uid = data.uid || uid.timeUID();
 	}
+
 	get data() { return { uid: this.uid } }
 
 	update(data) {
 		this.uid = data.uid;
 	}
-
-	static buildSaveDirPath() {
-		if( this.storagePrefix == 'notes'){
-			return path.join(getBaseLibraryPath(), 'meta');
-		}
-		return path.join(getBaseLibraryPath(), this.storagePrefix);
-	}
-
-	static buildSavePath(uid) {
-		return path.join(this.buildSaveDirPath(), uid) + '.json';
-	}
-
-	static getMdFilePath(fileName) {
-		return path.join( this.getMdFolderPath(), fileName) + '.md';
-	}
-
-	static getMdFolderPath(fileName) {
-		return path.join(getBaseLibraryPath(), 'notes');
-	}
-
-	static setModel(model) { }
-
-	static removeModelFromStorage(model) {
-		if (!model) { return }
-		/*
-		var p = this.buildSavePath(model.uid);
-		fs.unlink(p);
-		*/
-	}
-
-	static getModelsSync() {
-		/*
-		var dirPath = this.buildSaveDirPath();
-		try {
-			var files = fs.readdirSync(dirPath);
-		} catch(e) {
-			fs.mkdirSync(dirPath);
-			files = [];
-		}
-		var valids = [];
-		files.forEach((f) => {
-			var p = path.join(dirPath, f);
-			var d = detectPath(p);
-			if (d && d.dataType == this.storagePrefix) {
-				valids.push(new this(JSON.parse(fs.readFileSync(p))));
-			}
-		});
-		return valids;
-		*/
-	}
 }
+
 Model.storagePrefix = 'models';
-
-/**
- * [new Model(...)...].find(uidFinder("specify-your-uid")) => Model
- */
-function uidFinder(uid){
-	return (el) => {
-		return el.uid == uid
-	};
-}
 
 class Note extends Model {
 	constructor(data) {
 		super(data);
 
-		this._name = data.name.replace(/\.md$/, '');
+		this._ext = data.extension || ".md";
+		
+		var re = new RegExp("\\"+this._ext+"$");
+
+		this._name = data.name.replace(re, '');
 		this._body = data.body.replace(/    /g, '\t');
 		this._path = data.path;
 		this._rack = data.rack;
@@ -206,7 +141,8 @@ class Note extends Model {
 		return _.assign(super.data, {
 			body: this._body,
 			path: this._path,
-			mdFilename: this.mdFilename,
+			extension: this._ext,
+			document_filename: this.document_filename,
 			folderUid: this.folderUid,
 			updated_at: this.updatedAt,
 			created_at: this.createdAt,
@@ -233,13 +169,13 @@ class Note extends Model {
 		if(this._path && fs.existsSync(this._path)){
 			return this._path;
 		} else {
-			var new_path = path.join( getBaseLibraryPath(), this.data.rack.data.fsName, this.data.folder.data.fsName, this.data.mdFilename)+'.md';
+			var new_path = path.join( getBaseLibraryPath(), this._rack.data.fsName, this._folder.data.fsName, this.document_filename)+this._ext;
 			console.log(new_path);
 			return new_path;
 		}
 	}
 
-	get mdFilename() {
+	get document_filename() {
 		return this.title ? this.title.replace(/[^\w _-]/g, '').substr(0, 40) : "";
 	}
 
@@ -390,8 +326,8 @@ class Note extends Model {
 
 		var outer_folder = path.join( getBaseLibraryPath(), model.data.rack.data.fsName, model.data.folder.data.fsName );
 		//path.dirname(model.data.path);
-		if(model.data.mdFilename){
-			var new_path = path.join(outer_folder, model.data.mdFilename) + '.md';
+		if(model.data.document_filename){
+			var new_path = path.join(outer_folder, model.data.document_filename) + model.data.extension;
 
 			if(new_path != model.data.path){
 				var num = 1;
@@ -399,7 +335,7 @@ class Note extends Model {
 					try{
 						fs.statSync(new_path);
 						if( model.data.body && model.data.body != fs.readFileSync(new_path).toString() ){
-							new_path = path.join(outer_folder, model.data.mdFilename)+num+'.md';
+							new_path = path.join(outer_folder, model.data.document_filename)+num+model.data.extension;
 						} else {
 							new_path = null;
 							break;
@@ -619,24 +555,6 @@ const CLASS_MAPPER = {
 	racks: Rack
 };
 
-function readDataFile(path) {
-	var d = detectPath(path);
-	if (!d) {return null}
-	var dataType = d.dataType;
-	var uid = d.uid;
-	try {
-		var data = JSON.parse(fs.readFileSync(path));
-	} catch(e) {
-		return null
-	}
-	data['uid'] = uid;  // TODO: Is it correct way?
-	return {
-		dataType: dataType,
-		data: data,
-		uid: uid
-	}
-}
-
 function makeWatcher(racks, folders, notes) {
 	var arrayMapper = {
 		racks: racks,
@@ -662,34 +580,19 @@ function makeWatcher(racks, folders, notes) {
 			target.update(d.data);
 		}
 	});
+	/*
 	watcher.on('unlink', (path) => {
 		var d = detectPath(path);
 		if (!d) {return}
 		arr.remove(arrayMapper[d.dataType], uidFinder(d.uid));
 	});
+	*/
 	watcher.add(getBaseLibraryPath());
 	return watcher;
 }
 
-
-function copyData(fromDir, toDir) {
-	/*
-	Object.keys(CLASS_MAPPER).forEach((name) => {
-		var toModelsPath = path.join(toDir, name);
-		fs.mkdirSync(toModelsPath);
-		var fromModelsPath = path.join(fromDir, name);
-		var models = fs.readdirSync(fromModelsPath);
-		models.forEach((n) => {
-			var fromPath = path.join(fromModelsPath, n);
-			var toPath = path.join(toModelsPath, n);
-			fs.writeFileSync(toPath, fs.readFileSync(fromPath));
-		});
-	});
-	*/
-}
-
-
 class Image {
+
 	constructor (pilemdURL) {
 		if (!pilemdURL.startsWith('pilemd://images/')) {
 			throw "Incorrect Image URL"
@@ -746,11 +649,9 @@ module.exports = {
 	Note: Note,
 	Folder: Folder,
 	Rack: Rack,
-	uidFinder: uidFinder,
 	getBaseLibraryPath: getBaseLibraryPath,
 	setBaseLibraryPath: setBaseLibraryPath,
 	readLibrary: readLibrary,
 	makeWatcher: makeWatcher,
-	copyData: copyData,
 	Image: Image
 };
