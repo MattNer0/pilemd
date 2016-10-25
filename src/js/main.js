@@ -107,7 +107,7 @@ new Vue({
 		folders = loadedLibrary.folders;
 		notes = loadedLibrary.notes;
 
-		if( racks.length == 0 ){
+		if( racks.length == 0 && loadedLibrary.library_exists ){
 			initialModels.initialSetup();
 
 			loadedLibrary = models.readLibrary();

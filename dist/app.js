@@ -156,7 +156,7 @@
 			folders = loadedLibrary.folders;
 			notes = loadedLibrary.notes;
 
-			if (racks.length == 0) {
+			if (racks.length == 0 && loadedLibrary.library_exists) {
 				initialModels.initialSetup();
 
 				loadedLibrary = models.readLibrary();
@@ -25408,66 +25408,72 @@
 		    valid_folders = [],
 		    valid_notes = [];
 
-		var racks = fs.readdirSync(getBaseLibraryPath());
-		for (var ri = 0; ri < racks.length; ri++) {
-			try {
-				var rack = racks[ri];
-				var rackStat = fs.statSync(path.join(getBaseLibraryPath(), rack));
-				if (rackStat.isDirectory()) {
-					var current_rack = new Rack({
-						name: rack,
-						ordering: valid_racks.length,
-						load_ordering: true,
-						path: path.join(getBaseLibraryPath(), rack)
-					});
-					valid_racks.push(current_rack);
+		if (fs.existsSync(getBaseLibraryPath())) {
 
-					var folders = fs.readdirSync(current_rack.data.path);
-					var folders_count = 0;
-					for (var fi = 0; fi < folders.length; fi++) {
-						try {
+			var racks = fs.readdirSync(getBaseLibraryPath());
+			for (var ri = 0; ri < racks.length; ri++) {
+				var rack = racks[ri];
+				var rackPath = path.join(getBaseLibraryPath(), rack);
+				if (fs.existsSync(rackPath)) {
+					var rackStat = fs.statSync(rackPath);
+					if (rackStat.isDirectory()) {
+						var current_rack = new Rack({
+							name: rack,
+							ordering: valid_racks.length,
+							load_ordering: true,
+							path: rackPath
+						});
+						valid_racks.push(current_rack);
+
+						var folders = fs.readdirSync(current_rack.data.path);
+						var folders_count = 0;
+						for (var fi = 0; fi < folders.length; fi++) {
 							var folder = folders[fi];
-							var folderStat = fs.statSync(path.join(current_rack.data.path, folder));
-							if (folderStat.isDirectory()) {
-								var current_folder = new Folder({
-									name: folder,
-									ordering: valid_folders.length,
-									load_ordering: true,
-									path: path.join(current_rack.data.path, folder),
-									rack: current_rack
-								});
-								valid_folders.push(current_folder);
-								folders_count += 1;
-								//current_rack.folders.push(current_folder);
-								var notes = fs.readdirSync(current_folder.data.path);
-								for (var ni = 0; ni < notes.length; ni++) {
-									try {
+							var folderPath = path.join(current_rack.data.path, folder);
+							if (fs.existsSync(folderPath)) {
+								var folderStat = fs.statSync(folderPath);
+								if (folderStat.isDirectory()) {
+									var current_folder = new Folder({
+										name: folder,
+										ordering: valid_folders.length,
+										load_ordering: true,
+										path: folderPath,
+										rack: current_rack
+									});
+									valid_folders.push(current_folder);
+									folders_count += 1;
+									//current_rack.folders.push(current_folder);
+									var notes = fs.readdirSync(current_folder.data.path);
+									for (var ni = 0; ni < notes.length; ni++) {
 										var note = notes[ni];
 										var notePath = path.join(current_folder.data.path, note);
-										var noteStat = fs.statSync(notePath);
-										var noteExt = path.extname(note);
-										if (noteStat.isFile() && valid_formats.indexOf(noteExt) >= 0) {
-											valid_notes.push(new Note({
-												name: note,
-												body: "", //fs.readFileSync(notePath).toString(),
-												path: notePath,
-												extension: noteExt,
-												rack: current_rack,
-												folder: current_folder,
-												created_at: noteStat.birthtime,
-												updated_at: noteStat.mtime
-											}));
+										if (fs.existsSync(notePath)) {
+											var noteStat = fs.statSync(notePath);
+											var noteExt = path.extname(note);
+											if (noteStat.isFile() && valid_formats.indexOf(noteExt) >= 0) {
+												valid_notes.push(new Note({
+													name: note,
+													body: "", //fs.readFileSync(notePath).toString(),
+													path: notePath,
+													extension: noteExt,
+													rack: current_rack,
+													folder: current_folder,
+													created_at: noteStat.birthtime,
+													updated_at: noteStat.mtime
+												}));
+											}
 										}
-									} catch (e) {}
+									}
 								}
 							}
-						} catch (e) {}
+						}
 					}
 				}
-			} catch (e) {}
+			}
 		}
 
 		return {
+			'library_exists': fs.existsSync(getBaseLibraryPath()),
 			'racks': valid_racks,
 			'folders': valid_folders,
 			'notes': valid_notes
