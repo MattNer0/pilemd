@@ -140,9 +140,9 @@
 		created: function created() {
 			var _this = this;
 
-			var notes;
-			var folders;
-			var racks;
+			var notes = [];
+			var folders = [];
+			var racks = [];
 			if (!models.getBaseLibraryPath()) {
 				// Hey, this is first time.
 				// * Setting up directory
@@ -150,20 +150,14 @@
 				initialModels.initialFolder();
 			}
 
-			var loadedLibrary = models.readLibrary();
+			if (models.doesLibraryExists()) {
+				// Library folder exists, let's read what's inside
 
-			racks = loadedLibrary.racks;
-			folders = loadedLibrary.folders;
-			notes = loadedLibrary.notes;
-
-			if (racks.length == 0 && loadedLibrary.library_exists) {
-				initialModels.initialSetup();
-
-				loadedLibrary = models.readLibrary();
-
-				racks = loadedLibrary.racks;
-				folders = loadedLibrary.folders;
-				notes = loadedLibrary.notes;
+				racks = models.Rack.readRacks();
+				if (racks.length == 0) {
+					initialModels.initialSetup();
+					racks = models.Rack.readRacks();
+				}
 			}
 
 			this.$set('racks', racks);
@@ -181,11 +175,17 @@
 			});
 
 			this.$watch('selectedRackOrFolder', function () {
+
+				var newData = _this.selectedRackOrFolder.readContents();
+
 				if (_this.selectedRackOrFolder instanceof models.Folder) {
+					if (newData) _this.notes = _this.notes.concat(newData);
 					var filteredNotes = searcher.searchNotes(_this.selectedRackOrFolder, _this.search, _this.notes);
 					filteredNotes.forEach(function (note) {
 						note.loadBody();
 					});
+				} else {
+					if (newData) _this.folders = _this.folders.concat(newData);
 				}
 			});
 
@@ -25402,82 +25402,8 @@
 		return localStorage.getItem(BASE_LIB_PATH_KEY);
 	}
 
-	function readLibrary() {
-		var valid_formats = ['.md', '.markdown', '.txt'];
-		var valid_racks = [],
-		    valid_folders = [],
-		    valid_notes = [];
-
-		if (fs.existsSync(getBaseLibraryPath())) {
-
-			var racks = fs.readdirSync(getBaseLibraryPath());
-			for (var ri = 0; ri < racks.length; ri++) {
-				var rack = racks[ri];
-				var rackPath = path.join(getBaseLibraryPath(), rack);
-				if (fs.existsSync(rackPath)) {
-					var rackStat = fs.statSync(rackPath);
-					if (rackStat.isDirectory()) {
-						var current_rack = new Rack({
-							name: rack,
-							ordering: valid_racks.length,
-							load_ordering: true,
-							path: rackPath
-						});
-						valid_racks.push(current_rack);
-
-						var folders = fs.readdirSync(current_rack.data.path);
-						var folders_count = 0;
-						for (var fi = 0; fi < folders.length; fi++) {
-							var folder = folders[fi];
-							var folderPath = path.join(current_rack.data.path, folder);
-							if (fs.existsSync(folderPath)) {
-								var folderStat = fs.statSync(folderPath);
-								if (folderStat.isDirectory()) {
-									var current_folder = new Folder({
-										name: folder,
-										ordering: valid_folders.length,
-										load_ordering: true,
-										path: folderPath,
-										rack: current_rack
-									});
-									valid_folders.push(current_folder);
-									folders_count += 1;
-									//current_rack.folders.push(current_folder);
-									var notes = fs.readdirSync(current_folder.data.path);
-									for (var ni = 0; ni < notes.length; ni++) {
-										var note = notes[ni];
-										var notePath = path.join(current_folder.data.path, note);
-										if (fs.existsSync(notePath)) {
-											var noteStat = fs.statSync(notePath);
-											var noteExt = path.extname(note);
-											if (noteStat.isFile() && valid_formats.indexOf(noteExt) >= 0) {
-												valid_notes.push(new Note({
-													name: note,
-													body: "", //fs.readFileSync(notePath).toString(),
-													path: notePath,
-													extension: noteExt,
-													rack: current_rack,
-													folder: current_folder,
-													created_at: noteStat.birthtime,
-													updated_at: noteStat.mtime
-												}));
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		return {
-			'library_exists': fs.existsSync(getBaseLibraryPath()),
-			'racks': valid_racks,
-			'folders': valid_folders,
-			'notes': valid_notes
-		};
+	function doesLibraryExists() {
+		return fs.existsSync(getBaseLibraryPath());
 	}
 
 	var Model = (function () {
@@ -25519,18 +25445,18 @@
 			this._name = data.name.replace(re, '');
 			this._body = data.body.replace(/    /g, '\t');
 			this._path = data.path;
-			this._rack = data.rack;
+			this._rack = data.rack || data.folder.data.rack;
 			this._folder = data.folder;
 
 			this.folderUid = data.folder ? data.folder.data.uid : null;
 			this.doc = null;
-			//this.qiitaURL = data.qiitaURL || null;
 
 			if (data.updated_at) {
 				this.updatedAt = moment(data.updated_at);
 			} else {
 				this.updatedAt = moment();
 			}
+
 			if (data.created_at) {
 				this.createdAt = moment(data.created_at);
 			} else {
@@ -25606,12 +25532,9 @@
 			set: function set(newValue) {
 				if (newValue != this._path) {
 					try {
-						if (fs.existsSync(this._path)) {
-							fs.unlink(this._path);
-						}
-					} catch (e) {
-						// it's ok
-					}
+						if (fs.existsSync(this._path)) fs.unlink(this._path);
+					} catch (e) {}
+
 					this._path = newValue;
 				}
 			},
@@ -25730,13 +25653,46 @@
 						name: "NewNote",
 						body: "",
 						path: "",
-						rack: folder.data.rack,
 						folder: folder,
 						folderUid: folder.uid
 					});
 				} else {
 					return false;
 				}
+			}
+		}, {
+			key: 'readNoteByFolder',
+			value: function readNoteByFolder(folder) {
+				//console.log(">> Loading notes");
+
+				var valid_formats = ['.md', '.markdown', '.txt'];
+
+				var valid_notes = [];
+				if (fs.existsSync(folder.data.path)) {
+
+					var notes = fs.readdirSync(folder.data.path);
+					for (var ni = 0; ni < notes.length; ni++) {
+						var note = notes[ni];
+						var notePath = path.join(folder.data.path, note);
+						if (fs.existsSync(notePath) && note.charAt(0) != ".") {
+							var noteStat = fs.statSync(notePath);
+							var noteExt = path.extname(note);
+							if (noteStat.isFile() && valid_formats.indexOf(noteExt) >= 0) {
+								valid_notes.push(new Note({
+									name: note,
+									body: "", //fs.readFileSync(notePath).toString(),
+									path: notePath,
+									extension: noteExt,
+									folder: folder,
+									created_at: noteStat.birthtime,
+									updated_at: noteStat.mtime
+								}));
+							}
+						}
+					}
+				}
+
+				return valid_notes;
 			}
 		}, {
 			key: 'setModel',
@@ -25746,7 +25702,6 @@
 				}
 
 				var outer_folder = path.join(getBaseLibraryPath(), model.data.rack.data.fsName, model.data.folder.data.fsName);
-				//path.dirname(model.data.path);
 				if (model.data.document_filename) {
 					var new_path = path.join(outer_folder, model.data.document_filename) + model.data.extension;
 
@@ -25767,13 +25722,13 @@
 						}
 
 						if (new_path && model.data.body.length > 0) {
-							console.log('>> Note Save', new_path);
+							//console.log('>> Note Save', new_path);
 							fs.writeFileSync(new_path, model.data.body);
 							model.path = new_path;
 						}
 					} else {
 						if (model.data.body.length > 0 && model.data.body != fs.readFileSync(new_path).toString()) {
-							console.log('>> Note Save', new_path);
+							//console.log('>> Note Save', new_path);
 							fs.writeFileSync(new_path, model.data.body);
 						}
 					}
@@ -25821,6 +25776,7 @@
 			this.dragHover = false;
 			this.sortUpper = false;
 			this.sortLower = false;
+			this._contentLoaded = false;
 		}
 
 		_createClass(Folder, [{
@@ -25850,6 +25806,14 @@
 				fs.writeFileSync(folderConfigPath, this.ordering);
 			}
 		}, {
+			key: 'readContents',
+			value: function readContents() {
+				if (!this._contentLoaded) {
+					this._contentLoaded = true;
+					return Note.readNoteByFolder(this);
+				}
+			}
+		}, {
 			key: 'data',
 			get: function get() {
 				return _.assign(_get(Object.getPrototypeOf(Folder.prototype), 'data', this), {
@@ -25874,6 +25838,37 @@
 				return fs.existsSync(this._path);
 			}
 		}], [{
+			key: 'readFoldersByRack',
+			value: function readFoldersByRack(rack) {
+				//console.log(">> Loading folders");
+
+				var valid_folders = [];
+				if (fs.existsSync(rack.data.path)) {
+
+					var folders = fs.readdirSync(rack.data.path);
+					for (var fi = 0; fi < folders.length; fi++) {
+
+						var folder = folders[fi];
+						var folderPath = path.join(rack.data.path, folder);
+
+						if (fs.existsSync(folderPath) && folder.charAt(0) != ".") {
+							var folderStat = fs.statSync(folderPath);
+							if (folderStat.isDirectory()) {
+								valid_folders.push(new Folder({
+									name: folder,
+									ordering: valid_folders.length,
+									load_ordering: true,
+									path: folderPath,
+									rack: rack
+								}));
+							}
+						}
+					}
+				}
+
+				return valid_folders;
+			}
+		}, {
 			key: 'setModel',
 			value: function setModel(model) {
 				if (!model || !model.data.name) {
@@ -25937,6 +25932,7 @@
 			this.sortUpper = false;
 			this.sortLower = false;
 			this.openFolders = false;
+			this._contentLoaded = false;
 
 			this.folders = [];
 			this.notes = [];
@@ -25968,6 +25964,14 @@
 				fs.writeFileSync(rackConfigPath, this.ordering);
 			}
 		}, {
+			key: 'readContents',
+			value: function readContents() {
+				if (!this._contentLoaded) {
+					this._contentLoaded = true;
+					return Folder.readFoldersByRack(this);
+				}
+			}
+		}, {
 			key: 'data',
 			get: function get() {
 				return _.assign(_get(Object.getPrototypeOf(Rack.prototype), 'data', this), {
@@ -25985,6 +25989,35 @@
 				}
 			}
 		}], [{
+			key: 'readRacks',
+			value: function readRacks() {
+
+				var valid_racks = [];
+				if (fs.existsSync(getBaseLibraryPath())) {
+
+					var racks = fs.readdirSync(getBaseLibraryPath());
+					for (var ri = 0; ri < racks.length; ri++) {
+
+						var rack = racks[ri];
+						var rackPath = path.join(getBaseLibraryPath(), rack);
+
+						if (fs.existsSync(rackPath) && rack.charAt(0) != ".") {
+							var rackStat = fs.statSync(rackPath);
+							if (rackStat.isDirectory()) {
+								valid_racks.push(new Rack({
+									name: rack,
+									ordering: valid_racks.length,
+									load_ordering: true,
+									path: rackPath
+								}));
+							}
+						}
+					}
+				}
+
+				return valid_racks;
+			}
+		}, {
 			key: 'setModel',
 			value: function setModel(model) {
 				if (!model || !model.data.name) {
@@ -26131,7 +26164,7 @@
 		Rack: Rack,
 		getBaseLibraryPath: getBaseLibraryPath,
 		setBaseLibraryPath: setBaseLibraryPath,
-		readLibrary: readLibrary,
+		doesLibraryExists: doesLibraryExists,
 		makeWatcher: makeWatcher,
 		Image: Image
 	};
@@ -50748,11 +50781,13 @@
 				racksWithFolders: function racksWithFolders() {
 					var folders = this.folders;
 					var racks = this.racks;
-					racks.forEach(function (r) {
-						r.folders = folders.filter(function (f) {
-							return f.rackUid == r.uid;
+					if (folders.length > 0) {
+						racks.forEach(function (r) {
+							r.folders = folders.filter(function (f) {
+								return f.rackUid == r.uid;
+							});
 						});
-					});
+					}
 					return racks;
 				}
 			},
@@ -50834,6 +50869,8 @@
 					this.selectedRackOrFolder = folder;
 				},
 				openRack: function openRack(rack) {
+					var newData = rack.readContents();
+					if (newData) this.folders = this.folders.concat(newData);
 					rack.openFolders = true;
 				},
 				closeRack: function closeRack(rack) {
@@ -72706,7 +72743,7 @@
 /* 292 */
 /***/ function(module, exports) {
 
-	module.exports = "<nav id=\"cssmenu\">\n\t<ul>\n\t\t<li class=\"has-sub\">\n\t\t\t<a href=\"#\">PileMd</a>\n\t\t\t<ul>\n\t\t\t\t<li>\n\t\t\t\t\t<a @click=\"$root.addNote()\" href=\"#\">\n\t\t\t\t\t\tNew Note\n\t\t\t\t\t</a>\n\t\t\t\t</li>\n\t\t\t\t<li><hr></li>\n\t\t\t\t<li>\n\t\t\t\t\t<a @click=\"$root.openSync()\" href=\"#\">\n\t\t\t\t\t\tOpen Existing Sync Folder\n\t\t\t\t\t</a>\n\t\t\t\t</li>\n\t\t\t\t<li>\n\t\t\t\t\t<a @click=\"$root.moveSync()\" href=\"#\">\n\t\t\t\t\t\tMove Sync Folder\n\t\t\t\t\t</a>\n\t\t\t\t</li>\n\t\t\t\t<li><hr></li>\n\t\t\t\t<li>\n\t\t\t\t\t<a @click=\"menu_devTools()\" href=\"#\">\n\t\t\t\t\t\tOpen DevTools\n\t\t\t\t\t</a>\n\t\t\t\t</li>\n\t\t\t\t<li><hr></li>\n\t\t\t\t<li>\n\t\t\t\t\t<a @click=\"$root.menu_close()\" href=\"#\">\n\t\t\t\t\t\tQuit\n\t\t\t\t\t</a>\n\t\t\t\t</li>\n\t\t\t</ul>\n\t\t</li>\n\t\t<li v-if=\"$root.selectedRackOrFolder\">\n\t\t\t<a @click=\"$root.addNote()\" href=\"#\">\n\t\t\t\t<span>\n\t\t\t\t\t<i class=\"icon icon-new-note\"></i>\n\t\t\t\t\tNew Note\n\t\t\t\t</span>\n\t\t\t</a>\n\t\t</li>\n\t\t<li v-if=\"$root.selectedNote.data\">\n\t\t\t<a @click=\"$root.toggleFullScreen()\" href=\"#\">\n\t\t\t\t<span v-if=\"$root.isFullScreen\">\n\t\t\t\t\t<i class=\"icon icon-sidebar-open\"></i>\n\t\t\t\t\tOpen Sidebar\n\t\t\t\t</span>\n\t\t\t\t<span v-if=\"!$root.isFullScreen\">\n\t\t\t\t\t<i class=\"icon icon-sidebar-close\"></i>\n\t\t\t\t\tClose Sidebar\n\t\t\t\t</span>\n\t\t\t</a>\n\t\t</li>\n\t\t<li v-if=\"$root.selectedNote.data\">\n\t\t\t<a @click=\"menu_preview()\" href=\"#\">\n\t\t\t\t<span v-if=\"!$root.isPreview\">\n\t\t\t\t\t<i class=\"icon icon-show\"></i>\n\t\t\t\t\tShow Preview\n\t\t\t\t</span>\n\t\t\t\t<span v-if=\"$root.isPreview\">\n\t\t\t\t\t<i class=\"icon icon-hide\"></i>\n\t\t\t\t\tHide Preview\n\t\t\t\t</span>\n\t\t\t</a>\n\t\t</li>\n\t</ul>\n</nav>";
+	module.exports = "<nav id=\"cssmenu\">\n\t<ul>\n\t\t<li class=\"has-sub\">\n\t\t\t<a href=\"#\">PileMd</a>\n\t\t\t<ul>\n\t\t\t\t<li v-if=\"$root.selectedRackOrFolder\">\n\t\t\t\t\t<a @click=\"$root.addNote()\" href=\"#\">\n\t\t\t\t\t\tNew Note\n\t\t\t\t\t</a>\n\t\t\t\t</li>\n\t\t\t\t<li v-if=\"$root.selectedRackOrFolder\"><hr></li>\n\t\t\t\t<li>\n\t\t\t\t\t<a @click=\"$root.openSync()\" href=\"#\">\n\t\t\t\t\t\tOpen Existing Sync Folder\n\t\t\t\t\t</a>\n\t\t\t\t</li>\n\t\t\t\t<li>\n\t\t\t\t\t<a @click=\"$root.moveSync()\" href=\"#\">\n\t\t\t\t\t\tMove Sync Folder\n\t\t\t\t\t</a>\n\t\t\t\t</li>\n\t\t\t\t<li><hr></li>\n\t\t\t\t<li>\n\t\t\t\t\t<a @click=\"menu_devTools()\" href=\"#\">\n\t\t\t\t\t\tOpen DevTools\n\t\t\t\t\t</a>\n\t\t\t\t</li>\n\t\t\t\t<li><hr></li>\n\t\t\t\t<li>\n\t\t\t\t\t<a @click=\"$root.menu_close()\" href=\"#\">\n\t\t\t\t\t\tQuit\n\t\t\t\t\t</a>\n\t\t\t\t</li>\n\t\t\t</ul>\n\t\t</li>\n\t\t<li v-if=\"$root.selectedRackOrFolder\">\n\t\t\t<a @click=\"$root.addNote()\" href=\"#\">\n\t\t\t\t<span>\n\t\t\t\t\t<i class=\"icon icon-new-note\"></i>\n\t\t\t\t\tNew Note\n\t\t\t\t</span>\n\t\t\t</a>\n\t\t</li>\n\t\t<li v-if=\"$root.selectedNote.data\">\n\t\t\t<a @click=\"$root.toggleFullScreen()\" href=\"#\">\n\t\t\t\t<span v-if=\"$root.isFullScreen\">\n\t\t\t\t\t<i class=\"icon icon-sidebar-open\"></i>\n\t\t\t\t\tOpen Sidebar\n\t\t\t\t</span>\n\t\t\t\t<span v-if=\"!$root.isFullScreen\">\n\t\t\t\t\t<i class=\"icon icon-sidebar-close\"></i>\n\t\t\t\t\tClose Sidebar\n\t\t\t\t</span>\n\t\t\t</a>\n\t\t</li>\n\t\t<li v-if=\"$root.selectedNote.data\">\n\t\t\t<a @click=\"menu_preview()\" href=\"#\">\n\t\t\t\t<span v-if=\"!$root.isPreview\">\n\t\t\t\t\t<i class=\"icon icon-show\"></i>\n\t\t\t\t\tShow Preview\n\t\t\t\t</span>\n\t\t\t\t<span v-if=\"$root.isPreview\">\n\t\t\t\t\t<i class=\"icon icon-hide\"></i>\n\t\t\t\t\tHide Preview\n\t\t\t\t</span>\n\t\t\t</a>\n\t\t</li>\n\t</ul>\n</nav>";
 
 /***/ },
 /* 293 */

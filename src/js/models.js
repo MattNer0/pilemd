@@ -1,13 +1,13 @@
-const fs = require('fs');
-const path = require('path');
-const chokidar = require('chokidar');
+const fs 		= require('fs');
+const path 		= require('path');
+const chokidar 	= require('chokidar');
 
-const _ = require('lodash');
-const moment = require('moment');
-const Datauri = require('datauri');
+const _ 		= require('lodash');
+const moment 	= require('moment');
+const Datauri 	= require('datauri');
 
-const arr = require('./utils/arr');
-const uid = require('./utils/uid');
+const arr 		= require('./utils/arr');
+const uid 		= require('./utils/uid');
 const util_file = require('./utils/file');
 
 const BASE_LIB_PATH_KEY = 'libpath';
@@ -20,82 +20,8 @@ function getBaseLibraryPath() {
 	return localStorage.getItem(BASE_LIB_PATH_KEY);
 }
 
-function readLibrary(){
-	var valid_formats = [ '.md', '.markdown', '.txt' ];
-	var valid_racks = [],
-		valid_folders = [],
-		valid_notes = [];
-
-	if( fs.existsSync(getBaseLibraryPath()) ) {
-
-		var racks = fs.readdirSync(getBaseLibraryPath());
-		for(var ri = 0; ri<racks.length; ri++){
-			var rack = racks[ri];
-			var rackPath = path.join( getBaseLibraryPath(), rack);
-			if(fs.existsSync(rackPath)) {
-				var rackStat = fs.statSync(rackPath);
-				if(rackStat.isDirectory()){
-					var current_rack = new Rack({
-						name: rack,
-						ordering: valid_racks.length,
-						load_ordering: true,
-						path: rackPath
-					});
-					valid_racks.push(current_rack);
-
-					var folders = fs.readdirSync(current_rack.data.path);
-					var folders_count = 0;
-					for(var fi = 0; fi<folders.length; fi++){
-						var folder = folders[fi];
-						var folderPath = path.join( current_rack.data.path, folder);
-						if(fs.existsSync(folderPath)) {
-							var folderStat = fs.statSync(folderPath);
-							if(folderStat.isDirectory()){
-								var current_folder = new Folder({
-									name: folder,
-									ordering: valid_folders.length,
-									load_ordering: true,
-									path: folderPath,
-									rack: current_rack
-								});
-								valid_folders.push(current_folder);
-								folders_count += 1;
-								//current_rack.folders.push(current_folder);
-								var notes = fs.readdirSync(current_folder.data.path);
-								for(var ni = 0; ni<notes.length; ni++){
-									var note = notes[ni];
-									var notePath = path.join( current_folder.data.path, note);
-									if(fs.existsSync(notePath)) {
-										var noteStat = fs.statSync(notePath);
-										var noteExt = path.extname(note);
-										if(noteStat.isFile() && valid_formats.indexOf(noteExt) >= 0 ){
-											valid_notes.push(new Note({
-												name: note,
-												body: "", //fs.readFileSync(notePath).toString(),
-												path: notePath,
-												extension: noteExt,
-												rack: current_rack,
-												folder: current_folder,
-												created_at: noteStat.birthtime,
-												updated_at: noteStat.mtime
-											}));
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return {
-		'library_exists' : fs.existsSync( getBaseLibraryPath() ),
-		'racks' : valid_racks,
-		'folders': valid_folders,
-		'notes' : valid_notes
-	};
+function doesLibraryExists() {
+	return fs.existsSync( getBaseLibraryPath() );
 }
 
 class Model {
@@ -123,18 +49,18 @@ class Note extends Model {
 		this._name = data.name.replace(re, '');
 		this._body = data.body.replace(/    /g, '\t');
 		this._path = data.path;
-		this._rack = data.rack;
+		this._rack = data.rack || data.folder.data.rack;
 		this._folder = data.folder;
 
 		this.folderUid = data.folder ? data.folder.data.uid : null;
 		this.doc = null;
-		//this.qiitaURL = data.qiitaURL || null;
 
 		if (data.updated_at) {
 			this.updatedAt = moment(data.updated_at);
 		} else {
 			this.updatedAt = moment();
 		}
+
 		if (data.created_at) {
 			this.createdAt = moment(data.created_at);
 		} else {
@@ -160,12 +86,9 @@ class Note extends Model {
 	set path(newValue) {
 		if(newValue != this._path){
 			try{
-				if(fs.existsSync(this._path)){
-					fs.unlink(this._path);
-				}
-			} catch(e){
-				// it's ok
-			}
+				if(fs.existsSync(this._path)) fs.unlink(this._path);
+			} catch(e){}
+
 			this._path = newValue;
 		}
 	}
@@ -317,7 +240,6 @@ class Note extends Model {
 				name: "NewNote",
 				body: "",
 				path: "",
-				rack: folder.data.rack,
 				folder: folder,
 				folderUid: folder.uid
 			});
@@ -326,11 +248,43 @@ class Note extends Model {
 		}
 	}
 
+	static readNoteByFolder(folder) {
+		//console.log(">> Loading notes");
+
+		var valid_formats = [ '.md', '.markdown', '.txt' ];
+
+		var valid_notes = [];
+		if( fs.existsSync(folder.data.path) ) {
+
+			var notes = fs.readdirSync(folder.data.path);
+			for(var ni = 0; ni<notes.length; ni++){
+				var note = notes[ni];
+				var notePath = path.join( folder.data.path, note);
+				if(fs.existsSync(notePath) && note.charAt(0) != ".") {
+					var noteStat = fs.statSync(notePath);
+					var noteExt = path.extname(note);
+					if(noteStat.isFile() && valid_formats.indexOf(noteExt) >= 0 ){
+						valid_notes.push(new Note({
+							name: note,
+							body: "", //fs.readFileSync(notePath).toString(),
+							path: notePath,
+							extension: noteExt,
+							folder: folder,
+							created_at: noteStat.birthtime,
+							updated_at: noteStat.mtime
+						}));
+					}
+				}
+			}
+		}
+
+		return valid_notes;
+	}
+
 	static setModel(model) {
 		if(!model){ return }
 
 		var outer_folder = path.join( getBaseLibraryPath(), model.data.rack.data.fsName, model.data.folder.data.fsName );
-		//path.dirname(model.data.path);
 		if(model.data.document_filename){
 			var new_path = path.join(outer_folder, model.data.document_filename) + model.data.extension;
 
@@ -351,13 +305,13 @@ class Note extends Model {
 				}
 
 				if(new_path && model.data.body.length > 0){
-					console.log('>> Note Save', new_path);
+					//console.log('>> Note Save', new_path);
 					fs.writeFileSync(new_path, model.data.body);
 					model.path = new_path;
 				}
 			} else {
 				if( model.data.body.length > 0 && model.data.body != fs.readFileSync(new_path).toString() ){
-					console.log('>> Note Save', new_path);
+					//console.log('>> Note Save', new_path);
 					fs.writeFileSync(new_path, model.data.body);
 				}
 			}
@@ -395,6 +349,7 @@ class Folder extends Model {
 		this.dragHover = false;
 		this.sortUpper = false;
 		this.sortLower = false;
+		this._contentLoaded = false;
 	}
 
 	remove(origNotes) {
@@ -439,6 +394,43 @@ class Folder extends Model {
 		fs.writeFileSync(folderConfigPath, this.ordering);
 	}
 
+	readContents() {
+		if(!this._contentLoaded){
+			this._contentLoaded = true;
+			return Note.readNoteByFolder(this);
+		}
+	}
+
+	static readFoldersByRack(rack) {
+		//console.log(">> Loading folders");
+		
+		var valid_folders = [];
+		if( fs.existsSync(rack.data.path) ) {
+		
+			var folders = fs.readdirSync(rack.data.path);
+			for(var fi = 0; fi<folders.length; fi++){
+				
+				var folder = folders[fi];
+				var folderPath = path.join(rack.data.path, folder);
+				
+				if(fs.existsSync(folderPath) && folder.charAt(0) != ".") {
+					var folderStat = fs.statSync(folderPath);
+					if(folderStat.isDirectory()){
+						valid_folders.push( new Folder({
+							name: folder,
+							ordering: valid_folders.length,
+							load_ordering: true,
+							path: folderPath,
+							rack: rack
+						}) );
+					}
+				}
+			}
+		}
+
+		return valid_folders;
+	}
+
 	static setModel(model) {
 		if (!model || !model.data.name) { return }
 
@@ -471,6 +463,7 @@ Folder.storagePrefix = 'folders';
 
 
 class Rack extends Model {
+
 	constructor(data) {
 
 		super(data);
@@ -492,6 +485,7 @@ class Rack extends Model {
 		this.sortUpper = false;
 		this.sortLower = false;
 		this.openFolders = false;
+		this._contentLoaded = false;
 
 		this.folders = [];
 		this.notes = [];
@@ -530,6 +524,41 @@ class Rack extends Model {
 	saveOrdering() {
 		var rackConfigPath = path.join( this._path, '.rack');
 		fs.writeFileSync(rackConfigPath, this.ordering);
+	}
+
+	readContents() {
+		if(!this._contentLoaded){
+			this._contentLoaded = true;
+			return Folder.readFoldersByRack(this);
+		}
+	}
+
+	static readRacks() {
+
+		var valid_racks = [];
+		if( fs.existsSync(getBaseLibraryPath()) ) {
+			
+			var racks = fs.readdirSync(getBaseLibraryPath());
+			for(var ri = 0; ri<racks.length; ri++){
+				
+				var rack = racks[ri];
+				var rackPath = path.join( getBaseLibraryPath(), rack);
+				
+				if(fs.existsSync(rackPath) && rack.charAt(0) != ".") {
+					var rackStat = fs.statSync(rackPath);
+					if(rackStat.isDirectory()){
+						valid_racks.push( new Rack({
+							name: rack,
+							ordering: valid_racks.length,
+							load_ordering: true,
+							path: rackPath
+						}) );
+					}
+				}
+			}
+		}
+
+		return valid_racks;
 	}
 
 	static setModel(model) {
@@ -656,7 +685,7 @@ module.exports = {
 	Rack: Rack,
 	getBaseLibraryPath: getBaseLibraryPath,
 	setBaseLibraryPath: setBaseLibraryPath,
-	readLibrary: readLibrary,
+	doesLibraryExists: doesLibraryExists,
 	makeWatcher: makeWatcher,
 	Image: Image
 };

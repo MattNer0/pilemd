@@ -3,12 +3,12 @@
 		<li class="has-sub">
 			<a href="#">PileMd</a>
 			<ul>
-				<li>
+				<li v-if="$root.selectedRackOrFolder">
 					<a @click="$root.addNote()" href="#">
 						New Note
 					</a>
 				</li>
-				<li><hr></li>
+				<li v-if="$root.selectedRackOrFolder"><hr></li>
 				<li>
 					<a @click="$root.openSync()" href="#">
 						Open Existing Sync Folder

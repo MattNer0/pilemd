@@ -43,9 +43,11 @@ module.exports = function(Vue, options) {
 			racksWithFolders: function() {
 				var folders = this.folders;
 				var racks = this.racks;
-				racks.forEach((r) => {
-					r.folders = folders.filter((f) => {return f.rackUid == r.uid});
-				});
+				if(folders.length > 0){
+					racks.forEach((r) => {
+						r.folders = folders.filter((f) => {return f.rackUid == r.uid});
+					});
+				}
 				return racks;
 			}
 		},
@@ -123,6 +125,8 @@ module.exports = function(Vue, options) {
 				this.selectedRackOrFolder = folder;
 			},
 			openRack: function(rack) {
+				var newData = rack.readContents();
+				if(newData) this.folders = this.folders.concat( newData );
 				rack.openFolders = true;
 			},
 			closeRack: function(rack) {

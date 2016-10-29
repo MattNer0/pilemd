@@ -91,9 +91,9 @@ new Vue({
 		}
 	},
 	created: function() {
-		var notes;
-		var folders;
-		var racks;
+		var notes = [];
+		var folders = [];
+		var racks = [];
 		if (!models.getBaseLibraryPath()) {
 			// Hey, this is first time.
 			// * Setting up directory
@@ -101,25 +101,19 @@ new Vue({
 			initialModels.initialFolder();
 		}
 
-		var loadedLibrary = models.readLibrary();
+		if( models.doesLibraryExists() ){
+			// Library folder exists, let's read what's inside
 
-		racks = loadedLibrary.racks;
-		folders = loadedLibrary.folders;
-		notes = loadedLibrary.notes;
-
-		if( racks.length == 0 && loadedLibrary.library_exists ){
-			initialModels.initialSetup();
-
-			loadedLibrary = models.readLibrary();
-
-			racks = loadedLibrary.racks;
-			folders = loadedLibrary.folders;
-			notes = loadedLibrary.notes;
+			racks = models.Rack.readRacks();
+			if( racks.length == 0 ){
+				initialModels.initialSetup();
+				racks = models.Rack.readRacks();
+			}
 		}
 		
-		this.$set('racks', racks);
-		this.$set('folders', folders);
-		this.$set('notes', notes);
+		this.$set('racks', 		racks);
+		this.$set('folders', 	folders);
+		this.$set('notes', 		notes);
 
 		this.$watch('selectedNote.body', () => {
 			models.Note.setModel(this.selectedNote);
@@ -132,11 +126,17 @@ new Vue({
 		});
 
 		this.$watch('selectedRackOrFolder', () => {
+
+			var newData = this.selectedRackOrFolder.readContents();
+
 			if (this.selectedRackOrFolder instanceof models.Folder) {
+				if(newData) this.notes = this.notes.concat( newData );
 				var filteredNotes = searcher.searchNotes(this.selectedRackOrFolder, this.search, this.notes);
 				filteredNotes.forEach(function(note){
 					note.loadBody();
 				});
+			} else {
+				if(newData) this.folders = this.folders.concat( newData );
 			}
 		});
 
