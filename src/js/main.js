@@ -64,7 +64,7 @@ new Vue({
 	template: require('../html/app.html'),
 	replace: false,
 	data: {
-		isFullScreen: settings.get('vue_isFullScreen') || false,
+		isFullScreen: false,
 		isPreview: settings.get('vue_isPreview') || false,
 		preview: "",
 		racks: [],
@@ -127,16 +127,18 @@ new Vue({
 
 		this.$watch('selectedRackOrFolder', () => {
 
-			var newData = this.selectedRackOrFolder.readContents();
+			if(this.selectedRackOrFolder){
+				var newData = this.selectedRackOrFolder.readContents();
 
-			if (this.selectedRackOrFolder instanceof models.Folder) {
-				if(newData) this.notes = this.notes.concat( newData );
-				var filteredNotes = searcher.searchNotes(this.selectedRackOrFolder, this.search, this.notes);
-				filteredNotes.forEach(function(note){
-					note.loadBody();
-				});
-			} else {
-				if(newData) this.folders = this.folders.concat( newData );
+				if (this.selectedRackOrFolder instanceof models.Folder) {
+					if(newData) this.notes = this.notes.concat( newData );
+					var filteredNotes = searcher.searchNotes(this.selectedRackOrFolder, this.search, this.notes);
+					filteredNotes.forEach(function(note){
+						note.loadBody();
+					});
+				} else {
+					if(newData) this.folders = this.folders.concat( newData );
+				}
 			}
 		});
 

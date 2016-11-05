@@ -108,18 +108,20 @@ highlightjs.registerLanguage('yaml', require('highlight.js/lib/languages/yaml'))
 // Settings for Markdown
 // Injecting GFM task lists
 var renderer = new marked.Renderer();
+
 renderer.listitem = function(text) {
   if (/^\s*\[[x ]\]\s*/.test(text)) {
     var matched = /^(.*?)(<|$)/.exec(text)[1];
     text = text
-      .replace(/^\s*\[ \]\s*/, '<label><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" /></label> ')
-      .replace(/^\s*\[x\]\s*/, '<label><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" checked /></label> ');
+      .replace(/^\s*\[ \]\s*/, '<span><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" /></span> ')
+      .replace(/^\s*\[x\]\s*/, '<span><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" checked /></span> ');
 
-    return '<li class="checkbox" style="list-style: none">' + text + '</li>';
+    return '<li class="checkbox" style="list-style: none"><label>' + text + '</label></li>';
   } else {
     return '<li>' + text + '</li>';
   }
 };
+
 marked.setOptions({
   renderer: renderer,
   gfm: true,

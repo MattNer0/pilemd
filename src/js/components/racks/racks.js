@@ -45,7 +45,7 @@ module.exports = function(Vue, options) {
 				var racks = this.racks;
 				if(folders.length > 0){
 					racks.forEach((r) => {
-						r.folders = folders.filter((f) => {return f.rackUid == r.uid});
+						r.folders = folders.filter((f) => { return f.uid && f.rackUid == r.uid });
 					});
 				}
 				return racks;
@@ -79,6 +79,7 @@ module.exports = function(Vue, options) {
 				this.selectedRackOrFolder = null
 			},
 			addFolder: function(rack) {
+				rack.openFolders = true;
 				var folder = new Folder({
 					name: '',
 					rack: rack,
@@ -134,6 +135,7 @@ module.exports = function(Vue, options) {
 			},
 			// Dragging
 			rackDragStart: function(event, rack) {
+				rack.openFolders = false;
 				event.dataTransfer.setDragImage(event.target, 0, 0);
 				this.draggingRack = rack;
 			},
@@ -165,6 +167,7 @@ module.exports = function(Vue, options) {
 				rack.sortLower = false;
 			},
 			dropToRack: function(event, rack) {
+				if(!rack.openFolders) rack.openFolders = true;
 				if (this.draggingFolder) {
 					console.log("Dropping to rack");
 					// Drop Folder to Rack

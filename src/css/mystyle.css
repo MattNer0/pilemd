@@ -150,11 +150,11 @@ nav li hr{
 nav a {
 	color: #F1F1F1;
 	display: block;
-	padding: 0.25em 0.5em;
+	padding: 0.25em 1.0em;
 	line-height: 2.2em;
 	height: 2em;
-	min-width: 8em;
-	text-align: center;
+	min-width: 6em;
+	text-align: left;
 	outline: none;
 	text-decoration: none;
 	-webkit-transition: all .25s ease;
@@ -169,6 +169,7 @@ nav li:first-child a{
 
 nav a i{
 	vertical-align: sub;
+	margin-right: 0.2em;
 }
 
 nav li:hover a, nav li:hover ul {
@@ -554,6 +555,12 @@ span.cm-piled-formatting-task {
 }
 
 .my-editor-preview ul li.checkbox label{
+	cursor: pointer;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+.my-editor-preview ul li.checkbox span{
 	position: absolute;
 	left: -0.8em;
 	top: 0;

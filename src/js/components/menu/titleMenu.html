@@ -41,15 +41,15 @@
 				</span>
 			</a>
 		</li>
-		<li v-if="$root.selectedNote.data">
+		<li>
 			<a @click="$root.toggleFullScreen()" href="#">
 				<span v-if="$root.isFullScreen">
 					<i class="icon icon-sidebar-open"></i>
-					Open Sidebar
+					Toggle Sidebar
 				</span>
 				<span v-if="!$root.isFullScreen">
 					<i class="icon icon-sidebar-close"></i>
-					Close Sidebar
+					Toggle Sidebar
 				</span>
 			</a>
 		</li>

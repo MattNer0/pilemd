@@ -354,7 +354,7 @@ class Folder extends Model {
 
 	remove(origNotes) {
 		origNotes.forEach((note) => {
-			if (note.folderUid == this.uid) {
+			if (note.data.folderUid && note.data.folderUid == this.uid) {
 				Note.removeModelFromStorage(note);
 			}
 		});
@@ -432,7 +432,7 @@ class Folder extends Model {
 	}
 
 	static setModel(model) {
-		if (!model || !model.data.name) { return }
+		if (!model || !model.data.name || !model.uid) { return }
 
 		var new_path = path.join( getBaseLibraryPath(), model.data.rack.data.fsName, model.data.fsName );
 		if(new_path != model.data.path || !fs.existsSync(new_path) ) {
@@ -455,7 +455,9 @@ class Folder extends Model {
 	static removeModelFromStorage(model) {
 		if (!model) { return }
 		if(fs.existsSync(model.data.path)) {
+			if( fs.existsSync(path.join(model.data.path, '.folder')) ) fs.unlink( path.join(model.data.path, '.folder') );
 			fs.rmdirSync(model.data.path);
+			model.uid = null;
 		}
 	}
 }
