@@ -101,10 +101,10 @@ function makeWindow() {
 		minHeight: 437,
 		center: true,
 		title: "PileMd",
-		titleBarStyle: 'hidden',
 		backgroundColor: '#61709c',
 		show: true,
-		frame: false,
+		/*titleBarStyle: 'hidden',
+		frame: false,*/
 		webPreferences: {
 			devTools: true
 		}

@@ -5,7 +5,17 @@ function titleMenu(Vue, options) {
 	Vue.component('titleMenu', {
 		replace: true,
 		props: ['selectedNote', 'selectedRackOrFolder', 'isFullScreen', 'isPreview'],
+		data: function () {
+			return {
+				'search': ""
+			};
+		},
 		template: require('./titleMenu.html'),
+		created: function() {
+			this.$watch('search', () => {
+				this.$parent.search = this.search;
+			});
+		},
 		methods: {
 
 			menu_preview: function() {

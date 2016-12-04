@@ -32,8 +32,13 @@ function searchNotes(selectedRackOrFolder, searchInput, notes) {
 	}
 	var searchPayload = calculateSearchMeaning(selectedRackOrFolder, searchInput);
 	var filteredNotes = notes.filter((note) => {
-		return (!searchPayload.folderUids || _.includes(searchPayload.folderUids, note.folderUid)) &&
-			(searchPayload.words.length == 0 || allWords(note.body.toLowerCase(), searchPayload.words))
+		if(!searchPayload.folderUids || _.includes(searchPayload.folderUids, note.folderUid)){
+			if(searchPayload.words.length == 0) return true;
+
+			if(!note.body) note.loadBody();
+			if( allWords(note.body.toLowerCase(), searchPayload.words) ) return true;
+		}
+		return false;
 	});
 	return filteredNotes;
 }

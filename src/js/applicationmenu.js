@@ -132,7 +132,6 @@ var ADD_NEW_NOTE;
 var IMPORT_NOTES;
 var MOVE_SYNC;
 var OPEN_EXISTING_SYNC;
-var QIITA_LOGIN;
 var EDIT_SUBMENU;
 var DISPLAY_ORDER;
 var DISP_SET_UPDATED;
@@ -181,14 +180,6 @@ class ApplicationMenu {
       }
     }
   }
-  setQiitaLogin(q) {
-    QIITA_LOGIN = {
-      label: 'Qiita Login...',
-      click: () => {
-        q();
-      }
-    }
-  }
   // Edit
   setEditSubmenu(submenu) {
     EDIT_SUBMENU = submenu
@@ -218,7 +209,7 @@ class ApplicationMenu {
 
   setToggleWidescreen(toggleWidescreen) {
     TOGGLE_WIDESCREEN = {
-      label: 'Toggle Widescreen',
+      label: 'Toggle Sidebar',
       accelerator: (function() {
         if (IS_DARWIN)
           return 'Command+S';
@@ -305,9 +296,7 @@ class ApplicationMenu {
          {type: 'separator'},
          IMPORT_NOTES,
          MOVE_SYNC,
-         OPEN_EXISTING_SYNC,
-         {type: 'separator'},
-         QIITA_LOGIN
+         OPEN_EXISTING_SYNC
        ]},
       {label: 'Edit',
        submenu: EDIT_SUBMENU || []},

@@ -398,6 +398,8 @@ class Folder extends Model {
 		if(!this._contentLoaded){
 			this._contentLoaded = true;
 			return Note.readNoteByFolder(this);
+		} else {
+			return null;
 		}
 	}
 
@@ -532,6 +534,8 @@ class Rack extends Model {
 		if(!this._contentLoaded){
 			this._contentLoaded = true;
 			return Folder.readFoldersByRack(this);
+		} else {
+			return null;
 		}
 	}
 

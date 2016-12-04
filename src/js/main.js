@@ -31,7 +31,6 @@ Vue.use(require('./components/racks/racks'));
 Vue.use(require('./components/notes/notes'));
 Vue.use(require('./components/codemirror'),
 	{imageURL: '', imageParamName: 'image'});
-Vue.use(require('./coops/qiita'));
 Vue.use(require('./components/resizeHandler').handlerStack);
 Vue.use(require('./components/resizeHandler').handlerNotes);
 Vue.use(require('./components/menu/titleMenu'));
@@ -87,6 +86,19 @@ new Vue({
 	},
 	computed: {
 		filteredNotes: function() {
+			var self = this;
+			if(this.search && this.selectedRackOrFolder){
+				if (this.selectedRackOrFolder instanceof models.Rack) {
+					this.selectedRackOrFolder.folders.forEach(function(folder){
+						var newNotes = folder.readContents();
+						if(newNotes){
+							console.log('folder deep', folder.name);
+							console.log(newNotes);
+							self.notes = self.notes.concat(newNotes);
+						}
+					});
+				}
+			}
 			return searcher.searchNotes(this.selectedRackOrFolder, this.search, this.notes);
 		}
 	},
@@ -134,7 +146,7 @@ new Vue({
 					if(newData) this.notes = this.notes.concat( newData );
 					var filteredNotes = searcher.searchNotes(this.selectedRackOrFolder, this.search, this.notes);
 					filteredNotes.forEach(function(note){
-						note.loadBody();
+						if(!note.body) note.loadBody();
 					});
 				} else {
 					if(newData) this.folders = this.folders.concat( newData );
@@ -176,7 +188,6 @@ new Vue({
 		app.setImportNotes(this.importNotes);
 		app.setMoveSync(this.moveSync);
 		app.setOpenExistingSync(this.openSync);
-		app.setQiitaLogin(this.qiitaLogin);
 		// Save it not to remove
 		
 		//this.watcher = models.makeWatcher(this.racks, this.folders, this.notes);
@@ -243,7 +254,9 @@ new Vue({
 			}
 		},
 		getCurrentFolder: function() {
-			if (this.selectedRackOrFolder instanceof models.Rack) {
+			if (this.selectedRackOrFolder == null){
+				return null;
+			} else if (this.selectedRackOrFolder instanceof models.Rack) {
 				var f = this.selectedRackOrFolder.folders;
 				if (!f || f.length == 0) {
 					return null;
@@ -257,7 +270,7 @@ new Vue({
 			}
 		},
 		addNote: function() {
-			var newNote = models.Note.newEmptyNote(this.getCurrentFolder());
+			var newNote = models.Note.newEmptyNote( this.getCurrentFolder() );
 			if(newNote){
 				this.notes.unshift(newNote);
 				models.Note.setModel(newNote);
@@ -370,9 +383,6 @@ new Vue({
 			models.setBaseLibraryPath(newPath);
 			settings.set('baseLibraryPath', newPath);
 			remote.getCurrentWindow().reload();
-		},
-		qiitaLogin: function() {
-			this.$qiitaAuth();
 		},
 		menu_close: function() {
 			var win = remote.getCurrentWindow();

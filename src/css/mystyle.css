@@ -147,7 +147,7 @@ nav li hr{
 	margin: 0.2em 0.5em;
 	border: 1px solid #4e4e4e;
 }
-nav a {
+nav li > a, nav li > div {
 	color: #F1F1F1;
 	display: block;
 	padding: 0.25em 1.0em;
@@ -167,12 +167,12 @@ nav li:first-child a{
 	padding-right: 1.0em;
 }
 
-nav a i{
+nav a i, nav div i{
 	vertical-align: sub;
 	margin-right: 0.2em;
 }
 
-nav li:hover a, nav li:hover ul {
+nav li:hover a, nav li:hover ul, nav li:hover > div {
 	background: #222222;
 }
 nav li ul {
@@ -227,17 +227,15 @@ nav li ul a:hover {
 }
 
 .my-search {
-	font-size: 12px;
+	font-size: 14px;
+	line-height: 2.2em;
 	color: #fefefe;
 	background-color: transparent;
-	border: 1px solid #fefefe;
-	border-radius: 16px;
-	height: 32px;
+	border: none;
+	outline: none;
 	width: 200px;
-
-	margin: 0 12px 0 28px;
-	padding-left: 12px;
-
+	margin: 0;
+	padding: 0;
 	transition: width 200ms, margin 200ms;
 }
 .my-search::-webkit-input-placeholder {
@@ -246,7 +244,6 @@ nav li ul a:hover {
 .my-search:focus {
 	outline: none;
 	width: 250px;
-	margin-left: 8px;
 }
 
 .my-add-note {
@@ -399,6 +396,10 @@ i.icon.icon-code{
 
 i.icon.icon-check{
 	background-image: url('../images/check_mark.png');
+}
+
+i.icon.icon-search{
+	background-image: url('../images/search.png');
 }
 
 /* end icons */

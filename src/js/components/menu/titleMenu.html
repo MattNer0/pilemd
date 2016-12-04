@@ -1,6 +1,6 @@
 <nav id="cssmenu">
 	<ul>
-		<li class="has-sub">
+		<!--li class="has-sub">
 			<a href="#">PileMd</a>
 			<ul>
 				<li v-if="$root.selectedRackOrFolder">
@@ -32,7 +32,7 @@
 					</a>
 				</li>
 			</ul>
-		</li>
+		</li-->
 		<li v-if="$root.selectedRackOrFolder">
 			<a @click="$root.addNote()" href="#">
 				<span>
@@ -64,6 +64,12 @@
 					Hide Preview
 				</span>
 			</a>
+		</li>
+		<li>
+			<div>
+				<i class="icon icon-search"></i>
+				<input v-model="search" class="my-search" type="search" id="search-bar" placeholder="Search notes..." />
+			</div>
 		</li>
 	</ul>
 </nav>

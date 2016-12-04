@@ -22,8 +22,7 @@ require('./notes.css');
 module.exports = function(Vue, options) {
 	Vue.use(require('../../filters/truncate'));
 	Vue.use(require('../../filters/dateSplitted'));
-	Vue.use(require('../../coops/qiita'));
-
+	
 	Vue.component('notes', {
 		replace: true,
 		props: ['notes', 'originalNotes', 'selectedNote', 'draggingNote', 'toggleFullScreen'],
@@ -103,22 +102,12 @@ module.exports = function(Vue, options) {
 				}
 				fs.closeSync(fd);
 			},
-			qiitaPost: function(note) {
-				this.$qiitaPost(note);
-			},
 			noteMenu: function(note) {
 				var menu = new Menu();
 				menu.append(new MenuItem({label: 'Copy to clipboard (Markdown)', click: () => {this.copyNoteBody(note)}}));
 				menu.append(new MenuItem({label: 'Copy to clipboard (HTML)', click: () => {this.copyNoteHTML(note)}}));
 				menu.append(new MenuItem({type: 'separator'}));
 				menu.append(new MenuItem({label: 'Export this note...', click: () => {this.exportNoteDiag(note)}}));
-				if (note.qiitaURL) {
-					menu.append(new MenuItem({label: 'Open Qiita Post on Browser', click: () => {
-						shell.openExternal(note.qiitaURL);
-					}}));
-				} else {
-					menu.append(new MenuItem({label: 'Share on Qiita...', click: () => {this.qiitaPost(note)}}));
-				}
 				menu.append(new MenuItem({type: 'separator'}));
 				menu.append(new MenuItem({label: 'Delete note', click: () => {this.removeNote(note)}}));
 				menu.popup(remote.getCurrentWindow());
