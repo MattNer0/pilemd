@@ -185,6 +185,7 @@ new Vue({
 		app.setToggleWidescreen(this.toggleFullScreen);
 		app.setTogglePreview(this.togglePreview);
 		app.setAddNewNote(this.addNote);
+		app.setCredits(this.openCredits);
 		app.setImportNotes(this.importNotes);
 		app.setMoveSync(this.moveSync);
 		app.setOpenExistingSync(this.openSync);
@@ -383,6 +384,16 @@ new Vue({
 			models.setBaseLibraryPath(newPath);
 			settings.set('baseLibraryPath', newPath);
 			remote.getCurrentWindow().reload();
+		},
+		openCredits: function() {
+			dialog.showMessageBox( remote.getCurrentWindow(), {
+				type: "none",
+				buttons: ['Ok'],
+				title: "Credits",
+				message: "PileMd was originally created by Hiroki KIYOHARA.\n"+
+					"The full list of Authors is available on GitHub.\n\n"+
+					"This Fork with updated components and additinal features is maintained by MattNer0."
+			});
 		},
 		menu_close: function() {
 			var win = remote.getCurrentWindow();

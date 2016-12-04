@@ -24,7 +24,6 @@
 - added preview mode toggle from right click menu for quicker access
 - checkbox display and interaction in preview mode
 - style changes all around for the heck of it
-- disabled search bar for now
 
 ## Run
 

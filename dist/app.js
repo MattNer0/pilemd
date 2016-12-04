@@ -236,6 +236,7 @@
 			app.setToggleWidescreen(this.toggleFullScreen);
 			app.setTogglePreview(this.togglePreview);
 			app.setAddNewNote(this.addNote);
+			app.setCredits(this.openCredits);
 			app.setImportNotes(this.importNotes);
 			app.setMoveSync(this.moveSync);
 			app.setOpenExistingSync(this.openSync);
@@ -453,6 +454,14 @@
 				models.setBaseLibraryPath(newPath);
 				settings.set('baseLibraryPath', newPath);
 				remote.getCurrentWindow().reload();
+			},
+			openCredits: function openCredits() {
+				dialog.showMessageBox(remote.getCurrentWindow(), {
+					type: "none",
+					buttons: ['Ok'],
+					title: "Credits",
+					message: "PileMd was originally created by Hiroki KIYOHARA.\n" + "The full list of Authors is available on GitHub.\n\n" + "This Fork with updated components and additinal features is maintained by MattNer0."
+				});
 			},
 			menu_close: function menu_close() {
 				var win = remote.getCurrentWindow();
@@ -25176,27 +25185,6 @@
 	  }]
 	};
 
-	var HELP_TEMPLATE = {
-	  label: 'Help',
-	  role: 'help',
-	  submenu: [{
-	    label: 'Go to Official Site',
-	    click: function click() {
-	      __webpack_require__(5).shell.openExternal('https://pilemd.com/');
-	    }
-	  }, {
-	    label: 'Go to Project GitHub',
-	    click: function click() {
-	      __webpack_require__(5).shell.openExternal('https://github.com/hirokiky/pilemd/');
-	    }
-	  }, {
-	    label: 'Credits',
-	    click: function click() {
-	      __webpack_require__(5).shell.openExternal('https://github.com/hirokiky/pilemd/blob/master/AUTHORS');
-	    }
-	  }]
-	};
-
 	var ADD_NEW_NOTE;
 	var IMPORT_NOTES;
 	var MOVE_SYNC;
@@ -25207,6 +25195,7 @@
 	var DISP_SET_CREATED;
 	var TOGGLE_PREVIEW;
 	var TOGGLE_WIDESCREEN;
+	var DISPLAY_CREDITS;
 
 	var ApplicationMenu = (function () {
 	  function ApplicationMenu() {
@@ -25301,6 +25290,16 @@
 	      };
 	    }
 	  }, {
+	    key: 'setCredits',
+	    value: function setCredits(dialogCredits) {
+	      DISPLAY_CREDITS = {
+	        label: 'Credits',
+	        click: function click() {
+	          dialogCredits();
+	        }
+	      };
+	    }
+	  }, {
 	    key: 'setMenu',
 	    value: function setMenu() {
 	      var viewTmp = _.cloneDeep(VIEW_TEMPLATE);
@@ -25356,6 +25355,29 @@
 	        }
 	      });
 	      //}
+
+	      //if(DISPLAY_CREDITS) HELP_TEMPLATE.submenu.push(DISPLAY_CREDITS);
+	      var HELP_TEMPLATE = {
+	        label: 'Help',
+	        role: 'help',
+	        submenu: [{
+	          label: 'Go to Official Site',
+	          click: function click() {
+	            __webpack_require__(5).shell.openExternal('https://pilemd.com/');
+	          }
+	        }, {
+	          label: 'Go to GitHub Project',
+	          click: function click() {
+	            __webpack_require__(5).shell.openExternal('https://github.com/MattNer0/pilemd/');
+	          }
+	        }, {
+	          label: 'Go to Original GitHub Project',
+	          click: function click() {
+	            __webpack_require__(5).shell.openExternal('https://github.com/hirokiky/pilemd/');
+	          }
+	        }, DISPLAY_CREDITS]
+	      };
+
 	      var temp = [{ label: 'File',
 	        submenu: [ADD_NEW_NOTE, { type: 'separator' }, IMPORT_NOTES, MOVE_SYNC, OPEN_EXISTING_SYNC] }, { label: 'Edit',
 	        submenu: EDIT_SUBMENU || [] }, viewTmp, WINDOW_TEMPLATE, HELP_TEMPLATE];

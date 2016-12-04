@@ -108,26 +108,6 @@ const WINDOW_TEMPLATE =     {
   ]
 };
 
-
-const HELP_TEMPLATE = {
-  label: 'Help',
-  role: 'help',
-  submenu: [
-    {
-      label: 'Go to Official Site',
-      click: function() { require('electron').shell.openExternal('https://pilemd.com/') }
-    },
-    {
-      label: 'Go to Project GitHub',
-      click: function() { require('electron').shell.openExternal('https://github.com/hirokiky/pilemd/') }
-    },
-    {
-      label: 'Credits',
-      click: function() { require('electron').shell.openExternal('https://github.com/hirokiky/pilemd/blob/master/AUTHORS') }
-    }
-  ]
-};
-
 var ADD_NEW_NOTE;
 var IMPORT_NOTES;
 var MOVE_SYNC;
@@ -138,6 +118,7 @@ var DISP_SET_UPDATED;
 var DISP_SET_CREATED;
 var TOGGLE_PREVIEW;
 var TOGGLE_WIDESCREEN;
+var DISPLAY_CREDITS;
 
 class ApplicationMenu {
   // File
@@ -222,6 +203,15 @@ class ApplicationMenu {
     }
   }
 
+  setCredits(dialogCredits) {
+    DISPLAY_CREDITS = {
+      label: 'Credits',
+      click: () => {
+        dialogCredits()
+      }
+    }
+  }
+
   setMenu() {
     var viewTmp = _.cloneDeep(VIEW_TEMPLATE);
     viewTmp.submenu.unshift({
@@ -289,6 +279,28 @@ class ApplicationMenu {
         }
       })
     //}
+    
+    //if(DISPLAY_CREDITS) HELP_TEMPLATE.submenu.push(DISPLAY_CREDITS);
+    var HELP_TEMPLATE = {
+      label: 'Help',
+      role: 'help',
+      submenu: [
+        {
+          label: 'Go to Official Site',
+          click: function() { require('electron').shell.openExternal('https://pilemd.com/') }
+        },
+        {
+          label: 'Go to GitHub Project',
+          click: function() { require('electron').shell.openExternal('https://github.com/MattNer0/pilemd/') }
+        },
+        {
+          label: 'Go to Original GitHub Project',
+          click: function() { require('electron').shell.openExternal('https://github.com/hirokiky/pilemd/') }
+        },
+        DISPLAY_CREDITS
+      ]
+    };
+
     var temp = [
       {label: 'File',
        submenu: [
