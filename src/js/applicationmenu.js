@@ -281,7 +281,7 @@ class ApplicationMenu {
     //}
     
     //if(DISPLAY_CREDITS) HELP_TEMPLATE.submenu.push(DISPLAY_CREDITS);
-    var HELP_TEMPLATE = {
+    var helpTmp = {
       label: 'Help',
       role: 'help',
       submenu: [
@@ -314,7 +314,7 @@ class ApplicationMenu {
        submenu: EDIT_SUBMENU || []},
       viewTmp,
       WINDOW_TEMPLATE,
-      HELP_TEMPLATE
+      helpTmp
     ];
     if (IS_DARWIN) {
       temp.unshift(DARWIN_APP_TEMPLATE);

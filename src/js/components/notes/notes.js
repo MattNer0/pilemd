@@ -25,7 +25,7 @@ module.exports = function(Vue, options) {
 	
 	Vue.component('notes', {
 		replace: true,
-		props: ['notes', 'originalNotes', 'selectedNote', 'draggingNote', 'toggleFullScreen'],
+		props: ['notes', 'originalNotes', 'selectedNote', 'draggingNote', 'toggleFullScreen', 'selectedRackOrFolder'],
 		template: require('./notes.html'),
 		data: function() {
 			return {
@@ -40,12 +40,15 @@ module.exports = function(Vue, options) {
 			} else {
 				this.notesDisplayOrder = o;
 			}
+			/*
 			var app = new ApplicationMenu();
 			app.setDisplayOrder(
 				this.notesDisplayOrder,
 				() => {this.notesDisplayOrder = 'updatedAt'},
 				() => {this.notesDisplayOrder = 'createdAt'});
 			app.setMenu();
+			*/
+
 			this.$watch('notesDisplayOrder', (v) => {
 				localStorage.setItem(NOTE_DISPLAY_ORDER_KEY, v);
 			});

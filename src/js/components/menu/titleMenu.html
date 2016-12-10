@@ -1,39 +1,6 @@
 <nav id="cssmenu">
 	<ul>
-		<!--li class="has-sub">
-			<a href="#">PileMd</a>
-			<ul>
-				<li v-if="$root.selectedRackOrFolder">
-					<a @click="$root.addNote()" href="#">
-						New Note
-					</a>
-				</li>
-				<li v-if="$root.selectedRackOrFolder"><hr></li>
-				<li>
-					<a @click="$root.openSync()" href="#">
-						Open Existing Sync Folder
-					</a>
-				</li>
-				<li>
-					<a @click="$root.moveSync()" href="#">
-						Move Sync Folder
-					</a>
-				</li>
-				<li><hr></li>
-				<li>
-					<a @click="menu_devTools()" href="#">
-						Open DevTools
-					</a>
-				</li>
-				<li><hr></li>
-				<li>
-					<a @click="$root.menu_close()" href="#">
-						Quit
-					</a>
-				</li>
-			</ul>
-		</li-->
-		<li v-if="$root.selectedRackOrFolder">
+		<li>
 			<a @click="$root.addNote()" href="#">
 				<span>
 					<i class="icon icon-new-note"></i>
@@ -70,6 +37,48 @@
 				<i class="icon icon-search"></i>
 				<input v-model="search" class="my-search" type="search" id="search-bar" placeholder="Search notes..." />
 			</div>
+		</li>
+		<li class="has-sub right-align">
+			<a href="#" class="menu-button">
+				<span></span>
+				<span></span>
+				<span></span>
+			</a>
+			<ul>
+				<li>
+					<a @click="$root.addNote()" href="#">
+						New Note
+					</a>
+				</li>
+				<li><hr></li>
+				<li>
+					<a @click="$root.openSync()" href="#">
+						Open Existing Sync Folder
+					</a>
+				</li>
+				<li>
+					<a @click="$root.moveSync()" href="#">
+						Move Sync Folder
+					</a>
+				</li>
+				<li><hr></li>
+				<li>
+					<a @click="menu_devTools()" href="#">
+						Open DevTools
+					</a>
+				</li>
+				<li><hr></li>
+				<li>
+					<a @click="$root.openCredits()" href="#">
+						Credits
+					</a>
+				</li>
+				<li>
+					<a @click="$root.menu_close()" href="#">
+						Quit
+					</a>
+				</li>
+			</ul>
 		</li>
 	</ul>
 </nav>

@@ -101,7 +101,7 @@ function makeWindow() {
 		minHeight: 437,
 		center: true,
 		title: "PileMd",
-		backgroundColor: '#61709c',
+		backgroundColor: '#2c3039',
 		show: true,
 		/*titleBarStyle: 'hidden',
 		frame: false,*/
@@ -117,6 +117,7 @@ function makeWindow() {
 	mainWindow = new BrowserWindow(conf);
 
 	// Set ApplicationMenu bar
+	mainWindow.setMenu(null);
 
 	// and load the index.html of the app.
 	mainWindow.loadURL('file://' + __dirname + '/index.html');

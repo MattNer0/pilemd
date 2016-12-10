@@ -170,9 +170,16 @@ class Note extends Model {
 		}
 	}
 
+	cleanPreviewBody(text) {
+		text = text.replace(/^\n/, "");
+		text = text.replace(/\* \[ \]/g, "* ");
+		text = text.replace(/\* \[x\]/g, "* ");
+		return text;
+	}
+
 	get bodyWithoutTitle() {
 		if(this.body){
-			return this.splitTitleFromBody().body.replace(/^\n/, "");
+			return this.cleanPreviewBody( this.splitTitleFromBody().body );
 		} else {
 			return "";
 		}	

@@ -24,7 +24,8 @@ module.exports = function(Vue, options) {
 				draggingRack: null,
 				draggingFolder: null,
 				draggingFolderRack: null,
-				editingFolder: null
+				editingFolder: null,
+				scrollbarNotes: null
 			}
 		},
 		template: require('./racks.html'),

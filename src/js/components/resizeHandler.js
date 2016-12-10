@@ -68,7 +68,7 @@ function handlerNotes(Vue, options) {
 					y: 0
 				},
 				start_width: 0,
-				min_width: 160,
+				min_width: 170,
 				dragging: false
 			}
 		},
@@ -98,6 +98,7 @@ function handlerNotes(Vue, options) {
 
 			dragend: function(e) {
 				this.dragging = false;
+				this.$root.update_scrollbar_notes();
 			},
 			
 			drag: function(e) {
@@ -108,6 +109,7 @@ function handlerNotes(Vue, options) {
 				var new_width = this.start_width+e.pageX-this.initialPos.x;
 				if(new_width >= this.min_width){
 					this.$el.previousElementSibling.style.width = new_width+"px";
+					this.$root.update_scrollbar_notes();
 				}
 			}
 		}

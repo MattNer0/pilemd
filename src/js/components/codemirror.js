@@ -124,6 +124,7 @@ module.exports = function(Vue, options) {
 					}
 				});
 
+				/*
 				// Electron
 				// FIXME Fucking hell impl
 				var setMenu = () => {
@@ -200,6 +201,7 @@ module.exports = function(Vue, options) {
 					menu.setMenu();
 				};
 				setMenu();
+				*/
 
 				var isLinkState = (type) => {
 					if (!type) {
@@ -282,7 +284,7 @@ module.exports = function(Vue, options) {
 						Vue.nextTick(() => {
 							cm.refresh();
 							cm.focus();
-							setMenu();
+							//setMenu();
 						});
 					}
 				});

@@ -37,9 +37,13 @@ Vue.use(require('./components/menu/titleMenu'));
 Vue.use(require('./components/menu/codemirrorMenu'));
 
 // Loading CSSs
+
 require('../css/materialicons.css');
 require('../css/mystyle.css');
 require('../css/highlight.css');
+
+//require('../css/tinyscrollbar.css');
+//const tinyscrollbar = require('./tinyscrollbar.min.js');
 
 // Not to accept image dropping and so on.
 // Electron will be show local images without this.
@@ -82,7 +86,8 @@ new Vue({
 		modalPrompts: [],
 		modalOkcb: null,
 		racksWidth: 180,
-		notesWidth: 180
+		notesWidth: 180,
+		//scrollbarNotes: null
 	},
 	computed: {
 		filteredNotes: function() {
@@ -154,6 +159,12 @@ new Vue({
 			}
 		});
 
+		/*this.$watch('filteredNotes', () => {
+			setTimeout(() => {
+				this.update_scrollbar_notes();
+			}, 100);
+		});*/
+
 		this.$watch('isPreview', () => {
 			if(this.selectedNote.data){
 				this.$set('preview', preview.render(this.selectedNote, this));
@@ -181,7 +192,7 @@ new Vue({
 			this.modalShow = true;
 		});
 
-		var app = new ApplicationMenu();
+		/*var app = new ApplicationMenu();
 		app.setToggleWidescreen(this.toggleFullScreen);
 		app.setTogglePreview(this.togglePreview);
 		app.setAddNewNote(this.addNote);
@@ -189,10 +200,15 @@ new Vue({
 		app.setImportNotes(this.importNotes);
 		app.setMoveSync(this.moveSync);
 		app.setOpenExistingSync(this.openSync);
+		*/
 		// Save it not to remove
 		
 		//this.watcher = models.makeWatcher(this.racks, this.folders, this.notes);
 	},
+	/*ready: function(){
+		var $scrollbar = document.querySelector(".my-notes");
+		this.scrollbarNotes  = tinyscrollbar($scrollbar);
+	},*/
 	events: {
 		togglePreview: function() {
 			this.isPreview = !this.isPreview;
@@ -217,7 +233,7 @@ new Vue({
 						accelerator: 'CmdOrCtrl+V',
 						role: 'paste'
 					}]);
-				menu.setMenu();
+				//menu.setMenu();
 			}
 		}
 	},
@@ -280,6 +296,12 @@ new Vue({
 
 				if (this.search.length > 0) {
 					this.search = '';
+				}
+			} else {
+				if(this.racks.length > 0){
+					dialog.showErrorBox("Error", "You must select a Rack and Folder first!" );
+				} else {
+					dialog.showErrorBox("Error", "You must create a Folder first!" );
 				}
 			}
 		},
@@ -386,15 +408,18 @@ new Vue({
 			remote.getCurrentWindow().reload();
 		},
 		openCredits: function() {
-			dialog.showMessageBox( remote.getCurrentWindow(), {
+			dialog.showMessageBox(remote.getCurrentWindow(), {
 				type: "none",
 				buttons: ['Ok'],
 				title: "Credits",
 				message: "PileMd was originally created by Hiroki KIYOHARA.\n"+
 					"The full list of Authors is available on GitHub.\n\n"+
-					"This Fork with updated components and additinal features is maintained by MattNer0."
+					"This Fork with updated components and additional features is maintained by MattNer0."
 			});
 		},
+		/*update_scrollbar_notes: function() {
+			this.scrollbarNotes.update();
+		},*/
 		menu_close: function() {
 			var win = remote.getCurrentWindow();
 			win.close();
