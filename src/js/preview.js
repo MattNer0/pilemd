@@ -111,12 +111,21 @@ var renderer = new marked.Renderer();
 
 renderer.listitem = function(text) {
   if (/^\s*\[[x ]\]\s*/.test(text)) {
-    var matched = /^(.*?)(<|$)/.exec(text)[1];
+    var matched = ""; ///^(.*?)(<|$)/.exec(text)[1];
     text = text
       .replace(/^\s*\[ \]\s*/, '<span><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" /></span> ')
       .replace(/^\s*\[x\]\s*/, '<span><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" checked /></span> ');
 
     return '<li class="checkbox" style="list-style: none"><label>' + text + '</label></li>';
+  } else if (/^<p>\s*\[[x ]\]\s*/.test(text)) {
+    text = text.replace(/<[\/]{0,1}p>/g, "");
+    var matched = ""; ///^(.*?)(<|$)/.exec(text)[1];
+    text = text
+      .replace(/^\s*\[ \]\s*/, '<span><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" /></span> ')
+      .replace(/^\s*\[x\]\s*/, '<span><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" checked /></span> ');
+
+    return '<li class="checkbox" style="list-style: none"><label>' + text + '</label></li>';
+
   } else {
     return '<li>' + text + '</li>';
   }

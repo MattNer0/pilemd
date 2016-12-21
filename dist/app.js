@@ -39019,7 +39019,13 @@
 
 	renderer.listitem = function (text) {
 	  if (/^\s*\[[x ]\]\s*/.test(text)) {
-	    var matched = /^(.*?)(<|$)/.exec(text)[1];
+	    var matched = ""; ///^(.*?)(<|$)/.exec(text)[1];
+	    text = text.replace(/^\s*\[ \]\s*/, '<span><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" /></span> ').replace(/^\s*\[x\]\s*/, '<span><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" checked /></span> ');
+
+	    return '<li class="checkbox" style="list-style: none"><label>' + text + '</label></li>';
+	  } else if (/^<p>\s*\[[x ]\]\s*/.test(text)) {
+	    text = text.replace(/<[\/]{0,1}p>/g, "");
+	    var matched = ""; ///^(.*?)(<|$)/.exec(text)[1];
 	    text = text.replace(/^\s*\[ \]\s*/, '<span><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" /></span> ').replace(/^\s*\[x\]\s*/, '<span><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" checked /></span> ');
 
 	    return '<li class="checkbox" style="list-style: none"><label>' + text + '</label></li>';
@@ -71108,7 +71114,8 @@
 	  var keymapOverray = {
 	    'Ctrl-Right': CodeMirror.keyMap.emacs['Alt-F'],
 	    'Ctrl-Left': CodeMirror.keyMap.emacs['Alt-B'],
-	    "End": "goLineEnd", "Home": "goLineStart",
+	    "End": "goLineEnd",
+	    "Home": "goLineStart",
 	    'Ctrl-C': copyText,
 	    'Alt-W': copyText,
 	    'Ctrl-Y': pasteText,
@@ -71120,7 +71127,8 @@
 	    'Ctrl-Z': 'undo',
 	    'Ctrl-F': 'findPersistent',
 	    'Ctrl-R': 'replace',
-	    'Cmd-Left': "goLineStart", 'Cmd-Right': 'goLineEnd',
+	    'Cmd-Left': "goLineStart",
+	    'Cmd-Right': 'goLineEnd',
 	    //'Cmd-Up': 'goDocStart', 'Cmd-Down': 'goDocEnd',
 	    'Alt-G G': function AltGG() {}, // Delete this behavior
 	    'Alt-Z': function AltZ() {
