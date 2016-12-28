@@ -8,6 +8,8 @@ const highlightjs = require('highlight.js/lib/highlight');
 
 const Image = require('./models').Image;
 
+var checkbox_occurrance_dictionary = {};
+
 highlightjs.registerLanguage('accesslog', require('highlight.js/lib/languages/accesslog'));
 highlightjs.registerLanguage('actionscript', require('highlight.js/lib/languages/actionscript'));
 highlightjs.registerLanguage('apache', require('highlight.js/lib/languages/apache'));
@@ -105,115 +107,196 @@ highlightjs.registerLanguage('xl', require('highlight.js/lib/languages/xl'));
 highlightjs.registerLanguage('xquery', require('highlight.js/lib/languages/xquery'));
 highlightjs.registerLanguage('yaml', require('highlight.js/lib/languages/yaml'));
 
+function clean_matched(matched){
+	matched = matched.replace('<del>', '~~');
+	matched = matched.replace('</del>', '~~');
+	matched = matched.replace('<strong>', '**');
+	matched = matched.replace('</strong>', '**');
+	return encodeURI(matched);
+}
+
+function renderCheckboxText(text){
+	if (/^\s*\[[x ]\]\s*/.test(text)) {
+		var matched = text;
+		//var matched = encodeURI(text); ///^(.*?)(<|$)/.exec(text)[1];
+		text = text
+			.replace(/^\s*\[ \]\s*/, '<span><input class="my-el-todo-list" data-value="' + clean_matched(matched) + '" type="checkbox" /></span> ')
+			.replace(/^\s*\[x\]\s*/, '<span><input class="my-el-todo-list" data-value="' + clean_matched(matched) + '" type="checkbox" checked /></span> ');
+
+		return '<li class="checkbox"><label>' + text + '</label></li>';
+	} else if (/^<p>\s*\[[x ]\]\s*/.test(text)) {
+		text = text.replace(/<[\/]{0,1}p>/g, "");
+		var matched = text;
+		//var matched = encodeURI(text); ///^(.*?)(<|$)/.exec(text)[1];
+		text = text
+			.replace(/^\s*\[ \]\s*/, '<span><input class="my-el-todo-list" data-value="' + clean_matched(matched) + '" type="checkbox" /></span> ')
+			.replace(/^\s*\[x\]\s*/, '<span><input class="my-el-todo-list" data-value="' + clean_matched(matched) + '" type="checkbox" checked /></span> ');
+
+		return '<li class="checkbox"><label>' + text + '</label></li>';
+
+	} else {
+		return '<li>' + text + '</li>';
+	}
+}
+
 // Settings for Markdown
 // Injecting GFM task lists
 var renderer = new marked.Renderer();
 
-renderer.listitem = function(text) {
-  if (/^\s*\[[x ]\]\s*/.test(text)) {
-    var matched = ""; ///^(.*?)(<|$)/.exec(text)[1];
-    text = text
-      .replace(/^\s*\[ \]\s*/, '<span><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" /></span> ')
-      .replace(/^\s*\[x\]\s*/, '<span><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" checked /></span> ');
-
-    return '<li class="checkbox" style="list-style: none"><label>' + text + '</label></li>';
-  } else if (/^<p>\s*\[[x ]\]\s*/.test(text)) {
-    text = text.replace(/<[\/]{0,1}p>/g, "");
-    var matched = ""; ///^(.*?)(<|$)/.exec(text)[1];
-    text = text
-      .replace(/^\s*\[ \]\s*/, '<span><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" /></span> ')
-      .replace(/^\s*\[x\]\s*/, '<span><input class="my-el-todo-list" data-value="' + matched + '" type="checkbox" checked /></span> ');
-
-    return '<li class="checkbox" style="list-style: none"><label>' + text + '</label></li>';
-
-  } else {
-    return '<li>' + text + '</li>';
-  }
-};
+renderer.listitem = renderCheckboxText;
 
 marked.setOptions({
-  renderer: renderer,
-  gfm: true,
-  tables: true,
-  breaks: true,
-  pedantic: false,
-  sanitize: true,
-  smartLists: true,
-  smartypants: false,
-  highlight: function (code) {
-    return '<div class="hljs">' + highlightjs.highlightAuto(code).value + '</div>';
-  }
+	renderer: renderer,
+	gfm: true,
+	tables: true,
+	breaks: true,
+	pedantic: false,
+	sanitize: true,
+	smartLists: true,
+	smartypants: false,
+	highlight: function (code) {
+		return '<div class="hljs">' + highlightjs.highlightAuto(code).value + '</div>';
+	}
 });
 
 const ATAG_TO_EXTERNAL_TEMP = _.template(
-  '<a href="<%- link %>" ' +
-  'onclick="require(\'electron\').shell.openExternal(\'<%- link %>\'); ' +
-  'return false;"' +
-  'oncontextmenu="var remote = new require(\'electron\').remote; ' +
-  'var Menu = remote.Menu;' +
-  'var MenuItem = remote.MenuItem;' +
-  'var m = new Menu();' +
-  'm.append(new MenuItem({label: \'Copy Link\',' +
-  'click: function() {require(\'electron\').clipboard.writeText(\'<%- link %>\')}}));' +
-  'm.popup(remote.getCurrentWindow()); return false;"' +
-  '><%- text %></a>'
+	'<a href="<%- link %>" ' +
+	'onclick="require(\'electron\').shell.openExternal(\'<%- link %>\'); ' +
+	'return false;"' +
+	'oncontextmenu="var remote = new require(\'electron\').remote; ' +
+	'var Menu = remote.Menu;' +
+	'var MenuItem = remote.MenuItem;' +
+	'var m = new Menu();' +
+	'm.append(new MenuItem({label: \'Copy Link\',' +
+	'click: function() {require(\'electron\').clipboard.writeText(\'<%- link %>\')}}));' +
+	'm.popup(remote.getCurrentWindow()); return false;"' +
+	'><%- text %></a>'
 );
 
 function replaceAtagToExternal(bodyHTML) {
-  return bodyHTML.replace(
-    /<a.*?href="(https?:\/\/.*?)".*?>(.*?)<\/a>/mg,
-    (match, p1, p2, offset, string) => {
-      return ATAG_TO_EXTERNAL_TEMP({link: p1, text: p2});
-    });
+	return bodyHTML.replace(
+		/<a.*?href="(https?:\/\/.*?)".*?>(.*?)<\/a>/mg,
+		(match, p1, p2, offset, string) => {
+			return ATAG_TO_EXTERNAL_TEMP({link: p1, text: p2});
+		});
 }
 
 const IMGTAG_TO_CONTEXTMENU_TEMP = _.template(
-  '<a href="<%- link %>" ' +
-  'onclick="require(\'electron\').shell.openExternal(\'<%- link %>\'); return false">' +
-  '<img src="<%- link %>" ' +
-  'oncontextmenu="var remote = new require(\'electron\').remote; ' +
-  'var Menu = remote.Menu;' +
-  'var MenuItem = remote.MenuItem;' +
-  'var m = new Menu();' +
-  'm.append(new MenuItem({label: \'Copy Image Link\',' +
-  'click: function() {require(\'electron\').clipboard.writeText(\'<%- link %>\')}}));' +
-  'm.popup(remote.getCurrentWindow()); return false;" alt="<%- alt %>" /></a>'
+	'<a href="<%- link %>" ' +
+	'onclick="require(\'electron\').shell.openExternal(\'<%- link %>\'); return false">' +
+	'<img src="<%- link %>" ' +
+	'oncontextmenu="var remote = new require(\'electron\').remote; ' +
+	'var Menu = remote.Menu;' +
+	'var MenuItem = remote.MenuItem;' +
+	'var m = new Menu();' +
+	'm.append(new MenuItem({label: \'Copy Image Link\',' +
+	'click: function() {require(\'electron\').clipboard.writeText(\'<%- link %>\')}}));' +
+	'm.popup(remote.getCurrentWindow()); return false;" alt="<%- alt %>" /></a>'
 );
 
 function replaceImgtagWithContext(bodyHTML) {
-  return bodyHTML.replace(
-    /<img.*?src="(https?:\/\/.*?)" (alt="(.*?)"|alt)\/?>/mg,
-    (match, p1, p2, p3, offset, string) => {
-      return IMGTAG_TO_CONTEXTMENU_TEMP({link: p1, alt: p4 || ''});
-    }
-  );
+	return bodyHTML.replace(
+		/<img.*?src="(https?:\/\/.*?)" (alt="(.*?)"|alt)\/?>/mg,
+		(match, p1, p2, p3, offset, string) => {
+			return IMGTAG_TO_CONTEXTMENU_TEMP({link: p1, alt: p4 || ''});
+		}
+	);
 }
 
+function findLineNumber(body, element, value, encoded, start) {
+	if( !checkbox_occurrance_dictionary[encoded] ) checkbox_occurrance_dictionary[encoded] = 0;
+	if( start ) checkbox_occurrance_dictionary[encoded] = start;
+
+	var pos = body.indexOf( value, checkbox_occurrance_dictionary[encoded] );
+
+	if(pos >= 0){
+		element.dataset.index = pos;
+		checkbox_occurrance_dictionary[encoded] = pos + value.length;
+	} else {
+		console.log('not found?', value);
+	}
+}
 
 function render(note, v) {
-  var p = replaceAtagToExternal(marked(note.bodyWithDataURL));
-  v.$nextTick(() => {
-    Array.prototype.forEach.call(
-      document.querySelectorAll('.my-el-todo-list'),
-      (el) => {
-        el.onclick = (event) => {
-          var value = event.target.dataset.value;
-          var checkBox = value.slice(0, 3);
-          var toggled = '';
-          if (checkBox == '[ ]') {
-            toggled = '[x] ' + value.slice(4);
-          } else if (checkBox == '[x]') {
-            toggled = '[ ] ' + value.slice(4);
-          }
-          var body = note.body;
-          note.body = body.replace(value + '\n', toggled + '\n');
-          event.target.dataset.value = toggled;
-        }});
-  });
-  return p;
+	checkbox_occurrance_dictionary = {};
+	var p = replaceAtagToExternal(marked(note.bodyWithDataURL));
+	v.$nextTick(() => {
+		Array.prototype.forEach.call( document.querySelectorAll('.my-el-todo-list'), (el) => {
+			
+			findLineNumber(note.body, el, decodeURI(el.dataset.value), el.dataset.value );
+
+			el.onclick = (event) => {
+				var value = decodeURI(event.target.dataset.value);
+				var index = event.target.dataset.index;
+				var checkBox = value.slice(0, 3);
+				var toggled = '';
+				if (checkBox == '[ ]') {
+					toggled = '[x] ' + value.slice(4);
+				} else if (checkBox == '[x]') {
+					toggled = '[ ] ' + value.slice(4);
+				}
+				var body = note.body;
+				if(index > 0){
+
+					note.body = body.slice(0, index) + body.slice(index).replace(value + '\n', toggled + '\n');
+
+				} else {
+					note.body = body.replace(value + '\n', toggled + '\n');
+				}
+				event.target.dataset.value = encodeURI(toggled);
+			}
+
+			var ul = el.parentNode.parentNode.parentNode.parentNode;
+			
+			if(ul.tagName == "UL" && ul.className != "todo-ul"){
+				ul.className = "todo-ul";
+
+				var last_checkbox;
+				for (var i = ul.childNodes.length-1; i >= 0; i--) {
+					if (ul.childNodes[i].className == "checkbox") {
+						last_checkbox = ul.childNodes[i];
+						break;
+					}
+				}
+
+				var newLi = document.createElement('li');
+				newLi.className = "new-todo-form"; 
+				newLi.innerHTML = '<form><input type="text" /><button type="submit">+</button></form>';
+				ul.insertBefore(newLi, last_checkbox.nextSibling);
+
+				var newForm = newLi.querySelector('form');
+
+				newForm.addEventListener('submit', function(event){
+					event.preventDefault();
+
+					var inputText = event.target.querySelector('input').value;
+					event.target.querySelector('input').value = "";
+					var last_checkbox = event.target.parentNode.previousSibling.querySelector('.my-el-todo-list');
+
+					if(inputText && last_checkbox){
+						var value = decodeURI(last_checkbox.dataset.value);
+						if(value){
+							var body = note.body;
+							note.body = body.replace(value + '\n', value + '\n' + '* [ ] '+inputText + '\n' );
+
+							var div = document.createElement('div');
+							div.innerHTML = renderCheckboxText( ' [ ] '+inputText );
+							var elements = div.childNodes;
+							
+							event.target.parentNode.parentNode.insertBefore( elements[0], event.target.parentNode);
+							var this_checkbox = div.querySelector('.my-el-todo-list');
+							console.log(this_checkbox, elements);
+							findLineNumber(note.body, this_checkbox, decodeURI(this_checkbox.dataset.value), this_checkbox.dataset.value, last_checkbox.dataset.index );
+						}
+					}
+				}, false);
+			}
+		});
+	});
+	return p;
 }
 
 
 module.exports = {
-  render: render
+	render: render
 };

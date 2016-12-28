@@ -577,6 +577,50 @@ span.cm-piled-formatting-task {
 	padding-top: 0.1em;
 	position: relative;
 	margin: 0.5em 0;
+	list-style: none;
+}
+
+.my-editor-preview ul li.new-todo-form{
+	padding: 0.45em 0.5em 0.4em;
+    position: relative;
+    margin-left: -1em;
+    margin-bottom: 0.5em;
+    list-style: none;
+	width: 80%;
+    max-width: 25em;
+    border-radius: 2px;
+    background-color: #E0E0E0;
+	transition: background-color 200ms ease;
+}
+
+.my-editor-preview ul li.new-todo-form:hover{
+	background-color: #F6F6F6;
+}
+
+.my-editor-preview ul li.new-todo-form input{
+    border: 1px solid #DDD;
+    outline: none;
+	padding: 0.3em;
+    margin: 0;
+	width: calc( 100% - 3em );
+}
+
+.my-editor-preview ul li.new-todo-form button{
+    background: transparent;
+    border: none;
+    font-weight: bold;
+    font-size: 120%;
+    vertical-align: middle;
+    cursor: pointer;
+	padding: 0 0.5em;
+    line-height: 1em;
+    margin-top: 0.1em;
+    color: #AAA;
+    transition: color 200ms ease;
+}
+
+.my-editor-preview ul li.new-todo-form button:hover{
+	color: #333;
 }
 
 .my-editor-preview ul li.checkbox label{
