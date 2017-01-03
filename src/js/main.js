@@ -54,10 +54,6 @@ document.addEventListener('drop', (e) => {
 	e.preventDefault();
 	e.stopPropagation();
 });
-window.addEventListener('resize', (e) => {
-	e.preventDefault();
-	settings.saveWindowSize();
-});
 
 var settings_baseLibraryPath = settings.get('baseLibraryPath');
 if(settings_baseLibraryPath) models.setBaseLibraryPath(settings_baseLibraryPath);
@@ -205,14 +201,22 @@ new Vue({
 		
 		//this.watcher = models.makeWatcher(this.racks, this.folders, this.notes);
 	},
-	/*ready: function(){
-		var $scrollbar = document.querySelector(".my-notes");
-		this.scrollbarNotes  = tinyscrollbar($scrollbar);
-	},*/
+	ready: function(){
+		/*var $scrollbar = document.querySelector(".my-notes");
+		this.scrollbarNotes  = tinyscrollbar($scrollbar);*/
+		var self = this;
+		window.addEventListener('resize', (e) => {
+			e.preventDefault();
+			settings.saveWindowSize();
+			self.update_editor_size();
+		});
+	},
 	events: {
 		togglePreview: function() {
 			this.isPreview = !this.isPreview;
 			settings.set('vue_isPreview', this.isPreview);
+
+			this.update_editor_size();
 
 			if (this.isPreview) {
 				var menu = new ApplicationMenu();
@@ -420,6 +424,11 @@ new Vue({
 		/*update_scrollbar_notes: function() {
 			this.scrollbarNotes.update();
 		},*/
+		update_editor_size: function() {
+			var cells = document.querySelectorAll('.outer_wrapper .cell-container');
+			var widthTotal = parseInt( cells[0].style.width.replace('px','') ) + parseInt( cells[1].style.width.replace('px','') );
+			document.querySelector('.cell-container .my-editor').style.width = (window.innerWidth-widthTotal-12) + 'px';
+		},
 		menu_close: function() {
 			var win = remote.getCurrentWindow();
 			win.close();

@@ -36,9 +36,9 @@ html, body, h5{
 }
 
 ::-webkit-scrollbar {
-	height: 0;
 	overflow: visible;
 	width: 0.5em;
+	height: 0.5em;
 }
 ::-webkit-scrollbar-thumb {
 	background-color: #666666;
@@ -59,6 +59,10 @@ html, body, h5{
 	background-color: #333333;
 }
 ::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+.CodeMirror-scroll::-webkit-scrollbar-track, .hljs::-webkit-scrollbar-track{
 	background: transparent;
 }
 
@@ -433,7 +437,7 @@ i.icon.icon-search{
 	position: absolute;
 	top: 0;
 	left: 0;
-	right: 0;
+	right: 6px;
 	background: #444444;
 	color: #F1F1F1;
 	height: 2em;
@@ -581,7 +585,7 @@ span.cm-piled-formatting-task {
 }
 
 .my-editor-preview ul li.new-todo-form{
-	padding: 0.45em 0.5em 0.4em;
+	padding: 0.45em 0 0.4em 0.5em;
     position: relative;
     margin-left: -1em;
     margin-bottom: 0.5em;
@@ -589,12 +593,14 @@ span.cm-piled-formatting-task {
 	width: 80%;
     max-width: 25em;
     border-radius: 2px;
-    background-color: #E0E0E0;
+    background-color: #F6F6F6;
 	transition: background-color 200ms ease;
+	opacity: 0.6;
 }
 
 .my-editor-preview ul li.new-todo-form:hover{
 	background-color: #F6F6F6;
+	opacity: 1.0;
 }
 
 .my-editor-preview ul li.new-todo-form input{
