@@ -129,7 +129,15 @@ new Vue({
 		this.$set('notes', 		notes);
 
 		this.$watch('selectedNote.body', () => {
-			models.Note.setModel(this.selectedNote);
+			var result = models.Note.setModel(this.selectedNote);
+			if(result && result.error && result.path){
+				dialog.showMessageBox(remote.getCurrentWindow(), {
+					type: "none",
+					buttons: ['Ok'],
+					title: "Error",
+					message: result.error + "\nNote: " + result.path
+				});
+			}
 		});
 
 		this.$watch('selectedNote', () => {

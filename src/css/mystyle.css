@@ -343,11 +343,11 @@ nav li ul a:hover {
 }
 
 .my-editor {
-	height: 100%;
-	width: auto;
-	margin: 0 auto;
-	overflow-y: auto;
-	position: relative;
+	height: calc( 100% - 2.05em );
+    width: auto;
+    margin: 2em auto 0;
+    overflow-y: auto;
+    position: relative;
 }
 
 .my-editor-header {
@@ -437,7 +437,7 @@ i.icon.icon-search{
 	position: absolute;
 	top: 0;
 	left: 0;
-	right: 6px;
+	right: 0;
 	background: #444444;
 	color: #F1F1F1;
 	height: 2em;
@@ -629,13 +629,13 @@ span.cm-piled-formatting-task {
 	color: #333;
 }
 
-.my-editor-preview ul li.checkbox label{
+.my-editor-preview ul li.checkbox > label{
 	cursor: pointer;
 	-webkit-user-select: none;
 	user-select: none;
 }
 
-.my-editor-preview ul li.checkbox span{
+.my-editor-preview ul li.checkbox > label > span{
 	position: absolute;
 	left: -0.8em;
 	top: 0;
@@ -691,6 +691,28 @@ span.cm-piled-formatting-task {
 
 .my-editor-preview ul li.checkbox input[type=checkbox]:checked:after {
 	content: "\2713";	
+}
+
+.my-editor-preview table, .my-editor-preview table td, .my-editor-preview table th{
+	border: 1px solid #DDD;
+	border-collapse: collapse;
+}
+
+.my-editor-preview table{
+	width: 100%;
+}
+
+.my-editor-preview table td, .my-editor-preview table th{
+	min-height: 1.6em;
+	padding: 0.5em;
+}
+
+.my-editor-preview table thead{
+	background-color: #f5f5f5;
+}
+
+.my-editor-preview table tbody tr:nth-child(even){
+	background-color: #fafafa;
 }
 
 /* --- */

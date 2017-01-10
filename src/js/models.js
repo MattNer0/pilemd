@@ -289,7 +289,9 @@ class Note extends Model {
 	}
 
 	static setModel(model) {
-		if(!model){ return }
+		if(!model){
+			return { error: "No model" };
+		}
 
 		var outer_folder = path.join( getBaseLibraryPath(), model.data.rack.data.fsName, model.data.folder.data.fsName );
 		if(model.data.document_filename){
@@ -312,14 +314,18 @@ class Note extends Model {
 				}
 
 				if(new_path && model.data.body.length > 0){
-					//console.log('>> Note Save', new_path);
 					fs.writeFileSync(new_path, model.data.body);
 					model.path = new_path;
 				}
 			} else {
-				if( model.data.body.length > 0 && model.data.body != fs.readFileSync(new_path).toString() ){
-					//console.log('>> Note Save', new_path);
-					fs.writeFileSync(new_path, model.data.body);
+				try{
+					//fs.accessSync(new_path, fs.constants.R_OK | fs.constants.W_OK );
+					if( model.data.body.length > 0 && model.data.body != fs.readFileSync(new_path).toString() ){
+						fs.writeFileSync(new_path, model.data.body);
+					}
+				} catch(e){
+					console.log("Couldn't save the note. Permission Error");
+					return { error: "Permission Error", path: new_path };
 				}
 			}
 		}

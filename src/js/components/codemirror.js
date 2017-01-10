@@ -124,85 +124,6 @@ module.exports = function(Vue, options) {
 					}
 				});
 
-				/*
-				// Electron
-				// FIXME Fucking hell impl
-				var setMenu = () => {
-					var menu = new ApplicationMenu();
-					menu.setEditSubmenu([{
-						label: 'Undo',
-						accelerator: 'CmdOrCtrl+Z',
-						click: () => { cm.execCommand('undo') }
-					}, {
-						label: 'Redo',
-						accelerator: 'Alt+Z',
-						click: () => { cm.execCommand('redo') }
-					}, {
-						type: 'separator'
-					}, {
-						label: 'Cut',
-						accelerator: 'CmdOrCtrl+X',
-						role: 'cut'
-					}, {
-						label: 'Copy',
-						accelerator: 'CmdOrCtrl+C',
-						role: 'copy'
-					}, {
-						label: 'Paste',
-						accelerator: 'CmdOrCtrl+V',
-						role: 'paste'
-					}, {
-						label: 'Select All',
-						accelerator: (function() {
-							if (applicationmenu.IS_DARWIN) {
-								return 'Command+A'
-							} else {
-								return 'Shift+Ctrl+A'
-							}
-						})(),
-						click: () => { cm.execCommand('selectAll') }
-					}, {
-						type: 'separator'
-					}, {
-						label: 'Attach Image...',
-						accelerator: (function() {
-							if (applicationmenu.IS_DARWIN) {
-								return 'Shift+Command+A'
-							} else {
-								return 'Shift+Alt+A'
-							}
-						})(),
-						click: () => {
-							this.uploadFile()
-						}
-					}, {
-						type: 'separator'
-					}, {
-						label: 'Find...',
-						accelerator: (function() {
-							if (applicationmenu.IS_DARWIN) {
-								return 'Command+F'
-							} else {
-								return 'Ctrl+S'
-							}
-						})(),
-						click: () => { cm.execCommand('findPersistent') }
-					}, {
-						label: 'Replace...',
-						accelerator: (function() {
-							if (applicationmenu.IS_DARWIN) {
-								return 'Alt+Command+F'
-							} else {
-								return 'Ctrl+R'
-							}
-						})(),
-						click: () => { cm.execCommand('replace') }
-					}]);
-					menu.setMenu();
-				};
-				setMenu();
-				*/
-
 				var isLinkState = (type) => {
 					if (!type) {
 						return false }
@@ -305,6 +226,9 @@ module.exports = function(Vue, options) {
 					Vue.nextTick(() => {
 						cm.refresh();
 					});
+					setTimeout(() => {
+						cm.refresh();
+					}, 100);
 					if(doc){
 						if(doc.cm) doc.cm = null;
 						cm.swapDoc(doc);
