@@ -236,7 +236,11 @@ nav li ul a{
 }
 
 .cell-container:first-child {
-	background-color: #24a799;
+	background-color: #07A090;
+}
+
+.cell-container:first-child + .resize-handler + .cell-container {
+	background-color: #07A090;
 }
 
 .resize-handler {
@@ -302,7 +306,7 @@ nav li ul a{
 	white-space: nowrap;
 }
 .isShelfSelected {
-	background-color: #3b827a;
+	background-color: #006358;
 	color: #FFF;
 }
 .noteIsHere {
