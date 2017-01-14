@@ -40,6 +40,7 @@ function handlerStack(Vue, options) {
 
 			dragend: function(e) {
 				this.dragging = false;
+				this.$root.update_editor_size();
 			},
 			
 			drag: function(e) {
@@ -50,6 +51,7 @@ function handlerStack(Vue, options) {
 				var new_width = this.start_width+e.pageX-this.initialPos.x;
 				if(new_width >= this.min_width){
 					this.$el.previousElementSibling.style.width = new_width+"px";
+					this.$root.update_editor_size();
 				}
 			}
 		}

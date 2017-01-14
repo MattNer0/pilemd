@@ -64,7 +64,6 @@
 
 .my-shelf-folder {
     position: relative;
-    font-size: 90%;
     padding: 0.2em 0.2em 0.2em 1.4em;
     border-radius: 0 2px 2px 0 / 0 2px 2px 0;
     transition: background-color 200ms;

@@ -226,7 +226,8 @@ new Vue({
 
 			this.update_editor_size();
 
-			if (this.isPreview) {
+			if(this.isPreview){
+
 				var menu = new ApplicationMenu();
 				// FIXME as same as componets/codemirror.js Fucking hell
 				menu.setEditSubmenu([
@@ -253,6 +254,10 @@ new Vue({
 		toggleFullScreen: function() { 
 			this.isFullScreen = !this.isFullScreen;
 			settings.set('vue_isFullScreen', this.isFullScreen);
+
+			if(this.isFullScreen){
+				this.update_editor_size();
+			}
 		},
 		togglePreview: function() {
 			this.$dispatch('togglePreview');
