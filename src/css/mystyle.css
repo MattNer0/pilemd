@@ -375,63 +375,6 @@ nav li ul a{
 	width: 280px
 }
 
-/* icons */
-
-i.icon{
-	display: inline-block;
-	background-color: transparent;
-	background-position: center;
-	background-repeat: no-repeat;
-	background-size: contain;
-	width: 1.1em;
-	height: 1.1em;
-	margin-bottom: 0.1em;
-}
-
-i.icon.icon-show{
-	background-image: url('../images/show.png');
-}
-
-i.icon.icon-hide{
-	background-image: url('../images/hide.png');
-}
-
-i.icon.icon-sidebar-open{
-	background-image: url('../images/sidebar_open.png');
-}
-
-i.icon.icon-sidebar-close{
-	background-image: url('../images/sidebar_close.png');
-}
-
-i.icon.icon-new-note{
-	background-image: url('../images/new_note.png');
-}
-
-i.icon.icon-folder{
-	background-image: url('../images/folder.png');
-}
-
-i.icon.icon-quit{
-	background-image: url('../images/cross.png');
-}
-
-i.icon.icon-tool{
-	background-image: url('../images/tool.png');
-}
-
-i.icon.icon-code{
-	background-image: url('../images/code.png');
-}
-
-i.icon.icon-check{
-	background-image: url('../images/check_mark.png');
-}
-
-i.icon.icon-search{
-	background-image: url('../images/search.png');
-}
-
 /* end icons */
 
 .CodeMirror-menu{
