@@ -1,9 +1,24 @@
+.my-shelf {
+    color: #858585;
+    
+    font-weight: 200;
+    width: auto;
+    height: 100%;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+    white-space: nowrap;
+}
 .my-shelf-rack {
     position: relative;
     padding: 0.2em;
     margin: 0.2em 0;
 }
+.my-shelf-rack:nth-child(even){
+    background-color: #212121;
+}
 .my-shelf-rack h5 {
+    color: #858585;
     margin: 0 auto;
     padding: 0.3em;
     font-weight: 500;
@@ -13,6 +28,11 @@
 
     -webkit-user-select: none;
     transition: background-color 200ms;
+}
+.my-shelf-rack h5.isShelfSelected, .my-shelf-rack .my-shelf-folder.isShelfSelected{
+    background-color: #2c2c2c;
+    color: #6ba87d;
+    font-weight: bold;
 }
 
 .my-shelf-rack h5 input {
@@ -37,6 +57,11 @@
 .my-shelf-rack .rack-icon{
     font-size: 100%;
     vertical-align: middle;
+    color: inherit;
+}
+
+.my-shelf-rack .isShelfSelected .rack-icon{
+    color: #6b7986;
 }
 
 .my-shelf-rack.openFolders > div{

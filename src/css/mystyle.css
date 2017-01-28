@@ -24,7 +24,7 @@ body {
 	font-family: "Helvetica","Arial",sans-serif;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
-	background: #66c0b6;
+	background: #3a4c40;
 }
 
 html, body, h5{
@@ -132,25 +132,31 @@ html, body, h5{
 	margin: 0.3em 0;
 	width: 100%;
 	height: 4px;
-	background-color: #FFF;
+	background-color: #575757;
+}
+
+#title-bar li:hover a.menu-button span{
+	background-color: #8c8c8c;
 }
 
 /* menu */
 
 nav ul {
 	-webkit-font-smoothing:antialiased;
-	background: #008476;
+	background: #282828;
 	list-style: none;
 	margin: 0;
 	padding: 0;
 	width: 100%;
 }
+
 nav li {
 	float: left;
 	margin: 0;
 	padding: 0;
 	position: relative;
-	height: 2.5em;
+	height: 2.3em;
+	border-bottom: 0.2em solid #282828;
 }
 nav ul ul li{
 	height: auto;
@@ -159,16 +165,12 @@ nav ul ul li{
 nav li.right-align{
 	float: right;
 }
-nav li hr{
-	margin: 0.2em 0.5em;
-	border: 1px solid #66c0b6;
-}
 nav li > a, nav li > div {
-	color: #F1F1F1;
+	color: #575757;
 	display: block;
 	padding: 0.25em 1.0em;
-	line-height: 2.2em;
-	height: 2em;
+	line-height: 2.0em;
+	height: 1.8em;
 	min-width: 6em;
 	text-align: left;
 	outline: none;
@@ -184,12 +186,30 @@ nav li:first-child a{
 }
 
 nav a i, nav div i{
-	vertical-align: sub;
-	margin-right: 0.2em;
+	vertical-align: middle;
 }
 
-nav li:hover > a, nav li:hover > div {
-	background: #006359;
+nav ul li .my-search, nav ul li .my-search::-webkit-input-placeholder {
+	color: #575757;
+}
+
+nav ul li:hover{
+	border-bottom: 0.2em solid #191919;
+}
+
+nav ul li:hover > a, nav ul li:hover > div,
+nav ul li:hover .my-search {
+	background: #2f2f2f;
+	color: #8c8c8c;
+}
+
+nav ul li:hover .my-search::-webkit-input-placeholder{
+	color: #8c8c8c;
+}
+
+nav li hr{
+	margin: 0.2em 0.5em;
+	border: 1px solid #2f2f2f;
 }
 nav li ul {
 	float: left;
@@ -236,16 +256,16 @@ nav li ul a{
 }
 
 .cell-container:first-child {
-	background-color: #07A090;
+	background-color: #1e1e1e;
 }
 
 .cell-container:first-child + .resize-handler + .cell-container {
-	background-color: #07A090;
+	background-color: #262626;
 }
 
 .resize-handler {
 	display: table-cell;
-	background: linear-gradient(#3b827a, #009687, #3b827a);
+	background: #404040;
 	height: 100%;
 	width: 5px;
 	cursor: col-resize;
@@ -253,8 +273,8 @@ nav li ul a{
 
 .my-search {
 	font-size: 14px;
-	line-height: 2.2em;
-	color: #fefefe;
+	line-height: 2.0em;
+	text-shadow: 1px 1px rgba(0, 0, 0, 0.5);
 	background-color: transparent;
 	border: none;
 	outline: none;
@@ -292,22 +312,6 @@ nav li ul a{
 .my-sidebar-body {
 	display: flex;
 	flex-flow: row nowrap;
-}
-
-.my-shelf {
-	color: rgba(250,250,250,0.9);
-	
-	font-weight: 200;
-	width: auto;
-	height: 100%;
-
-	overflow-x: hidden;
-	overflow-y: auto;
-	white-space: nowrap;
-}
-.isShelfSelected {
-	background-color: #006358;
-	color: #FFF;
 }
 .noteIsHere {
 	font-weight: 600;
@@ -436,10 +440,14 @@ i.icon.icon-search{
 	top: 0;
 	left: 0;
 	right: 0;
-	background: #24a799;
-	color: #F1F1F1;
+	background: #282828;
+	color: #575757;
 	height: 2em;
 	z-index: 5;
+}
+
+.CodeMirror-menu nav li{
+	height: 1.8em;
 }
 
 .CodeMirror-menu:after{
