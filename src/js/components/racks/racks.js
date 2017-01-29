@@ -116,11 +116,16 @@ module.exports = function(Vue, options) {
 				if(this.selectedRackOrFolder){
 					if (this.selectedRackOrFolder instanceof models.Folder) {
 						this.selectedRackOrFolder.data.rack.openFolders = false;
+						rack.openFolders = true;
+					} else if(this.selectedRackOrFolder == rack) {
+						rack.openFolders = !rack.openFolders;
 					} else {
 						this.selectedRackOrFolder.openFolders = false;
+						rack.openFolders = true;
 					}
+				} else {
+					rack.openFolders = true;
 				}
-				rack.openFolders = true;
 				this.selectedRackOrFolder = rack;
 			},
 			selectFolder: function(folder) {
