@@ -123,7 +123,12 @@ function renderCheckboxText(text){
 			.replace(/^\s*\[ \]\s*/, '<span><input class="my-el-todo-list" data-value="' + clean_matched(matched) + '" type="checkbox" /></span> ')
 			.replace(/^\s*\[x\]\s*/, '<span><input class="my-el-todo-list" data-value="' + clean_matched(matched) + '" type="checkbox" checked /></span> ');
 
-		return '<li class="checkbox"><label>' + text + '</label></li>';
+		if( text.indexOf('checked') >= 0 ){
+			return '<li class="checkbox checkbox-checked"><label>' + text + '</label></li>';
+		} else {
+			return '<li class="checkbox"><label>' + text + '</label></li>';
+		}
+
 	} else if (/^<p>\s*\[[x ]\]\s*/.test(text)) {
 		text = text.replace(/<[\/]{0,1}p>/g, "");
 		var matched = text;
@@ -132,7 +137,11 @@ function renderCheckboxText(text){
 			.replace(/^\s*\[ \]\s*/, '<span><input class="my-el-todo-list" data-value="' + clean_matched(matched) + '" type="checkbox" /></span> ')
 			.replace(/^\s*\[x\]\s*/, '<span><input class="my-el-todo-list" data-value="' + clean_matched(matched) + '" type="checkbox" checked /></span> ');
 
-		return '<li class="checkbox"><label>' + text + '</label></li>';
+		if( text.indexOf('checked') >= 0 ){
+			return '<li class="checkbox checkbox-checked"><label>' + text + '</label></li>';
+		} else {
+			return '<li class="checkbox"><label>' + text + '</label></li>';
+		}
 
 	} else {
 		return '<li>' + text + '</li>';
@@ -244,6 +253,12 @@ function render(note, v) {
 					note.body = body.replace(value + '\n', toggled + '\n');
 				}
 				event.target.dataset.value = encodeURI(toggled);
+
+				if( event.target.parentNode.parentNode.parentNode.className.indexOf('checkbox-checked') >= 0 ){
+					event.target.parentNode.parentNode.parentNode.className = event.target.parentNode.parentNode.parentNode.className.replace('checkbox-checked', '');
+				} else {
+					event.target.parentNode.parentNode.parentNode.className += ' checkbox-checked';
+				}
 			}
 
 			var ul = el.parentNode.parentNode.parentNode.parentNode;
@@ -253,43 +268,46 @@ function render(note, v) {
 
 				var last_checkbox;
 				for (var i = ul.childNodes.length-1; i >= 0; i--) {
-					if (ul.childNodes[i].className == "checkbox") {
+					if (ul.childNodes[i].className.indexOf("checkbox") >= 0) {
 						last_checkbox = ul.childNodes[i];
 						break;
 					}
 				}
 
-				var newLi = document.createElement('li');
-				newLi.className = "new-todo-form"; 
-				newLi.innerHTML = '<form><input type="text" /><button type="submit">+</button></form>';
-				ul.insertBefore(newLi, last_checkbox.nextSibling);
+				if(last_checkbox){
 
-				var newForm = newLi.querySelector('form');
+					var newLi = document.createElement('li');
+					newLi.className = "new-todo-form"; 
+					newLi.innerHTML = '<form><input type="text" /><button type="submit">+</button></form>';
+					ul.insertBefore(newLi, last_checkbox.nextSibling);
 
-				newForm.addEventListener('submit', function(event){
-					event.preventDefault();
+					var newForm = newLi.querySelector('form');
 
-					var inputText = event.target.querySelector('input').value;
-					event.target.querySelector('input').value = "";
-					var last_checkbox = event.target.parentNode.previousSibling.querySelector('.my-el-todo-list');
+					newForm.addEventListener('submit', function(event){
+						event.preventDefault();
 
-					if(inputText && last_checkbox){
-						var value = decodeURI(last_checkbox.dataset.value);
-						if(value){
-							var body = note.body;
-							note.body = body.replace(value + '\n', value + '\n' + '* [ ] '+inputText + '\n' );
+						var inputText = event.target.querySelector('input').value;
+						event.target.querySelector('input').value = "";
+						var last_checkbox = event.target.parentNode.previousSibling.querySelector('.my-el-todo-list');
 
-							var div = document.createElement('div');
-							div.innerHTML = renderCheckboxText( ' [ ] '+inputText );
-							var elements = div.childNodes;
-							
-							event.target.parentNode.parentNode.insertBefore( elements[0], event.target.parentNode);
-							var this_checkbox = div.querySelector('.my-el-todo-list');
-							console.log(this_checkbox, elements);
-							findLineNumber(note.body, this_checkbox, decodeURI(this_checkbox.dataset.value), this_checkbox.dataset.value, last_checkbox.dataset.index );
+						if(inputText && last_checkbox){
+							var value = decodeURI(last_checkbox.dataset.value);
+							if(value){
+								var body = note.body;
+								note.body = body.replace(value + '\n', value + '\n' + '* [ ] '+inputText + '\n' );
+
+								var div = document.createElement('div');
+								div.innerHTML = renderCheckboxText( ' [ ] '+inputText );
+								var elements = div.childNodes;
+								
+								event.target.parentNode.parentNode.insertBefore( elements[0], event.target.parentNode);
+								var this_checkbox = div.querySelector('.my-el-todo-list');
+								console.log(this_checkbox, elements);
+								findLineNumber(note.body, this_checkbox, decodeURI(this_checkbox.dataset.value), this_checkbox.dataset.value, last_checkbox.dataset.index );
+							}
 						}
-					}
-				}, false);
+					}, false);
+				}
 			}
 		});
 	});

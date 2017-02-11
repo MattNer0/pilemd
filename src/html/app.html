@@ -15,7 +15,7 @@
 	</div-->
 </div>
 <div class="my-main">
-	<div class="outer_wrapper">
+	<div :class="{'outer_wrapper': true, 'full_width_container': isFullScreen}">
 
 		<!--div class="my-sidebar-header">
 			<button title="Click to add note" class="my-add-note" @click="addNote()"><i class="material-icons">edit</i></button>
@@ -31,43 +31,45 @@
 		@drop.prevent.stop="dropToAll($event)"
 		-->
 
-		<div class="cell-container" v-show="!isFullScreen" :style="{ width: racksWidth+'px' }">
-			<div class="my-shelf" @contextmenu="shelfMenu()">
-				<div class="my-shelf-wrapper">
-					<div :class="{'isShelfSelected': ((isSearchAll() && !draggingNote) || allDragHover), 'noteIsHere': selectedNote.folderUid === null}"
-						@click.prevent.stop="selectAll()"
-						@dragover.stop="allDragOver($event)"
-						@dragleave.prevent.stop="allDragLeave($event)"
-						@drop.prevent.stop="dropToAll($event)"
-						class="my-shelf-all">
-						<a>All</a>
+		<div class="sidebar">
+			<div class="cell-container" :style="{ width: racksWidth+'px' }">
+				<div class="my-shelf" @contextmenu="shelfMenu()">
+					<div class="my-shelf-wrapper">
+						<div :class="{'isShelfSelected': ((isSearchAll() && !draggingNote) || allDragHover), 'noteIsHere': selectedNote.folderUid === null}"
+							@click.prevent.stop="selectAll()"
+							@dragover.stop="allDragOver($event)"
+							@dragleave.prevent.stop="allDragLeave($event)"
+							@drop.prevent.stop="dropToAll($event)"
+							class="my-shelf-all">
+							<a>All</a>
+						</div>
+						<racks :racks.sync="racks"
+							:folders.sync="folders"
+							:notes="notes"
+							:selected-rack-or-folder.sync="selectedRackOrFolder"
+							:dragging-note.sync="draggingNote"
+							:editing-rack.sync="editingRack"
+							:selected-note="selectedNote">
+						</racks>
 					</div>
-					<racks :racks.sync="racks"
-						:folders.sync="folders"
-						:notes="notes"
-						:selected-rack-or-folder.sync="selectedRackOrFolder"
-						:dragging-note.sync="draggingNote"
-						:editing-rack.sync="editingRack"
-						:selected-note="selectedNote">
-					</racks>
 				</div>
 			</div>
+
+			<handler-stack></handler-stack>
+
+			<div class="cell-container" :style="{ width: notesWidth+'px' }">
+				<notes :notes="filteredNotes"
+				:toggle-full-screen="toggleFullScreen"
+				:original-notes.sync="notes"
+				:selected-note.sync="selectedNote"
+				:dragging-note.sync="draggingNote">
+				</notes>
+			</div>
+
+			<handler-notes></handler-notes>
 		</div>
 
-		<handler-stack v-show="!isFullScreen"></handler-stack>
-
-		<div class="cell-container" v-show="!isFullScreen" :style="{ width: notesWidth+'px' }">
-			<notes :notes="filteredNotes"
-			:toggle-full-screen="toggleFullScreen"
-			:original-notes.sync="notes"
-			:selected-note.sync="selectedNote"
-			:dragging-note.sync="draggingNote">
-			</notes>
-		</div>
-
-		<handler-notes v-show="!isFullScreen"></handler-notes>
-
-		<div class="cell-container" style="position: relative;">
+		<div class="cell-container main-cell-container">
 
 			<codemirror-menu></codemirror-menu>
 			

@@ -254,10 +254,7 @@ new Vue({
 		toggleFullScreen: function() { 
 			this.isFullScreen = !this.isFullScreen;
 			settings.set('vue_isFullScreen', this.isFullScreen);
-
-			if(this.isFullScreen){
-				this.update_editor_size();
-			}
+			this.update_editor_size();
 		},
 		togglePreview: function() {
 			this.$dispatch('togglePreview');
@@ -316,7 +313,7 @@ new Vue({
 				}
 			} else {
 				if(this.racks.length > 0){
-					dialog.showErrorBox("Error", "You must select a Rack and Folder first!" );
+					dialog.showErrorBox("Error", "You must select Rack and Folder first!" );
 				} else {
 					dialog.showErrorBox("Error", "You must create a Folder first!" );
 				}
@@ -439,8 +436,19 @@ new Vue({
 		},*/
 		update_editor_size: function() {
 			var cells = document.querySelectorAll('.outer_wrapper .cell-container');
-			var widthTotal = parseInt( cells[0].style.width.replace('px','') ) + parseInt( cells[1].style.width.replace('px','') );
-			document.querySelector('.cell-container .my-editor').style.width = (window.innerWidth-widthTotal-12) + 'px';
+			var widthTotal = parseInt( cells[0].style.width.replace('px','') ) + parseInt( cells[1].style.width.replace('px','') ) + 10;
+			if(this.isFullScreen){
+				document.querySelector('.sidebar').style.left = "-"+widthTotal+'px';
+				document.querySelector('.main-cell-container').style.transition = "margin-left 400ms";
+				widthTotal = 0;
+			} else {
+				document.querySelector('.sidebar').style.left = "";
+				setTimeout(function(){
+					document.querySelector('.main-cell-container').style.transition = "";
+				}, 400);
+			}
+			document.querySelector('.main-cell-container').style.marginLeft = widthTotal+'px';
+			// (window.innerWidth-widthTotal)
 		},
 		menu_close: function() {
 			var win = remote.getCurrentWindow();

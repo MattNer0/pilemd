@@ -24,7 +24,7 @@ body {
 	font-family: "Helvetica","Arial",sans-serif;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
-	background: #3a4c40;
+	background: #3a3e4c;
 }
 
 html, body, h5{
@@ -166,12 +166,10 @@ nav li.right-align{
 	float: right;
 }
 nav li > a, nav li > div {
-	color: #575757;
 	display: block;
 	padding: 0.25em 1.0em;
 	line-height: 2.0em;
 	height: 1.8em;
-	min-width: 6em;
 	text-align: left;
 	outline: none;
 	text-decoration: none;
@@ -189,22 +187,23 @@ nav a i, nav div i{
 	vertical-align: middle;
 }
 
+nav li > a, nav li > div,
 nav ul li .my-search, nav ul li .my-search::-webkit-input-placeholder {
-	color: #575757;
+	color: #757575;
 }
 
 nav ul li:hover{
 	border-bottom: 0.2em solid #191919;
 }
 
-nav ul li:hover > a, nav ul li:hover > div,
-nav ul li:hover .my-search {
+nav ul li:hover > a, nav ul li:hover > div {
 	background: #2f2f2f;
-	color: #8c8c8c;
 }
 
+nav ul li:hover > a, nav ul li:hover > div,
+nav ul li:hover .my-search,
 nav ul li:hover .my-search::-webkit-input-placeholder{
-	color: #8c8c8c;
+	color: #adacac;
 }
 
 nav li hr{
@@ -245,14 +244,41 @@ nav li ul a{
 /* menu end */
 
 .outer_wrapper {
-	display: table;
+	/*display: table;*/
 	height: 100%;
 	width: 100%;
+	position: relative;
 }
 
 .cell-container {
-	display: table-cell;
+	height: calc( 100vh - 2.5em );
 	vertical-align: top;
+}
+
+.cell-container.main-cell-container{
+	position: relative;
+	margin-left: 0;
+	transition: none;
+}
+
+/*.full_width_container .cell-container.main-cell-container{
+	transition: margin-left 400ms;
+}*/
+
+.outer_wrapper .sidebar{
+	position: absolute;
+	top: 0;
+	left: 0;
+	transition: left 400ms;
+}
+
+.outer_wrapper .sidebar .cell-container{
+	float: left;
+}
+
+.outer_wrapper .sidebar:after{
+	content: "";
+	clear: both;
 }
 
 .cell-container:first-child {
@@ -264,9 +290,10 @@ nav li ul a{
 }
 
 .resize-handler {
-	display: table-cell;
+	/*display: table-cell;*/
+	float: left;
 	background: #404040;
-	height: 100%;
+	height: calc( 100vh - 2.5em );
 	width: 5px;
 	cursor: col-resize;
 }
@@ -408,8 +435,9 @@ nav li ul a{
 }
 .CodeMirror,
 .my-editor-preview {
-	margin: 0;
-	padding: 3em 4vw 3em 4vw;
+	margin: 1em;
+    padding: 2.6em 3em;
+    border: 0.2em solid #333;
 
 	width: auto;
 	min-height: calc( 100% - 6em );
@@ -642,6 +670,10 @@ span.cm-piled-formatting-task {
 	content: "\2713";	
 }
 
+.my-editor-preview ul li.checkbox.checkbox-checked label{
+    text-decoration: line-through;
+}
+
 .my-editor-preview table, .my-editor-preview table td, .my-editor-preview table th{
 	border: 1px solid #DDD;
 	border-collapse: collapse;
@@ -731,7 +763,8 @@ pre > code{
 
 .CodeMirror span.cm-piled-strong,
 .my-editor-preview strong {
-	color: #b6455d;
+	/*color: #b6455d;*/
+	color: #000;
 	font-weight: 800;
 }
 

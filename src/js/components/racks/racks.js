@@ -114,13 +114,9 @@ module.exports = function(Vue, options) {
 			},
 			selectRack: function(rack) {
 				if(this.selectedRackOrFolder){
-					if (this.selectedRackOrFolder instanceof models.Folder) {
-						this.selectedRackOrFolder.data.rack.openFolders = false;
-						rack.openFolders = true;
-					} else if(this.selectedRackOrFolder == rack) {
+					if (this.selectedRackOrFolder instanceof models.Rack && this.selectedRackOrFolder == rack) {
 						rack.openFolders = !rack.openFolders;
 					} else {
-						this.selectedRackOrFolder.openFolders = false;
 						rack.openFolders = true;
 					}
 				} else {

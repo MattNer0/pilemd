@@ -62,13 +62,26 @@ module.exports = function(Vue, options) {
 				this.toggleFullScreen();
 			},
 			removeNote: function(note) {
-				this.originalNotes.$remove(note);
-				Note.removeModelFromStorage(note);
-				if (this.notes.length > 1) {
-					this.selectedNote = Note.beforeNote(this.notes.slice(), note, this.notesDisplayOrder);
-				} else {
-					this.selectedNote = Note.beforeNote(this.originalNotes.slice(), note, this.notesDisplayOrder);
-				}
+				var self = this;
+
+				dialog.showMessageBox(remote.getCurrentWindow(), {
+					type: "question",
+					buttons: ['Delete', 'Cancel'],
+					defaultId: 1,
+					cancelId: 1,
+					title: "Remove Note",
+					message: "Are you sure you want to remove this note?\n\nTitle: "+note.title+"\nContent: "+note.bodyWithoutTitle.replace('\n',' ').slice(0,100)+"..."
+				}, function(btn){
+					if(btn == 0){
+						self.originalNotes.$remove(note);
+						Note.removeModelFromStorage(note);
+						if (self.notes.length > 1) {
+							self.selectedNote = Note.beforeNote(self.notes.slice(), note, self.notesDisplayOrder);
+						} else {
+							self.selectedNote = Note.beforeNote(self.originalNotes.slice(), note, self.notesDisplayOrder);
+						}
+					}
+				});
 			},
 			// Dragging
 			noteDragStart: function(event, note) {
