@@ -195,10 +195,9 @@ class Note extends Model {
 
 	get bodyWithDataURL() {
 		return this.body.replace(
-			/!\[(.*?)]\((pilemd:\/\/.*?)\)/mg,
-			(match, p1, p2, offset, string) => {
+			/!\[(.*?)]\((pilemd:\/\/.*?)\)/mg, (match, p1, p2, offset, string) => {
 				try {
-					var dataURL = new Image(p2).convertDataURL();
+					var dataURL = new Image(p2, path.basename(p2) ).convertDataURL();
 				} catch (e) {
 					console.log(e);
 					return match
@@ -646,18 +645,21 @@ function makeWatcher(racks, folders, notes) {
 
 class Image {
 
-	constructor (pilemdURL) {
-		if (!pilemdURL.startsWith('pilemd://images/')) {
+	constructor (pilemdURL, name) {
+		if (!pilemdURL.startsWith('pilemd://.images/')) {
 			throw "Incorrect Image URL"
 		}
 		this.pilemdURL = pilemdURL
+		this.name = name
 	}
 
 	makeFilePath() {
 		var p = this.pilemdURL.slice(9);
 		var basePath = getBaseLibraryPath();
 		if (!basePath || basePath.length == 0) throw "Invalid Base Path";
+		//var relativePath = path.join('images', this.name);
 		return path.join(getBaseLibraryPath(), p)
+		//return new this('pilemd://' + relativePath, this.name);
 	}
 
 	convertDataURL() {
@@ -678,9 +680,34 @@ class Image {
 		}
 	}
 
+	static fromClipboard(im){
+		//create a name based on current date and save it.
+		var d = new Date();
+		var name = d.getFullYear().toString() + (d.getMonth()+1).toString()
+			+ d.getDate().toString() + '_' + d.getHours().toString()
+			+d.getMinutes().toString() + d.getSeconds().toString() + ".png";
+	
+		var dirPath = path.join(getBaseLibraryPath(), '.images');
+		try {
+			fs.mkdirSync(dirPath)
+		} catch (e) {}
+		var savePath = path.join(dirPath, name);
+		// Check exists or not.
+		try {
+			var fd = fs.openSync(savePath, 'r');
+			if (fd) {fs.close(fd)}
+			name = this.appendSuffix(name);
+			savePath = path.join(dirPath, name);
+		} catch(e) {}  // If not exists
+		fs.writeFileSync(savePath, im.toPNG());
+		var relativePath = path.join('.images', name);
+		console.log(name);
+		return new this('pilemd://' + relativePath, name);
+	}
+
 	static fromBinary(name, frompath) {
 		// Try creating images dir.
-		var dirPath = path.join(getBaseLibraryPath(), 'images');
+		var dirPath = path.join(getBaseLibraryPath(), '.images');
 		try {fs.mkdirSync(dirPath)} catch (e) {}
 
 		var savePath = path.join(dirPath, name);
@@ -692,7 +719,7 @@ class Image {
 			savePath = path.join(dirPath, name);
 		} catch(e) {}  // If not exists
 		fs.writeFileSync(savePath, fs.readFileSync(frompath));
-		var relativePath = path.join('images', name);
+		var relativePath = path.join('.images', name);
 		return new this('pilemd://' + relativePath);
 	}
 }

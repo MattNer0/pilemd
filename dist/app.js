@@ -25692,7 +25692,7 @@
 			get: function get() {
 				return this.body.replace(/!\[(.*?)]\((pilemd:\/\/.*?)\)/mg, function (match, p1, p2, offset, string) {
 					try {
-						var dataURL = new Image(p2).convertDataURL();
+						var dataURL = new Image(p2, path.basename(p2)).convertDataURL();
 					} catch (e) {
 						console.log(e);
 						return match;
@@ -26196,13 +26196,14 @@
 	}
 
 	var Image = (function () {
-		function Image(pilemdURL) {
+		function Image(pilemdURL, name) {
 			_classCallCheck(this, Image);
 
-			if (!pilemdURL.startsWith('pilemd://images/')) {
+			if (!pilemdURL.startsWith('pilemd://.images/')) {
 				throw "Incorrect Image URL";
 			}
 			this.pilemdURL = pilemdURL;
+			this.name = name;
 		}
 
 		_createClass(Image, [{
@@ -26211,7 +26212,9 @@
 				var p = this.pilemdURL.slice(9);
 				var basePath = getBaseLibraryPath();
 				if (!basePath || basePath.length == 0) throw "Invalid Base Path";
+				//var relativePath = path.join('images', this.name);
 				return path.join(getBaseLibraryPath(), p);
+				//return new this('pilemd://' + relativePath, this.name);
 			}
 		}, {
 			key: 'convertDataURL',
@@ -26234,10 +26237,36 @@
 				}
 			}
 		}, {
+			key: 'fromClipboard',
+			value: function fromClipboard(im) {
+				//create a name based on current date and save it.
+				var d = new Date();
+				var name = d.getFullYear().toString() + (d.getMonth() + 1).toString() + d.getDate().toString() + '_' + d.getHours().toString() + d.getMinutes().toString() + d.getSeconds().toString() + ".png";
+
+				var dirPath = path.join(getBaseLibraryPath(), '.images');
+				try {
+					fs.mkdirSync(dirPath);
+				} catch (e) {}
+				var savePath = path.join(dirPath, name);
+				// Check exists or not.
+				try {
+					var fd = fs.openSync(savePath, 'r');
+					if (fd) {
+						fs.close(fd);
+					}
+					name = this.appendSuffix(name);
+					savePath = path.join(dirPath, name);
+				} catch (e) {} // If not exists
+				fs.writeFileSync(savePath, im.toPNG());
+				var relativePath = path.join('.images', name);
+				console.log(name);
+				return new this('pilemd://' + relativePath, name);
+			}
+		}, {
 			key: 'fromBinary',
 			value: function fromBinary(name, frompath) {
 				// Try creating images dir.
-				var dirPath = path.join(getBaseLibraryPath(), 'images');
+				var dirPath = path.join(getBaseLibraryPath(), '.images');
 				try {
 					fs.mkdirSync(dirPath);
 				} catch (e) {}
@@ -26253,7 +26282,7 @@
 					savePath = path.join(dirPath, name);
 				} catch (e) {} // If not exists
 				fs.writeFileSync(savePath, fs.readFileSync(frompath));
-				var relativePath = path.join('images', name);
+				var relativePath = path.join('.images', name);
 				return new this('pilemd://' + relativePath);
 			}
 		}]);
@@ -51933,50 +51962,77 @@
 
 	var electron = __webpack_require__(5);
 	var clipboard = electron.clipboard;
+	var _ = __webpack_require__(114);
+	var Image = __webpack_require__(112).Image;
+	var IMAGE_TAG_TEMP = _.template('![<%- filename %>](<%- fileurl %>)\n');
 
 	function flashSelection(cm) {
-	  cm.setExtending(false);
-	  cm.setCursor(cm.getCursor());
+		cm.setExtending(false);
+		cm.setCursor(cm.getCursor());
 	}
 
 	/* Electron things */
 	function killLine(cm) {
-	  flashSelection(cm);
-	  var c = cm.getCursor();
-	  var thisLine = cm.getRange(c, { line: c.line + 1, ch: 0 });
-	  if (thisLine == '\n') {
-	    clipboard.writeText('\n');
-	    cm.replaceRange('', c, { line: c.line + 1, ch: 0 });
-	  } else {
-	    clipboard.writeText(cm.getRange(c, { line: c.line }));
-	    cm.replaceRange('', c, { line: c.line });
-	  }
+		flashSelection(cm);
+		var c = cm.getCursor();
+		var thisLine = cm.getRange(c, { line: c.line + 1, ch: 0 });
+		if (thisLine == '\n') {
+			clipboard.writeText('\n');
+			cm.replaceRange('', c, { line: c.line + 1, ch: 0 });
+		} else {
+			clipboard.writeText(cm.getRange(c, { line: c.line }));
+			cm.replaceRange('', c, { line: c.line });
+		}
 	}
 
 	function copyText(cm) {
-	  var text = cm.getSelection();
-	  if (text.length > 0) {
-	    clipboard.writeText(text);
-	  }
+		var text = cm.getSelection();
+		if (text.length > 0) {
+			clipboard.writeText(text);
+		}
 	}
 
 	function cutText(cm) {
-	  var text = cm.getSelection();
-	  if (text.length > 0) {
-	    clipboard.writeText(text);
-	    cm.replaceSelection('');
-	  }
+		var text = cm.getSelection();
+		if (text.length > 0) {
+			clipboard.writeText(text);
+			cm.replaceSelection('');
+		}
 	}
 
 	function pasteText(cm) {
-	  cm.replaceSelection(clipboard.readText());
+		//cm.replaceSelection(clipboard.readText());
+		if (clipboard.availableFormats().indexOf('image/png') != -1) {
+			var im = clipboard.readImage();
+			var image = Image.fromClipboard(im);
+			cm.doc.replaceRange(IMAGE_TAG_TEMP({ filename: image.name, fileurl: image.pilemdURL }), cm.doc.getCursor());
+		} else {
+			var pasted = clipboard.readText();
+			if (pasted.split('.').pop() === 'png') {
+				var f = { name: pasted.split('/').pop(), path: pasted };
+				uploadFile(cm, f);
+			} else {
+				cm.replaceSelection(clipboard.readText());
+			}
+		}
+	}
+
+	function uploadFile(cm, file) {
+		try {
+			var image = Image.fromBinary(file.name, file.path);
+		} catch (e) {
+			console.log(e);
+			return;
+		}
+
+		cm.doc.replaceRange(IMAGE_TAG_TEMP({ filename: file.name, fileurl: image.pilemdURL }), cm.doc.getCursor());
 	}
 
 	module.exports = {
-	  killLine: killLine,
-	  copyText: copyText,
-	  cutText: cutText,
-	  pasteText: pasteText
+		killLine: killLine,
+		copyText: copyText,
+		cutText: cutText,
+		pasteText: pasteText
 	};
 
 /***/ },
