@@ -10,16 +10,21 @@
 		</li>
 		<li>
 			<a @click="$root.toggleFullScreen()" href="#">
-				<span v-if="$root.isFullScreen">
+				<span>
 					<i class="material-icons">input</i>
-					Sidebar
-				</span>
-				<span v-if="!$root.isFullScreen">
-					<i class="material-icons rotate">input</i>
 					Sidebar
 				</span>
 			</a>
 		</li>
+		<li v-if="$root.selectedNote.data">
+			<a @click="$root.toggleProperties()" href="#">
+				<span>
+					<i class="material-icons rotate">input</i>
+					Properties
+				</span>
+			</a>
+		</li>
+		
 		<li v-if="$root.selectedNote.data">
 			<a @click="menu_preview()" href="#">
 				<span v-if="!$root.isPreview">

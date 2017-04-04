@@ -74,13 +74,51 @@
 			<codemirror-menu></codemirror-menu>
 			
 			<div class="my-editor">
-				<codemirror v-show="!isPreview && selectedNote.title"
-					:note="selectedNote"
-					:is-full-screen="isFullScreen"
-					:is-preview="isPreview">
-				</codemirror>
-				<div v-show="isPreview && selectedNote.title" v-html="preview" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()"></div>
+				<div :class="[ 'font'+fontsize ]">
+					<codemirror v-show="!isPreview && selectedNote.title"
+						:note="selectedNote"
+						:is-full-screen="isFullScreen"
+						:is-preview="isPreview">
+					</codemirror>
+					<div v-show="isPreview && selectedNote.title" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()">
+						<div v-html="preview">
+						</div>
+					</div>
+				</div>
 				<flashmessage :messages="messages"></flashmessage>
+			</div>
+		</div>
+
+		<div class="sidebar-right" v-show="selectedNote.title">
+			<div class="cell-container" :style="{ width: propertiesWidth+'px' }">
+				<div v-if="selectedNote.properties">
+					<strong>Font Size: </strong><br/>
+					<select v-model="fontsize" style="width: 100%;">
+						<option>10</option>
+						<option>12</option>
+						<option>14</option>
+						<option selected="selected">15</option>
+						<option>16</option>
+						<option>18</option>
+						<option>20</option>
+						<option>24</option>
+					</select>
+					<hr>
+					<table>
+						<tr>
+							<td><strong>Line Count: </strong></td>
+							<td class="right"><span>{{ selectedNote.properties.lineCount }}</span></td>
+						</tr>
+						<tr>
+							<td><strong>Word Count: </strong></td>
+							<td class="right"><span>{{ selectedNote.properties.wordCount }}</span></td>
+						</tr>
+						<tr>
+							<td><strong>Char Count: </strong></td>
+							<td class="right"><span>{{ selectedNote.properties.charCount }}</span></td>
+						</tr>
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -65,6 +65,7 @@ new Vue({
 	data: {
 		isFullScreen: false,
 		isPreview: settings.get('vue_isPreview') || false,
+		propertiesOpen: false,
 		preview: "",
 		racks: [],
 		editingRack: null,
@@ -83,6 +84,8 @@ new Vue({
 		modalOkcb: null,
 		racksWidth: 180,
 		notesWidth: 180,
+		propertiesWidth: 180,
+		fontsize: "15"
 		//scrollbarNotes: null
 	},
 	computed: {
@@ -162,6 +165,10 @@ new Vue({
 				}
 			}
 		});
+
+		/*this.$watch('fontsize', () => {
+			console.log(this.fontsize);
+		});*/
 
 		/*this.$watch('filteredNotes', () => {
 			setTimeout(() => {
@@ -254,6 +261,10 @@ new Vue({
 		toggleFullScreen: function() { 
 			this.isFullScreen = !this.isFullScreen;
 			settings.set('vue_isFullScreen', this.isFullScreen);
+			this.update_editor_size();
+		},
+		toggleProperties: function() { 
+			this.propertiesOpen = !this.propertiesOpen;
 			this.update_editor_size();
 		},
 		togglePreview: function() {
@@ -435,20 +446,39 @@ new Vue({
 			this.scrollbarNotes.update();
 		},*/
 		update_editor_size: function() {
-			var cells = document.querySelectorAll('.outer_wrapper .cell-container');
-			var widthTotal = parseInt( cells[0].style.width.replace('px','') ) + parseInt( cells[1].style.width.replace('px','') ) + 10;
+			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
+			var cellsRight = document.querySelectorAll('.outer_wrapper .sidebar-right .cell-container');
+			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + parseInt( cellsLeft[1].style.width.replace('px','') ) + 10;
+			var widthTotalRight = parseInt( cellsRight[0].style.width.replace('px','') ) + 5; //+ parseInt( cellsRight[1].style.width.replace('px','') ) + 10;
+
+			//console.log(window.innerWidth);
+			
 			if(this.isFullScreen){
-				document.querySelector('.sidebar').style.left = "-"+widthTotal+'px';
-				document.querySelector('.main-cell-container').style.transition = "margin-left 400ms";
-				widthTotal = 0;
+				document.querySelector('.sidebar').style.left = "-"+widthTotalLeft+'px';
+				/*document.querySelector('.main-cell-container').style.transition = "margin 400ms";*/
+				widthTotalLeft = 0;
 			} else {
 				document.querySelector('.sidebar').style.left = "";
-				setTimeout(function(){
+				/*setTimeout(function(){
 					document.querySelector('.main-cell-container').style.transition = "";
-				}, 400);
+				}, 400);*/
 			}
-			document.querySelector('.main-cell-container').style.marginLeft = widthTotal+'px';
-			// (window.innerWidth-widthTotal)
+
+			if(this.propertiesOpen && this.selectedNote.data) {
+				document.querySelector('.sidebar-right').style.right = "";
+			} else {
+				document.querySelector('.sidebar-right').style.right = "-"+widthTotalRight+'px';
+				widthTotalRight = 0;
+			}
+
+			/*document.querySelector('.main-cell-container').style.marginLeft = widthTotalRight+'px';
+			document.querySelector('.main-cell-container').style.marginRight = widthTotalRight+'px';
+
+			document.querySelector('.main-cell-container .my-editor > div').style.marginLeft = (widthTotalLeft - widthTotalRight)+'px';
+			document.querySelector('.main-cell-container .my-editor > div').style.marginRight = (widthTotalLeft - widthTotalRight)+'px';*/
+
+			document.querySelector('.main-cell-container').style.marginLeft = widthTotalLeft+'px';
+			document.querySelector('.main-cell-container').style.marginRight = widthTotalRight+'px';
 		},
 		menu_close: function() {
 			var win = remote.getCurrentWindow();

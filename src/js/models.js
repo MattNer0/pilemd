@@ -83,6 +83,14 @@ class Note extends Model {
 		})
 	}
 
+	get properties() {
+		return {
+			lineCount : ( this._body.match(/\n/g) || []).length,
+			wordCount : this._body.replace(/\n/g," ").replace(/ +/g," ").split(" ").length,
+			charCount : this._body.replace(/\W/g,"").length
+		}
+	}
+
 	set path(newValue) {
 		if(newValue != this._path){
 			try{

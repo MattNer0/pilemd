@@ -1,13 +1,6 @@
 @font-face {
 	font-family: 'Roboto';
 	font-style: normal;
-	font-weight: 400;
-	src: local('Roboto'), local('Roboto-Regular'), url(../fonts/Roboto/Roboto-Regular.woff2) format('woff2');
-}
-
-@font-face {
-	font-family: 'Roboto';
-	font-style: normal;
 	font-weight: 700;
 	src: local('Roboto Bold'), local('Roboto-Bold'), url(../fonts/Roboto/Roboto-Bold.woff2) format('woff2');
 }
@@ -18,10 +11,17 @@
 	src: local('Roboto Italic'), local('Roboto-Italic'), url(../fonts/Roboto/Roboto-Italic.woff2) format('woff2');
 }
 
+@font-face {
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Roboto'), local('Roboto-Regular'), url(../fonts/Roboto/Roboto-Regular.woff2) format('woff2');
+}
+
 body {
 	margin: 0;
 	padding: 0;
-	font-family: "Helvetica","Arial",sans-serif;
+	font-family: "Roboto",sans-serif;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	background: #3a3e4c;
@@ -218,7 +218,7 @@ nav li ul {
 	top: 2.5em;
 	width: 15em;
 	visibility: hidden;
-	z-index: 10;
+	z-index: 100;
 }
 nav li.right-align ul{
 	right: 0;
@@ -248,6 +248,7 @@ nav li ul a{
 	height: 100%;
 	width: 100%;
 	position: relative;
+	overflow: hidden;
 }
 
 .cell-container {
@@ -258,7 +259,7 @@ nav li ul a{
 .cell-container.main-cell-container{
 	position: relative;
 	margin-left: 0;
-	transition: none;
+	transition: margin 400ms;
 }
 
 /*.full_width_container .cell-container.main-cell-container{
@@ -270,13 +271,47 @@ nav li ul a{
 	top: 0;
 	left: 0;
 	transition: left 400ms;
+	z-index: 10;
 }
 
-.outer_wrapper .sidebar .cell-container{
+.outer_wrapper .sidebar-right{
+	position: absolute;
+	top: 0;
+	right: 0;
+	transition: right 400ms;
+	z-index: 10;
+}
+
+.outer_wrapper .sidebar .cell-container, .outer_wrapper .sidebar-right .cell-container{
 	float: left;
 }
 
-.outer_wrapper .sidebar:after{
+.outer_wrapper .sidebar-right .cell-container{
+	border-left: 5px solid #404040;
+}
+
+.sidebar-right span, .sidebar-right h5, .sidebar-right strong{
+	color: #FFF;
+}
+
+.sidebar-right .cell-container > div{
+	padding: 1em;
+	line-height: 1.6em;
+}
+
+.sidebar-right .cell-container hr{
+	border-color: #666;
+}
+
+.sidebar-right .cell-container table{
+	width: 100%;
+}
+
+.sidebar-right .cell-container td.right{
+	text-align: right;
+}
+
+.outer_wrapper .sidebar:after, .outer_wrapper .sidebar-right:after{
 	content: "";
 	clear: both;
 }
@@ -285,7 +320,7 @@ nav li ul a{
 	background-color: #1e1e1e;
 }
 
-.cell-container:first-child + .resize-handler + .cell-container {
+.cell-container:first-child + .resize-handler + .cell-container, .outer_wrapper .sidebar-right .cell-container{
 	background-color: #262626;
 }
 
@@ -416,11 +451,19 @@ nav li ul a{
 	z-index: 5;
 }
 
+.CodeMirror-menu nav{
+	display: block;
+	margin: 0 auto;
+	max-width: 74em;
+}
+
 .CodeMirror-menu nav li{
+	display: inline-block;
+	float: none;
 	height: 1.8em;
 }
 
-.CodeMirror-menu:after{
+.CodeMirror-menu nav ul:after{
 	clear: both;
     content: "";
     display: block;
@@ -435,21 +478,20 @@ nav li ul a{
 }
 .CodeMirror,
 .my-editor-preview {
-	margin: 1em;
-    padding: 2.6em 3em;
-    border: 0.2em solid #333;
-
+	margin: 1em auto;
+	padding: 3.4em 6em;
+	border: 0.2em solid #333;
 	width: auto;
 	min-height: calc( 100% - 6em );
 	min-width: 15em;
+	max-width: 54em;
 	height: auto;
-
 	background-color: #fefefe;
-
 	color: #333;
-
-	font-family: "Roboto", monospace;
+	font-family: "Roboto";
 	line-height: 1.6em;
+	font-size: 110%;
+	font-style: normal;
 }
 
 .CodeMirror{
@@ -831,4 +873,44 @@ pre > code{
 }
 .CodeMirror-dialog button:hover {
 	background-color: #eeeeee;
+}
+
+.my-editor .font10 .CodeMirror-code, .my-editor .font10 .my-editor-preview > div{
+	font-size: 10px;
+	line-height: 1.5em;
+}
+
+.my-editor .font12 .CodeMirror-code, .my-editor .font12 .my-editor-preview > div{
+	font-size: 12px;
+	line-height: 1.5em;
+}
+
+.my-editor .font14 .CodeMirror-code, .my-editor .font14 .my-editor-preview > div{
+	font-size: 14px;
+	line-height: 1.5em;
+}
+
+.my-editor .font15 .CodeMirror-code, .my-editor .font15 .my-editor-preview > div{
+	font-size: 15px;
+	line-height: 1.5em;
+}
+
+.my-editor .font16 .CodeMirror-code, .my-editor .font16 .my-editor-preview > div{
+	font-size: 16px;
+	line-height: 1.5em;
+}
+
+.my-editor .font18 .CodeMirror-code, .my-editor .font18 .my-editor-preview > div{
+	font-size: 18px;
+	line-height: 1.5em;
+}
+
+.my-editor .font20 .CodeMirror-code, .my-editor .font20 .my-editor-preview > div{
+	font-size: 20px;
+	line-height: 1.5em;
+}
+
+.my-editor .font24 .CodeMirror-code, .my-editor .font24 .my-editor-preview > div{
+	font-size: 24px;
+	line-height: 1.5em;
 }
