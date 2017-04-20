@@ -110,27 +110,8 @@ new Vue({
 		var notes = [];
 		var folders = [];
 		var racks = [];
-		if (!models.getBaseLibraryPath()) {
-			// Hey, this is first time.
-			// * Setting up directory
-			// * Create new notes
-			initialModels.initialFolder();
-		}
-
-		if( models.doesLibraryExists() ){
-			// Library folder exists, let's read what's inside
-
-			racks = models.Rack.readRacks();
-			if( racks.length == 0 ){
-				initialModels.initialSetup();
-				racks = models.Rack.readRacks();
-			}
-		}
+		var initial_notes = [];
 		
-		this.$set('racks', 		racks);
-		this.$set('folders', 	folders);
-		this.$set('notes', 		notes);
-
 		this.$watch('selectedNote.body', () => {
 			var result = models.Note.setModel(this.selectedNote);
 			if(result && result.error && result.path){
@@ -166,16 +147,6 @@ new Vue({
 			}
 		});
 
-		/*this.$watch('fontsize', () => {
-			console.log(this.fontsize);
-		});*/
-
-		/*this.$watch('filteredNotes', () => {
-			setTimeout(() => {
-				this.update_scrollbar_notes();
-			}, 100);
-		});*/
-
 		this.$watch('isPreview', () => {
 			if(this.selectedNote.data){
 				this.$set('preview', preview.render(this.selectedNote, this));
@@ -202,6 +173,37 @@ new Vue({
 			this.modalOkcb = modalMessage.okcb;
 			this.modalShow = true;
 		});
+
+		if (!models.getBaseLibraryPath()) {
+			// Hey, this is first time.
+			// * Setting up directory
+			// * Create new notes
+			initialModels.initialFolder();
+		}
+
+		if( models.doesLibraryExists() ){
+			// Library folder exists, let's read what's inside
+
+			racks = models.Rack.readRacks();
+			if( racks.length == 0 ){
+				initial_notes = initialModels.initialSetup(racks);
+				racks = models.Rack.readRacks();
+
+				if(initial_notes.length == 1){
+					folders = initial_notes[0].data.rack.readContents();
+					notes = initial_notes;
+				}
+			}
+		}
+		
+		this.$set('racks', 		racks);
+		this.$set('folders', 	folders);
+		this.$set('notes', 		notes);
+
+		if(initial_notes.length > 0){
+			this.selectedRackOrFolder = initial_notes[0].data.folder;
+			this.selectedNote = initial_notes[0];
+		}
 
 		/*var app = new ApplicationMenu();
 		app.setToggleWidescreen(this.toggleFullScreen);

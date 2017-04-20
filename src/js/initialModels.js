@@ -75,9 +75,6 @@ function makeInitialNotes(rack, folder) {
 }
 
 function makeInitialRacks() {
-	if (localStorage.getItem('initializedracks')) {
-		return false
-	}
 	
 	var rack1 = new models.Rack({
 		name: "Work",
@@ -85,6 +82,17 @@ function makeInitialRacks() {
 		load_ordering: false
 	});
 
+	models.Rack.setModel(rack1);
+	var folders = makeInitialFolders(rack1);
+	
+	return {
+		rack1: rack1,
+		folder1: folders[0],
+		folder2: folders[1]
+	};
+}
+
+function makeInitialFolders(rack1) {
 	var folder1 = new models.Folder({
 		name: "Todo",
 		ordering: 0,
@@ -98,22 +106,28 @@ function makeInitialRacks() {
 		load_ordering: false,
 		rack: rack1
 	});
-	
-	models.Rack.setModel(rack1);
+
 	models.Folder.setModel(folder1);
 	models.Folder.setModel(folder2);
-	
-	localStorage.setItem('initializedracks', '1');
-	return {
-		rack1: rack1,
-		folder1: folder1,
-		folder2: folder2
-	};
+
+	return [ folder1, folder2 ];
 }
 
-function initialSetup() {
-	var initialData = makeInitialRacks();
-	makeInitialNotes(initialData.rack1, initialData.folder1);
+function initialSetup(racks) {
+	var initialData;
+	if( racks.length == 0 ) {
+		initialData = makeInitialRacks();
+	} else {
+		var initialFolders = racks[0].readContents();
+		if( initialFolders.length == 0 ) initialFolders = makeInitialFolders(racks[0]);
+
+		initialData = {
+			rack1: racks[0],
+			folder1: initialFolders[0]
+		}
+	}
+	
+	return makeInitialNotes(initialData.rack1, initialData.folder1);
 }
 
 

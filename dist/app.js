@@ -159,26 +159,7 @@
 			var notes = [];
 			var folders = [];
 			var racks = [];
-			if (!models.getBaseLibraryPath()) {
-				// Hey, this is first time.
-				// * Setting up directory
-				// * Create new notes
-				initialModels.initialFolder();
-			}
-
-			if (models.doesLibraryExists()) {
-				// Library folder exists, let's read what's inside
-
-				racks = models.Rack.readRacks();
-				if (racks.length == 0) {
-					initialModels.initialSetup();
-					racks = models.Rack.readRacks();
-				}
-			}
-
-			this.$set('racks', racks);
-			this.$set('folders', folders);
-			this.$set('notes', notes);
+			var initial_notes = [];
 
 			this.$watch('selectedNote.body', function () {
 				var result = models.Note.setModel(_this.selectedNote);
@@ -215,16 +196,6 @@
 				}
 			});
 
-			/*this.$watch('fontsize', () => {
-	  	console.log(this.fontsize);
-	  });*/
-
-			/*this.$watch('filteredNotes', () => {
-	  	setTimeout(() => {
-	  		this.update_scrollbar_notes();
-	  	}, 100);
-	  });*/
-
 			this.$watch('isPreview', function () {
 				if (_this.selectedNote.data) {
 					_this.$set('preview', preview.render(_this.selectedNote, _this));
@@ -253,6 +224,37 @@
 				this.modalOkcb = modalMessage.okcb;
 				this.modalShow = true;
 			});
+
+			if (!models.getBaseLibraryPath()) {
+				// Hey, this is first time.
+				// * Setting up directory
+				// * Create new notes
+				initialModels.initialFolder();
+			}
+
+			if (models.doesLibraryExists()) {
+				// Library folder exists, let's read what's inside
+
+				racks = models.Rack.readRacks();
+				if (racks.length == 0) {
+					initial_notes = initialModels.initialSetup(racks);
+					racks = models.Rack.readRacks();
+
+					if (initial_notes.length == 1) {
+						folders = initial_notes[0].data.rack.readContents();
+						notes = initial_notes;
+					}
+				}
+			}
+
+			this.$set('racks', racks);
+			this.$set('folders', folders);
+			this.$set('notes', notes);
+
+			if (initial_notes.length > 0) {
+				this.selectedRackOrFolder = initial_notes[0].data.folder;
+				this.selectedNote = initial_notes[0];
+			}
 
 			/*var app = new ApplicationMenu();
 	  app.setToggleWidescreen(this.toggleFullScreen);
@@ -38934,9 +38936,6 @@
 	}
 
 	function makeInitialRacks() {
-		if (localStorage.getItem('initializedracks')) {
-			return false;
-		}
 
 		var rack1 = new models.Rack({
 			name: "Work",
@@ -38944,6 +38943,17 @@
 			load_ordering: false
 		});
 
+		models.Rack.setModel(rack1);
+		var folders = makeInitialFolders(rack1);
+
+		return {
+			rack1: rack1,
+			folder1: folders[0],
+			folder2: folders[1]
+		};
+	}
+
+	function makeInitialFolders(rack1) {
 		var folder1 = new models.Folder({
 			name: "Todo",
 			ordering: 0,
@@ -38958,21 +38968,27 @@
 			rack: rack1
 		});
 
-		models.Rack.setModel(rack1);
 		models.Folder.setModel(folder1);
 		models.Folder.setModel(folder2);
 
-		localStorage.setItem('initializedracks', '1');
-		return {
-			rack1: rack1,
-			folder1: folder1,
-			folder2: folder2
-		};
+		return [folder1, folder2];
 	}
 
-	function initialSetup() {
-		var initialData = makeInitialRacks();
-		makeInitialNotes(initialData.rack1, initialData.folder1);
+	function initialSetup(racks) {
+		var initialData;
+		if (racks.length == 0) {
+			initialData = makeInitialRacks();
+		} else {
+			var initialFolders = racks[0].readContents();
+			if (initialFolders.length == 0) initialFolders = makeInitialFolders(racks[0]);
+
+			initialData = {
+				rack1: racks[0],
+				folder1: initialFolders[0]
+			};
+		}
+
+		return makeInitialNotes(initialData.rack1, initialData.folder1);
 	}
 
 	module.exports = {
