@@ -43,30 +43,20 @@
 							class="my-shelf-all">
 							<a>All</a>
 						</div>
-						<racks :racks.sync="racks"
+						<racks
+							:racks.sync="racks"
 							:folders.sync="folders"
-							:notes="notes"
+							:notes="filteredNotes"
 							:selected-rack-or-folder.sync="selectedRackOrFolder"
 							:dragging-note.sync="draggingNote"
 							:editing-rack.sync="editingRack"
-							:selected-note="selectedNote">
+							:selected-note.sync="selectedNote">
 						</racks>
 					</div>
 				</div>
 			</div>
 
 			<handler-stack></handler-stack>
-
-			<div class="cell-container" :style="{ width: notesWidth+'px' }">
-				<notes :notes="filteredNotes"
-				:toggle-full-screen="toggleFullScreen"
-				:original-notes.sync="notes"
-				:selected-note.sync="selectedNote"
-				:dragging-note.sync="draggingNote">
-				</notes>
-			</div>
-
-			<handler-notes></handler-notes>
 		</div>
 
 		<div class="cell-container main-cell-container">

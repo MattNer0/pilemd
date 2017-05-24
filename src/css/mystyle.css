@@ -24,11 +24,15 @@ body {
 	font-family: "Roboto",sans-serif;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
-	background: #3a3e4c;
+	background: #dedede;
 }
 
 html, body, h5{
 	font-size: 14px;
+}
+
+div{
+	box-sizing: border-box;
 }
 
 ::-webkit-scrollbar {
@@ -143,7 +147,7 @@ html, body, h5{
 
 nav ul {
 	-webkit-font-smoothing:antialiased;
-	background: #282828;
+	background: #232323;
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -156,7 +160,7 @@ nav li {
 	padding: 0;
 	position: relative;
 	height: 2.3em;
-	border-bottom: 0.2em solid #282828;
+	border-bottom: 0.2em solid #232323;
 }
 nav ul ul li{
 	height: auto;
@@ -189,7 +193,7 @@ nav a i, nav div i{
 
 nav li > a, nav li > div,
 nav ul li .my-search, nav ul li .my-search::-webkit-input-placeholder {
-	color: #757575;
+	color: #858585;
 }
 
 nav ul li:hover{
@@ -234,6 +238,10 @@ nav li ul li {
 }
 nav li ul a{
 	text-align: left;
+}
+
+codemirror {
+	display: block;
 }
 
 .CodeMirror-menu nav a{
@@ -317,11 +325,12 @@ nav li ul a{
 }
 
 .cell-container:first-child {
-	background-color: #1e1e1e;
+	background-color: #242c36;
 }
 
-.cell-container:first-child + .resize-handler + .cell-container, .outer_wrapper .sidebar-right .cell-container{
-	background-color: #262626;
+/*.cell-container:first-child + .resize-handler + .cell-container*/
+.outer_wrapper .sidebar-right .cell-container{
+	background-color: #242c36;
 }
 
 .resize-handler {
@@ -394,18 +403,6 @@ nav li ul a{
 	cursor: pointer;
 }
 
-.my-notes {
-	box-sizing: border-box;
-
-	color: #424242;
-	width: auto;
-	height: 100%;
-
-	overflow-y: auto;
-	overflow-x: hidden;
-	-webkit-user-select: none;
-}
-
 .my-editor {
 	height: 100%;
     width: auto;
@@ -454,7 +451,7 @@ nav li ul a{
 .CodeMirror-menu nav{
 	display: block;
 	margin: 0 auto;
-	max-width: 74em;
+	width: 100%;
 }
 
 .CodeMirror-menu nav li{
@@ -480,11 +477,11 @@ nav li ul a{
 .my-editor-preview {
 	margin: 1em auto;
 	padding: 3.4em 6em;
-	border: 0.2em solid #333;
+	border: 0.1em solid #ababab;
 	width: auto;
 	min-height: calc( 100% - 6em );
 	min-width: 15em;
-	max-width: 54em;
+	max-width: 70em;
 	height: auto;
 	background-color: #fefefe;
 	color: #333;
@@ -496,7 +493,8 @@ nav li ul a{
 
 .CodeMirror{
 	padding-top: 4em;
-	min-height: calc( 100% - 7em );
+	min-height: calc( 100vh - 10em );
+	margin-top: 3em;
 }
 
 .CodeMirror-scroll {

@@ -370,6 +370,7 @@ class Folder extends Model {
 		this.sortUpper = false;
 		this.sortLower = false;
 		this._contentLoaded = false;
+		this.notes = [];
 	}
 
 	remove(origNotes) {

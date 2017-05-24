@@ -40,15 +40,6 @@ module.exports = function(Vue, options) {
 			} else {
 				this.notesDisplayOrder = o;
 			}
-			/*
-			var app = new ApplicationMenu();
-			app.setDisplayOrder(
-				this.notesDisplayOrder,
-				() => {this.notesDisplayOrder = 'updatedAt'},
-				() => {this.notesDisplayOrder = 'createdAt'});
-			app.setMenu();
-			*/
-
 			this.$watch('notesDisplayOrder', (v) => {
 				localStorage.setItem(NOTE_DISPLAY_ORDER_KEY, v);
 			});
@@ -73,7 +64,7 @@ module.exports = function(Vue, options) {
 					message: "Are you sure you want to remove this note?\n\nTitle: "+note.title+"\nContent: "+note.bodyWithoutTitle.replace('\n',' ').slice(0,100)+"..."
 				}, function(btn){
 					if(btn == 0){
-						self.originalNotes.$remove(note);
+						//self.originalNotes.$remove(note);
 						Note.removeModelFromStorage(note);
 						if (self.notes.length > 1) {
 							self.selectedNote = Note.beforeNote(self.notes.slice(), note, self.notesDisplayOrder);
