@@ -85,7 +85,7 @@ new Vue({
 		racksWidth: 180,
 		notesWidth: 180,
 		propertiesWidth: 180,
-		fontsize: "15"
+		fontsize: settings.get('fontsize') || "15"
 		//scrollbarNotes: null
 	},
 	computed: {
@@ -128,6 +128,10 @@ new Vue({
 			if(this.isPreview) {
 				this.$set('preview', preview.render(this.selectedNote, this));
 			}
+		});
+
+		this.$watch('fontsize', () => {
+			settings.set('fontsize', this.fontsize);
 		});
 
 		this.$watch('selectedRackOrFolder', () => {
