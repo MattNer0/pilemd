@@ -32,7 +32,7 @@ Vue.use(require('./components/notes/notes'));
 Vue.use(require('./components/codemirror'),
 	{imageURL: '', imageParamName: 'image'});
 Vue.use(require('./components/resizeHandler').handlerStack);
-Vue.use(require('./components/resizeHandler').handlerNotes);
+//Vue.use(require('./components/resizeHandler').handlerNotes);
 Vue.use(require('./components/menu/titleMenu'));
 Vue.use(require('./components/menu/codemirrorMenu'));
 
@@ -454,8 +454,8 @@ new Vue({
 		update_editor_size: function() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
 			var cellsRight = document.querySelectorAll('.outer_wrapper .sidebar-right .cell-container');
-			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + parseInt( cellsLeft[1].style.width.replace('px','') ) + 10;
-			var widthTotalRight = parseInt( cellsRight[0].style.width.replace('px','') ) + 5; //+ parseInt( cellsRight[1].style.width.replace('px','') ) + 10;
+			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + 5; // + parseInt( cellsLeft[1].style.width.replace('px','')
+			var widthTotalRight = parseInt( cellsRight[0].style.width.replace('px','') ); //+ parseInt( cellsRight[1].style.width.replace('px','') ) + 10;
 
 			//console.log(window.innerWidth);
 			
