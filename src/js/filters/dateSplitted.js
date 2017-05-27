@@ -10,15 +10,17 @@ const WEEK_AGO_TEXT = 'A Week Ago';
 module.exports = function(Vue, options) {
   Vue.filter('dateSeparated', function(notes, property) {
     if (notes.length == 0) {
-      return [
+      return notes;
+      /*return [
         {dateStr: "No notes, let's write",
          notes: []}
-      ]
+      ]*/
     }
     var now = moment();
-
     var sorted = arr.sortBy(notes.slice(), property);
-    function getDateDiff(to, from) {
+    console.log(sorted);
+    return sorted;
+    /*function getDateDiff(to, from) {
       var t = moment([to.year(), to.month(), to.date()]);
       var f = moment([from.year(), from.month(), from.date()]);
       return t.diff(f, 'days');
@@ -52,6 +54,6 @@ module.exports = function(Vue, options) {
       }
     });
     ret.push(lastDate);
-    return ret;
+    return ret;*/
   });
 };

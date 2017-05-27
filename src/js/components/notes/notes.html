@@ -1,5 +1,5 @@
 <div class="my-notes" id="ln-fullscreen">
-	<div v-for="note in notes" track-by="uid"
+	<div v-for="note in notes | dateSeparated notesDisplayOrder" track-by="uid"
 		@click="selectNote(note)"
 		@dblclick="selectNoteAndWide(note)"
 		@contextmenu.prevent.stop="noteMenu(note)"
@@ -8,6 +8,9 @@
 		:class="{'my-notes-note-selected': selectedNote === note}"
 		draggable="true"
 		class="my-notes-note">
-		<h5 v-if="note.title" class="my-notes-note-title">{{ note.title }}</h5>
+		<h5 v-if="note.title" class="my-notes-note-title">
+			<i class="material-icons">description</i>
+			{{ note.title }}
+		</h5>
 	</div>
 </div>

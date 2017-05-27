@@ -16,7 +16,7 @@
 				</span>
 			</a>
 		</li>
-		<li v-if="$root.selectedNote.data">
+		<li v-show="$root.selectedNote.data">
 			<a @click="$root.toggleProperties()" href="#">
 				<span>
 					<i class="material-icons rotate">input</i>
