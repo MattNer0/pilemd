@@ -112,11 +112,15 @@
 					<table>
 						<tr>
 							<td><strong>Created: </strong></td>
-							<td class="right"><span>{{ selectedNote.data.created_at.format('MMM DD') }}</span></td>
+						<tr/>
+						<tr>
+							<td class="right"><span>{{ selectedNote.data.created_at.format('MMM DD, YYYY') }}</span></td>
 						</tr>
 						<tr>
 							<td><strong>Modified: </strong></td>
-							<td class="right"><span>{{ selectedNote.data.updated_at.format('MMM DD') }}</span></td>
+						</tr>
+						<tr>
+							<td class="right"><span>{{ selectedNote.data.updated_at.format('MMM DD, YYYY') }}</span></td>
 						</tr>
 					</table>
 				</div>
