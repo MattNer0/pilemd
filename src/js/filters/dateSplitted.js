@@ -16,9 +16,8 @@ module.exports = function(Vue, options) {
          notes: []}
       ]*/
     }
-    var now = moment();
+    //var now = moment();
     var sorted = arr.sortBy(notes.slice(), property);
-    console.log(sorted);
     return sorted;
     /*function getDateDiff(to, from) {
       var t = moment([to.year(), to.month(), to.date()]);

@@ -18,7 +18,7 @@ require('./racks.css');
 module.exports = function(Vue, options) {
 	Vue.component('racks', {
 		replace: true,
-		props: ['racks', 'folders', 'notes', 'filteredNotes', 'selectedRackOrFolder', 'selectedNote', 'editingRack', 'draggingNote'],
+		props: ['racks', 'folders', 'notes', 'filteredNotes', 'selectedRackOrFolder', 'selectedNote', 'editingRack', 'draggingNote', 'toggleFullScreen'],
 		data: function() {
 			return {
 				draggingRack: null,

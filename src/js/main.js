@@ -29,10 +29,8 @@ Vue.use(require('./components/flashmessage'));
 Vue.use(require('./components/modal/modal'));
 Vue.use(require('./components/racks/racks'));
 Vue.use(require('./components/notes/notes'));
-Vue.use(require('./components/codemirror'),
-	{imageURL: '', imageParamName: 'image'});
+Vue.use(require('./components/codemirror'), {imageURL: '', imageParamName: 'image'});
 Vue.use(require('./components/resizeHandler').handlerStack);
-//Vue.use(require('./components/resizeHandler').handlerNotes);
 Vue.use(require('./components/menu/titleMenu'));
 Vue.use(require('./components/menu/codemirrorMenu'));
 
@@ -82,7 +80,7 @@ new Vue({
 		modalDescription: 'description',
 		modalPrompts: [],
 		modalOkcb: null,
-		racksWidth: 180,
+		racksWidth: settings.get('rackswidth') || 180,
 		notesWidth: 180,
 		propertiesWidth: 180,
 		fontsize: settings.get('fontsize') || "15"
@@ -95,11 +93,7 @@ new Vue({
 				if (this.selectedRackOrFolder instanceof models.Rack) {
 					this.selectedRackOrFolder.folders.forEach(function(folder){
 						var newNotes = folder.readContents();
-						if(newNotes){
-							console.log('folder deep', folder.name);
-							console.log(newNotes);
-							self.notes = self.notes.concat(newNotes);
-						}
+						if(newNotes) self.notes = self.notes.concat(newNotes);
 					});
 				}
 			}
@@ -454,20 +448,14 @@ new Vue({
 		update_editor_size: function() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
 			var cellsRight = document.querySelectorAll('.outer_wrapper .sidebar-right .cell-container');
-			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + 5; // + parseInt( cellsLeft[1].style.width.replace('px','')
-			var widthTotalRight = parseInt( cellsRight[0].style.width.replace('px','') ); //+ parseInt( cellsRight[1].style.width.replace('px','') ) + 10;
-
-			//console.log(window.innerWidth);
+			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + 5;
+			var widthTotalRight = parseInt( cellsRight[0].style.width.replace('px','') );
 			
 			if(this.isFullScreen){
 				document.querySelector('.sidebar').style.left = "-"+widthTotalLeft+'px';
-				/*document.querySelector('.main-cell-container').style.transition = "margin 400ms";*/
 				widthTotalLeft = 0;
 			} else {
 				document.querySelector('.sidebar').style.left = "";
-				/*setTimeout(function(){
-					document.querySelector('.main-cell-container').style.transition = "";
-				}, 400);*/
 			}
 
 			if(this.propertiesOpen && this.selectedNote.data) {
@@ -477,14 +465,13 @@ new Vue({
 				widthTotalRight = 0;
 			}
 
-			/*document.querySelector('.main-cell-container').style.marginLeft = widthTotalRight+'px';
-			document.querySelector('.main-cell-container').style.marginRight = widthTotalRight+'px';
-
-			document.querySelector('.main-cell-container .my-editor > div').style.marginLeft = (widthTotalLeft - widthTotalRight)+'px';
-			document.querySelector('.main-cell-container .my-editor > div').style.marginRight = (widthTotalLeft - widthTotalRight)+'px';*/
-
 			document.querySelector('.main-cell-container').style.marginLeft = widthTotalLeft+'px';
 			document.querySelector('.main-cell-container').style.marginRight = widthTotalRight+'px';
+		},
+		save_editor_size: function() {
+			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
+			this.rackswidth = parseInt( cellsLeft[0].style.width.replace('px','') );
+			settings.set('rackswidth', this.rackswidth);
 		},
 		menu_close: function() {
 			var win = remote.getCurrentWindow();
