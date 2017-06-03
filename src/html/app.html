@@ -1,35 +1,8 @@
 <div id="title-bar">
-	
 	<title-menu></title-menu>
-
-	<!--div id="title-bar-btns">
-		<button id="min-btn" @click="menu_min()">
-			<i class="material-icons">remove</i>
-		</button>
-		<button id="max-btn" @click="menu_max()">
-			<i class="material-icons">web_asset</i>
-		</button>
-		<button id="close-btn" @click="menu_close()">
-			<i class="material-icons">clear</i>
-		</button>
-	</div-->
 </div>
 <div class="my-main">
 	<div :class="{'outer_wrapper': true, 'full_width_container': isFullScreen}">
-
-		<!--div class="my-sidebar-header">
-			<button title="Click to add note" class="my-add-note" @click="addNote()"><i class="material-icons">edit</i></button>
-		</div-->
-		<!--button @click="toggleFullScreen"
-			class="my-sidebar-toggle"
-			:class="{'isFullScreen': isFullScreen}"
-			title="Toggle Widescreen">
-			<i class="material-icons">keyboard_arrow_left</i>
-		</button>
-		@dragover.stop="allDragOver($event)"
-		@dragleave.prevent.stop="allDragLeave($event)"
-		@drop.prevent.stop="dropToAll($event)"
-		-->
 
 		<div class="sidebar">
 			<div class="cell-container" :style="{ width: racksWidth+'px' }">
@@ -46,7 +19,8 @@
 						<racks
 							:racks.sync="racks"
 							:folders.sync="folders"
-							:notes="filteredNotes"
+							:notes.sync="notes"
+							:filtered-notes="filteredNotes"
 							:selected-rack-or-folder.sync="selectedRackOrFolder"
 							:dragging-note.sync="draggingNote"
 							:editing-rack.sync="editingRack"
@@ -81,7 +55,7 @@
 		</div>
 
 		<div class="sidebar-right" v-show="selectedNote.title">
-			<div class="cell-container" :style="{ width: propertiesWidth+'px' }">
+			<div class="cell-container" :style="{ width: propertiesWidth+'px', right: ( propertiesOpen ? '0px' : '-'+propertiesWidth+'px' ) }">
 				<div v-if="selectedNote.properties">
 					<strong>Font Size: </strong><br/>
 					<select v-model="fontsize" style="width: 100%;">

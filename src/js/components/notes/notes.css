@@ -30,11 +30,12 @@
     color: #858585;
     line-height: 1.2;
     -webkit-user-select: none;
-    transition: background-color 200ms ease, margin 200ms ease;
+    transition: background-color 200ms ease, margin 200ms ease, height 200ms ease;
     font-weight: normal;
     box-sizing: border-box;
     border-top: 1px solid #242c36;
     border-bottom: 1px solid #333;
+    overflow: hidden;
 }
 
 .my-notes-note > div{
@@ -56,7 +57,7 @@
     content: "";
     position: absolute;
     right: 0;
-    top: 0.1em;
+    top: .1em;
     z-index: 10;
     width: 0;
     height: 0;
@@ -64,7 +65,6 @@
     border-width: 0.8em 0.8em 0.8em 0;
     border-color: transparent #dedede transparent transparent;
 }
-
 h5.my-notes-note-title {
     margin: 0;
     padding: 0;
@@ -72,13 +72,24 @@ h5.my-notes-note-title {
     color: inherit;
     position: relative;
 }
-
 h5.my-notes-note-title i{
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     margin: 0;
+}
+.my-notes-note-date{
+    color: #555753;
+    padding-left: 1.4em;
+    margin-top: .5em;
+}
+.my-notes-note-image,
+.my-notes-note-body {
+    color: #858585;
+    margin-top: .2em;
+    padding-left: 1.4em;
+    line-height: 1.4em;
 }
 .my-notes-note.my-notes-note-selected {
     border-top: 1px solid #171c23;

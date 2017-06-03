@@ -40,7 +40,7 @@
 	width: 62px;
 }
 
-.my-shelf-rack > div{
+.my-shelf-rack > div, .my-shelf-folder > div{
 	display: none;
 }
 
@@ -65,7 +65,8 @@
 	color: #6b8ea8;
 }
 
-.my-shelf-rack.openFolders > div{
+.my-shelf-rack.openFolders > div,
+.my-shelf-folder.openNotes > div{
 	display: block;
 }
 

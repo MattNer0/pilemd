@@ -40,9 +40,6 @@ require('../css/materialicons.css');
 require('../css/mystyle.css');
 require('../css/highlight.css');
 
-//require('../css/tinyscrollbar.css');
-//const tinyscrollbar = require('./tinyscrollbar.min.js');
-
 // Not to accept image dropping and so on.
 // Electron will be show local images without this.
 document.addEventListener('dragover', (e) => {
@@ -84,7 +81,6 @@ new Vue({
 		notesWidth: 180,
 		propertiesWidth: 180,
 		fontsize: settings.get('fontsize') || "15"
-		//scrollbarNotes: null
 	},
 	computed: {
 		filteredNotes: function() {
@@ -122,6 +118,7 @@ new Vue({
 			if(this.isPreview) {
 				this.$set('preview', preview.render(this.selectedNote, this));
 			}
+			this.selectedRackOrFolder = this.selectedNote.data.folder;
 		});
 
 		this.$watch('fontsize', () => {
@@ -150,11 +147,6 @@ new Vue({
 				this.$set('preview', preview.render(this.selectedNote, this));
 			}
 		});
-
-		// Should select latest selected note.
-		/*if(notes.length > 0){
-			this.selectedNote = models.Note.latestUpdatedNote(notes);
-		}*/
 
 		// Flash message
 		this.$on('flashmessage-push', function(message) {
@@ -203,17 +195,7 @@ new Vue({
 			this.selectedNote = initial_notes[0];
 		}
 
-		/*var app = new ApplicationMenu();
-		app.setToggleWidescreen(this.toggleFullScreen);
-		app.setTogglePreview(this.togglePreview);
-		app.setAddNewNote(this.addNote);
-		app.setCredits(this.openCredits);
-		app.setImportNotes(this.importNotes);
-		app.setMoveSync(this.moveSync);
-		app.setOpenExistingSync(this.openSync);
-		*/
-		// Save it not to remove
-		
+		// Save it not to remove		
 		//this.watcher = models.makeWatcher(this.racks, this.folders, this.notes);
 	},
 	ready: function(){

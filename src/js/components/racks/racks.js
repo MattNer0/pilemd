@@ -112,6 +112,11 @@ module.exports = function(Vue, options) {
 			isSelectedFolder: function(folder) {
 				return this.selectedRackOrFolder === folder;
 			},
+			filterNotesByFolder: function(folder) {
+				return this.notes.filter(function(obj){
+					return obj.isFolder(folder);
+				});
+			},
 			selectRack: function(rack) {
 				if(this.selectedRackOrFolder){
 					if (this.selectedRackOrFolder instanceof models.Rack && this.selectedRackOrFolder == rack) {
@@ -125,6 +130,15 @@ module.exports = function(Vue, options) {
 				this.selectedRackOrFolder = rack;
 			},
 			selectFolder: function(folder) {
+				if(this.selectedRackOrFolder){
+					if (this.selectedRackOrFolder instanceof models.Folder && this.selectedRackOrFolder == folder) {
+						folder.openNotes = !folder.openNotes
+					} else {
+						folder.openNotes = true;
+					}
+				} else {
+					folder.openNotes = true;
+				}
 				this.selectedRackOrFolder = folder;
 			},
 			openRack: function(rack) {
@@ -134,6 +148,14 @@ module.exports = function(Vue, options) {
 			},
 			closeRack: function(rack) {
 				rack.openFolders = false;
+			},
+			openFolder: function(folder) {
+				var newData = folder.readContents();
+				if(newData) this.notes = this.notes.concat( newData );
+				folder.openNotes = true;
+			},
+			closeFolder: function(folder) {
+				folder.openNotes = false;
 			},
 			// Dragging
 			rackDragStart: function(event, rack) {

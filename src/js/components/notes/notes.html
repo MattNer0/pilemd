@@ -12,5 +12,14 @@
 			<i class="material-icons">description</i>
 			{{ note.title }}
 		</h5>
+		<!--div class="my-notes-note-date">
+			{{ note.data.updated_at.format('MMM DD, YYYY') }}
+		</div-->
+		<!--div class="my-notes-note-image" v-if="note.img">
+			<img :src="note.img"/>
+		</div>
+		<div class="my-notes-note-body" v-if="!note.img && note.body.length != 0">
+			{{ note.bodyWithoutTitle | truncate 50 }}
+		</div-->
 	</div>
 </div>

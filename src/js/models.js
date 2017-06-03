@@ -136,6 +136,14 @@ class Note extends Model {
 		}
 	}
 
+	isFolder(f) {
+		return this.folderUid == f.uid;
+	}
+
+	isRack(r) {
+		return this._folder.rackUid == r.uid;
+	}
+
 	loadBody() {
 		if(fs.existsSync(this.path)){
 			var content = fs.readFileSync(this.path).toString();
@@ -370,6 +378,7 @@ class Folder extends Model {
 		this.sortUpper = false;
 		this.sortLower = false;
 		this._contentLoaded = false;
+		this.openNotes = false;
 		this.notes = [];
 	}
 

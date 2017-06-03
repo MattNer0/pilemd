@@ -7,7 +7,7 @@
 		@dragleave.stop="rackDragLeave(rack)"
 		@drop.stop="dropToRack($event, rack)"
 		@contextmenu.prevent.stop="rackMenu(rack)">
-	<h4 @click.prevent.stop="selectRack(rack)" :class="{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote()) || rack.dragHover}">
+	<h4 @click.prevent.stop="selectRack(rack)" :class="{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote()) || rack.dragHover || (selectedNote && selectedNote.isRack(rack) && !isDraggingNote())}">
 		<i v-if="!rack.openFolders" @click.prevent.stop="openRack(rack)" class="material-icons rack-icon">label</i>
 		<i v-if="rack.openFolders" @click.prevent.stop="closeRack(rack)" class="material-icons rack-icon">label_outline</i>
 		<a v-if="editingRack != rack">{{ rack.name }}</a>
@@ -19,7 +19,8 @@
 	</h4>
 	<!-- Folder -->
 	<div :class="{'isShelfSelected': (isSelectedFolder(folder) && !isDraggingNote()) ||
-			folder.dragHover,
+			folder.dragHover || (selectedNote && selectedNote.isFolder(folder) && !isDraggingNote()),
+			'openNotes' : folder.openNotes,
 			'noteDragging': isDraggingNote(),
 			'noteIsHere': !isDraggingNote() && selectedNote.folderUid == folder.uid,
 			'sortUpper': folder.sortUpper,
@@ -33,8 +34,8 @@
 			@drop="dropToFolder($event, rack, folder)"
 			@contextmenu.prevent.stop="folderMenu(rack, folder)">
 		<h5 @click.prevent.stop="selectFolder(folder)">
-			<i v-if="!isSelectedFolder(folder)" class="material-icons">folder</i>
-			<i v-if="isSelectedFolder(folder)" class="material-icons">folder_open</i>
+			<i v-if="!folder.openNotes" @click.prevent.stop="openFolder(folder)" class="material-icons">folder</i>
+			<i v-if="folder.openNotes" @click.prevent.stop="closeFolder(folder)" class="material-icons">folder_open</i>
 			<a v-if="editingFolder != folder" class="my-shelf-folder-name">{{ folder.name }}</a>
 			<input v-if="editingFolder == folder" v-model="folder.name"
 				v-focus="editingFolder == folder"
@@ -43,8 +44,8 @@
 				@keyup.esc="doneFolderEdit(rack, folder)"/>
 		</h5>
 
-		<notes v-if="isSelectedFolder(folder) && !draggingFolder"
-			:notes="notes"
+		<notes v-if="!draggingFolder"
+			:notes="filterNotesByFolder(folder)"
 			:toggle-full-screen="toggleFullScreen"
 			:original-notes.sync="notes"
 			:selected-note.sync="selectedNote"
