@@ -27,17 +27,20 @@ function allWords(text, words) {
 }
 
 function searchNotes(selectedRackOrFolder, searchInput, notes) {
-	if (selectedRackOrFolder === null) {
+	/*if (selectedRackOrFolder === null) {
 		return [];
-	}
-	var searchPayload = calculateSearchMeaning(selectedRackOrFolder, searchInput);
+	}*/
+	//var searchPayload = calculateSearchMeaning(selectedRackOrFolder, searchInput);
+	var searchPayload = searchInput.toLowerCase().split(' ');
 	var filteredNotes = notes.filter((note) => {
-		if(!searchPayload.folderUids || _.includes(searchPayload.folderUids, note.folderUid)){
-			if(searchPayload.words.length == 0) return true;
+		/*if(!searchPayload.folderUids || _.includes(searchPayload.folderUids, note.folderUid)){
+			
+		}*/
+		if(searchPayload.length == 0) return true;
 
-			if(!note.body) note.loadBody();
-			if( allWords(note.body.toLowerCase(), searchPayload.words) ) return true;
-		}
+		if(!note.body) note.loadBody();
+		if( allWords(note.body.toLowerCase(), searchPayload) ) return true;
+
 		return false;
 	});
 	return filteredNotes;

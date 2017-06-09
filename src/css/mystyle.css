@@ -128,7 +128,7 @@ div{
 #title-bar a.menu-button{
 	display: inline-block;
 	min-width: 0;
-	width: 1.5em;
+	width: 3.8em;
 }
 
 #title-bar a.menu-button span{
@@ -170,10 +170,11 @@ nav li.right-align{
 	float: right;
 }
 nav li > a, nav li > div {
+	box-sizing: border-box;
 	display: block;
 	padding: 0.25em 1.0em;
 	line-height: 2.0em;
-	height: 1.8em;
+	height: 100%;
 	text-align: left;
 	outline: none;
 	text-decoration: none;

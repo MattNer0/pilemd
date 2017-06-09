@@ -113,6 +113,11 @@ module.exports = function(Vue, options) {
 				return this.selectedRackOrFolder === folder;
 			},
 			filterNotesByFolder: function(folder) {
+				return this.filteredNotes.filter(function(obj){
+					return obj.isFolder(folder);
+				});
+			},
+			notesByFolder: function(folder) {
 				return this.notes.filter(function(obj){
 					return obj.isFolder(folder);
 				});
