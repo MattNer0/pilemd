@@ -27868,6 +27868,15 @@
 				Folder.removeModelFromStorage(this);
 			}
 		}, {
+			key: 'isOpen',
+			value: function isOpen(selectedNote) {
+				if (selectedNote && selectedNote.data) {
+					return this.openNotes || selectedNote.isFolder(this);
+				} else {
+					return this.openNotes;
+				}
+			}
+		}, {
 			key: 'update',
 			value: function update(data) {
 				_get(Object.getPrototypeOf(Folder.prototype), 'update', this).call(this, data);
@@ -28019,6 +28028,15 @@
 		}
 
 		_createClass(Rack, [{
+			key: 'isOpen',
+			value: function isOpen(selectedNote) {
+				if (selectedNote && selectedNote.data) {
+					return this.openFolders || selectedNote.isRack(this);
+				} else {
+					return this.openFolders;
+				}
+			}
+		}, {
 			key: 'update',
 			value: function update(data) {
 				_get(Object.getPrototypeOf(Rack.prototype), 'update', this).call(this, data);
@@ -53139,6 +53157,9 @@
 					rack.openFolders = true;
 				},
 				closeRack: function closeRack(rack) {
+					if (this.selectedNote && this.selectedNote.data && this.selectedNote.isRack(rack)) {
+						return;
+					}
 					rack.openFolders = false;
 				},
 				openFolder: function openFolder(folder) {
@@ -53147,6 +53168,9 @@
 					folder.openNotes = true;
 				},
 				closeFolder: function closeFolder(folder) {
+					if (this.selectedNote && this.selectedNote.data && this.selectedNote.isFolder(folder)) {
+						return;
+					}
 					folder.openNotes = false;
 				},
 				// Dragging
@@ -53163,6 +53187,9 @@
 					if (this.draggingFolder) {
 						event.preventDefault();
 						rack.dragHover = true;
+						rack.openFolders = true;
+						var newData = rack.readContents();
+						if (newData) this.folders = this.folders.concat(newData);
 					} else if (this.draggingRack && this.draggingRack != rack) {
 						event.preventDefault();
 						var per = dragging.dragOverPercentage(event.currentTarget, event.clientY);
@@ -53178,6 +53205,9 @@
 					}
 				},
 				rackDragLeave: function rackDragLeave(rack) {
+					if (this.draggingFolder && this.draggingFolderRack && !this.draggingFolderRack.uid == rack.uid) {
+						rack.openFolders = false;
+					}
 					rack.dragHover = false;
 					rack.sortUpper = false;
 					rack.sortLower = false;
@@ -53395,7 +53425,7 @@
 
 
 	// module
-	exports.push([module.id, ".my-shelf {\n\tcolor: #858585;\n\t\n\tfont-weight: 200;\n\twidth: auto;\n\theight: 100%;\n\n\toverflow-x: hidden;\n\toverflow-y: auto;\n\twhite-space: nowrap;\n}\n.my-shelf-rack {\n\tposition: relative;\n\tpadding: 0.2em;\n\tmargin: 0.2em 0;\n}\n/*.my-shelf-rack:nth-child(even){\n\tbackground-color: #1f262f;\n}*/\n.my-shelf-rack h4, .my-shelf-rack h5 {\n\tcolor: #858585;\n\tmargin: 0 auto;\n\tpadding: 0.3em;\n\tfont-weight: normal;\n\tborder-radius: 0 2px 2px 0 / 0 2px 2px 0;\n\twhite-space: initial;\n\tword-wrap: break-word;\n\n\t-webkit-user-select: none;\n\ttransition: background-color 200ms;\n}\n.my-shelf-rack h4{\n\tfont-weight: bold;\n}\n.my-shelf-rack h4.isShelfSelected, .my-shelf-rack .isShelfSelected > h5 {\n\tcolor: #6b8ea8;\n}\n\n.my-shelf-rack h4 input, .my-shelf-rack h5 input {\n\twidth: 62px;\n}\n\n.my-shelf-rack > div, .my-shelf-folder > div{\n\tdisplay: none;\n}\n\n.my-shelf-rack h5 > span{\n\tbox-sizing: border-box;\n\tborder: 1px solid #FFF;\n\tborder-radius: 100%;\n\tline-height: 1.25em;\n\theight: 1.2em;\n\twidth: 1.2em;\n\ttext-align: center;\n\tvertical-align: top;\n}\n\n.my-shelf-rack .rack-icon{\n\tfont-size: 100%;\n\tvertical-align: middle;\n\tcolor: inherit;\n}\n\n.my-shelf-rack .isShelfSelected .rack-icon{\n\tcolor: #6b8ea8;\n}\n\n.my-shelf-rack.openFolders > div,\n.my-shelf-folder.openNotes > div{\n\tdisplay: block;\n}\n\n.my-shelf-rack.sortUpper:after {\n\tposition: absolute;\n\ttop: -1px;\n\tleft: 0;\n\twidth: 110px;\n\theight: 2px;\n\tcontent: \"\";\n\tbackground-color: #62c8f3\n}\n.my-shelf-rack.sortLower:after {\n\tposition: absolute;\n\tbottom: -1px;\n\tleft: 0;\n\twidth: 110px;\n\theight: 2px;\n\tcontent: \"\";\n\tbackground-color: #62c8f3\n}\n\n.my-shelf-folder > h5 {\n\tposition: relative;\n\tpadding: 0.3em 0.3em 0.3em 1em;\n\tborder-radius: 0 2px 2px 0 / 0 2px 2px 0;\n\ttransition: background-color 200ms;\n}\n.my-shelf-folder.sortUpper:after {\n\tposition: absolute;\n\ttop: -1px;\n\tleft: 0;\n\twidth: 110px;\n\theight: 2px;\n\tcontent: \"\";\n\tbackground-color: #62c8f3\n}\n.my-shelf-folder.sortLower:after {\n\tposition: absolute;\n\tbottom: -1px;\n\tleft: 0;\n\twidth: 110px;\n\theight: 2px;\n\tcontent: \"\";\n\tbackground-color: #62c8f3\n}\n.my-shelf-folder i {\n\tfont-size: 14px;\n\tmargin-top: -2px;\n\tvertical-align: middle;\n}\n.my-shelf-folder-name {\n\tmin-width: 86px;\n\twidth: 100%;\n\twhite-space: initial;\n}\n.my-shelf-folder span input {\n\twidth: 48px;\n}\n\n.my-shelf-folder.noteDragging {\n\tcolor: #fefefe;\n}\n", ""]);
+	exports.push([module.id, ".my-shelf {\n\tcolor: #858585;\n\t\n\tfont-weight: 200;\n\twidth: auto;\n\theight: 100%;\n\n\toverflow-x: hidden;\n\toverflow-y: auto;\n\twhite-space: nowrap;\n}\n.my-shelf-rack {\n\tposition: relative;\n\tpadding: 0.2em;\n\tmargin: 0.2em 0;\n}\n/*.my-shelf-rack:nth-child(even){\n\tbackground-color: #1f262f;\n}*/\n.my-shelf-rack h4, .my-shelf-rack h5 {\n\tcolor: #858585;\n\tmargin: 0 auto;\n\tpadding: 0.3em;\n\tfont-weight: normal;\n\tborder-radius: 0 2px 2px 0 / 0 2px 2px 0;\n\twhite-space: initial;\n\tword-wrap: break-word;\n\n\t-webkit-user-select: none;\n\ttransition: background-color 200ms;\n}\n.my-shelf-rack h4{\n\tfont-weight: bold;\n}\n.my-shelf-rack h4.isShelfSelected, .my-shelf-rack .isShelfSelected > h5 {\n\tcolor: #6b8ea8;\n}\n\n.my-shelf-rack h4 input, .my-shelf-rack h5 input {\n\twidth: 62px;\n}\n\n.my-shelf-rack > div, .my-shelf-folder > .my-notes > div{\n\tdisplay: none;\n}\n\n.my-shelf-rack.openFolders > div,\n.my-shelf-folder.openNotes > .my-notes > div{\n\tdisplay: block;\n}\n\n.my-shelf-folder > .my-notes > .my-notes-note.my-notes-note-selected{\n\tdisplay: block;\n}\n\n.my-shelf-rack h5 > span{\n\tbox-sizing: border-box;\n\tborder: 1px solid #FFF;\n\tborder-radius: 100%;\n\tline-height: 1.25em;\n\theight: 1.2em;\n\twidth: 1.2em;\n\ttext-align: center;\n\tvertical-align: top;\n}\n\n.my-shelf-rack .rack-icon{\n\tfont-size: 100%;\n\tvertical-align: middle;\n\tcolor: inherit;\n}\n\n.my-shelf-rack .isShelfSelected .rack-icon{\n\tcolor: #6b8ea8;\n}\n\n.my-shelf-rack.sortUpper:after {\n\tposition: absolute;\n\ttop: -1px;\n\tleft: 0;\n\twidth: 110px;\n\theight: 2px;\n\tcontent: \"\";\n\tbackground-color: #62c8f3\n}\n.my-shelf-rack.sortLower:after {\n\tposition: absolute;\n\tbottom: -1px;\n\tleft: 0;\n\twidth: 110px;\n\theight: 2px;\n\tcontent: \"\";\n\tbackground-color: #62c8f3\n}\n\n.my-shelf-folder {\n\tposition: relative;\n}\n\n.my-shelf-folder > h5 {\n\tposition: relative;\n\tpadding: 0.3em 0.3em 0.3em 1em;\n\tborder-radius: 0 2px 2px 0 / 0 2px 2px 0;\n\ttransition: background-color 200ms;\n}\n.my-shelf-folder.sortUpper:after {\n\tposition: absolute;\n\ttop: -1px;\n\tleft: 0;\n\twidth: 110px;\n\theight: 2px;\n\tcontent: \"\";\n\tbackground-color: #62c8f3\n}\n.my-shelf-folder.sortLower:after {\n\tposition: absolute;\n\tbottom: -1px;\n\tleft: 0;\n\twidth: 110px;\n\theight: 2px;\n\tcontent: \"\";\n\tbackground-color: #62c8f3\n}\n.my-shelf-folder i {\n\tfont-size: 14px;\n\tmargin-top: -2px;\n\tvertical-align: middle;\n}\n.my-shelf-folder-name {\n\tmin-width: 86px;\n\twidth: 100%;\n\twhite-space: initial;\n}\n.my-shelf-folder span input {\n\twidth: 48px;\n}\n\n.my-shelf-folder.noteDragging {\n\tcolor: #fefefe;\n}\n", ""]);
 
 	// exports
 
@@ -53404,7 +53434,7 @@
 /* 249 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"my-shelf-rack\" v-for=\"rack in racksWithFolders | orderBy 'ordering'\"\n\t\t:class=\"{'sortUpper': rack.sortUpper, 'sortLower': rack.sortLower, 'openFolders' : rack.openFolders}\"\n\t\t:draggable=\"editingFolder === null && editingRack === null ? 'true' : 'false'\"\n\t\t@dragstart.stop=\"rackDragStart($event, rack)\"\n\t\t@dragend.stop=\"rackDragEnd()\"\n\t\t@dragover=\"rackDragOver($event, rack)\"\n\t\t@dragleave.stop=\"rackDragLeave(rack)\"\n\t\t@drop.stop=\"dropToRack($event, rack)\"\n\t\t@contextmenu.prevent.stop=\"rackMenu(rack)\">\n\t<h4 @click.prevent.stop=\"selectRack(rack)\" :class=\"{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote()) || rack.dragHover || (selectedNote.title && selectedNote.isRack(rack) && !isDraggingNote())}\">\n\t\t<i v-if=\"!rack.openFolders\" @click.prevent.stop=\"openRack(rack)\" class=\"material-icons rack-icon\">label</i>\n\t\t<i v-if=\"rack.openFolders\" @click.prevent.stop=\"closeRack(rack)\" class=\"material-icons rack-icon\">label_outline</i>\n\t\t<a v-if=\"editingRack != rack\">{{ rack.name }}</a>\n\t\t<input v-if=\"editingRack == rack\" v-model=\"rack.name\"\n\t\t\tv-focus=\"editingRack == rack\"\n\t\t\t@blur=\"doneRackEdit(rack)\"\n\t\t\t@keyup.enter=\"doneRackEdit(rack)\"\n\t\t\t@keyup.esc=\"doneRackEdit(rack)\"/>\n\t</h4>\n\t<!-- Folder -->\n\t<div :class=\"{'isShelfSelected': (isSelectedFolder(folder) && !isDraggingNote()) ||\n\t\t\tfolder.dragHover || (selectedNote.title && selectedNote.isFolder(folder) && !isDraggingNote()),\n\t\t\t'openNotes' : folder.openNotes,\n\t\t\t'noteDragging': isDraggingNote(),\n\t\t\t'noteIsHere': !isDraggingNote() && selectedNote.folderUid == folder.uid,\n\t\t\t'sortUpper': folder.sortUpper,\n\t\t\t'sortLower': folder.sortLower}\"\n\t\t\tclass=\"my-shelf-folder\" v-for=\"folder in rack.folders | orderBy 'ordering'\"\n\t\t\t:draggable=\"editingFolder === null && editingRack === null ? 'true' : 'false'\"\n\t\t\t@dragstart.stop=\"folderDragStart($event, rack, folder)\"\n\t\t\t@dragend.stop=\"folderDragEnd(folder)\"\n\t\t\t@dragover=\"folderDragOver($event, rack, folder)\"\n\t\t\t@dragleave=\"folderDragLeave(folder)\"\n\t\t\t@drop=\"dropToFolder($event, rack, folder)\"\n\t\t\t@contextmenu.prevent.stop=\"folderMenu(rack, folder)\">\n\t\t<h5 @click.prevent.stop=\"selectFolder(folder)\">\n\t\t\t<i v-if=\"!folder.openNotes\" @click.prevent.stop=\"openFolder(folder)\" class=\"material-icons\">folder</i>\n\t\t\t<i v-if=\"folder.openNotes\" @click.prevent.stop=\"closeFolder(folder)\" class=\"material-icons\">folder_open</i>\n\t\t\t<a v-if=\"editingFolder != folder\" class=\"my-shelf-folder-name\">\n\t\t\t\t{{ folder.name }}\n\t\t\t</a>\n\t\t\t<input v-if=\"editingFolder == folder\" v-model=\"folder.name\"\n\t\t\t\tv-focus=\"editingFolder == folder\"\n\t\t\t\t@blur=\"doneFolderEdit(rack, folder)\"\n\t\t\t\t@keyup.enter=\"doneFolderEdit(rack, folder)\"\n\t\t\t\t@keyup.esc=\"doneFolderEdit(rack, folder)\"/>\n\t\t</h5>\n\n\t\t<notes v-if=\"!draggingFolder\"\n\t\t\t:notes=\"filterNotesByFolder(folder)\"\n\t\t\t:toggle-full-screen=\"toggleFullScreen\"\n\t\t\t:original-notes.sync=\"notes\"\n\t\t\t:selected-note.sync=\"selectedNote\"\n\t\t\t:dragging-note.sync=\"draggingNote\">\n\t\t</notes>\n\t</div>\n</div>\n";
+	module.exports = "<div class=\"my-shelf-rack\" v-for=\"rack in racksWithFolders | orderBy 'ordering'\"\n\t\t:class=\"{'sortUpper': rack.sortUpper, 'sortLower': rack.sortLower, 'openFolders' : rack.isOpen(selectedNote) }\"\n\t\t:draggable=\"editingFolder === null && editingRack === null ? 'true' : 'false'\"\n\t\t@dragstart.stop=\"rackDragStart($event, rack)\"\n\t\t@dragend.stop=\"rackDragEnd()\"\n\t\t@dragover=\"rackDragOver($event, rack)\"\n\t\t@dragleave.stop=\"rackDragLeave(rack)\"\n\t\t@drop.stop=\"dropToRack($event, rack)\"\n\t\t@contextmenu.prevent.stop=\"rackMenu(rack)\">\n\t<h4 @click.prevent.stop=\"selectRack(rack)\" :class=\"{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote()) || rack.dragHover || (selectedNote.title && selectedNote.isRack(rack) && !isDraggingNote())}\">\n\t\t<i v-if=\"!rack.isOpen(selectedNote)\" @click.prevent.stop=\"openRack(rack)\" class=\"material-icons rack-icon\">label</i>\n\t\t<i v-if=\"rack.isOpen(selectedNote)\" @click.prevent.stop=\"closeRack(rack)\" class=\"material-icons rack-icon\">label_outline</i>\n\t\t<a v-if=\"editingRack != rack\">{{ rack.name }}</a>\n\t\t<input v-if=\"editingRack == rack\" v-model=\"rack.name\"\n\t\t\tv-focus=\"editingRack == rack\"\n\t\t\t@blur=\"doneRackEdit(rack)\"\n\t\t\t@keyup.enter=\"doneRackEdit(rack)\"\n\t\t\t@keyup.esc=\"doneRackEdit(rack)\"/>\n\t</h4>\n\t<!-- Folder -->\n\t<div :class=\"{'isShelfSelected': (isSelectedFolder(folder) && !isDraggingNote()) ||\n\t\t\tfolder.dragHover || (selectedNote.title && selectedNote.isFolder(folder) && !isDraggingNote()),\n\t\t\t'openNotes' : folder.isOpen(selectedNote),\n\t\t\t'noteDragging': isDraggingNote(),\n\t\t\t'noteIsHere': !isDraggingNote() && selectedNote.folderUid == folder.uid,\n\t\t\t'sortUpper': folder.sortUpper,\n\t\t\t'sortLower': folder.sortLower}\"\n\t\t\tclass=\"my-shelf-folder\" v-for=\"folder in rack.folders | orderBy 'ordering'\"\n\t\t\t:draggable=\"editingFolder === null && editingRack === null ? 'true' : 'false'\"\n\t\t\t@dragstart.stop=\"folderDragStart($event, rack, folder)\"\n\t\t\t@dragend.stop=\"folderDragEnd(folder)\"\n\t\t\t@dragover.stop=\"folderDragOver($event, rack, folder)\"\n\t\t\t@dragleave=\"folderDragLeave(folder)\"\n\t\t\t@drop=\"dropToFolder($event, rack, folder)\"\n\t\t\t@contextmenu.prevent.stop=\"folderMenu(rack, folder)\">\n\t\t<h5 @click.prevent.stop=\"selectFolder(folder)\">\n\t\t\t<i v-if=\"!folder.isOpen(selectedNote)\" @click.prevent.stop=\"openFolder(folder)\" class=\"material-icons\">folder</i>\n\t\t\t<i v-if=\"folder.isOpen(selectedNote)\" @click.prevent.stop=\"closeFolder(folder)\" class=\"material-icons\">folder_open</i>\n\t\t\t<a v-if=\"editingFolder != folder\" class=\"my-shelf-folder-name\">\n\t\t\t\t{{ folder.name }}\n\t\t\t</a>\n\t\t\t<input v-if=\"editingFolder == folder\" v-model=\"folder.name\"\n\t\t\t\tv-focus=\"editingFolder == folder\"\n\t\t\t\t@blur=\"doneFolderEdit(rack, folder)\"\n\t\t\t\t@keyup.enter=\"doneFolderEdit(rack, folder)\"\n\t\t\t\t@keyup.esc=\"doneFolderEdit(rack, folder)\"/>\n\t\t</h5>\n\n\t\t<notes v-if=\"!draggingFolder\"\n\t\t\t:notes=\"filterNotesByFolder(folder)\"\n\t\t\t:toggle-full-screen=\"toggleFullScreen\"\n\t\t\t:original-notes.sync=\"notes\"\n\t\t\t:selected-note.sync=\"selectedNote\"\n\t\t\t:dragging-note.sync=\"draggingNote\">\n\t\t</notes>\n\t</div>\n</div>\n";
 
 /***/ },
 /* 250 */
@@ -53673,7 +53703,7 @@
 /* 255 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"my-notes\" id=\"ln-fullscreen\">\n\t<div v-for=\"note in notes | dateSeparated notesDisplayOrder\" track-by=\"uid\"\n\t\t@click=\"selectNote(note)\"\n\t\t@dblclick=\"selectNoteAndWide(note)\"\n\t\t@contextmenu.prevent.stop=\"noteMenu(note)\"\n\t\t@dragstart=\"noteDragStart($event, note)\"\n\t\t@dragend=\"noteDragEnd()\"\n\t\t:class=\"{'my-notes-note-selected': selectedNote === note}\"\n\t\tdraggable=\"true\"\n\t\tclass=\"my-notes-note\">\n\t\t<h5 v-if=\"note.title\" class=\"my-notes-note-title\">\n\t\t\t<i class=\"material-icons\">description</i>\n\t\t\t{{ note.title }}\n\t\t</h5>\n\t\t<!--div class=\"my-notes-note-date\">\n\t\t\t{{ note.data.updated_at.format('MMM DD, YYYY') }}\n\t\t</div-->\n\t\t<!--div class=\"my-notes-note-image\" v-if=\"note.img\">\n\t\t\t<img :src=\"note.img\"/>\n\t\t</div>\n\t\t<div class=\"my-notes-note-body\" v-if=\"!note.img && note.body.length != 0\">\n\t\t\t{{ note.bodyWithoutTitle | truncate 50 }}\n\t\t</div-->\n\t</div>\n</div>";
+	module.exports = "<div class=\"my-notes\" id=\"ln-fullscreen\">\n\t<div v-for=\"note in notes | dateSeparated notesDisplayOrder\" track-by=\"uid\"\n\t\t@click=\"selectNote(note)\"\n\t\t@dblclick=\"selectNoteAndWide(note)\"\n\t\t@contextmenu.prevent.stop=\"noteMenu(note)\"\n\t\t@dragstart.stop=\"noteDragStart($event, note)\"\n\t\t@dragend.stop=\"noteDragEnd()\"\n\t\t:class=\"{'my-notes-note-selected': selectedNote === note}\"\n\t\tdraggable=\"true\"\n\t\tclass=\"my-notes-note\">\n\t\t<h5 v-if=\"note.title\" class=\"my-notes-note-title\">\n\t\t\t<i class=\"material-icons\">description</i>\n\t\t\t{{ note.title }}\n\t\t</h5>\n\t\t<!--div class=\"my-notes-note-date\">\n\t\t\t{{ note.data.updated_at.format('MMM DD, YYYY') }}\n\t\t</div-->\n\t\t<!--div class=\"my-notes-note-image\" v-if=\"note.img\">\n\t\t\t<img :src=\"note.img\"/>\n\t\t</div>\n\t\t<div class=\"my-notes-note-body\" v-if=\"!note.img && note.body.length != 0\">\n\t\t\t{{ note.bodyWithoutTitle | truncate 50 }}\n\t\t</div-->\n\t</div>\n</div>";
 
 /***/ },
 /* 256 */

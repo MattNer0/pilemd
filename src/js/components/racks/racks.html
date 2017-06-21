@@ -1,5 +1,5 @@
 <div class="my-shelf-rack" v-for="rack in racksWithFolders | orderBy 'ordering'"
-		:class="{'sortUpper': rack.sortUpper, 'sortLower': rack.sortLower, 'openFolders' : rack.openFolders}"
+		:class="{'sortUpper': rack.sortUpper, 'sortLower': rack.sortLower, 'openFolders' : rack.isOpen(selectedNote) }"
 		:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
 		@dragstart.stop="rackDragStart($event, rack)"
 		@dragend.stop="rackDragEnd()"
@@ -8,8 +8,8 @@
 		@drop.stop="dropToRack($event, rack)"
 		@contextmenu.prevent.stop="rackMenu(rack)">
 	<h4 @click.prevent.stop="selectRack(rack)" :class="{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote()) || rack.dragHover || (selectedNote.title && selectedNote.isRack(rack) && !isDraggingNote())}">
-		<i v-if="!rack.openFolders" @click.prevent.stop="openRack(rack)" class="material-icons rack-icon">label</i>
-		<i v-if="rack.openFolders" @click.prevent.stop="closeRack(rack)" class="material-icons rack-icon">label_outline</i>
+		<i v-if="!rack.isOpen(selectedNote)" @click.prevent.stop="openRack(rack)" class="material-icons rack-icon">label</i>
+		<i v-if="rack.isOpen(selectedNote)" @click.prevent.stop="closeRack(rack)" class="material-icons rack-icon">label_outline</i>
 		<a v-if="editingRack != rack">{{ rack.name }}</a>
 		<input v-if="editingRack == rack" v-model="rack.name"
 			v-focus="editingRack == rack"
@@ -20,7 +20,7 @@
 	<!-- Folder -->
 	<div :class="{'isShelfSelected': (isSelectedFolder(folder) && !isDraggingNote()) ||
 			folder.dragHover || (selectedNote.title && selectedNote.isFolder(folder) && !isDraggingNote()),
-			'openNotes' : folder.openNotes,
+			'openNotes' : folder.isOpen(selectedNote),
 			'noteDragging': isDraggingNote(),
 			'noteIsHere': !isDraggingNote() && selectedNote.folderUid == folder.uid,
 			'sortUpper': folder.sortUpper,
@@ -29,13 +29,13 @@
 			:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
 			@dragstart.stop="folderDragStart($event, rack, folder)"
 			@dragend.stop="folderDragEnd(folder)"
-			@dragover="folderDragOver($event, rack, folder)"
+			@dragover.stop="folderDragOver($event, rack, folder)"
 			@dragleave="folderDragLeave(folder)"
 			@drop="dropToFolder($event, rack, folder)"
 			@contextmenu.prevent.stop="folderMenu(rack, folder)">
 		<h5 @click.prevent.stop="selectFolder(folder)">
-			<i v-if="!folder.openNotes" @click.prevent.stop="openFolder(folder)" class="material-icons">folder</i>
-			<i v-if="folder.openNotes" @click.prevent.stop="closeFolder(folder)" class="material-icons">folder_open</i>
+			<i v-if="!folder.isOpen(selectedNote)" @click.prevent.stop="openFolder(folder)" class="material-icons">folder</i>
+			<i v-if="folder.isOpen(selectedNote)" @click.prevent.stop="closeFolder(folder)" class="material-icons">folder_open</i>
 			<a v-if="editingFolder != folder" class="my-shelf-folder-name">
 				{{ folder.name }}
 			</a>

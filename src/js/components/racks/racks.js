@@ -152,6 +152,9 @@ module.exports = function(Vue, options) {
 				rack.openFolders = true;
 			},
 			closeRack: function(rack) {
+				if(this.selectedNote && this.selectedNote.data && this.selectedNote.isRack(rack)){
+					return
+				}
 				rack.openFolders = false;
 			},
 			openFolder: function(folder) {
@@ -160,6 +163,9 @@ module.exports = function(Vue, options) {
 				folder.openNotes = true;
 			},
 			closeFolder: function(folder) {
+				if(this.selectedNote && this.selectedNote.data && this.selectedNote.isFolder(folder)){
+					return
+				}
 				folder.openNotes = false;
 			},
 			// Dragging
@@ -176,6 +182,10 @@ module.exports = function(Vue, options) {
 				if (this.draggingFolder) {
 					event.preventDefault();
 					rack.dragHover = true;
+					rack.openFolders = true;
+					var newData = rack.readContents();
+					if(newData) this.folders = this.folders.concat( newData );
+
 				} else if (this.draggingRack && this.draggingRack != rack) {
 					event.preventDefault();
 					var per = dragging.dragOverPercentage(event.currentTarget, event.clientY);
@@ -191,6 +201,9 @@ module.exports = function(Vue, options) {
 				}
 			},
 			rackDragLeave: function(rack) {
+				if (this.draggingFolder && this.draggingFolderRack && !this.draggingFolderRack.uid == rack.uid) {
+					rack.openFolders = false;
+				}
 				rack.dragHover = false;
 				rack.sortUpper = false;
 				rack.sortLower = false;

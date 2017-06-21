@@ -3,8 +3,8 @@
 		@click="selectNote(note)"
 		@dblclick="selectNoteAndWide(note)"
 		@contextmenu.prevent.stop="noteMenu(note)"
-		@dragstart="noteDragStart($event, note)"
-		@dragend="noteDragEnd()"
+		@dragstart.stop="noteDragStart($event, note)"
+		@dragend.stop="noteDragEnd()"
 		:class="{'my-notes-note-selected': selectedNote === note}"
 		draggable="true"
 		class="my-notes-note">

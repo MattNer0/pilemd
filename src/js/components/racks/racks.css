@@ -40,8 +40,17 @@
 	width: 62px;
 }
 
-.my-shelf-rack > div, .my-shelf-folder > div{
+.my-shelf-rack > div, .my-shelf-folder > .my-notes > div{
 	display: none;
+}
+
+.my-shelf-rack.openFolders > div,
+.my-shelf-folder.openNotes > .my-notes > div{
+	display: block;
+}
+
+.my-shelf-folder > .my-notes > .my-notes-note.my-notes-note-selected{
+	display: block;
 }
 
 .my-shelf-rack h5 > span{
@@ -65,11 +74,6 @@
 	color: #6b8ea8;
 }
 
-.my-shelf-rack.openFolders > div,
-.my-shelf-folder.openNotes > div{
-	display: block;
-}
-
 .my-shelf-rack.sortUpper:after {
 	position: absolute;
 	top: -1px;
@@ -87,6 +91,10 @@
 	height: 2px;
 	content: "";
 	background-color: #62c8f3
+}
+
+.my-shelf-folder {
+	position: relative;
 }
 
 .my-shelf-folder > h5 {
