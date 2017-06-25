@@ -31,6 +31,7 @@ Vue.use(require('./components/racks/racks'));
 Vue.use(require('./components/notes/notes'));
 Vue.use(require('./components/codemirror'), {imageURL: '', imageParamName: 'image'});
 Vue.use(require('./components/resizeHandler').handlerStack);
+Vue.use(require('./components/resizeHandler').handlerNotes);
 Vue.use(require('./components/menu/titleMenu'));
 Vue.use(require('./components/menu/codemirrorMenu'));
 
@@ -207,6 +208,9 @@ new Vue({
 			settings.saveWindowSize();
 			self.update_editor_size();
 		});
+		setTimeout(function(){
+			self.update_editor_size();
+		}, 100);
 	},
 	events: {
 		togglePreview: function() {
@@ -430,8 +434,11 @@ new Vue({
 		update_editor_size: function() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
 			var cellsRight = document.querySelectorAll('.outer_wrapper .sidebar-right .cell-container');
-			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + 5;
-			var widthTotalRight = parseInt( cellsRight[0].style.width.replace('px','') );
+			//var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + 5;
+			//var widthTotalRight = parseInt( cellsRight[0].style.width.replace('px','') );
+
+			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + parseInt( cellsLeft[1].style.width.replace('px','') ) + 10;
+			var widthTotalRight = parseInt( cellsRight[0].style.width.replace('px','') ); //+ parseInt( cellsRight[1].style.width.replace('px','') ) + 10;
 			
 			if(this.isFullScreen){
 				document.querySelector('.sidebar').style.left = "-"+widthTotalLeft+'px';
@@ -441,7 +448,7 @@ new Vue({
 			}
 
 			if(this.propertiesOpen && this.selectedNote.data) {
-				document.querySelector('.sidebar-right').style.right = "";
+				document.querySelector('.sidebar-right').style.right = "0px";
 			} else {
 				document.querySelector('.sidebar-right').style.right = "-"+widthTotalRight+'px';
 				widthTotalRight = 0;

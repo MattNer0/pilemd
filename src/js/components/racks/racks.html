@@ -34,8 +34,7 @@
 			@drop="dropToFolder($event, rack, folder)"
 			@contextmenu.prevent.stop="folderMenu(rack, folder)">
 		<h5 @click.prevent.stop="selectFolder(folder)">
-			<i v-if="!folder.isOpen(selectedNote)" @click.prevent.stop="openFolder(folder)" class="material-icons">folder</i>
-			<i v-if="folder.isOpen(selectedNote)" @click.prevent.stop="closeFolder(folder)" class="material-icons">folder_open</i>
+			<i class="material-icons">folder</i>
 			<a v-if="editingFolder != folder" class="my-shelf-folder-name">
 				{{ folder.name }}
 			</a>
@@ -46,12 +45,12 @@
 				@keyup.esc="doneFolderEdit(rack, folder)"/>
 		</h5>
 
-		<notes v-if="!draggingFolder"
+		<!--notes v-if="!draggingFolder"
 			:notes="filterNotesByFolder(folder)"
 			:toggle-full-screen="toggleFullScreen"
 			:original-notes.sync="notes"
 			:selected-note.sync="selectedNote"
 			:dragging-note.sync="draggingNote">
-		</notes>
+		</notes-->
 	</div>
 </div>

@@ -5,6 +5,8 @@
     padding: 0;
     -webkit-user-select: none;
     white-space: normal;
+    overflow-x: hidden;
+    overflow-y: scroll;
 }
 .my-separator {
     width: 100%;
@@ -26,7 +28,7 @@
     position: relative;
     vertical-align: top;
     margin: 0;
-    padding: 0.4em 0.4em 0.4em 1.6em;
+    padding: 0.4em;
     color: #858585;
     line-height: 1.2;
     -webkit-user-select: none;
@@ -57,7 +59,7 @@
     content: "";
     position: absolute;
     right: 0;
-    top: .1em;
+    top: calc( 50% - 1em );
     z-index: 10;
     width: 0;
     height: 0;
@@ -68,16 +70,17 @@
 h5.my-notes-note-title {
     margin: 0;
     padding: 0;
-    padding-left: 1.2em;
+    padding-left: 1.4em;
     color: inherit;
     position: relative;
+    line-height: 1.4em;
 }
 h5.my-notes-note-title i{
     position: absolute;
-    top: 0;
-    bottom: 0;
+    top: 0.1em;
     left: 0;
     margin: 0;
+    font-size: 16px;
 }
 .my-notes-note-date{
     color: #555753;
@@ -110,4 +113,7 @@ h5.my-notes-note-title i{
 }
 .my-notes-note:hover.inFolderNote:after {
     background-color: rgba(0, 0, 0, 0.1);
+}
+.my-notes-note > .my-notes-note-body {
+    max-height: 4.2em;
 }

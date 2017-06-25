@@ -32,8 +32,18 @@
 			</div>
 
 			<handler-stack></handler-stack>
-		</div>
 
+			<div class="cell-container" :style="{ width: notesWidth+'px' }">
+				<notes :notes="filteredNotes"
+				:toggle-full-screen="toggleFullScreen"
+				:original-notes.sync="notes"
+				:selected-note.sync="selectedNote"
+				:dragging-note.sync="draggingNote">
+				</notes>
+			</div>
+
+			<handler-notes></handler-notes>
+		</div>
 		<div class="cell-container main-cell-container">
 
 			<codemirror-menu></codemirror-menu>
@@ -54,8 +64,8 @@
 			</div>
 		</div>
 
-		<div class="sidebar-right" v-show="selectedNote.title">
-			<div class="cell-container" :style="{ width: propertiesWidth+'px', right: ( propertiesOpen ? '0px' : '-'+propertiesWidth+'px' ) }">
+		<div class="sidebar-right" v-show="selectedNote.title" :style="{ right: ( propertiesOpen ? '0px' : '-'+propertiesWidth+'px' ) }">
+			<div class="cell-container" :style="{ width: propertiesWidth+'px' }">
 				<div v-if="selectedNote.properties">
 					<strong>Font Size: </strong><br/>
 					<select v-model="fontsize" style="width: 100%;">

@@ -135,7 +135,7 @@ module.exports = function(Vue, options) {
 				this.selectedRackOrFolder = rack;
 			},
 			selectFolder: function(folder) {
-				if(this.selectedRackOrFolder){
+				/*if(this.selectedRackOrFolder){
 					if (this.selectedRackOrFolder instanceof models.Folder && this.selectedRackOrFolder == folder) {
 						folder.openNotes = !folder.openNotes
 					} else {
@@ -143,7 +143,7 @@ module.exports = function(Vue, options) {
 					}
 				} else {
 					folder.openNotes = true;
-				}
+				}*/
 				this.selectedRackOrFolder = folder;
 			},
 			openRack: function(rack) {
@@ -157,6 +157,7 @@ module.exports = function(Vue, options) {
 				}
 				rack.openFolders = false;
 			},
+			/*
 			openFolder: function(folder) {
 				var newData = folder.readContents();
 				if(newData) this.notes = this.notes.concat( newData );
@@ -168,6 +169,7 @@ module.exports = function(Vue, options) {
 				}
 				folder.openNotes = false;
 			},
+			*/
 			// Dragging
 			rackDragStart: function(event, rack) {
 				rack.openFolders = false;

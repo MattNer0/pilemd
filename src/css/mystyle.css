@@ -329,7 +329,7 @@ codemirror {
 	background-color: #242c36;
 }
 
-/*.cell-container:first-child + .resize-handler + .cell-container*/
+.cell-container:first-child + .resize-handler + .cell-container,
 .outer_wrapper .sidebar-right .cell-container{
 	background-color: #242c36;
 }
