@@ -449,6 +449,28 @@ codemirror {
 	z-index: 5;
 }
 
+.CodeMirror-menu:before {
+	content: "";
+	position: absolute;
+	width: 10em;
+	height: 2em;
+	left: -10em;
+	top: 0;
+	background: #282828;
+	z-index: 5;
+}
+
+.CodeMirror-menu:after {
+	content: "";
+	position: absolute;
+	width: 10em;
+	height: 2em;
+	right: -10em;
+	top: 0;
+	background: #282828;
+	z-index: 5;
+}
+
 .CodeMirror-menu nav{
 	display: block;
 	margin: 0 auto;

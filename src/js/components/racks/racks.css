@@ -11,7 +11,7 @@
 }
 .my-shelf-rack {
 	position: relative;
-	padding: 0.2em;
+	padding: 0;
 	margin: 0.2em 0;
 }
 /*.my-shelf-rack:nth-child(even){
@@ -95,6 +95,24 @@
 
 .my-shelf-folder {
 	position: relative;
+}
+
+.my-shelf-folder, .my-shelf-rack h4 {
+	border-top: 1px solid #242c36;
+	border-bottom: 1px solid #242c36;
+}
+
+.my-shelf-rack h4:hover .rack-icon,
+.my-shelf-folder:hover h5{
+	color: #BBB;
+}
+
+.my-shelf-folder:hover, .my-shelf-rack h4:hover {
+	border-top: 1px solid #171c23;
+	border-bottom: 1px solid #313842;
+	background-color: #1d242c !important;
+	color: #BBB;
+	cursor: pointer;
 }
 
 .my-shelf-folder > h5 {

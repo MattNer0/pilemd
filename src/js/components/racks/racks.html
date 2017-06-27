@@ -18,8 +18,7 @@
 			@keyup.esc="doneRackEdit(rack)"/>
 	</h4>
 	<!-- Folder -->
-	<div :class="{'isShelfSelected': (isSelectedFolder(folder) && !isDraggingNote()) ||
-			folder.dragHover || (selectedNote.title && selectedNote.isFolder(folder) && !isDraggingNote()),
+	<div :class="{'isShelfSelected': (isSelectedFolder(folder) && !isDraggingNote()) || folder.dragHover,
 			'openNotes' : folder.isOpen(selectedNote),
 			'noteDragging': isDraggingNote(),
 			'noteIsHere': !isDraggingNote() && selectedNote.folderUid == folder.uid,

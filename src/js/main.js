@@ -94,7 +94,13 @@ new Vue({
 					});
 				}
 			}
-			return searcher.searchNotes(this.selectedRackOrFolder, this.search, this.notes);
+			return searcher.searchNotes(this.filterFolder, this.search, this.notes);
+		},
+		filterFolder: function() {
+			if(this.selectedRackOrFolder instanceof models.Rack && this.selectedNote.data) {
+				return this.selectedNote.data.folder;
+			}
+			return this.selectedRackOrFolder;
 		}
 	},
 	created: function() {
@@ -133,7 +139,7 @@ new Vue({
 
 				if (this.selectedRackOrFolder instanceof models.Folder) {
 					if(newData) this.notes = this.notes.concat( newData );
-					var filteredNotes = searcher.searchNotes(this.selectedRackOrFolder, this.search, this.notes);
+					var filteredNotes = searcher.searchNotes(this.filterFolder, this.search, this.notes);
 					filteredNotes.forEach(function(note){
 						if(!note.body) note.loadBody();
 					});

@@ -16,11 +16,13 @@
 }
 .my-separator-date {
     margin-left: 0.5em;
+    margin-bottom: 0.2em;
+    padding: 0.2em 0;
     line-height: 1em;
     cursor: default;
     font-size: 12px;
     font-weight: normal;
-    display: none;
+    color: #858585;
 }
 .my-notes-note {
     width: 100%;
@@ -29,7 +31,7 @@
     vertical-align: top;
     margin: 0;
     padding: 0.4em;
-    color: #858585;
+    color: #adadad;
     line-height: 1.2;
     -webkit-user-select: none;
     transition: background-color 200ms ease, margin 200ms ease, height 200ms ease;
