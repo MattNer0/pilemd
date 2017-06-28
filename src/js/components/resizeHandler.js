@@ -104,6 +104,7 @@ function handlerNotes(Vue, options) {
 			dragend: function(e) {
 				this.dragging = false;
 				this.$root.update_editor_size();
+				this.$root.save_editor_size();
 				//this.$root.update_scrollbar_notes();
 			},
 			

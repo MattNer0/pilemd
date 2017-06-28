@@ -7,7 +7,7 @@
 		@dragleave.stop="rackDragLeave(rack)"
 		@drop.stop="dropToRack($event, rack)"
 		@contextmenu.prevent.stop="rackMenu(rack)">
-	<h4 @click.prevent.stop="selectRack(rack)" :class="{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote()) || rack.dragHover || (selectedNote.title && selectedNote.isRack(rack) && !isDraggingNote())}">
+	<h4 @click.prevent.stop="selectRack(rack)" :class="{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote()) || rack.dragHover }">
 		<i v-if="!rack.isOpen(selectedNote)" @click.prevent.stop="openRack(rack)" class="material-icons rack-icon">label</i>
 		<i v-if="rack.isOpen(selectedNote)" @click.prevent.stop="closeRack(rack)" class="material-icons rack-icon">label_outline</i>
 		<a v-if="editingRack != rack">{{ rack.name }}</a>

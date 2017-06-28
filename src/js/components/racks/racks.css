@@ -32,9 +32,9 @@
 .my-shelf-rack h4{
 	font-weight: bold;
 }
-.my-shelf-rack h4.isShelfSelected, .my-shelf-rack .isShelfSelected > h5 {
+/*.my-shelf-rack h4.isShelfSelected {
 	color: #6b8ea8;
-}
+}*/
 
 .my-shelf-rack h4 input, .my-shelf-rack h5 input {
 	width: 62px;
@@ -70,9 +70,9 @@
 	color: inherit;
 }
 
-.my-shelf-rack .isShelfSelected .rack-icon{
+/*.my-shelf-rack .isShelfSelected .rack-icon{
 	color: #6b8ea8;
-}
+}*/
 
 .my-shelf-rack.sortUpper:after {
 	position: absolute;
@@ -103,11 +103,15 @@
 }
 
 .my-shelf-rack h4:hover .rack-icon,
-.my-shelf-folder:hover h5{
+.my-shelf-folder:hover h5,
+.my-shelf-folder.isShelfSelected h5,
+.my-shelf-rack h4.isShelfSelected {
 	color: #BBB;
 }
 
-.my-shelf-folder:hover, .my-shelf-rack h4:hover {
+.my-shelf-folder:hover, .my-shelf-rack h4:hover,
+.my-shelf-rack .my-shelf-folder.isShelfSelected,
+.my-shelf-rack h4.isShelfSelected {
 	border-top: 1px solid #171c23;
 	border-bottom: 1px solid #313842;
 	background-color: #1d242c !important;

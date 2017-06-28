@@ -79,7 +79,7 @@ new Vue({
 		modalPrompts: [],
 		modalOkcb: null,
 		racksWidth: settings.get('rackswidth') || 180,
-		notesWidth: 180,
+		notesWidth: settings.get('notesWidth') || 180,
 		propertiesWidth: 180,
 		fontsize: settings.get('fontsize') || "15"
 	},
@@ -465,8 +465,10 @@ new Vue({
 		},
 		save_editor_size: function() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
-			this.rackswidth = parseInt( cellsLeft[0].style.width.replace('px','') );
+			this.rackswidth = cellsLeft.length > 0 ? parseInt( cellsLeft[0].style.width.replace('px','') ) : 180;
+			this.notesWidth = cellsLeft.length > 1 ? parseInt( cellsLeft[1].style.width.replace('px','') ) : 180;
 			settings.set('rackswidth', this.rackswidth);
+			settings.set('notesWidth', this.notesWidth);
 		},
 		menu_close: function() {
 			var win = remote.getCurrentWindow();

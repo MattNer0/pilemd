@@ -759,6 +759,10 @@ span.cm-piled-formatting-task {
 	background-color: #fafafa;
 }
 
+.my-editor-preview p > a {
+	word-wrap: break-word;
+}
+
 /* --- */
 
 .CodeMirror span.cm-piled-header-1,
