@@ -29,6 +29,7 @@ body {
 
 html, body, h5{
 	font-size: 14px;
+	font-family: "Roboto";
 }
 
 div{
@@ -72,7 +73,7 @@ div{
 	-webkit-app-region: drag;
 	padding: 0;
 	margin: 0;
-	background: #444444;
+	background: #242c36;
 	color: #F1F1F1;
 	border: none;
 	overflow: visible;
@@ -129,6 +130,7 @@ div{
 	display: inline-block;
 	min-width: 0;
 	width: 3.8em;
+	padding-top: 0.2em;
 }
 
 #title-bar a.menu-button span{
@@ -147,39 +149,40 @@ div{
 
 nav ul {
 	-webkit-font-smoothing:antialiased;
-	background: #232323;
+	background: #242c36;
 	list-style: none;
 	margin: 0;
 	padding: 0;
 	width: 100%;
 }
 
-nav li {
+nav ul li {
 	float: left;
 	margin: 0;
 	padding: 0;
 	position: relative;
-	height: 2.3em;
-	border-bottom: 0.2em solid #232323;
+	height: 2.5em;
 }
 nav ul ul li{
 	height: auto;
 }
 
-nav li.right-align{
+nav ul li.right-align{
 	float: right;
 }
-nav li > a, nav li > div {
+nav ul li > a, nav ul li > div {
 	box-sizing: border-box;
 	display: block;
 	padding: 0.25em 1.0em;
-	line-height: 2.0em;
+	line-height: 1.8em;
 	height: 100%;
 	text-align: left;
 	outline: none;
 	text-decoration: none;
 	-webkit-transition: all .25s ease;
 	transition: all .25s ease;
+	border-top: 0.1em solid #242c36;
+	border-bottom: 0.1em solid #242c36;
 }
 nav li:first-child a{
 	text-align: left;
@@ -188,8 +191,8 @@ nav li:first-child a{
 	padding-right: 1.0em;
 }
 
-nav a i, nav div i{
-	vertical-align: middle;
+nav ul li a i, nav ul li div i{
+	vertical-align: top;
 }
 
 nav li > a, nav li > div,
@@ -197,12 +200,12 @@ nav ul li .my-search, nav ul li .my-search::-webkit-input-placeholder {
 	color: #858585;
 }
 
-nav ul li:hover{
-	border-bottom: 0.2em solid #191919;
-}
-
 nav ul li:hover > a, nav ul li:hover > div {
-	background: #2f2f2f;
+	border-top: 0.1em solid #171c23;
+	border-bottom: 0.1em solid #313842;
+	background-color: #1d242c !important;
+	color: #BBB;
+	cursor: pointer;
 }
 
 nav ul li:hover > a, nav ul li:hover > div,
@@ -211,11 +214,11 @@ nav ul li:hover .my-search::-webkit-input-placeholder{
 	color: #adacac;
 }
 
-nav li hr{
+nav ul li hr{
 	margin: 0.2em 0.5em;
 	border: 1px solid #2f2f2f;
 }
-nav li ul {
+nav ul li ul {
 	float: left;
 	left: 0;
 	opacity: 0;
@@ -225,11 +228,11 @@ nav li ul {
 	visibility: hidden;
 	z-index: 100;
 }
-nav li.right-align ul{
+nav ul li.right-align ul{
 	right: 0;
 	left: initial;
 }
-nav li:hover ul {
+nav ul li:hover ul {
 	opacity: 1;
 	visibility: visible;
 }
@@ -345,7 +348,7 @@ codemirror {
 
 .my-search {
 	font-size: 14px;
-	line-height: 2.0em;
+	line-height: 1.0em;
 	text-shadow: 1px 1px rgba(0, 0, 0, 0.5);
 	background-color: transparent;
 	border: none;

@@ -70,6 +70,14 @@
 	color: inherit;
 }
 
+.my-shelf-rack > h4 > i.closed-icon, .my-shelf-rack.openFolders > h4 > i.opened-icon{
+	display: inline-block;
+}
+
+.my-shelf-rack > h4 > i.opened-icon, .my-shelf-rack.openFolders > h4 > i.closed-icon{
+	display: none;
+}
+
 /*.my-shelf-rack .isShelfSelected .rack-icon{
 	color: #6b8ea8;
 }*/

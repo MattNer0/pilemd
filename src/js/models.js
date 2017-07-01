@@ -391,14 +391,6 @@ class Folder extends Model {
 		Folder.removeModelFromStorage(this);
 	}
 
-	isOpen(selectedNote) {
-		if(selectedNote && selectedNote.data){
-			return this.openNotes || selectedNote.isFolder(this);
-		} else {
-			return this.openNotes;
-		}
-	}
-
 	get data() {
 		return _.assign(super.data, {
 			name: this.name,
@@ -545,14 +537,6 @@ class Rack extends Model {
 	set path(newValue) {
 		if(newValue != this._path){
 			this._path = newValue;
-		}
-	}
-
-	isOpen(selectedNote) {
-		if(selectedNote && selectedNote.data){
-			return this.openFolders || selectedNote.isRack(this);
-		} else {
-			return this.openFolders;
 		}
 	}
 

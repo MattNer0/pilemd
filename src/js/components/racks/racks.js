@@ -124,26 +124,13 @@ module.exports = function(Vue, options) {
 			},
 			selectRack: function(rack) {
 				if(this.selectedRackOrFolder){
-					if (this.selectedRackOrFolder instanceof models.Rack && this.selectedRackOrFolder == rack) {
-						rack.openFolders = !rack.openFolders;
-					} else {
-						rack.openFolders = true;
-					}
+					rack.openFolders = !rack.openFolders;
 				} else {
 					rack.openFolders = true;
 				}
 				this.selectedRackOrFolder = rack;
 			},
 			selectFolder: function(folder) {
-				/*if(this.selectedRackOrFolder){
-					if (this.selectedRackOrFolder instanceof models.Folder && this.selectedRackOrFolder == folder) {
-						folder.openNotes = !folder.openNotes
-					} else {
-						folder.openNotes = true;
-					}
-				} else {
-					folder.openNotes = true;
-				}*/
 				this.selectedRackOrFolder = folder;
 			},
 			openRack: function(rack) {
