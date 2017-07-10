@@ -501,11 +501,11 @@ codemirror {
 }
 .CodeMirror,
 .my-editor-preview {
-	margin: 1em auto;
+	margin: 3em auto 1em;
 	padding: 3.4em 6em;
 	border: 0.1em solid #ababab;
 	width: auto;
-	min-height: calc( 100% - 6em );
+	min-height: calc( 100vh - 9em );
 	min-width: 15em;
 	max-width: 70em;
 	height: auto;
@@ -518,9 +518,7 @@ codemirror {
 }
 
 .CodeMirror{
-	padding-top: 4em;
-	min-height: calc( 100vh - 10em );
-	margin-top: 3em;
+	padding-top: 3.8em;
 }
 
 .CodeMirror-scroll {
