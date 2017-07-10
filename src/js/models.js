@@ -12,12 +12,16 @@ const util_file = require('./utils/file');
 
 const BASE_LIB_PATH_KEY = 'libpath';
 
+var baseLibraryPath = '';
+
 function setBaseLibraryPath(path) {
-	return localStorage.setItem(BASE_LIB_PATH_KEY, path);
+	baseLibraryPath = path;
+	return baseLibraryPath;
+	//return localStorage.setItem(BASE_LIB_PATH_KEY, path);
 }
 
 function getBaseLibraryPath() {
-	return localStorage.getItem(BASE_LIB_PATH_KEY);
+	return baseLibraryPath;
 }
 
 function doesLibraryExists() {
@@ -379,7 +383,7 @@ class Folder extends Model {
 		this.sortLower = false;
 		this._contentLoaded = false;
 		this.openNotes = false;
-		this.notes = [];
+		this._notes = [];
 	}
 
 	remove(origNotes) {
@@ -410,6 +414,14 @@ class Folder extends Model {
 
 	get folderExists() {
 		return fs.existsSync(this._path);
+	}
+
+	set notes(notes_list) {
+		this._notes = notes_list;
+	}
+
+	get notes() {
+		return this._notes;
 	}
 
 	update(data) {

@@ -188,7 +188,10 @@
 					var newData = _this.selectedRackOrFolder.readContents();
 
 					if (_this.selectedRackOrFolder instanceof models.Folder) {
-						if (newData) _this.notes = _this.notes.concat(newData);
+						if (newData) {
+							_this.notes = _this.notes.concat(newData);
+							_this.selectedRackOrFolder.notes = newData;
+						}
 						var filteredNotes = searcher.searchNotes(_this.filterFolder, _this.search, _this.notes);
 						filteredNotes.forEach(function (note) {
 							if (!note.body) note.loadBody();
@@ -250,6 +253,7 @@
 			this.$set('notes', notes);
 
 			if (initial_notes.length > 0) {
+				initial_notes[0].data.rack.openFolders = true;
 				this.selectedRackOrFolder = initial_notes[0].data.folder;
 				this.selectedNote = initial_notes[0];
 			}
@@ -25502,12 +25506,16 @@
 
 	var BASE_LIB_PATH_KEY = 'libpath';
 
+	var baseLibraryPath = '';
+
 	function setBaseLibraryPath(path) {
-		return localStorage.setItem(BASE_LIB_PATH_KEY, path);
+		baseLibraryPath = path;
+		return baseLibraryPath;
+		//return localStorage.setItem(BASE_LIB_PATH_KEY, path);
 	}
 
 	function getBaseLibraryPath() {
-		return localStorage.getItem(BASE_LIB_PATH_KEY);
+		return baseLibraryPath;
 	}
 
 	function doesLibraryExists() {
@@ -25917,7 +25925,7 @@
 			this.sortLower = false;
 			this._contentLoaded = false;
 			this.openNotes = false;
-			this.notes = [];
+			this._notes = [];
 		}
 
 		_createClass(Folder, [{
@@ -25979,6 +25987,14 @@
 			key: 'folderExists',
 			get: function get() {
 				return fs.existsSync(this._path);
+			}
+		}, {
+			key: 'notes',
+			set: function set(notes_list) {
+				this._notes = notes_list;
+			},
+			get: function get() {
+				return this._notes;
 			}
 		}], [{
 			key: 'readFoldersByRack',
@@ -51470,7 +51486,7 @@
 
 
 	// module
-	exports.push([module.id, ".my-shelf {\n\tcolor: #858585;\n\t\n\tfont-weight: 200;\n\twidth: auto;\n\theight: 100%;\n\n\toverflow-x: hidden;\n\toverflow-y: scroll;\n\twhite-space: nowrap;\n}\n.my-shelf-rack {\n\tposition: relative;\n\tpadding: 0;\n\tmargin: 0.2em 0;\n}\n/*.my-shelf-rack:nth-child(even){\n\tbackground-color: #1f262f;\n}*/\n.my-shelf-rack h4, .my-shelf-rack h5 {\n\tcolor: #858585;\n\tmargin: 0 auto;\n\tpadding: 0.3em;\n\tfont-weight: normal;\n\tborder-radius: 0 2px 2px 0 / 0 2px 2px 0;\n\twhite-space: initial;\n\tword-wrap: break-word;\n\n\t-webkit-user-select: none;\n\ttransition: background-color 200ms;\n}\n.my-shelf-rack h4{\n\tfont-weight: bold;\n}\n/*.my-shelf-rack h4.isShelfSelected {\n\tcolor: #6b8ea8;\n}*/\n\n.my-shelf-folder-badge{\n\tdisplay: inline-block;\n\tfont-size: 80%;\n\tvertical-align: middle;\n\tborder-radius: 10em;\n\tbackground-color: #404040;\n\twidth: 1.2em;\n\theight: 1.2em;\n\tline-height: 1.5em;\n\tmargin-top: -0.1em;\n\ttext-align: center\n}\n\n.my-shelf-rack h4 input, .my-shelf-rack h5 input {\n\twidth: 62px;\n}\n\n.my-shelf-rack > div, .my-shelf-folder > .my-notes > div{\n\tdisplay: none;\n}\n\n.my-shelf-rack.openFolders > div,\n.my-shelf-folder.openNotes > .my-notes > div{\n\tdisplay: block;\n}\n\n.my-shelf-folder > .my-notes > .my-notes-note.my-notes-note-selected{\n\tdisplay: block;\n}\n\n.my-shelf-rack h5 > span{\n\tbox-sizing: border-box;\n\tborder: 1px solid #FFF;\n\tborder-radius: 100%;\n\tline-height: 1.25em;\n\theight: 1.2em;\n\twidth: 1.2em;\n\ttext-align: center;\n\tvertical-align: top;\n}\n\n.my-shelf-rack .rack-icon{\n\tfont-size: 100%;\n\tvertical-align: middle;\n\tcolor: inherit;\n}\n\n.my-shelf-rack > h4 > i.closed-icon, .my-shelf-rack.openFolders > h4 > i.opened-icon{\n\tdisplay: inline-block;\n}\n\n.my-shelf-rack > h4 > i.opened-icon, .my-shelf-rack.openFolders > h4 > i.closed-icon{\n\tdisplay: none;\n}\n\n/*.my-shelf-rack .isShelfSelected .rack-icon{\n\tcolor: #6b8ea8;\n}*/\n\n.my-shelf-rack.sortUpper:after {\n\tposition: absolute;\n\ttop: -1px;\n\tleft: 0;\n\twidth: 110px;\n\theight: 2px;\n\tcontent: \"\";\n\tbackground-color: #62c8f3\n}\n.my-shelf-rack.sortLower:after {\n\tposition: absolute;\n\tbottom: -1px;\n\tleft: 0;\n\twidth: 110px;\n\theight: 2px;\n\tcontent: \"\";\n\tbackground-color: #62c8f3\n}\n\n.my-shelf-folder {\n\tposition: relative;\n}\n\n.my-shelf-folder, .my-shelf-rack h4 {\n\tborder-top: 1px solid #242c36;\n\tborder-bottom: 1px solid #242c36;\n}\n\n.my-shelf-rack h4:hover .rack-icon,\n.my-shelf-folder:hover h5,\n.my-shelf-folder.isShelfSelected h5,\n.my-shelf-rack h4.isShelfSelected {\n\tcolor: #BBB;\n}\n\n.my-shelf-folder:hover, .my-shelf-rack h4:hover,\n.my-shelf-rack .my-shelf-folder.isShelfSelected,\n.my-shelf-rack h4.isShelfSelected {\n\tborder-top: 1px solid #171c23;\n\tborder-bottom: 1px solid #313842;\n\tbackground-color: #1d242c !important;\n\tcolor: #BBB;\n\tcursor: pointer;\n}\n\n.my-shelf-folder > h5 {\n\tposition: relative;\n\tpadding: 0.3em 0.3em 0.3em 1em;\n\tborder-radius: 0 2px 2px 0 / 0 2px 2px 0;\n\ttransition: background-color 200ms;\n}\n.my-shelf-folder.sortUpper:after {\n\tposition: absolute;\n\ttop: -1px;\n\tleft: 0;\n\twidth: 110px;\n\theight: 2px;\n\tcontent: \"\";\n\tbackground-color: #62c8f3\n}\n.my-shelf-folder.sortLower:after {\n\tposition: absolute;\n\tbottom: -1px;\n\tleft: 0;\n\twidth: 110px;\n\theight: 2px;\n\tcontent: \"\";\n\tbackground-color: #62c8f3\n}\n.my-shelf-folder i {\n\tfont-size: 14px;\n\tmargin-top: -2px;\n\tvertical-align: middle;\n}\n.my-shelf-folder-name {\n\tmin-width: 86px;\n\twidth: 100%;\n\twhite-space: initial;\n}\n.my-shelf-folder span input {\n\twidth: 48px;\n}\n\n.my-shelf-folder.noteDragging {\n\tcolor: #fefefe;\n}\n", ""]);
+	exports.push([module.id, ".my-shelf {\n\tcolor: #858585;\n\t\n\tfont-weight: 200;\n\twidth: auto;\n\theight: 100%;\n\n\toverflow-x: hidden;\n\toverflow-y: scroll;\n\twhite-space: nowrap;\n}\n.my-shelf-rack {\n\tposition: relative;\n\tpadding: 0;\n\tmargin: 0.2em 0;\n}\n/*.my-shelf-rack:nth-child(even){\n\tbackground-color: #1f262f;\n}*/\n.my-shelf-rack h4, .my-shelf-rack h5 {\n\tcolor: #858585;\n\tmargin: 0 auto;\n\tpadding: 0.3em;\n\tfont-weight: normal;\n\tborder-radius: 0 2px 2px 0 / 0 2px 2px 0;\n\twhite-space: initial;\n\tword-wrap: break-word;\n\n\t-webkit-user-select: none;\n\ttransition: background-color 200ms;\n}\n.my-shelf-rack h4{\n\tfont-weight: bold;\n}\n/*.my-shelf-rack h4.isShelfSelected {\n\tcolor: #6b8ea8;\n}*/\n\n.my-shelf-folder-badge{\n\tdisplay: inline-block;\n\tfont-size: 80%;\n\tvertical-align: middle;\n\tborder-radius: 10em;\n\tbackground-color: #404040;\n\twidth: 1.2em;\n\theight: 1.2em;\n\tline-height: 1.5em;\n\tmargin-top: -0.1em;\n\ttext-align: center;\n\topacity: 0.6;\n}\n\n.my-shelf-rack h4 input, .my-shelf-rack h5 input {\n\twidth: 80%;\n}\n\n.my-shelf-rack > div, .my-shelf-folder > .my-notes > div{\n\tdisplay: none;\n}\n\n.my-shelf-rack.openFolders > div,\n.my-shelf-folder.openNotes > .my-notes > div{\n\tdisplay: block;\n}\n\n.my-shelf-folder > .my-notes > .my-notes-note.my-notes-note-selected{\n\tdisplay: block;\n}\n\n.my-shelf-rack h5 > span{\n\tbox-sizing: border-box;\n\tborder: 1px solid #FFF;\n\tborder-radius: 100%;\n\tline-height: 1.25em;\n\theight: 1.2em;\n\twidth: 1.2em;\n\ttext-align: center;\n\tvertical-align: top;\n}\n\n.my-shelf-rack .rack-icon{\n\tfont-size: 100%;\n\tvertical-align: middle;\n\tcolor: inherit;\n}\n\n.my-shelf-rack > h4 > i.closed-icon, .my-shelf-rack.openFolders > h4 > i.opened-icon{\n\tdisplay: inline-block;\n}\n\n.my-shelf-rack > h4 > i.opened-icon, .my-shelf-rack.openFolders > h4 > i.closed-icon{\n\tdisplay: none;\n}\n\n/*.my-shelf-rack .isShelfSelected .rack-icon{\n\tcolor: #6b8ea8;\n}*/\n\n.my-shelf-rack.sortUpper:after {\n\tposition: absolute;\n\ttop: -1px;\n\tleft: 0;\n\twidth: 110px;\n\theight: 2px;\n\tcontent: \"\";\n\tbackground-color: #62c8f3\n}\n.my-shelf-rack.sortLower:after {\n\tposition: absolute;\n\tbottom: -1px;\n\tleft: 0;\n\twidth: 110px;\n\theight: 2px;\n\tcontent: \"\";\n\tbackground-color: #62c8f3\n}\n\n.my-shelf-folder {\n\tposition: relative;\n}\n\n.my-shelf-folder, .my-shelf-rack h4 {\n\tborder-top: 1px solid #242c36;\n\tborder-bottom: 1px solid #242c36;\n}\n\n.my-shelf-rack h4:hover .rack-icon,\n.my-shelf-folder:hover h5,\n.my-shelf-folder.isShelfSelected h5,\n.my-shelf-rack h4.isShelfSelected {\n\tcolor: #BBB;\n}\n\n.my-shelf-folder:hover, .my-shelf-rack h4:hover,\n.my-shelf-rack .my-shelf-folder.isShelfSelected,\n.my-shelf-rack h4.isShelfSelected {\n\tborder-top: 1px solid #171c23;\n\tborder-bottom: 1px solid #313842;\n\tbackground-color: #1d242c !important;\n\tcolor: #BBB;\n\tcursor: pointer;\n}\n\n.my-shelf-folder > h5 {\n\tposition: relative;\n\tpadding: 0.3em 0.3em 0.3em 1em;\n\tborder-radius: 0 2px 2px 0 / 0 2px 2px 0;\n\ttransition: background-color 200ms;\n}\n.my-shelf-folder.sortUpper:after {\n\tposition: absolute;\n\ttop: -1px;\n\tleft: 0;\n\twidth: 110px;\n\theight: 2px;\n\tcontent: \"\";\n\tbackground-color: #62c8f3\n}\n.my-shelf-folder.sortLower:after {\n\tposition: absolute;\n\tbottom: -1px;\n\tleft: 0;\n\twidth: 110px;\n\theight: 2px;\n\tcontent: \"\";\n\tbackground-color: #62c8f3\n}\n.my-shelf-folder i {\n\tfont-size: 14px;\n\tmargin-top: -2px;\n\tvertical-align: middle;\n}\n.my-shelf-folder-name {\n\tmin-width: 86px;\n\twidth: 100%;\n\twhite-space: initial;\n}\n.my-shelf-folder span input {\n\twidth: 48px;\n}\n\n.my-shelf-folder.noteDragging {\n\tcolor: #fefefe;\n}\n", ""]);
 
 	// exports
 

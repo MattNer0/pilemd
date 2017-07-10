@@ -138,7 +138,10 @@ new Vue({
 				var newData = this.selectedRackOrFolder.readContents();
 
 				if (this.selectedRackOrFolder instanceof models.Folder) {
-					if(newData) this.notes = this.notes.concat( newData );
+					if(newData) {
+						this.notes = this.notes.concat( newData );
+						this.selectedRackOrFolder.notes = newData;
+					}
 					var filteredNotes = searcher.searchNotes(this.filterFolder, this.search, this.notes);
 					filteredNotes.forEach(function(note){
 						if(!note.body) note.loadBody();
@@ -198,6 +201,7 @@ new Vue({
 		this.$set('notes', 		notes);
 
 		if(initial_notes.length > 0){
+			initial_notes[0].data.rack.openFolders = true;
 			this.selectedRackOrFolder = initial_notes[0].data.folder;
 			this.selectedNote = initial_notes[0];
 		}
