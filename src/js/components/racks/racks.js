@@ -129,6 +129,18 @@ module.exports = function(Vue, options) {
 					rack.openFolders = true;
 				}
 				this.selectedRackOrFolder = rack;
+
+				var newData = rack.readContents();
+				if(newData) {
+					this.folders = this.folders.concat( newData );
+					for(var i=0;i<newData.length;i++){
+						var newNotes = newData[i].readContents();
+						if(newNotes) {
+							this.notes = this.notes.concat( newNotes );
+							newData[i].notes = newNotes;
+						}
+					}
+				}
 			},
 			selectFolder: function(folder) {
 				this.selectedRackOrFolder = folder;

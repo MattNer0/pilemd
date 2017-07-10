@@ -36,6 +36,19 @@
 	color: #6b8ea8;
 }*/
 
+.my-shelf-folder-badge{
+	display: inline-block;
+	font-size: 80%;
+	vertical-align: middle;
+	border-radius: 10em;
+	background-color: #404040;
+	width: 1.2em;
+	height: 1.2em;
+	line-height: 1.5em;
+	margin-top: -0.1em;
+	text-align: center
+}
+
 .my-shelf-rack h4 input, .my-shelf-rack h5 input {
 	width: 62px;
 }

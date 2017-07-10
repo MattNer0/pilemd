@@ -36,6 +36,7 @@
 			<i class="material-icons">folder</i>
 			<a v-if="editingFolder != folder" class="my-shelf-folder-name">
 				{{ folder.name }}
+				<span class="my-shelf-folder-badge" v-show="folder.notes.length > 0">{{ folder.notes.length }}</span>
 			</a>
 			<input v-if="editingFolder == folder" v-model="folder.name"
 				v-focus="editingFolder == folder"

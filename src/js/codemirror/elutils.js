@@ -41,7 +41,7 @@ function cutText(cm) {
 
 function pasteText(cm) {
 	//cm.replaceSelection(clipboard.readText());
-	if(clipboard.availableFormats().indexOf('image/png') != -1){
+	if(clipboard.availableFormats().indexOf('image/png') != -1 || clipboard.availableFormats().indexOf('image/jpg') != -1){
  		var im = clipboard.readImage();
  		var image = Image.fromClipboard(im);
  		cm.doc.replaceRange(
@@ -50,7 +50,7 @@ function pasteText(cm) {
  		);
  	} else {
  		var pasted = clipboard.readText();
- 		if(pasted.split('.').pop() === 'png'){
+ 		if(pasted.split('.').pop() === 'png' || pasted.split('.').pop() === 'jpg'){
  			var f = {name: pasted.split('/').pop(), path: pasted};
  			uploadFile(cm, f);
  		} else {
