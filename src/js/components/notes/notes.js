@@ -64,7 +64,10 @@ module.exports = function(Vue, options) {
 					message: "Are you sure you want to remove this note?\n\nTitle: "+note.title+"\nContent: "+note.bodyWithoutTitle.replace('\n',' ').slice(0,100)+"..."
 				}, function(btn){
 					if(btn == 0){
-						//self.originalNotes.$remove(note);
+						if(note.data.folder.notes.length > 0) {
+							note.data.folder.notes.$remove(note);
+						}
+						self.originalNotes.$remove(note);
 						Note.removeModelFromStorage(note);
 						if (self.notes.length > 1) {
 							self.selectedNote = Note.beforeNote(self.notes.slice(), note, self.notesDisplayOrder);

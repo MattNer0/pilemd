@@ -304,8 +304,10 @@ new Vue({
 			}
 		},
 		addNote: function() {
-			var newNote = models.Note.newEmptyNote( this.getCurrentFolder() );
+			var currFolder = this.getCurrentFolder();
+			var newNote = models.Note.newEmptyNote(currFolder);
 			if(newNote){
+				if(currFolder.notes) currFolder.notes.unshift(newNote);
 				this.notes.unshift(newNote);
 				models.Note.setModel(newNote);
 				this.selectedNote = newNote;
