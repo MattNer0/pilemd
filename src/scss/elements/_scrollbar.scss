@@ -1,0 +1,30 @@
+::-webkit-scrollbar {
+	overflow: visible;
+	width: 0.5em;
+	height: 0.5em;
+}
+::-webkit-scrollbar-thumb {
+	background-color: #666666;
+	background-clip: padding-box;
+	min-height: 1.4em;
+	padding: 0;
+	border: 1px solid #000000;
+	border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover{
+	background-color: #777777;
+}
+::-webkit-scrollbar-button {
+	height: 0;
+	width: 0;
+}
+::-webkit-scrollbar-track {
+	background-color: #333333;
+}
+::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+.CodeMirror-scroll::-webkit-scrollbar-track, .hljs::-webkit-scrollbar-track{
+	background: transparent;
+}

@@ -13,8 +13,6 @@ const Rack = models.Rack;
 const Folder = models.Folder;
 const Note = models.Note;
 
-require('./racks.css');
-
 module.exports = function(Vue, options) {
 	Vue.component('racks', {
 		replace: true,

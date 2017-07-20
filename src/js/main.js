@@ -36,10 +36,7 @@ Vue.use(require('./components/menu/titleMenu'));
 Vue.use(require('./components/menu/codemirrorMenu'));
 
 // Loading CSSs
-
-require('../css/materialicons.css');
-require('../css/mystyle.css');
-require('../css/highlight.css');
+require('../scss/pilemd.scss');
 
 // Not to accept image dropping and so on.
 // Electron will be show local images without this.
@@ -108,7 +105,7 @@ new Vue({
 		var folders = [];
 		var racks = [];
 		var initial_notes = [];
-		
+
 		this.$watch('selectedNote.body', () => {
 			var result = models.Note.setModel(this.selectedNote);
 			if(result && result.error && result.path){
@@ -195,7 +192,7 @@ new Vue({
 				}
 			}
 		}
-		
+
 		this.$set('racks', 		racks);
 		this.$set('folders', 	folders);
 		this.$set('notes', 		notes);
@@ -206,7 +203,7 @@ new Vue({
 			this.selectedNote = initial_notes[0];
 		}
 
-		// Save it not to remove		
+		// Save it not to remove
 		//this.watcher = models.makeWatcher(this.racks, this.folders, this.notes);
 	},
 	ready: function(){
@@ -254,12 +251,12 @@ new Vue({
 		}
 	},
 	methods: {
-		toggleFullScreen: function() { 
+		toggleFullScreen: function() {
 			this.isFullScreen = !this.isFullScreen;
 			settings.set('vue_isFullScreen', this.isFullScreen);
 			this.update_editor_size();
 		},
-		toggleProperties: function() { 
+		toggleProperties: function() {
 			this.propertiesOpen = !this.propertiesOpen;
 			this.update_editor_size();
 		},
@@ -451,7 +448,7 @@ new Vue({
 
 			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + parseInt( cellsLeft[1].style.width.replace('px','') ) + 10;
 			var widthTotalRight = parseInt( cellsRight[0].style.width.replace('px','') ); //+ parseInt( cellsRight[1].style.width.replace('px','') ) + 10;
-			
+
 			if(this.isFullScreen){
 				document.querySelector('.sidebar').style.left = "-"+widthTotalLeft+'px';
 				widthTotalLeft = 0;

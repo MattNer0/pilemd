@@ -17,12 +17,10 @@ const Note = require('../../models').Note;
 
 const NOTE_DISPLAY_ORDER_KEY = 'notes.notesDisplayOrder';
 
-require('./notes.css');
-
 module.exports = function(Vue, options) {
 	Vue.use(require('../../filters/truncate'));
 	Vue.use(require('../../filters/dateSplitted'));
-	
+
 	Vue.component('notes', {
 		replace: true,
 		props: ['notes', 'originalNotes', 'selectedNote', 'draggingNote', 'toggleFullScreen', 'selectedRackOrFolder'],

@@ -1,0 +1,213 @@
+#title-bar {
+	height: 2.5em;
+	width: 100%;
+	-webkit-app-region: drag;
+	padding: 0;
+	margin: 0;
+	background: $main-background-color;
+	color: #F1F1F1;
+	border: none;
+	overflow: visible;
+	font-family: sans-serif;
+
+	a.menu-button {
+		display: inline-block;
+		min-width: 0;
+		width: 3.8em;
+		padding-top: 0.2em;
+
+		span {
+			display: block;
+			margin: 0.3em 0;
+			width: 100%;
+			height: 4px;
+			background-color: $menu-button-color;
+		}
+	}
+
+	li:hover a.menu-button span {
+		background-color: $menu-button-color-hover;
+	}
+}
+
+nav ul {
+	-webkit-font-smoothing:antialiased;
+	background: $main-background-color;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+}
+
+nav > ul {
+
+	li {
+		float: left;
+		margin: 0;
+		padding: 0;
+		position: relative;
+		height: 2.5em;
+
+		a i, div i{
+			vertical-align: top;
+		}
+	}
+
+	li.right-align{
+		float: right;
+	}
+
+	li > a, li > div {
+		box-sizing: border-box;
+		display: block;
+		padding: 0.25em 1.0em;
+		line-height: 1.8em;
+		height: 100%;
+		text-align: left;
+		outline: none;
+		text-decoration: none;
+		-webkit-transition: all .25s ease;
+		transition: all .25s ease;
+		border-top: 0.1em solid $main-background-color;
+		border-bottom: 0.1em solid $main-background-color;
+	}
+
+	li:first-child > a{
+		text-align: left;
+		min-width: initial;
+		padding-left: 1.0em;
+		padding-right: 1.0em;
+	}
+
+	li > a,
+	li > div,
+	li .my-search,
+	li .my-search::-webkit-input-placeholder {
+		color: $ui-text-color;
+	}
+
+	li:hover > a,
+	li:hover > div {
+		border-top: 0.1em solid $ui-text-borderTop-hover;
+		border-bottom: 0.1em solid $ui-text-borderBottom-hover;
+		background-color: $ui-text-background-hover !important;
+		color: $ui-text-color-hover;
+		cursor: pointer;
+	}
+
+	li:hover > a,
+	li:hover > div,
+	li:hover .my-search,
+	li:hover .my-search::-webkit-input-placeholder{
+		color: $ui-text-color-hover;
+	}
+
+	li hr{
+		margin: 0.2em 0.5em;
+		border: 1px solid $ui-text-color;
+	}
+
+	li ul {
+		float: left;
+		left: 0;
+		opacity: 0;
+		position: absolute;
+		top: 2.5em;
+		width: 15em;
+		visibility: hidden;
+		z-index: 100;
+
+		li {
+			height: auto;
+			float: none;
+		}
+	}
+
+	li.right-align ul{
+		right: 0;
+		left: initial;
+	}
+
+	li:hover ul {
+		opacity: 1.0;
+		visibility: visible;
+	}
+
+	.my-search {
+		font-size: 14px;
+		line-height: 1.0em;
+		text-shadow: 1px 1px rgba(0, 0, 0, 0.5);
+		background-color: transparent;
+		border: none;
+		outline: none;
+		width: 200px;
+		margin: 0;
+		padding: 0;
+		transition: width 200ms, margin 200ms;
+	}
+	
+	.my-search::-webkit-input-placeholder {
+		color: $menu-button-color;
+	}
+
+	.my-search:focus {
+		outline: none;
+		width: 250px;
+	}
+}
+
+.CodeMirror-menu{
+	padding: 0;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	background: #282828;
+	color: #575757;
+	height: 2em;
+	z-index: 5;
+
+	nav {
+		display: block;
+		margin: 0 auto;
+		width: 100%;
+
+		ul li {
+			display: inline-block;
+			height: 1.9em;
+
+			a {
+				padding-top: 0;
+				padding-bottom: 0;
+			}
+		}
+
+		ul:after {
+			clear: both;
+		    content: "";
+		    display: block;
+		}
+	}
+}
+
+.CodeMirror-menu:before {
+	content: "";
+	position: absolute;
+	width: 10em;
+	height: 2em;
+	left: -10em;
+	top: 0;
+	background: #282828;
+	z-index: 5;
+}
+
+.CodeMirror-menu:after {
+	content: "";
+	position: absolute;
+	width: 10em;
+	height: 2em;
+	right: -10em;
+	top: 0;
+	background: #282828;
+	z-index: 5;
+}

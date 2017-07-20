@@ -1,0 +1,51 @@
+$main-font-size: 14px;
+$main-font-family: "Roboto";
+$main-background-color: #242c36;
+$menu-button-color: #575757;
+$menu-button-color-hover: #8c8c8c;
+$ui-text-color: #858585;
+$ui-text-color-hover: #adacac;
+$ui-text-background-hover: #1d242c;
+$ui-text-borderTop-hover: #171c23;
+$ui-text-borderBottom-hover: #313842;
+$resize-panel-handler: #404040;
+$note-background-color: #fefefe;
+$note-border-color: #ababab;
+$note-text-color: #333;
+$note-header1-color: #3f51b5;
+$note-bold-color: #000;
+$folder-dragdrop-separator: #62c8f3;
+
+@font-face {
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 700;
+	src: local('Roboto Bold'), local('Roboto-Bold'), url(../fonts/Roboto/Roboto-Bold.woff2) format('woff2');
+}
+
+@font-face {
+	font-family: 'Roboto';
+	font-style: italic, oblique;
+	src: local('Roboto Italic'), local('Roboto-Italic'), url(../fonts/Roboto/Roboto-Italic.woff2) format('woff2');
+}
+
+@font-face {
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Roboto'), local('Roboto-Regular'), url(../fonts/Roboto/Roboto-Regular.woff2) format('woff2');
+}
+
+@import 'materialIcons';
+@import 'highlight';
+@import 'elements/body';
+@import 'elements/scrollbar';
+@import 'elements/titleBar';
+@import 'elements/openNote';
+@import 'elements/notesList';
+@import 'elements/foldersList';
+@import 'elements/flashMessage';
+
+div {
+	box-sizing: border-box;
+}

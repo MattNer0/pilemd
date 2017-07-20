@@ -1,0 +1,50 @@
+.CodeMirror,
+.my-editor-preview {
+	margin: 3em auto 1em;
+	padding: 3.4em 6em;
+	border: 0.1em solid $note-border-color;
+	width: auto;
+	min-height: calc( 100vh - 9em );
+	min-width: 15em;
+	max-width: 70em;
+	height: auto;
+	background-color: $note-background-color;
+	color: $note-text-color;
+	font-family: $main-font-family;
+	line-height: 1.6em;
+	font-size: 110%;
+	font-style: normal;
+}
+
+.CodeMirror span.cm-piled-header-1,
+.my-editor-preview h1 {
+	font-size: 180%;
+	color: $note-header1-color;
+	font-weight: 700;
+	margin-top: 0.4em;
+	line-height: 1.4em;
+}
+
+.CodeMirror span.cm-piled-header-2,
+.my-editor-preview h2 {
+	font-size: 160%;
+	font-weight: 600;
+	line-height: 1.4em;
+}
+
+.CodeMirror span.cm-piled-header-3,
+.my-editor-preview h3 {
+	font-size: 130%;
+	line-height: 1.4em;
+	font-weight: 600;
+}
+
+.CodeMirror span.cm-piled-strong,
+.my-editor-preview strong {
+	color: $note-bold-color;
+	font-weight: 800;
+}
+
+@import 'codeMirror';
+@import 'codePreview';
+@import 'codeFontSize';

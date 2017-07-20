@@ -1,0 +1,120 @@
+body {
+	margin: 0;
+	padding: 0;
+	font-family: $main-font-family,sans-serif;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	background: #dedede;
+}
+
+html, body, h1, h2, h3, h4, h5, p {
+	font-size: $main-font-size;
+	font-family: $main-font-family;
+}
+
+.my-main {
+	width: 100%;
+	height: calc( 100vh - 2.5em );
+	display: flex;
+	flex-flow: row nowrap;
+}
+
+.outer_wrapper {
+	height: 100%;
+	width: 100%;
+	position: relative;
+	overflow: hidden;
+
+	.cell-container {
+		height: calc( 100vh - 2.5em );
+		vertical-align: top;
+	}
+
+	.cell-container.main-cell-container{
+		position: relative;
+		margin-left: 0;
+		transition: margin 400ms;
+	}
+
+	.sidebar,
+	.sidebar-right {
+		position: absolute;
+		top: 0;
+		z-index: 10;
+		background-color: $main-background-color;
+
+		.cell-container {
+			float: left;
+		}
+	}
+
+	.sidebar {
+		left: 0;
+		transition: left 400ms;
+	}
+
+	.sidebar-right {
+		right: 0;
+		transition: right 400ms;
+
+		.cell-container {
+			border-left: 5px solid $resize-panel-handler;
+
+			> div {
+				padding: 1em;
+				line-height: 1.6em;
+			}
+
+			hr {
+				border-color: $resize-panel-handler;
+			}
+
+			table {
+				width: 100%;
+			}
+
+			td.right {
+				text-align: right;
+			}
+		}
+
+		span, h5, strong{
+			color: $ui-text-color;
+		}
+	}
+
+	.sidebar:after, .outer_wrapper .sidebar-right:after{
+		content: "";
+		clear: both;
+	}
+
+	.resize-handler {
+		float: left;
+		background: $resize-panel-handler;
+		height: calc( 100vh - 2.5em );
+		width: 5px;
+		cursor: col-resize;
+	}
+
+	.my-shelf-wrapper:hover, .my-shelf-all:hover {
+		cursor: pointer;
+	}
+
+	.my-shelf-all {
+		display: none;
+		font-weight: 500;
+		padding: 1px 0 1px 15px;
+		border-radius: 0 2px 2px 0 / 0 2px 2px 0;
+
+		-webkit-user-select: none;
+		transition: background-color 200ms;
+	}
+
+	.my-editor {
+		height: 100%;
+	    width: auto;
+	    margin: 0 auto;
+	    overflow-y: auto;
+	    position: relative;
+	}
+}
