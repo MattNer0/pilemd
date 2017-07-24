@@ -1,20 +1,23 @@
 $main-font-size: 14px;
 $main-font-family: "Roboto";
-$main-background-color: #242c36;
-$menu-button-color: #575757;
-$menu-button-color-hover: #8c8c8c;
-$ui-text-color: #858585;
+$main-background-color: #363e48;
+$ui-text-color: #b9b9b9;
 $ui-text-color-hover: #adacac;
+$ui-text-color-dim: #848487;
 $ui-text-background-hover: #1d242c;
 $ui-text-borderTop-hover: #171c23;
 $ui-text-borderBottom-hover: #313842;
 $resize-panel-handler: #404040;
+$note-separator-line: #242c36;
+$note-list-body-color: #858585;
 $note-background-color: #fefefe;
 $note-border-color: #ababab;
 $note-text-color: #333;
 $note-header1-color: #3f51b5;
 $note-bold-color: #000;
 $folder-dragdrop-separator: #62c8f3;
+$folder-badge-background: #212023;
+$folder-badge-color: #adacac;
 
 @font-face {
 	font-family: 'Roboto';

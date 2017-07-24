@@ -19,7 +19,7 @@
 		"babel-loader": "^5.4.0",
 		"babel-runtime": "^5.8.35",
 		"css-loader": "^0.21.0",
-		"electron-packager": "^5.2.1",
+		"electron-packager": "^8.7.2",
 		"es6-promise": "^3.1.2",
 		"file-loader": "^0.8.5",
 		"gulp": "^3.9.1",
@@ -31,8 +31,8 @@
 		"url-loader": "^0.5.7",
 		"vue-hot-reload-api": "^1.2.1",
 		"vue-html-loader": "^1.0.0",
-		"webpack": "^1.15.0",
-		"webpack-stream": "^3.1.0"
+		"webpack": "^3.3.0",
+		"webpack-stream": "^3.2.0"
 	},
 	"scripts": {
 		"start": "electron .",

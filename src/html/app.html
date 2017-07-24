@@ -1,8 +1,8 @@
 <div id="title-bar">
 	<title-menu></title-menu>
 </div>
-<div class="my-main">
-	<div :class="{'outer_wrapper': true, 'full_width_container': isFullScreen}">
+<div class="my-main" :class="{'note_selected': selectedNote.title }">
+	<div :class="{'outer_wrapper': true}">
 
 		<div class="sidebar">
 			<div class="cell-container" :style="{ width: racksWidth+'px' }">
