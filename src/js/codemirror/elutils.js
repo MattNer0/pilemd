@@ -40,7 +40,6 @@ function cutText(cm) {
 }
 
 function pasteText(cm) {
-	//cm.replaceSelection(clipboard.readText());
 	if(clipboard.availableFormats().indexOf('image/png') != -1 || clipboard.availableFormats().indexOf('image/jpg') != -1){
  		var im = clipboard.readImage();
  		var image = Image.fromClipboard(im);
@@ -50,27 +49,35 @@ function pasteText(cm) {
  		);
  	} else {
  		var pasted = clipboard.readText();
- 		if(pasted.split('.').pop() === 'png' || pasted.split('.').pop() === 'jpg'){
+		if(pasted.indexOf('http') == 0) {
+			pasted = pasted.replace(new RegExp('(\.jpg|\.png)[?&].*$'), '$1');
+		}
+		if(isImage(pasted)){
  			var f = {name: pasted.split('/').pop(), path: pasted};
- 			uploadFile(cm, f);
+ 			if(!uploadFile(cm, f)) cm.replaceSelection(pasted);
  		} else {
- 			cm.replaceSelection(clipboard.readText());
+ 			cm.replaceSelection(pasted);
  		}
  	}
+}
+
+function isImage(text){
+	return text.split('.').pop() === 'png' || text.split('.').pop() === 'jpg';
 }
 
 function uploadFile(cm, file){
  	try {
 		var image = Image.fromBinary(file.name, file.path);
- 	} catch (e) {
- 		console.log(e);
- 		return
+ 	} catch (err) {
+		console.warn('uploadFile', err);
+ 		return false;
  	}
 
 	cm.doc.replaceRange(
 		IMAGE_TAG_TEMP({filename: file.name, fileurl: image.pilemdURL}),
 		cm.doc.getCursor()
 	);
+	return true;
 }
 
 module.exports = {
