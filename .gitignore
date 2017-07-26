@@ -7,6 +7,7 @@ node_modules/
 
 # front dist
 dist/js/app.js
+dist/app.js
 
 # What a shame. it's OSX
 .DS_Store
