@@ -103,10 +103,14 @@ function makeWindow() {
 		title: "PileMd",
 		backgroundColor: '#3a3e4c',
 		show: true,
+		darkTheme: true,
+		tabbingIdentifier: "pilemd",
 		/*titleBarStyle: 'hidden',
 		frame: false,*/
 		webPreferences: {
-			devTools: true
+			devTools: true,
+			webgl: false,
+			webaudio: false
 		}
 	};
 

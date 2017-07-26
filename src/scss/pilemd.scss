@@ -7,6 +7,7 @@ $ui-text-color-dim: #848487;
 $ui-text-background-hover: #1d242c;
 $ui-text-borderTop-hover: #171c23;
 $ui-text-borderBottom-hover: #313842;
+$title-border-bottom: 2px;
 $resize-panel-handler: #404040;
 $note-separator-line: #242c36;
 $note-list-body-color: #858585;
@@ -18,6 +19,10 @@ $note-bold-color: #000;
 $folder-dragdrop-separator: #62c8f3;
 $folder-badge-background: #212023;
 $folder-badge-color: #adacac;
+$scrollbar-track-background: #333;
+$scrollbar-thumb: #666;
+$scrollbar-thumb-border: #000;
+$scrollbar-thumb-hover: #777;
 
 @font-face {
 	font-family: 'Roboto';

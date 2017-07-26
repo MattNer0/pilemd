@@ -5,8 +5,9 @@
 	padding: 0;
 	margin: 0;
 	background: $main-background-color;
-	color: #F1F1F1;
 	border: none;
+	border-bottom: $title-border-bottom solid $scrollbar-track-background;
+	color: $ui-text-color;
 	overflow: visible;
 	font-family: sans-serif;
 
@@ -62,7 +63,7 @@ nav > ul {
 		display: block;
 		padding: 0.25em 1.0em;
 		line-height: 1.8em;
-		height: 100%;
+		height: calc( 100% - #{$title-border-bottom} );
 		text-align: left;
 		outline: none;
 		text-decoration: none;
@@ -144,7 +145,7 @@ nav > ul {
 		padding: 0;
 		transition: width 200ms, margin 200ms;
 	}
-	
+
 	.my-search::-webkit-input-placeholder {
 		color: $ui-text-color;
 	}
