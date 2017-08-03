@@ -17,3 +17,5 @@ build/
 
 MYREADME.md
 mv_to_opt.sh
+.gjslintrc
+package-lock.json

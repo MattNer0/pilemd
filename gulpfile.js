@@ -16,7 +16,7 @@ var BASE_OPTION = {
     dir: '.',
     overwrite: true,
     arch: 'x64',
-    version: '0.37.3',
+    electronVersion: '1.6.11',
     ignore: '(node_modules\/(codemirror|highlight.js|marked|vue|vue-resource)|src|icons|releases|.idea.*|README\.md|\.DS_Store|env|gulpfile\.js|webpack\.config\.js|\.gitignore)',
     asar: true,
     prune: true
