@@ -6,27 +6,29 @@
 	position: absolute;
 	bottom: 8px;
 	right: 8px;
-	margin-left: 32px;
-
 	z-index: 100;
+	background-color: $main-background-color;
 }
 
 .flashmessage-message {
-	color: white;
-	padding: 2px 8px 2px 8px;
-
-	margin-bottom: 4px;
+	color: $ui-text-color;
+	padding: 0.5em;
+	margin: 0.5em;
 	transition: all 0.3s ease;
 	vertical-align: middle;
 	overflow-y: hidden;
 
 	a {
-		color: #fff;
+		color: inherit;
 		background-color: transparent;
 	}
 }
 
-.flashmessage-message-enter, .flashmessage-message-leave {
+.flashmessage-message:hover{
+	color: $ui-text-color-hover;
+}
+
+.flashmessage-message-enter, .flashmessage-message-leave-active {
 	color: transparent;
 	padding: 0 8px 0 8px;
 	height: 0;

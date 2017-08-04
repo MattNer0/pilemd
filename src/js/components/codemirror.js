@@ -83,10 +83,11 @@ module.exports = function(Vue, options) {
 	 * It's already customized for editing page of piled.
 	 */
 	Vue.component('codemirror', {
-		replace: false,
 		props: ['note', 'isFullScreen', 'isPreview'],
 		template: require('./codemirror.html'),
-		ready: function() {
+		mounted: function () {
+			var self = this;
+
 			this.$nextTick(() => {
 
 				var cm = CodeMirror(this.$el, {
@@ -107,11 +108,12 @@ module.exports = function(Vue, options) {
 				this.cm = cm;
 				this.$parent.codeMirror = cm;
 
-				var updateBody = Vue.util.debounce(() => {
-					this.note.body = cm.getValue();
-				}, 300);
+				var updateBody = null;
 				cm.on('change', function() {
-					updateBody();
+					if(updateBody) clearTimeout(updateBody);
+					updateBody = setTimeout(function(){
+						self.note.body = cm.getValue();
+					}, 300);
 				});
 
 				cm.on('drop', (cm, event) => {
@@ -272,7 +274,7 @@ module.exports = function(Vue, options) {
 			},
 
 			togglePreview: function() {
-				this.$dispatch('togglePreview');
+				eventHub.$emit('togglePreview');
 			},
 		}
 	});

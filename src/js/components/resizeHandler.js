@@ -1,8 +1,8 @@
 function handlerStack(Vue, options) {
 
 	Vue.component('handlerStack', {
-		template: '<div draggable="true" class="resize-handler" @dragstart="dragstart" @dragend="dragend"></div>',
-		
+		template: '<div draggable="true" id="handlerStack" class="resize-handler" @dragstart="dragstart" @dragend="dragend"></div>',
+
 		data: function() {
 			return {
 				initialPos: {
@@ -13,24 +13,26 @@ function handlerStack(Vue, options) {
 				min_width: 180,
 				max_width: 400,
 				dragging: false
-			}
+			};
 		},
 
-		ready: function() {
-			var _this = this;	
-			this.$parent.$el.addEventListener('dragover', function(e) {
-				_this.drag(e);
+		mounted: function() {
+			var _this = this;
+			this.$nextTick(function() {
+				this.$parent.$el.addEventListener('dragover', function(e) {
+					_this.drag(e);
+				});
 			});
 		},
-		
+
 		methods: {
 			dragstart: function(e) {
 				// hide the 'ghost' of the draggin element
 				e.dataTransfer.setDragImage(document.createElement('div'), 0, 0);
-				
+
 				// set dummy data for dragging Firefox
-				e.dataTransfer.setData('text/plain', '')
-				
+				e.dataTransfer.setData('text/plain', '');
+
 				this.dragging = true;
 				this.start_width = this.$el.previousElementSibling.offsetWidth;
 				this.initialPos = {
@@ -41,19 +43,21 @@ function handlerStack(Vue, options) {
 
 			dragend: function(e) {
 				this.dragging = false;
-				this.$root.update_editor_size();
-				this.$root.save_editor_size();
+				this.$emit('hdragend');
+				//this.$root.update_editor_size();
+				//this.$root.save_editor_size();
 			},
-			
+
 			drag: function(e) {
 				// prevent to emit unwanted value on dragend
 				if (!this.dragging) return;
 				if (e.screenX === 0 && e.screenY === 0) return;
 
-				var new_width = this.start_width+e.pageX-this.initialPos.x;
-				if(new_width >= this.min_width && new_width <= this.max_width){
-					this.$el.previousElementSibling.style.width = new_width+"px";
-					this.$root.update_editor_size();
+				var new_width = this.start_width + e.pageX - this.initialPos.x;
+				if (new_width >= this.min_width && new_width <= this.max_width) {
+					this.$el.previousElementSibling.style.width = new_width + 'px';
+					this.$emit('hdrag');
+					//this.$root.update_editor_size();
 				}
 			}
 		}
@@ -63,8 +67,8 @@ function handlerStack(Vue, options) {
 function handlerNotes(Vue, options) {
 
 	Vue.component('handlerNotes', {
-		template: '<div draggable="true" class="resize-handler" @dragstart="dragstart" @dragend="dragend"></div>',
-		
+		template: '<div draggable="true" id="handlerNotes" class="resize-handler" @dragstart="dragstart" @dragend="dragend"></div>',
+
 		data: function() {
 			return {
 				initialPos: {
@@ -75,24 +79,26 @@ function handlerNotes(Vue, options) {
 				min_width: 170,
 				max_width: 400,
 				dragging: false
-			}
+			};
 		},
 
-		ready: function() {
-			var _this = this;	
-			this.$parent.$el.addEventListener('dragover', function(e) {
-				_this.drag(e);
+		mounted: function() {
+			var _this = this;
+			this.$nextTick(function() {
+				this.$parent.$el.addEventListener('dragover', function(e) {
+					_this.drag(e);
+				});
 			});
 		},
-		
+
 		methods: {
 			dragstart: function(e) {
 				// hide the 'ghost' of the draggin element
 				e.dataTransfer.setDragImage(document.createElement('div'), 0, 0);
-				
+
 				// set dummy data for dragging Firefox
-				e.dataTransfer.setData('text/plain', '')
-				
+				e.dataTransfer.setData('text/plain', '');
+
 				this.dragging = true;
 				this.start_width = this.$el.previousElementSibling.offsetWidth;
 				this.initialPos = {
@@ -103,20 +109,22 @@ function handlerNotes(Vue, options) {
 
 			dragend: function(e) {
 				this.dragging = false;
-				this.$root.update_editor_size();
-				this.$root.save_editor_size();
+				this.$emit('hdragend');
+				//this.$root.update_editor_size();
+				//this.$root.save_editor_size();
 				//this.$root.update_scrollbar_notes();
 			},
-			
+
 			drag: function(e) {
 				// prevent to emit unwanted value on dragend
 				if (!this.dragging) return;
 				if (e.screenX === 0 && e.screenY === 0) return;
 
-				var new_width = this.start_width+e.pageX-this.initialPos.x;
-				if(new_width >= this.min_width && new_width <= this.max_width){
-					this.$el.previousElementSibling.style.width = new_width+"px";
-					this.$root.update_editor_size();
+				var new_width = this.start_width + e.pageX - this.initialPos.x;
+				if (new_width >= this.min_width && new_width <= this.max_width) {
+					this.$el.previousElementSibling.style.width = new_width + 'px';
+					this.$emit('hdrag');
+					//this.$root.update_editor_size();
 					//this.$root.update_scrollbar_notes();
 				}
 			}
@@ -127,4 +135,4 @@ function handlerNotes(Vue, options) {
 module.exports = {
 	handlerStack: handlerStack,
 	handlerNotes: handlerNotes
-}
+};

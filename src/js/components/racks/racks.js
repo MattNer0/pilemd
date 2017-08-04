@@ -13,9 +13,8 @@ const Rack = models.Rack;
 const Folder = models.Folder;
 const Note = models.Note;
 
-module.exports = function(Vue, options) {
+module.exports = function(Vue) {
 	Vue.component('racks', {
-		replace: true,
 		props: ['racks', 'folders', 'notes', 'filteredNotes', 'selectedRackOrFolder', 'selectedNote', 'editingRack', 'draggingNote', 'toggleFullScreen'],
 		data: function() {
 			return {
@@ -24,33 +23,37 @@ module.exports = function(Vue, options) {
 				draggingFolderRack: null,
 				editingFolder: null,
 				scrollbarNotes: null
-			}
+			};
 		},
 		template: require('./racks.html'),
 		directives: {
-			'focus': function (value) {
+			'focus': function(value) {
 				if (!value) {
 					return;
 				}
 				var el = this.el;
-				Vue.nextTick(function () {
+				Vue.nextTick(function() {
 					el.focus();
 				});
 			}
 		},
 		computed: {
 			racksWithFolders: function() {
-				var folders = this.folders;
-				var racks = this.racks;
-				if(folders.length > 0){
+				//var folders = this.folders;
+				//var racks = this.racks;
+				/*if (folders.length > 0) {
 					racks.forEach((r) => {
 						r.folders = folders.filter((f) => { return f.uid && f.rackUid == r.uid });
 					});
-				}
-				return racks;
-			}
+				}*/
+				//return racks;
+				return this.racks.sort(function(a, b) { return a.ordering - b.ordering });
+			},
 		},
 		methods: {
+			orderedFolders: function(rack) {
+				return rack.folders; //.sort(function(a, b) { return a.ordering - b.ordering });
+			},
 			isDraggingNote: function() {
 				return !!this.draggingNote;
 			},
@@ -58,11 +61,11 @@ module.exports = function(Vue, options) {
 				if (!this.editingRack) { return }
 				Rack.setModel(rack);
 				this.editingRack = null;
-				this.selectedRackOrFolder = rack;
+				this.$emit('select', rack);
 			},
 			addRack: function() {
 				// Same with the method in main.js
-				var rack = new models.Rack({name: "", ordering: 0});
+				var rack = new models.Rack({name: '', ordering: 0});
 				var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
 				racks.push(rack);
 				racks.forEach((r, i) => {
@@ -74,11 +77,12 @@ module.exports = function(Vue, options) {
 			},
 			removeRack: function(rack) {
 				rack.remove(this.notes, this.folders);
-				this.racks.$remove(rack);
-				this.selectedRackOrFolder = null
+				var index = this.racks.indexOf(rack);
+				this.racks.splice(index, 1);
+				this.selectedRackOrFolder = null;
 			},
 			addFolder: function(rack) {
-				rack.openFolders = true;
+				this.$emit('openrack', rack);
 				var folder = new Folder({
 					name: '',
 					rack: rack,
@@ -98,11 +102,11 @@ module.exports = function(Vue, options) {
 				if (!this.editingFolder) { return }
 				Folder.setModel(folder);
 				this.editingFolder = null;
-				this.selectedRackOrFolder = folder;
+				this.$emit('select', folder);
 			},
 			removeFolder: function(rack, folder) {
 				folder.remove(this.notes);
-				this.selectedRackOrFolder = rack;
+				this.$emit('select', rack);
 			},
 			isSelectedRack: function(rack) {
 				return this.selectedRackOrFolder === rack;
@@ -121,55 +125,31 @@ module.exports = function(Vue, options) {
 				});
 			},
 			selectRack: function(rack) {
-				if(this.selectedRackOrFolder){
-					rack.openFolders = !rack.openFolders;
+				this.$emit('select', rack);
+				if(rack.openFolders){
+					this.$emit('closerack', rack);
 				} else {
-					rack.openFolders = true;
-				}
-				this.selectedRackOrFolder = rack;
-
-				var newData = rack.readContents();
-				if(newData) {
-					this.folders = this.folders.concat( newData );
-					for(var i=0;i<newData.length;i++){
-						var newNotes = newData[i].readContents();
-						if(newNotes) {
-							this.notes = this.notes.concat( newNotes );
-							newData[i].notes = newNotes;
-						}
-					}
+					this.$emit('openrack', rack);
 				}
 			},
 			selectFolder: function(folder) {
-				this.selectedRackOrFolder = folder;
+				this.$emit('select', folder);
 			},
 			openRack: function(rack) {
-				var newData = rack.readContents();
+				this.$emit('openrack', rack);
+				/*var newData = rack.readContents();
 				if(newData) this.folders = this.folders.concat( newData );
-				rack.openFolders = true;
+				rack.openFolders = true;*/
 			},
 			closeRack: function(rack) {
 				if(this.selectedNote && this.selectedNote.data && this.selectedNote.isRack(rack)){
 					return
 				}
-				rack.openFolders = false;
+				this.$emit('closerack', rack);
 			},
-			/*
-			openFolder: function(folder) {
-				var newData = folder.readContents();
-				if(newData) this.notes = this.notes.concat( newData );
-				folder.openNotes = true;
-			},
-			closeFolder: function(folder) {
-				if(this.selectedNote && this.selectedNote.data && this.selectedNote.isFolder(folder)){
-					return
-				}
-				folder.openNotes = false;
-			},
-			*/
 			// Dragging
 			rackDragStart: function(event, rack) {
-				rack.openFolders = false;
+				this.$emit('closerack', rack);
 				event.dataTransfer.setDragImage(event.target, 0, 0);
 				this.draggingRack = rack;
 			},
@@ -181,7 +161,7 @@ module.exports = function(Vue, options) {
 				if (this.draggingFolder) {
 					event.preventDefault();
 					rack.dragHover = true;
-					rack.openFolders = true;
+					this.$emit('openrack', rack);
 					var newData = rack.readContents();
 					if(newData) this.folders = this.folders.concat( newData );
 
@@ -201,14 +181,14 @@ module.exports = function(Vue, options) {
 			},
 			rackDragLeave: function(rack) {
 				if (this.draggingFolder && this.draggingFolderRack && !this.draggingFolderRack.uid == rack.uid) {
-					rack.openFolders = false;
+					this.$emit('closerack', rack);
 				}
 				rack.dragHover = false;
 				rack.sortUpper = false;
 				rack.sortLower = false;
 			},
 			dropToRack: function(event, rack) {
-				if(!rack.openFolders) rack.openFolders = true;
+				if(!rack.openFolders) this.$emit('openrack', rack);
 				if (this.draggingFolder) {
 					console.log("Dropping to rack");
 					// Drop Folder to Rack
@@ -294,9 +274,9 @@ module.exports = function(Vue, options) {
 					Note.setModel(note);
 					this.draggingNote = null;
 					var s = this.selectedRackOrFolder;
-					this.selectedRackOrFolder = null;
+					this.$emit('select', null);
 					Vue.nextTick(() => {
-						this.selectedRackOrFolder = s;
+						this.$emit('select', s);
 					});
 				} else if (this.draggingFolder && this.draggingFolder != folder) {
 					event.stopPropagation();

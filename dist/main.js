@@ -56,7 +56,7 @@ const DARWIN_ALL_CLOSED_MENU = [
 			{
 				label: 'Quit ' + APP_NAME,
 				accelerator: 'Command+Q',
-				click: function () {
+				click: function() {
 					app.quit();
 				}
 			}
@@ -66,7 +66,7 @@ const DARWIN_ALL_CLOSED_MENU = [
 		label: 'File',
 		submenu: [
 			{
-				label: 'New ' + APP_NAME +' Window',
+				label: 'New ' + APP_NAME + ' Window',
 				click: makeWindow
 			}
 		]
@@ -85,11 +85,11 @@ app.on('window-all-closed', function() {
 
 function makeWindow() {
 
-	var settings_path = path.join( electron.app.getPath('appData'), "pilemdConfig.json");
+	var settings_path = path.join(electron.app.getPath('appData'), 'pilemdConfig.json');
 	var settings_data = null;
-	try{
-		settings_data = JSON.parse(fs.readFileSync( settings_path ));
-	} catch(e){
+	try {
+		settings_data = JSON.parse(fs.readFileSync(settings_path));
+	} catch (e) {
 		settings_data = {};
 	}
 
@@ -100,11 +100,11 @@ function makeWindow() {
 		minWidth: 270,
 		minHeight: 437,
 		center: true,
-		title: "PileMd",
+		title: 'PileMd',
 		backgroundColor: '#3a3e4c',
 		show: true,
 		darkTheme: true,
-		tabbingIdentifier: "pilemd",
+		tabbingIdentifier: 'pilemd',
 		/*titleBarStyle: 'hidden',
 		frame: false,*/
 		webPreferences: {
@@ -127,7 +127,7 @@ function makeWindow() {
 	mainWindow.loadURL('file://' + __dirname + '/index.html');
 
 	// Open the DevTools.
-	//mainWindow.webContents.openDevTools();
+	mainWindow.webContents.openDevTools();
 
 	// Emitted when the window is closed.
 	mainWindow.on('closed', () => {

@@ -28,9 +28,9 @@ module.exports = function(Vue, options) {
 		data: function() {
 			return {
 				notesDisplayOrder: 'updatedAt'
-			}
+			};
 		},
-		ready: function() {
+		mounted: function() {
 			var o = localStorage.getItem(NOTE_DISPLAY_ORDER_KEY);
 			if (!o) {
 				this.notesDisplayOrder = 'updatedAt';
@@ -42,10 +42,17 @@ module.exports = function(Vue, options) {
 				localStorage.setItem(NOTE_DISPLAY_ORDER_KEY, v);
 			});
 		},
+		computed: {
+			notesFiltered: function() {
+				// dateSeparated notesDisplayOrder
+				var dateSeparated = Vue.filter('dateSeparated');
+				return dateSeparated(this.notes, this.notesDisplayOrder);
+			}
+		},
 		methods: {
 			selectNote: function(note) {
 				note.loadBody();
-				this.selectedNote = note;
+				this.$emit('select', note);
 			},
 			selectNoteAndWide: function(note) {
 				this.toggleFullScreen();
@@ -54,23 +61,25 @@ module.exports = function(Vue, options) {
 				var self = this;
 
 				dialog.showMessageBox(remote.getCurrentWindow(), {
-					type: "question",
+					type: 'question',
 					buttons: ['Delete', 'Cancel'],
 					defaultId: 1,
 					cancelId: 1,
-					title: "Remove Note",
-					message: "Are you sure you want to remove this note?\n\nTitle: "+note.title+"\nContent: "+note.bodyWithoutTitle.replace('\n',' ').slice(0,100)+"..."
-				}, function(btn){
-					if(btn == 0){
-						if(note.data.folder.notes.length > 0) {
-							note.data.folder.notes.$remove(note);
+					title: 'Remove Note',
+					message: 'Are you sure you want to remove this note?\n\nTitle: ' + note.title + '\nContent: ' + note.bodyWithoutTitle.replace('\n', ' ').slice(0, 100) + '...'
+				}, function(btn) {
+					if (btn == 0) {
+						if (note.data.folder.notes.length > 0) {
+							var index = note.data.folder.notes.indexOf(note);
+							note.data.folder.notes.splice(index, 1);
 						}
-						self.originalNotes.$remove(note);
+						var index = self.originalNotes.indexOf(note);
+						self.originalNotes.splice(index, 1);
 						Note.removeModelFromStorage(note);
 						if (self.notes.length > 1) {
-							self.selectedNote = Note.beforeNote(self.notes.slice(), note, self.notesDisplayOrder);
+							this.$emit('select', Note.beforeNote(self.notes.slice(), note, self.notesDisplayOrder));
 						} else {
-							self.selectedNote = Note.beforeNote(self.originalNotes.slice(), note, self.notesDisplayOrder);
+							this.$emit('select', Note.beforeNote(self.originalNotes.slice(), note, self.notesDisplayOrder));
 						}
 					}
 				});
@@ -100,7 +109,7 @@ module.exports = function(Vue, options) {
 					defaultPath: filename
 				});
 				if (!notePath) {
-					return null
+					return null;
 				}
 				try {
 					var fd = fs.openSync(notePath, 'w');

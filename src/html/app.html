@@ -1,122 +1,131 @@
-<div id="title-bar">
-	<title-menu></title-menu>
-</div>
-<div class="my-main" :class="{'note_selected': selectedNote.title }">
-	<div :class="{'outer_wrapper': true}">
+<main id="main-editor">
+	<div id="title-bar">
+		<title-menu></title-menu>
+	</div>
+	<div class="my-main" :class="{'note_selected': selectedNote.title }">
+		<div :class="{'outer_wrapper': true}">
 
-		<div class="sidebar">
-			<div class="cell-container" :style="{ width: racksWidth+'px' }">
-				<div class="my-shelf" @contextmenu="shelfMenu()">
-					<div class="my-shelf-wrapper">
-						<div :class="{'isShelfSelected': ((isSearchAll() && !draggingNote) || allDragHover), 'noteIsHere': selectedNote.folderUid === null}"
-							@click.prevent.stop="selectAll()"
-							@dragover.stop="allDragOver($event)"
-							@dragleave.prevent.stop="allDragLeave($event)"
-							@drop.prevent.stop="dropToAll($event)"
-							class="my-shelf-all">
-							<a>All</a>
-						</div>
-						<racks
-							:racks.sync="racks"
-							:folders.sync="folders"
-							:notes.sync="notes"
-							:filtered-notes="filteredNotes"
-							:selected-rack-or-folder.sync="selectedRackOrFolder"
-							:dragging-note.sync="draggingNote"
-							:editing-rack.sync="editingRack"
-							:selected-note.sync="selectedNote"
-							:toggle-full-screen="toggleFullScreen">
-						</racks>
-					</div>
-				</div>
-			</div>
-
-			<handler-stack></handler-stack>
-
-			<div class="cell-container" :style="{ width: notesWidth+'px' }">
-				<notes :notes="filteredNotes"
-				:toggle-full-screen="toggleFullScreen"
-				:original-notes.sync="notes"
-				:selected-note.sync="selectedNote"
-				:dragging-note.sync="draggingNote">
-				</notes>
-			</div>
-
-			<handler-notes></handler-notes>
-		</div>
-		<div class="cell-container main-cell-container">
-
-			<codemirror-menu></codemirror-menu>
-			
-			<div class="my-editor">
-				<div :class="[ 'font'+fontsize ]">
-					<codemirror v-show="!isPreview && selectedNote.title"
-						:note="selectedNote"
-						:is-full-screen="isFullScreen"
-						:is-preview="isPreview">
-					</codemirror>
-					<div v-show="isPreview && selectedNote.title" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()">
-						<div v-html="preview">
+			<div class="sidebar">
+				<!-- :style="{ width: racksWidth+'px' }" -->
+				<div class="cell-container">
+					<div class="my-shelf" @contextmenu="shelfMenu()">
+						<div class="my-shelf-wrapper">
+							<div :class="{'isShelfSelected': ((isSearchAll() && !draggingNote) || allDragHover), 'noteIsHere': selectedNote.folderUid === null}"
+								@click.prevent.stop="selectAll()"
+								@dragover.stop="allDragOver($event)"
+								@dragleave.prevent.stop="allDragLeave($event)"
+								@drop.prevent.stop="dropToAll($event)"
+								class="my-shelf-all">
+								<a>All</a>
+							</div>
+							<racks
+								:racks="racks"
+								:folders="folders"
+								:notes="notes"
+								:filtered-notes="filteredNotes"
+								:selected-rack-or-folder="selectedRackOrFolder"
+								:dragging-note="draggingNote"
+								:editing-rack="editingRack"
+								:selected-note="selectedNote"
+								:toggle-full-screen="toggleFullScreen"
+								v-on:select="changeRackOrFolder"
+								v-on:openrack="openrack"
+								v-on:closerack="closerack">
+							</racks>
 						</div>
 					</div>
 				</div>
-				<flashmessage :messages="messages"></flashmessage>
-			</div>
-		</div>
 
-		<div class="sidebar-right" v-show="selectedNote.title" :style="{ right: ( propertiesOpen ? '0px' : '-'+propertiesWidth+'px' ) }">
-			<div class="cell-container" :style="{ width: propertiesWidth+'px' }">
-				<div v-if="selectedNote.properties">
-					<strong>Font Size: </strong><br/>
-					<select v-model="fontsize" style="width: 100%;">
-						<option>10</option>
-						<option>12</option>
-						<option>14</option>
-						<option>15</option>
-						<option>16</option>
-						<option>18</option>
-						<option>20</option>
-						<option>24</option>
-					</select>
-					<hr>
-					<table>
-						<tr>
-							<td><strong>Line Count: </strong></td>
-							<td class="right"><span>{{ selectedNote.properties.lineCount }}</span></td>
-						</tr>
-						<tr>
-							<td><strong>Word Count: </strong></td>
-							<td class="right"><span>{{ selectedNote.properties.wordCount }}</span></td>
-						</tr>
-						<tr>
-							<td><strong>Char Count: </strong></td>
-							<td class="right"><span>{{ selectedNote.properties.charCount }}</span></td>
-						</tr>
-					</table>
-					<hr>
-					<table>
-						<tr>
-							<td><strong>Created: </strong></td>
-						<tr/>
-						<tr>
-							<td class="right"><span>{{ selectedNote.data.created_at.format('MMM DD, YYYY') }}</span></td>
-						</tr>
-						<tr>
-							<td><strong>Modified: </strong></td>
-						</tr>
-						<tr>
-							<td class="right"><span>{{ selectedNote.data.updated_at.format('MMM DD, YYYY') }}</span></td>
-						</tr>
-					</table>
+				<handler-stack v-on:hdrag="editordrag" v-on:hdragend="editordragend"></handler-stack>
+
+				<!-- :style="{ width: notesWidth+'px' }" -->
+				<div class="cell-container">
+					<notes :notes="filteredNotes"
+					:toggle-full-screen="toggleFullScreen"
+					:original-notes="notes"
+					:selected-note="selectedNote"
+					:dragging-note="draggingNote"
+					v-on:select="changeNote">
+					</notes>
+				</div>
+
+				<handler-notes v-on:hdrag="editordrag" v-on:hdragend="editordragend"></handler-notes>
+			</div>
+			<div class="cell-container main-cell-container">
+
+				<codemirror-menu></codemirror-menu>
+
+				<div class="my-editor">
+					<div :class="[ 'font'+fontsize ]">
+						<codemirror v-show="!isPreview && selectedNote.title"
+							:note="selectedNote"
+							:is-full-screen="isFullScreen"
+							:is-preview="isPreview">
+						</codemirror>
+						<div v-show="isPreview && selectedNote.title" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()">
+							<div v-html="preview">
+							</div>
+						</div>
+					</div>
+					<flashmessage :messages="messages"></flashmessage>
+				</div>
+			</div>
+
+			<div class="sidebar-right" v-show="selectedNote.title" :style="{ right: ( propertiesOpen ? '0px' : '-'+propertiesWidth+'px' ) }">
+				<div class="cell-container" :style="{ width: propertiesWidth+'px' }">
+					<div v-if="selectedNote.properties">
+						<strong>Font Size: </strong><br/>
+						<select v-model="fontsize" style="width: 100%;">
+							<option>10</option>
+							<option>12</option>
+							<option>14</option>
+							<option>15</option>
+							<option>16</option>
+							<option>18</option>
+							<option>20</option>
+							<option>24</option>
+						</select>
+						<hr>
+						<table>
+							<tr>
+								<td><strong>Line Count: </strong></td>
+								<td class="right"><span>{{ selectedNote.properties.lineCount }}</span></td>
+							</tr>
+							<tr>
+								<td><strong>Word Count: </strong></td>
+								<td class="right"><span>{{ selectedNote.properties.wordCount }}</span></td>
+							</tr>
+							<tr>
+								<td><strong>Char Count: </strong></td>
+								<td class="right"><span>{{ selectedNote.properties.charCount }}</span></td>
+							</tr>
+						</table>
+						<hr>
+						<table>
+							<tr>
+								<td><strong>Created: </strong></td>
+							<tr/>
+							<tr>
+								<td class="right"><span>{{ selectedNote.data.created_at.format('MMM DD, YYYY') }}</span></td>
+							</tr>
+							<tr>
+								<td><strong>Modified: </strong></td>
+							</tr>
+							<tr>
+								<td class="right"><span>{{ selectedNote.data.updated_at.format('MMM DD, YYYY') }}</span></td>
+							</tr>
+						</table>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
 
-<modal :show.sync="modalShow"
-	:title="modalTitle"
-	:description="modalDescription"
-	:prompts.sync="modalPrompts"
-	:okcb="modalOkcb">
-</modal>
+	<modal
+		:show="modalShow"
+		:title="modalTitle"
+		:description="modalDescription"
+		:prompts="modalPrompts"
+		:okcb="modalOkcb">
+	</modal>
+</main>

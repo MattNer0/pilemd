@@ -575,7 +575,8 @@ class Rack extends Model {
 	readContents() {
 		if(!this._contentLoaded){
 			this._contentLoaded = true;
-			return Folder.readFoldersByRack(this);
+			this.folders = Folder.readFoldersByRack(this);
+			return this.folders;
 		} else {
 			return null;
 		}

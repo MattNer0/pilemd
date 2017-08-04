@@ -1,39 +1,43 @@
-const path = require('path');
-const fs = require('fs');
+var path = require('path');
+var fs = require('fs');
 
-const settings = require('./utils/settings');
+var settings = require('./utils/settings');
 settings.init();
 settings.loadWindowSize();
 
-const Vue = require('vue');
-const moment = require('moment');
+//var Vue = require('vue');
+import Vue from 'vue';
 
-//const Handler = require('./resizeHandler');
+//console.log(Vue);
+var moment = require('moment');
 
-const ApplicationMenu = require('./applicationmenu').ApplicationMenu;
-const models = require('./models');
-const initialModels = require('./initialModels');
-const preview = require('./preview');
-const searcher = require('./searcher');
+var ApplicationMenu = require('./applicationmenu').ApplicationMenu;
+var models = require('./models');
+var initialModels = require('./initialModels');
+var preview = require('./preview');
+var searcher = require('./searcher');
 
 // Electron things
-const remote = require('electron').remote;
-const Menu = remote.Menu;
-const MenuItem = remote.MenuItem;
-const dialog = remote.dialog;
+var remote = require('electron').remote;
+var Menu = remote.Menu;
+var MenuItem = remote.MenuItem;
+var dialog = remote.dialog;
 
-const arr = require('./utils/arr');
+var arr = require('./utils/arr');
+
+var eventHub = new Vue();
+global.eventHub = eventHub;
 
 // Vue.js plugins
-Vue.use(require('./components/flashmessage'));
-Vue.use(require('./components/modal/modal'));
-Vue.use(require('./components/racks/racks'));
-Vue.use(require('./components/notes/notes'));
-Vue.use(require('./components/codemirror'), {imageURL: '', imageParamName: 'image'});
-Vue.use(require('./components/resizeHandler').handlerStack);
-Vue.use(require('./components/resizeHandler').handlerNotes);
-Vue.use(require('./components/menu/titleMenu'));
-Vue.use(require('./components/menu/codemirrorMenu'));
+require('./components/flashmessage')(Vue);
+require('./components/modal/modal')(Vue);
+require('./components/racks/racks')(Vue);
+require('./components/notes/notes')(Vue);
+require('./components/codemirror')(Vue, {imageURL: '', imageParamName: 'image'});
+require('./components/resizeHandler').handlerStack(Vue);
+require('./components/resizeHandler').handlerNotes(Vue);
+require('./components/menu/titleMenu')(Vue);
+require('./components/menu/codemirrorMenu')(Vue);
 
 // Loading CSSs
 require('../scss/pilemd.scss');
@@ -54,7 +58,6 @@ if(settings_baseLibraryPath) models.setBaseLibraryPath(settings_baseLibraryPath)
 new Vue({
 	el: '#main-editor',
 	template: require('../html/app.html'),
-	replace: false,
 	data: {
 		isFullScreen: false,
 		isPreview: settings.get('vue_isPreview') || false,
@@ -75,7 +78,7 @@ new Vue({
 		modalDescription: 'description',
 		modalPrompts: [],
 		modalOkcb: null,
-		racksWidth: settings.get('rackswidth') || 180,
+		racksWidth: settings.get('racksWidth') || 180,
 		notesWidth: settings.get('notesWidth') || 180,
 		propertiesWidth: 180,
 		fontsize: settings.get('fontsize') || "15"
@@ -118,16 +121,18 @@ new Vue({
 			}
 		});
 
+		/*
 		this.$watch('selectedNote', () => {
 			if(this.isPreview) {
 				this.$set('preview', preview.render(this.selectedNote, this));
 			}
 			this.selectedRackOrFolder = this.selectedNote.data.folder;
 		});
+		*/
 
-		this.$watch('fontsize', () => {
+		/*this.$watch('fontsize', () => {
 			settings.set('fontsize', this.fontsize);
-		});
+		});*/
 
 		this.$watch('selectedRackOrFolder', () => {
 
@@ -149,11 +154,11 @@ new Vue({
 			}
 		});
 
-		this.$watch('isPreview', () => {
+		/*this.$watch('isPreview', () => {
 			if(this.selectedNote.data){
 				this.$set('preview', preview.render(this.selectedNote, this));
 			}
-		});
+		});*/
 
 		// Flash message
 		this.$on('flashmessage-push', function(message) {
@@ -193,9 +198,9 @@ new Vue({
 			}
 		}
 
-		this.$set('racks', 		racks);
-		this.$set('folders', 	folders);
-		this.$set('notes', 		notes);
+		this.racks = racks;
+		this.folders = folders;
+		this.notes = notes;
 
 		if(initial_notes.length > 0){
 			initial_notes[0].data.rack.openFolders = true;
@@ -206,21 +211,66 @@ new Vue({
 		// Save it not to remove
 		//this.watcher = models.makeWatcher(this.racks, this.folders, this.notes);
 	},
-	ready: function(){
-		/*var $scrollbar = document.querySelector(".my-notes");
-		this.scrollbarNotes  = tinyscrollbar($scrollbar);*/
+	mounted: function(){
 		var self = this;
-		window.addEventListener('resize', (e) => {
-			e.preventDefault();
-			settings.saveWindowSize();
-			self.update_editor_size();
+		this.$nextTick(function () {
+			window.addEventListener('resize', (e) => {
+				e.preventDefault();
+				settings.saveWindowSize();
+				self.update_editor_size();
+			});
+
+			var resizeHandler = document.getElementById('handlerStack')
+			if(resizeHandler) resizeHandler.previousElementSibling.style.width = this.racksWidth+"px";
+
+			var resizeHandler = document.getElementById('handlerNotes')
+			if(resizeHandler) resizeHandler.previousElementSibling.style.width = this.notesWidth+"px";
+
+
+			setTimeout(function(){
+				self.update_editor_size();
+			}, 100);
 		});
-		setTimeout(function(){
-			self.update_editor_size();
-		}, 100);
+
+		eventHub.$on('togglePreview', self.togglePreviewCallBack);
 	},
-	events: {
+	methods: {
+		changeRackOrFolder: function(obj) {
+			this.selectedRackOrFolder = obj;
+		},
+		changeNote: function(obj) {
+			this.selectedNote = obj;
+		},
+		openrack: function(rack) {
+			var newData = rack.readContents();
+			if(newData) {
+				this.folders = this.folders.concat( newData );
+				for(var i=0;i<newData.length;i++){
+					var newNotes = newData[i].readContents();
+					if(newNotes) {
+						this.notes = this.notes.concat( newNotes );
+						newData[i].notes = newNotes;
+					}
+				}
+			}
+			rack.openFolders = true;
+		},
+		closerack: function(rack) {
+			rack.openFolders = false;
+		},
+		toggleFullScreen: function() {
+			this.isFullScreen = !this.isFullScreen;
+			settings.set('vue_isFullScreen', this.isFullScreen);
+			this.update_editor_size();
+		},
+		toggleProperties: function() {
+			this.propertiesOpen = !this.propertiesOpen;
+			this.update_editor_size();
+		},
 		togglePreview: function() {
+			eventHub.$emit('togglePreview');
+		},
+		togglePreviewCallBack: function() {
 			this.isPreview = !this.isPreview;
 			settings.set('vue_isPreview', this.isPreview);
 
@@ -246,22 +296,7 @@ new Vue({
 						accelerator: 'CmdOrCtrl+V',
 						role: 'paste'
 					}]);
-				//menu.setMenu();
 			}
-		}
-	},
-	methods: {
-		toggleFullScreen: function() {
-			this.isFullScreen = !this.isFullScreen;
-			settings.set('vue_isFullScreen', this.isFullScreen);
-			this.update_editor_size();
-		},
-		toggleProperties: function() {
-			this.propertiesOpen = !this.propertiesOpen;
-			this.update_editor_size();
-		},
-		togglePreview: function() {
-			this.$dispatch('togglePreview');
 		},
 		addRack: function() {
 			var rack = new models.Rack({name: "", ordering: 0});
@@ -445,6 +480,9 @@ new Vue({
 			var cellsRight = document.querySelectorAll('.outer_wrapper .sidebar-right .cell-container');
 			//var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + 5;
 			//var widthTotalRight = parseInt( cellsRight[0].style.width.replace('px','') );
+			if (cellsLeft.length == 0 || cellsRight.length == 0) {
+				return;
+			}
 
 			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + parseInt( cellsLeft[1].style.width.replace('px','') ) + 10;
 			var widthTotalRight = parseInt( cellsRight[0].style.width.replace('px','') ); //+ parseInt( cellsRight[1].style.width.replace('px','') ) + 10;
@@ -468,10 +506,17 @@ new Vue({
 		},
 		save_editor_size: function() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
-			this.rackswidth = cellsLeft.length > 0 ? parseInt( cellsLeft[0].style.width.replace('px','') ) : 180;
+			this.racksWidth = cellsLeft.length > 0 ? parseInt( cellsLeft[0].style.width.replace('px','') ) : 180;
 			this.notesWidth = cellsLeft.length > 1 ? parseInt( cellsLeft[1].style.width.replace('px','') ) : 180;
-			settings.set('rackswidth', this.rackswidth);
+			settings.set('racksWidth', this.racksWidth);
 			settings.set('notesWidth', this.notesWidth);
+		},
+		editordrag: function() {
+			this.update_editor_size();
+		},
+		editordragend: function() {
+			this.update_editor_size();
+			this.save_editor_size();
 		},
 		menu_close: function() {
 			var win = remote.getCurrentWindow();
@@ -488,6 +533,22 @@ new Vue({
 		menu_min: function() {
 			var win = remote.getCurrentWindow();
 			win.minimize();
+		}
+	},
+	watch: {
+		isPreview: function() {
+			if(this.selectedNote.data){
+				this.$set('preview', preview.render(this.selectedNote, this));
+			}
+		},
+		fontsize: function() {
+			settings.set('fontsize', this.fontsize);
+		},
+		selectedNote: function() {
+			if(this.isPreview) {
+				this.$set('preview', preview.render(this.selectedNote, this));
+			}
+			this.selectedRackOrFolder = this.selectedNote.data.folder;
 		}
 	}
 });
