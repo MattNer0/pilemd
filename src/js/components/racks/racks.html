@@ -8,7 +8,7 @@
 			@dragleave.stop="rackDragLeave(rack)"
 			@drop.stop="dropToRack($event, rack)"
 			@contextmenu.prevent.stop="rackMenu(rack)">
-		<h4 @click.prevent.stop="selectRack(rack)" :class="{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote()) || rack.dragHover }">
+		<h4 @click.prevent.stop="selectRack(rack)" :class="{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote() && rack.openFolders) || rack.dragHover }">
 			<i class="material-icons rack-icon closed-icon">label</i>
 			<i class="material-icons rack-icon opened-icon">label_outline</i>
 			<a v-if="editingRack != rack">{{ rack.name }}</a>
@@ -25,7 +25,7 @@
 				'noteIsHere': !isDraggingNote() && selectedNote.folderUid == folder.uid,
 				'sortUpper': folder.sortUpper,
 				'sortLower': folder.sortLower}"
-				class="my-shelf-folder" v-for="folder in orderedFolders(rack)"
+				class="my-shelf-folder" v-for="folder in rack.folders"
 				:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
 				@dragstart.stop="folderDragStart($event, rack, folder)"
 				@dragend.stop="folderDragEnd(folder)"

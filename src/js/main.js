@@ -8,9 +8,6 @@ settings.loadWindowSize();
 //var Vue = require('vue');
 import Vue from 'vue';
 
-//console.log(Vue);
-var moment = require('moment');
-
 var ApplicationMenu = require('./applicationmenu').ApplicationMenu;
 var models = require('./models');
 var initialModels = require('./initialModels');
@@ -74,7 +71,7 @@ new Vue({
 		allDragHover: false,
 		messages: [],
 		modalShow: false,
-		modalTitle: 'Title',
+		modalTitle: 'title',
 		modalDescription: 'description',
 		modalPrompts: [],
 		modalOkcb: null,
@@ -134,26 +131,6 @@ new Vue({
 			settings.set('fontsize', this.fontsize);
 		});*/
 
-		this.$watch('selectedRackOrFolder', () => {
-
-			if(this.selectedRackOrFolder){
-				var newData = this.selectedRackOrFolder.readContents();
-
-				if (this.selectedRackOrFolder instanceof models.Folder) {
-					if(newData) {
-						this.notes = this.notes.concat( newData );
-						this.selectedRackOrFolder.notes = newData;
-					}
-					var filteredNotes = searcher.searchNotes(this.filterFolder, this.search, this.notes);
-					filteredNotes.forEach(function(note){
-						if(!note.body) note.loadBody();
-					});
-				} else {
-					if(newData) this.folders = this.folders.concat( newData );
-				}
-			}
-		});
-
 		/*this.$watch('isPreview', () => {
 			if(this.selectedNote.data){
 				this.$set('preview', preview.render(this.selectedNote, this));
@@ -167,6 +144,7 @@ new Vue({
 				this.messages.shift()
 			}, message.period)
 		});
+
 		// Modal
 		this.$on('modal-show', function(modalMessage) {
 			this.modalTitle = modalMessage.title;
@@ -214,18 +192,18 @@ new Vue({
 	mounted: function(){
 		var self = this;
 		this.$nextTick(function () {
+			
 			window.addEventListener('resize', (e) => {
 				e.preventDefault();
 				settings.saveWindowSize();
 				self.update_editor_size();
 			});
 
-			var resizeHandler = document.getElementById('handlerStack')
-			if(resizeHandler) resizeHandler.previousElementSibling.style.width = this.racksWidth+"px";
+			var handlerStack = document.getElementById('handlerStack')
+			if(handlerStack) handlerStack.previousElementSibling.style.width = this.racksWidth+"px";
 
-			var resizeHandler = document.getElementById('handlerNotes')
-			if(resizeHandler) resizeHandler.previousElementSibling.style.width = this.notesWidth+"px";
-
+			var handlerNotes = document.getElementById('handlerNotes')
+			if(handlerNotes) handlerNotes.previousElementSibling.style.width = this.notesWidth+"px";
 
 			setTimeout(function(){
 				self.update_editor_size();
@@ -253,10 +231,15 @@ new Vue({
 					}
 				}
 			}
+			rack.folders = rack.folders.sort(function(a, b) { return a.ordering - b.ordering });
 			rack.openFolders = true;
 		},
 		closerack: function(rack) {
 			rack.openFolders = false;
+		},
+		folderDrag: function(obj) {
+			var rack = obj.rack;
+			rack.folders = rack.folders.sort(function(a, b) { return a.ordering - b.ordering });
 		},
 		toggleFullScreen: function() {
 			this.isFullScreen = !this.isFullScreen;
@@ -538,7 +521,7 @@ new Vue({
 	watch: {
 		isPreview: function() {
 			if(this.selectedNote.data){
-				this.$set('preview', preview.render(this.selectedNote, this));
+				this.preview = preview.render(this.selectedNote, this);
 			}
 		},
 		fontsize: function() {
@@ -546,9 +529,27 @@ new Vue({
 		},
 		selectedNote: function() {
 			if(this.isPreview) {
-				this.$set('preview', preview.render(this.selectedNote, this));
+				this.preview = preview.render(this.selectedNote, this);
 			}
 			this.selectedRackOrFolder = this.selectedNote.data.folder;
+		},
+		selectedRackOrFolder: function() {
+			if (this.selectedRackOrFolder) {
+				var newData = this.selectedRackOrFolder.readContents();
+
+				if (this.selectedRackOrFolder instanceof models.Folder) {
+					if(newData) {
+						this.notes = this.notes.concat( newData );
+						this.selectedRackOrFolder.notes = newData;
+					}
+					var filteredNotes = searcher.searchNotes(this.filterFolder, this.search, this.notes);
+					filteredNotes.forEach(function(note){
+						if(!note.body) note.loadBody();
+					});
+				} else {
+					if(newData) this.folders = this.folders.concat( newData );
+				}
+			}
 		}
 	}
 });

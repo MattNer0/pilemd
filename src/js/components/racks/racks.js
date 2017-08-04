@@ -51,9 +51,6 @@ module.exports = function(Vue) {
 			},
 		},
 		methods: {
-			orderedFolders: function(rack) {
-				return rack.folders; //.sort(function(a, b) { return a.ordering - b.ordering });
-			},
 			isDraggingNote: function() {
 				return !!this.draggingNote;
 			},
@@ -154,8 +151,8 @@ module.exports = function(Vue) {
 				this.draggingRack = rack;
 			},
 			rackDragEnd: function() {
-				console.log("Dragging Rack ended");
 				this.draggingRack = null;
+				this.$emit('select', null);
 			},
 			rackDragOver: function(event, rack) {
 				if (this.draggingFolder) {
@@ -230,6 +227,10 @@ module.exports = function(Vue) {
 				this.draggingFolderRack = rack;
 			},
 			folderDragEnd: function() {
+				this.$emit('folderdragend', {
+					folder: this.draggingFolder,
+					rack: this.draggingFolderRack
+				});
 				this.draggingFolder = null;
 				this.draggingFolderRack = null;
 			},
