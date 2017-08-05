@@ -1,20 +1,68 @@
-const remote = require('electron').remote;
-const Menu = remote.Menu;
-const MenuItem = remote.MenuItem;
+<template lang="pug">
+	div
+		.my-shelf-rack(v-for="rack in racksWithFolders"
+			:class="{'sortUpper': rack.sortUpper, 'sortLower': rack.sortLower, 'openFolders' : rack.openFolders }"
+			:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
+			@dragstart.stop="rackDragStart($event, rack)"
+			@dragend.stop="rackDragEnd()"
+			@dragover="rackDragOver($event, rack)"
+			@dragleave.stop="rackDragLeave(rack)"
+			@drop.stop="dropToRack($event, rack)"
+			@contextmenu.prevent.stop="rackMenu(rack)")
+			h4(@click.prevent.stop="selectRack(rack)"
+				:class="{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote() && rack.openFolders) || rack.dragHover }")
+				i.material-icons.rack-icon.closed-icon label
+				i.material-icons.rack-icon.opened-icon label_outline
+				a(v-if="editingRack != rack") {{ rack.name }}
+				input(v-if="editingRack == rack"
+					v-model="rack.name"
+					v-focus="editingRack == rack"
+					@blur="doneRackEdit(rack)"
+					@keyup.enter="doneRackEdit(rack)"
+					@keyup.esc="doneRackEdit(rack)")
+			
+			//- Folder
+			div.my-shelf-folder(v-for="folder in rack.folders"
+				:class="{'isShelfSelected': (isSelectedFolder(folder) && !isDraggingNote()) || folder.dragHover, 'openNotes' : folder.openNotes, 'noteDragging': isDraggingNote(), 'noteIsHere': !isDraggingNote() && selectedNote.folderUid == folder.uid, 'sortUpper': folder.sortUpper, 'sortLower': folder.sortLower}"
+				:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
+				@dragstart.stop="folderDragStart($event, rack, folder)"
+				@dragend.stop="folderDragEnd(folder)"
+				@dragover.stop="folderDragOver($event, rack, folder)"
+				@dragleave="folderDragLeave(folder)"
+				@drop="dropToFolder($event, rack, folder)"
+				@contextmenu.prevent.stop="folderMenu(rack, folder)")
+				h5(@click.prevent.stop="selectFolder(folder)")
+					i.material-icons folder
+					a.my-shelf-folder-name(v-if="editingFolder != folder")
+						| {{ folder.name }}
+						span.my-shelf-folder-badge(v-show="folder.notes.length > 0") {{ folder.notes.length }}
+					input(v-if="editingFolder == folder"
+						v-model="folder.name"
+						v-focus="editingFolder == folder"
+						@blur="doneFolderEdit(rack, folder)"
+						@keyup.enter="doneFolderEdit(rack, folder)"
+						@keyup.esc="doneFolderEdit(rack, folder)")
+</template>
 
-const fs = require('fs');
-const path = require('path');
+<script>
+	const remote = require('electron').remote;
+	const Menu = remote.Menu;
+	const MenuItem = remote.MenuItem;
 
-const arr = require('../../utils/arr');
-const dragging = require('../../utils/dragging');
+	const fs = require('fs');
+	const path = require('path');
+	const Vue = require('vue');
 
-const models = require('../../models');
-const Rack = models.Rack;
-const Folder = models.Folder;
-const Note = models.Note;
+	const arr = require('../utils/arr');
+	const dragging = require('../utils/dragging');
 
-module.exports = function(Vue) {
-	Vue.component('racks', {
+	const models = require('../models');
+	const Rack = models.Rack;
+	const Folder = models.Folder;
+	const Note = models.Note;
+
+	export default {
+		name: 'racks',
 		props: ['racks', 'folders', 'notes', 'filteredNotes', 'selectedRackOrFolder', 'selectedNote', 'editingRack', 'draggingNote', 'toggleFullScreen'],
 		data: function() {
 			return {
@@ -25,7 +73,6 @@ module.exports = function(Vue) {
 				scrollbarNotes: null
 			};
 		},
-		template: require('./racks.html'),
 		directives: {
 			'focus': function(value) {
 				if (!value) {
@@ -39,14 +86,6 @@ module.exports = function(Vue) {
 		},
 		computed: {
 			racksWithFolders: function() {
-				//var folders = this.folders;
-				//var racks = this.racks;
-				/*if (folders.length > 0) {
-					racks.forEach((r) => {
-						r.folders = folders.filter((f) => { return f.uid && f.rackUid == r.uid });
-					});
-				}*/
-				//return racks;
 				return this.racks.sort(function(a, b) { return a.ordering - b.ordering });
 			},
 		},
@@ -326,5 +365,5 @@ module.exports = function(Vue) {
 				menu.popup(remote.getCurrentWindow());
 			}
 		}
-	});
-};
+	}
+</script>

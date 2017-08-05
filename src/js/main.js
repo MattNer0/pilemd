@@ -26,15 +26,24 @@ var eventHub = new Vue();
 global.eventHub = eventHub;
 
 // Vue.js plugins
-require('./components/flashmessage')(Vue);
-require('./components/modal/modal')(Vue);
-require('./components/racks/racks')(Vue);
-require('./components/notes/notes')(Vue);
-require('./components/codemirror')(Vue, {imageURL: '', imageParamName: 'image'});
-require('./components/resizeHandler').handlerStack(Vue);
-require('./components/resizeHandler').handlerNotes(Vue);
-require('./components/menu/titleMenu')(Vue);
-require('./components/menu/codemirrorMenu')(Vue);
+
+import component_flashmessage from './components/flashmessage.vue';
+import component_racks from './components/racks.vue';
+import component_notes from './components/notes.vue';
+import component_modal from './components/modal.vue';
+import component_titleMenu from './components/titleMenu.vue';
+import component_codemirrorMenu from './components/codemirrorMenu.vue';
+import component_handlerStack from './components/handlerStack.vue';
+import component_handlerNotes from './components/handlerNotes.vue';
+import component_codeMirror from './components/codemirror.vue';
+
+//require('./components/modal/modal')(Vue);
+//require('./components/notes/notes')(Vue);
+//require('./components/codemirror')(Vue, {imageURL: '', imageParamName: 'image'});
+//require('./components/resizeHandler').handlerStack(Vue);
+//require('./components/resizeHandler').handlerNotes(Vue);
+//require('./components/menu/titleMenu')(Vue);
+//require('./components/menu/codemirrorMenu')(Vue);
 
 // Loading CSSs
 require('../scss/pilemd.scss');
@@ -79,6 +88,17 @@ new Vue({
 		notesWidth: settings.get('notesWidth') || 180,
 		propertiesWidth: 180,
 		fontsize: settings.get('fontsize') || "15"
+	},
+	components: {
+		'flashmessage': component_flashmessage,
+		'racks': component_racks,
+		'notes': component_notes,
+		'modal': component_modal,
+		'titleMenu': component_titleMenu,
+		'codemirrorMenu': component_codemirrorMenu,
+		'handlerStack': component_handlerStack,
+		'handlerNotes': component_handlerNotes,
+		'codemirror': component_codeMirror
 	},
 	computed: {
 		filteredNotes: function() {

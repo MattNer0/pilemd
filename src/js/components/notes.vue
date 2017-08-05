@@ -1,30 +1,51 @@
-const marked = require('marked');
+<template lang="pug">
+	.my-notes
+		.my-separator(v-for="separated in notesFiltered", v-bind:key="separated.dateStr")
+			.my-separator-date {{ separated.dateStr }}
+			.my-notes-note(v-for="note in separated.notes",
+				track-by="uid",
+				@click="selectNote(note)",
+				@dblclick="selectNoteAndWide(note)",
+				@contextmenu.prevent.stop="noteMenu(note)",
+				@dragstart.stop="noteDragStart($event, note)",
+				@dragend.stop="noteDragEnd()",
+				:class="{'my-notes-note-selected': selectedNote === note}",
+				draggable="true")
+				h5.my-notes-note-title(v-if="note.title")
+					i.material-icons description
+					| {{ note.title }}
+				.my-notes-note-image(v-if="note.img")
+					img(:src="note.img")
+				.my-notes-note-body(v-if="!note.img && note.body.length != 0")
+					| {{ note.bodyWithoutTitle | truncate(80) }}
+</template>
 
-const fs = require('fs');
+<script>
+	const marked = require('marked');
+	const fs = require('fs');
+	const Vue = require('vue');
 
-const ApplicationMenu = require('../../applicationmenu').ApplicationMenu;
-const fileUtils = require('../../utils/file');
+	const ApplicationMenu = require('../applicationmenu').ApplicationMenu;
+	const fileUtils = require('../utils/file');
 
-// Electron things
-const remote = require('electron').remote;
-const shell = remote.shell;
-const Menu = remote.Menu;
-const MenuItem = remote.MenuItem;
-const clipboard = require('electron').clipboard;
-const dialog = remote.dialog;
+	// Electron things
+	const remote = require('electron').remote;
+	const shell = remote.shell;
+	const Menu = remote.Menu;
+	const MenuItem = remote.MenuItem;
+	const clipboard = require('electron').clipboard;
+	const dialog = remote.dialog;
 
-const Note = require('../../models').Note;
+	const Note = require('../models').Note;
 
-const NOTE_DISPLAY_ORDER_KEY = 'notes.notesDisplayOrder';
+	const NOTE_DISPLAY_ORDER_KEY = 'notes.notesDisplayOrder';
 
-module.exports = function(Vue, options) {
-	Vue.use(require('../../filters/truncate'));
-	Vue.use(require('../../filters/dateSplitted'));
+	Vue.use(require('../filters/truncate'));
+	Vue.use(require('../filters/dateSplitted'));
 
-	Vue.component('notes', {
-		replace: true,
+	export default {
+		name: 'notes',
 		props: ['notes', 'originalNotes', 'selectedNote', 'draggingNote', 'toggleFullScreen', 'selectedRackOrFolder'],
-		template: require('./notes.html'),
 		data: function() {
 			return {
 				notesDisplayOrder: 'updatedAt'
@@ -44,7 +65,6 @@ module.exports = function(Vue, options) {
 		},
 		computed: {
 			notesFiltered: function() {
-				// dateSeparated notesDisplayOrder
 				var dateSeparated = Vue.filter('dateSeparated');
 				return dateSeparated(this.notes, this.notesDisplayOrder);
 			}
@@ -130,5 +150,5 @@ module.exports = function(Vue, options) {
 				menu.popup(remote.getCurrentWindow());
 			}
 		}
-	});
-};
+	}
+</script>

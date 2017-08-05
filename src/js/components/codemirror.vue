@@ -1,32 +1,37 @@
-const fs = require('fs');
-const path = require('path');
+<template lang="pug">
+	div
+</template>
 
-const _ = require('lodash');
+<script>
+	const fs = require('fs');
+	const path = require('path');
+	const Vue = require('vue');
 
-const Image = require('../models').Image;
-const ApplicationMenu = require('../applicationmenu').ApplicationMenu;
+	const _ = require('lodash');
 
-const electron = require('electron');
-const remote = electron.remote;
-const Menu = remote.Menu;
-const MenuItem = remote.MenuItem;
-const shell = electron.shell;
-const dialog = remote.dialog;
-const applicationmenu = require('../applicationmenu');
+	const Image = require('../models').Image;
+	const ApplicationMenu = require('../applicationmenu').ApplicationMenu;
 
-const clipboard = electron.clipboard;
-const elutils = require('../codemirror/elutils');
-const copyText = elutils.copyText;
-const cutText = elutils.cutText;
-const pasteText = elutils.pasteText;
+	const electron = require('electron');
+	const remote = electron.remote;
+	const Menu = remote.Menu;
+	const MenuItem = remote.MenuItem;
+	const shell = electron.shell;
+	const dialog = remote.dialog;
+	const applicationmenu = require('../applicationmenu');
 
-const IMAGE_TAG_TEMP = _.template('![<%- filename %>](<%- fileurl %>)\n');
+	const clipboard = electron.clipboard;
+	const elutils = require('../codemirror/elutils');
+	const copyText = elutils.copyText;
+	const cutText = elutils.cutText;
+	const pasteText = elutils.pasteText;
 
-module.exports = function(Vue, options) {
+	const IMAGE_TAG_TEMP = _.template('![<%- filename %>](<%- fileurl %>)\n');
 
 	require('codemirror/lib/codemirror.css');
 
 	const CodeMirror = require('codemirror');
+
 	require('codemirror/addon/search/searchcursor');
 	//require('../codemirror/piledsearch');
 	require('codemirror/addon/edit/closebrackets');
@@ -60,31 +65,9 @@ module.exports = function(Vue, options) {
 	require('codemirror/mode/meta');
 	require('../codemirror/piledmap');
 
-	function uploadFiles(cm, files, vm) {
-		files = Array.prototype.slice.call(files, 0, 5);
-		_.forEach(files, (f) => {
-			try {
-				var image = Image.fromBinary(f.name, f.path);
-			} catch (e) {
-				vm.$message('error', 'Failed to load and save image', 5000);
-				console.log(e);
-				return
-			}
-			cm.doc.replaceRange(
-				IMAGE_TAG_TEMP({ filename: f.name, fileurl: image.pilemdURL }),
-				cm.doc.getCursor()
-			);
-			vm.$message('info', 'Saved image to ' + image.makeFilePath());
-		});
-	}
-
-	/**
-	 * Component to dender CodeMirror editor
-	 * It's already customized for editing page of piled.
-	 */
-	Vue.component('codemirror', {
+	export default {
+		name: 'codemirror',
 		props: ['note', 'isFullScreen', 'isPreview'],
-		template: require('./codemirror.html'),
 		mounted: function () {
 			var self = this;
 
@@ -120,7 +103,7 @@ module.exports = function(Vue, options) {
 					if (event.dataTransfer.files.length > 0) {
 						var p = cm.coordsChar({ top: event.y, left: event.x });
 						cm.setCursor(p);
-						uploadFiles(cm, event.dataTransfer.files, this);
+						self.uploadFiles(cm, event.dataTransfer.files);
 					} else {
 						return true;
 					}
@@ -270,12 +253,29 @@ module.exports = function(Vue, options) {
 					var name = path.basename(notePath);
 					return { name: name, path: notePath }
 				});
-				uploadFiles(cm, files, this);
+				this.uploadFiles(cm, files);
 			},
-
+			uploadFiles: function(cm, files) {
+				var self = this;
+				files = Array.prototype.slice.call(files, 0, 5);
+				_.forEach(files, (f) => {
+					try {
+						var image = Image.fromBinary(f.name, f.path);
+					} catch (e) {
+						self.$message('error', 'Failed to load and save image', 5000);
+						console.log(e);
+						return
+					}
+					cm.doc.replaceRange(
+						IMAGE_TAG_TEMP({ filename: f.name, fileurl: image.pilemdURL }),
+						cm.doc.getCursor()
+					);
+					self.$message('info', 'Saved image to ' + image.makeFilePath());
+				});
+			},
 			togglePreview: function() {
 				eventHub.$emit('togglePreview');
 			},
 		}
-	});
-};
+	}
+</script>

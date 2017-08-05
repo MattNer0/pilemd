@@ -15,11 +15,36 @@ module.exports = {
 	},
 	module: {
 		loaders: [
-			{test: /\.js$/, loader: 'babel-loader', exclude: /(node_modules|dist)/},
-			{test: /\.(png|woff|woff2|ttf)$/, loader: 'url-loader?limit=100000'},
-			{test: /\.html$/, loader: 'html-loader?attrs=false'},
-			{test: /\.css$/, loader: 'style-loader!css-loader'},
-			{test: /\.scss$/, loader: 'style-loader!css-loader!sass-loader'}
+			{
+				test: /\.js$/,
+				loader: 'babel-loader',
+				exclude: /(node_modules|dist)/
+			},
+			{
+				test: /\.vue$/,
+				loader: 'vue-loader',
+				options: {
+					loaders: {
+						js: 'babel-loader'
+					}
+				}
+			},
+			{
+				test: /\.(png|woff|woff2|ttf)$/,
+				loader: 'url-loader?limit=100000'
+			},
+			{
+				test: /\.html$/,
+				loader: 'html-loader?attrs=false'
+			},
+			{
+				test: /\.css$/,
+				loader: 'style-loader!css-loader'
+			},
+			{
+				test: /\.scss$/,
+				loader: 'style-loader!css-loader!sass-loader'
+			}
 		]
 	},
 	plugins: [

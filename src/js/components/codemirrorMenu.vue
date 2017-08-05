@@ -1,11 +1,20 @@
-const remote = require('electron').remote;
+<template lang="pug">
+	.CodeMirror-menu(v-show="!$root.isPreview && $root.selectedNote.title")
+		nav: ul
+			li: a(@click="menu_codeBlock()", href="#")
+				i.material-icons code
+				|  Code block
+			li: a(@click="menu_checkMark()", href="#")
+				i.material-icons done
+				|  Checkbox
+</template>
 
-function codemirrorMenu(Vue, options) {
+<script>
+	const remote = require('electron').remote;
 
-	Vue.component('codemirrorMenu', {
-		replace: true,
+	export default {
+		name: 'codemirrorMenu',
 		props: [],
-		template: require('./codemirrorMenu.html'),
 		methods: {
 			codeMirror: function() {
 				return this.$parent.codeMirror;
@@ -56,7 +65,5 @@ function codemirrorMenu(Vue, options) {
 				cm.focus();
 			}
 		}
-	});
-}
-
-module.exports = codemirrorMenu;
+	}
+</script>
