@@ -220,11 +220,21 @@ new Vue({
 		eventHub.$on('togglePreview', self.togglePreviewCallBack);
 	},
 	methods: {
-		changeRackOrFolder: function(obj) {
-			this.selectedRackOrFolder = obj;
+		init_scrollbar_racks: function() {
 			this.$nextTick(function () {
+				this.$refs.RacksScrollbar.scrollToY(0);
 				this.$refs.RacksScrollbar.calculateSize();
 			});
+		},
+		init_scrollbar_note: function() {
+			this.$nextTick(function () {
+				this.$refs.MainScrollbar.scrollToY(0);
+				this.$refs.MainScrollbar.calculateSize();
+			});
+		},
+		changeRackOrFolder: function(obj) {
+			this.selectedRackOrFolder = obj;
+			this.init_scrollbar_racks();
 		},
 		changeNote: function(obj) {
 			this.selectedNote = obj;
@@ -243,15 +253,11 @@ new Vue({
 			}
 			rack.folders = rack.folders.sort(function(a, b) { return a.ordering - b.ordering });
 			rack.openFolders = true;
-			this.$nextTick(function () {
-				this.$refs.RacksScrollbar.calculateSize();
-			});
+			this.init_scrollbar_racks();
 		},
 		closerack: function(rack) {
 			rack.openFolders = false;
-			this.$nextTick(function () {
-				this.$refs.RacksScrollbar.calculateSize();
-			});
+			this.init_scrollbar_racks();
 		},
 		folderDrag: function(obj) {
 			var rack = obj.rack;
@@ -296,9 +302,6 @@ new Vue({
 						role: 'paste'
 					}]);
 			}
-			this.$nextTick(function () {
-				this.$refs.MainScrollbar.calculateSize();
-			});
 		},
 		addRack: function() {
 			var rack = new models.Rack({name: "", ordering: 0});
@@ -526,6 +529,7 @@ new Vue({
 			if(this.selectedNote.data){
 				this.preview = preview.render(this.selectedNote, this);
 			}
+			this.init_scrollbar_note();
 		},
 		fontsize: function() {
 			settings.set('fontsize', this.fontsize);
@@ -537,6 +541,7 @@ new Vue({
 			this.selectedRackOrFolder = this.selectedNote.data.folder;
 			this.$nextTick(function () {
 				this.$refs.MainScrollbar.calculateSize();
+				this.$refs.MainScrollbar.scrollToY(0);
 			});
 		},
 		selectedRackOrFolder: function() {
@@ -557,6 +562,7 @@ new Vue({
 				}
 				this.$nextTick(function () {
 					this.$refs.NotesScrollbar.calculateSize();
+					this.$refs.NotesScrollbar.scrollToY(0);
 				});
 			}
 		}
