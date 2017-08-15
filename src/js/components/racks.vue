@@ -1,5 +1,5 @@
 <template lang="pug">
-	div
+	.my-shelf-racks
 		.my-shelf-rack(v-for="rack in racksWithFolders"
 			:class="{'sortUpper': rack.sortUpper, 'sortLower': rack.sortLower, 'openFolders' : rack.openFolders }"
 			:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"

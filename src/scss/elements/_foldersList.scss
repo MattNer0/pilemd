@@ -1,3 +1,8 @@
+.my-shelf-racks {
+	padding-bottom: 2em;
+	cursor: default;
+}
+
 .my-shelf {
 	color: $ui-text-color;
 
@@ -5,10 +10,9 @@
 	width: auto;
 	height: 100%;
 
-	overflow-x: hidden;
-	overflow-y: scroll;
 	white-space: nowrap;
 }
+
 .my-shelf-rack {
 	position: relative;
 	padding: 0;

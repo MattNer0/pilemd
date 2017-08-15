@@ -19,10 +19,10 @@ $note-bold-color: #000;
 $folder-dragdrop-separator: #62c8f3;
 $folder-badge-background: #212023;
 $folder-badge-color: #adacac;
-$scrollbar-track-background: #333;
-$scrollbar-thumb: #666;
-$scrollbar-thumb-border: #000;
-$scrollbar-thumb-hover: #777;
+
+$scrollbar-track-background: rgba(255, 255, 255, 0.1);
+$scrollbar-thumb: #333;
+$scrollbar-thumb-border: #555;
 
 $title-bar-height: 2.5em;
 $system-bar-height: 30px;

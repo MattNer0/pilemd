@@ -38,6 +38,9 @@ import component_handlerStack from './components/handlerStack.vue';
 import component_handlerNotes from './components/handlerNotes.vue';
 import component_codeMirror from './components/codemirror.vue';
 
+import vueScrollbar from 'vue2-scrollbar';
+require('vue2-scrollbar/dist/style/vue2-scrollbar.css');
+
 //require('./components/modal/modal')(Vue);
 //require('./components/notes/notes')(Vue);
 //require('./components/codemirror')(Vue, {imageURL: '', imageParamName: 'image'});
@@ -100,7 +103,8 @@ new Vue({
 		'codemirrorMenu': component_codemirrorMenu,
 		'handlerStack': component_handlerStack,
 		'handlerNotes': component_handlerNotes,
-		'codemirror': component_codeMirror
+		'codemirror': component_codeMirror,
+		'vueScrollbar': vueScrollbar
 	},
 	computed: {
 		filteredNotes: function() {
@@ -139,25 +143,6 @@ new Vue({
 				});
 			}
 		});
-
-		/*
-		this.$watch('selectedNote', () => {
-			if(this.isPreview) {
-				this.$set('preview', preview.render(this.selectedNote, this));
-			}
-			this.selectedRackOrFolder = this.selectedNote.data.folder;
-		});
-		*/
-
-		/*this.$watch('fontsize', () => {
-			settings.set('fontsize', this.fontsize);
-		});*/
-
-		/*this.$watch('isPreview', () => {
-			if(this.selectedNote.data){
-				this.$set('preview', preview.render(this.selectedNote, this));
-			}
-		});*/
 
 		// Flash message
 		this.$on('flashmessage-push', function(message) {
@@ -237,6 +222,9 @@ new Vue({
 	methods: {
 		changeRackOrFolder: function(obj) {
 			this.selectedRackOrFolder = obj;
+			this.$nextTick(function () {
+				this.$refs.RacksScrollbar.calculateSize();
+			});
 		},
 		changeNote: function(obj) {
 			this.selectedNote = obj;
@@ -255,9 +243,15 @@ new Vue({
 			}
 			rack.folders = rack.folders.sort(function(a, b) { return a.ordering - b.ordering });
 			rack.openFolders = true;
+			this.$nextTick(function () {
+				this.$refs.RacksScrollbar.calculateSize();
+			});
 		},
 		closerack: function(rack) {
 			rack.openFolders = false;
+			this.$nextTick(function () {
+				this.$refs.RacksScrollbar.calculateSize();
+			});
 		},
 		folderDrag: function(obj) {
 			var rack = obj.rack;
@@ -302,6 +296,9 @@ new Vue({
 						role: 'paste'
 					}]);
 			}
+			this.$nextTick(function () {
+				this.$refs.MainScrollbar.calculateSize();
+			});
 		},
 		addRack: function() {
 			var rack = new models.Rack({name: "", ordering: 0});
@@ -523,22 +520,6 @@ new Vue({
 			this.update_editor_size();
 			this.save_editor_size();
 		}
-		/*menu_close: function() {
-			var win = remote.getCurrentWindow();
-			win.close();
-		},
-		menu_max: function() {
-			var win = remote.getCurrentWindow();
-			if(win.isMaximized()){
-				win.unmaximize();
-			} else {
-				win.maximize();
-			}
-		},
-		menu_min: function() {
-			var win = remote.getCurrentWindow();
-			win.minimize();
-		}*/
 	},
 	watch: {
 		isPreview: function() {
@@ -554,6 +535,9 @@ new Vue({
 				this.preview = preview.render(this.selectedNote, this);
 			}
 			this.selectedRackOrFolder = this.selectedNote.data.folder;
+			this.$nextTick(function () {
+				this.$refs.MainScrollbar.calculateSize();
+			});
 		},
 		selectedRackOrFolder: function() {
 			if (this.selectedRackOrFolder) {
@@ -571,6 +555,9 @@ new Vue({
 				} else {
 					if(newData) this.folders = this.folders.concat( newData );
 				}
+				this.$nextTick(function () {
+					this.$refs.NotesScrollbar.calculateSize();
+				});
 			}
 		}
 	}

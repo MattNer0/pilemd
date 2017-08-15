@@ -121,7 +121,7 @@ codemirror {
 }
 
 .CodeMirror-scroll {
-	overflow-y: hidden !important;
+	overflow: hidden !important;
 	margin: 0;
 	width: auto;
 	min-height: 100%;

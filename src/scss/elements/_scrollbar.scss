@@ -1,3 +1,22 @@
+.vue-scrollbar__scrollbar-vertical .scrollbar, .vue-scrollbar__scrollbar-horizontal .scrollbar{
+	border-radius: 5em;
+	border: 1px solid $scrollbar-thumb-border;
+	background: $scrollbar-thumb;
+}
+
+.vue-scrollbar__wrapper .vue-scrollbar__scrollbar-vertical, .vue-scrollbar__wrapper .vue-scrollbar__scrollbar-horizontal{
+	opacity: 0.2;
+}
+
+.vue-scrollbar__wrapper:hover .vue-scrollbar__scrollbar-vertical, .vue-scrollbar__wrapper:hover .vue-scrollbar__scrollbar-horizontal{
+	opacity: 1.0;
+}
+
+.vue-scrollbar__scrollbar-vertical:hover, .vue-scrollbar__scrollbar-horizontal:hover{
+	background: $scrollbar-track-background;
+}
+
+/*
 ::-webkit-scrollbar {
 	overflow: visible;
 	width: 0.5em;
@@ -28,3 +47,4 @@
 .CodeMirror-scroll::-webkit-scrollbar-track, .hljs::-webkit-scrollbar-track{
 	background: transparent;
 }
+*/

@@ -38,6 +38,11 @@ html, body, h1, h2, h3, h4, h5, p {
 		vertical-align: top;
 	}
 
+	.my-scrollbar{
+		max-height: calc( 100vh - 2px - #{$title-bar-height} - #{$system-bar-height} );
+		background-color: transparent;
+	}
+
 	.cell-container.main-cell-container{
 		position: relative;
 		margin-left: 0;

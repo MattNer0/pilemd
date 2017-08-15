@@ -9,66 +9,73 @@
 				<div class="cell-container">
 					<div class="my-shelf" @contextmenu="shelfMenu()">
 						<div class="my-shelf-wrapper">
-							<div :class="{'isShelfSelected': ((isSearchAll() && !draggingNote) || allDragHover), 'noteIsHere': selectedNote.folderUid === null}"
+							<!--div :class="{'isShelfSelected': ((isSearchAll() && !draggingNote) || allDragHover), 'noteIsHere': selectedNote.folderUid === null}"
 								@click.prevent.stop="selectAll()"
 								@dragover.stop="allDragOver($event)"
 								@dragleave.prevent.stop="allDragLeave($event)"
 								@drop.prevent.stop="dropToAll($event)"
 								class="my-shelf-all">
 								<a>All</a>
-							</div>
-							<racks
-								:racks="racks"
-								:folders="folders"
-								:notes="notes"
-								:filtered-notes="filteredNotes"
-								:selected-rack-or-folder="selectedRackOrFolder"
-								:dragging-note="draggingNote"
-								:editing-rack="editingRack"
-								:selected-note="selectedNote"
-								:toggle-full-screen="toggleFullScreen"
-								v-on:select="changeRackOrFolder"
-								v-on:openrack="openrack"
-								v-on:closerack="closerack"
-								v-on:folderdragend="folderDrag">
-							</racks>
+							</div-->
+							<vue-scrollbar classes="my-scrollbar" ref="RacksScrollbar">
+								<div class="scroll-me">
+									<racks
+										:racks="racks"
+										:folders="folders"
+										:notes="notes"
+										:filtered-notes="filteredNotes"
+										:selected-rack-or-folder="selectedRackOrFolder"
+										:dragging-note="draggingNote"
+										:editing-rack="editingRack"
+										:selected-note="selectedNote"
+										:toggle-full-screen="toggleFullScreen"
+										v-on:select="changeRackOrFolder"
+										v-on:openrack="openrack"
+										v-on:closerack="closerack"
+										v-on:folderdragend="folderDrag">
+									</racks>
+								</div>
+							</vue-scrollbar>
 						</div>
 					</div>
 				</div>
-
 				<handler-stack v-on:hdrag="editordrag" v-on:hdragend="editordragend"></handler-stack>
-
 				<!-- :style="{ width: notesWidth+'px' }" -->
 				<div class="cell-container">
-					<notes :notes="filteredNotes"
-					:toggle-full-screen="toggleFullScreen"
-					:original-notes="notes"
-					:selected-note="selectedNote"
-					:dragging-note="draggingNote"
-					v-on:select="changeNote">
-					</notes>
+					<vue-scrollbar classes="my-scrollbar" ref="NotesScrollbar">
+						<div class="scroll-me">
+							<notes :notes="filteredNotes"
+							:toggle-full-screen="toggleFullScreen"
+							:original-notes="notes"
+							:selected-note="selectedNote"
+							:dragging-note="draggingNote"
+							v-on:select="changeNote">
+							</notes>
+						</div>
+					</vue-scrollbar>
 				</div>
-
 				<handler-notes v-on:hdrag="editordrag" v-on:hdragend="editordragend"></handler-notes>
 			</div>
 			<div class="cell-container main-cell-container">
-
 				<codemirror-menu></codemirror-menu>
-
-				<div class="my-editor">
-					<div :class="[ 'font'+fontsize ]">
-						<codemirror v-show="!isPreview && selectedNote.title"
-							:note="selectedNote"
-							:is-full-screen="isFullScreen"
-							:is-preview="isPreview">
-						</codemirror>
-						<div v-show="isPreview && selectedNote.title" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()">
-							<div v-html="preview">
+				<vue-scrollbar classes="my-scrollbar" ref="MainScrollbar">
+					<div class="scroll-me">
+						<div class="my-editor">
+							<div :class="[ 'font'+fontsize ]">
+								<codemirror v-show="!isPreview && selectedNote.title"
+									:note="selectedNote"
+									:is-full-screen="isFullScreen"
+									:is-preview="isPreview">
+								</codemirror>
+								<div v-show="isPreview && selectedNote.title" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()">
+									<div v-html="preview">
+									</div>
+								</div>
 							</div>
+							<flashmessage :messages="messages"></flashmessage>
 						</div>
 					</div>
-					<flashmessage :messages="messages"></flashmessage>
-				</div>
+				</vue-scrollbar>
 			</div>
 
 			<div class="sidebar-right" v-show="selectedNote.title" :style="{ right: ( propertiesOpen ? '0px' : '-'+propertiesWidth+'px' ) }">
