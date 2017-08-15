@@ -1,0 +1,57 @@
+.system-bar-spacing {
+	background-color: #000;
+	height: 2px;
+}
+
+.system-bar {
+	background-color: #000;
+	color: #EEE;
+	width: 100%;
+	height: calc( #{$system-bar-height} - 4px );
+
+	align-items: center;
+	display: flex;
+	padding: 0 2px;
+	margin: 0;
+	font-size: 18px;
+	font-weight: 500;
+
+	-webkit-app-region: drag;
+
+	.spacer {
+		flex-grow: 1;
+	}
+
+	.system-icon {
+		margin-right: 4px;
+		padding: 0 6px;
+		height: calc( #{$system-bar-height} - 4px );
+
+		align-items: center;
+		display: inline-flex;
+		justify-content: center;
+		transition: .3s cubic-bezier(.25,.8,.25,1);
+		vertical-align: middle;
+
+		-webkit-app-region: no-drag;
+		cursor: pointer;
+	}
+
+	.system-icon:last-child {
+		margin-right: 0;
+	}
+
+	.system-icon:hover {
+		background-color: #EEE;
+		color: #000;
+	}
+
+	.system-icon.close-icon:hover {
+		background-color: #FF0000;
+		color: #FFF;
+	}
+
+	.material-icons {
+		font-size: inherit;
+	}
+}

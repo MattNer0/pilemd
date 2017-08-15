@@ -24,6 +24,9 @@ $scrollbar-thumb: #666;
 $scrollbar-thumb-border: #000;
 $scrollbar-thumb-hover: #777;
 
+$title-bar-height: 2.5em;
+$system-bar-height: 30px;
+
 @font-face {
 	font-family: 'Roboto';
 	font-style: normal;
@@ -48,6 +51,7 @@ $scrollbar-thumb-hover: #777;
 @import 'highlight';
 @import 'elements/body';
 @import 'elements/scrollbar';
+@import 'elements/systemBar';
 @import 'elements/titleBar';
 @import 'elements/openNote';
 @import 'elements/notesList';

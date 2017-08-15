@@ -14,7 +14,7 @@ html, body, h1, h2, h3, h4, h5, p {
 
 .my-main {
 	width: 100%;
-	height: calc( 100vh - 2.5em );
+	height: calc( 100vh - #{$title-bar-height} - #{$system-bar-height} );
 	display: flex;
 	flex-flow: row nowrap;
 }

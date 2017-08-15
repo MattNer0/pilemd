@@ -105,8 +105,8 @@ function makeWindow() {
 		show: true,
 		darkTheme: true,
 		tabbingIdentifier: 'pilemd',
-		/*titleBarStyle: 'hidden',
-		frame: false,*/
+		titleBarStyle: 'hidden',
+		frame: false,
 		webPreferences: {
 			devTools: true,
 			webgl: false,

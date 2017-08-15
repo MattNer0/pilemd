@@ -1,6 +1,6 @@
 {
 	"name": "pilemd",
-	"version": "0.11.0",
+	"version": "0.12.0",
 	"description": "",
 	"main": "./dist/main.js",
 	"dependencies": {
@@ -27,19 +27,21 @@
 		"gulp-uglify": "^1.5.2",
 		"html-loader": "^0.3.0",
 		"node-sass": "^4.5.3",
+		"pug": "^2.0.0-rc.3",
 		"sass-loader": "^6.0.6",
 		"style-loader": "^0.13.0",
+		"uglifyjs-webpack-plugin": "^0.4.6",
 		"url-loader": "^0.5.7",
 		"vue-html-loader": "^1.2.4",
-		"webpack": "^3.3.0",
-		"webpack-stream": "^3.2.0",
-		"vue-template-compiler": "^2.4.2",
 		"vue-loader": "^13.0.4",
-		"pug": "^2.0.0-rc.3"
+		"vue-template-compiler": "^2.4.2",
+		"webpack": "^3.3.0",
+		"webpack-stream": "^3.2.0"
 	},
 	"scripts": {
 		"start": "electron .",
 		"build": "NODE_ENV=development webpack",
+		"prepare": "NODE_ENV=production webpack",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"linux": "gulp electron-linux"
 	},

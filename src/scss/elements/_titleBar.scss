@@ -1,7 +1,7 @@
 #title-bar {
-	height: 2.5em;
+	height: $title-bar-height;
 	width: 100%;
-	-webkit-app-region: drag;
+	-webkit-app-region: no-drag;
 	padding: 0;
 	margin: 0;
 	background: $main-background-color;
@@ -9,25 +9,15 @@
 	border-bottom: $title-border-bottom solid $scrollbar-track-background;
 	color: $ui-text-color;
 	overflow: visible;
-	font-family: sans-serif;
 
 	a.menu-button {
 		display: inline-block;
-		min-width: 0;
-		width: 3.8em;
-		padding-top: 0.2em;
-
-		span {
-			display: block;
-			margin: 0.3em 0;
-			width: 100%;
-			height: 4px;
-			background-color: $ui-text-color;
-		}
+		padding: 0.35em 0.5em 0.2em;
+		color: $ui-text-color;
 	}
 
-	li:hover a.menu-button span {
-		background-color: $ui-text-color-hover;
+	li:hover a.menu-button {
+		color: $ui-text-color-hover;
 	}
 }
 
@@ -47,7 +37,7 @@ nav > ul {
 		margin: 0;
 		padding: 0;
 		position: relative;
-		height: 2.5em;
+		height: $title-bar-height;
 
 		a i, div i{
 			vertical-align: top;
@@ -61,7 +51,7 @@ nav > ul {
 	li > a, li > div {
 		box-sizing: border-box;
 		display: block;
-		padding: 0.25em 1.0em;
+		padding: 0.34em 1.0em 0.2em 0.5em;
 		line-height: 1.8em;
 		height: calc( 100% - #{$title-border-bottom} );
 		text-align: left;
@@ -69,15 +59,6 @@ nav > ul {
 		text-decoration: none;
 		-webkit-transition: all .25s ease;
 		transition: all .25s ease;
-		border-top: 0.1em solid $main-background-color;
-		border-bottom: 0.1em solid $main-background-color;
-	}
-
-	li:first-child > a{
-		text-align: left;
-		min-width: initial;
-		padding-left: 1.0em;
-		padding-right: 1.0em;
 	}
 
 	li > a,
@@ -89,8 +70,6 @@ nav > ul {
 
 	li:hover > a,
 	li:hover > div {
-		border-top: 0.1em solid $ui-text-borderTop-hover;
-		border-bottom: 0.1em solid $ui-text-borderBottom-hover;
 		background-color: $ui-text-background-hover !important;
 		color: $ui-text-color-hover;
 		cursor: pointer;
@@ -113,7 +92,7 @@ nav > ul {
 		left: 0;
 		opacity: 0;
 		position: absolute;
-		top: 2.5em;
+		top: $title-bar-height;
 		width: 15em;
 		visibility: hidden;
 		z-index: 100;
@@ -121,6 +100,17 @@ nav > ul {
 		li {
 			height: auto;
 			float: none;
+		}
+
+		li > a, li > div {
+			border-top: 0.1em solid $main-background-color;
+			border-bottom: 0.1em solid $main-background-color;
+		}
+
+		li:hover > a,
+		li:hover > div {
+			border-top: 0.1em solid $ui-text-borderTop-hover;
+			border-bottom: 0.1em solid $ui-text-borderBottom-hover;
 		}
 	}
 

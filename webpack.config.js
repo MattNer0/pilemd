@@ -1,6 +1,33 @@
 require('es6-promise').polyfill();
 
-var webpack = require('webpack');
+const webpack = require('webpack');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+
+var isProduction = process.env.NODE_ENV === undefined || process.env.NODE_ENV === 'production';
+
+var webpackPlugins = [
+	new webpack.DefinePlugin({
+		ENV: JSON.stringify(process.env.NODE_ENV || 'production')
+	}),
+	new webpack.ExternalsPlugin('commonjs', [
+		'electron',
+		'fs',
+		'chokidar',
+		'datauri'
+	])
+];
+
+if (isProduction) {
+	webpackPlugins.push(new UglifyJSPlugin({
+		ie8: false,
+		ecma: 8,
+		parallel: true,
+		output: {
+			comments: false,
+			beautify: false
+		},
+	}));
+}
 
 module.exports = {
 	entry: './src/js/main.js',
@@ -10,7 +37,7 @@ module.exports = {
 	},
 	resolve: {
 		alias: {
-			vue: 'vue/dist/vue.js'
+			vue: isProduction ? 'vue/dist/vue.min.js' : 'vue/dist/vue.js'
 		}
 	},
 	module: {
@@ -47,15 +74,5 @@ module.exports = {
 			}
 		]
 	},
-	plugins: [
-		new webpack.DefinePlugin({
-			ENV: JSON.stringify(process.env.NODE_ENV || 'production')
-		}),
-		new webpack.ExternalsPlugin('commonjs', [
-			'electron',
-			'fs',
-			'chokidar',
-			'datauri'
-		])
-	]
+	plugins: webpackPlugins
 };
