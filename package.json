@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "./dist/main.js",
 	"dependencies": {
-		"electron": "^1.6.11",
+		"electron": "^1.7.5",
 		"chokidar": "^1.4.2",
 		"codemirror": "^5.19.0",
 		"datauri": "^1.0.4",
