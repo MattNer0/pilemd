@@ -5,13 +5,13 @@ html {
 body {
 	margin: 0;
 	padding: 0;
-	font-family: $main-font-family,sans-serif;
+	font-family: $main-font-family;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	background: #404040;
 }
 
-html, body, h1, h2, h3, h4, h5, p {
+html, body, h1, h2, h3, h4, h5, p, span, input {
 	font-size: $main-font-size;
 	font-family: $main-font-family;
 }
