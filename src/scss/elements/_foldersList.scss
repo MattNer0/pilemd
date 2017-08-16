@@ -16,7 +16,7 @@
 .my-shelf-rack {
 	position: relative;
 	padding: 0;
-	margin: 0.2em 0;
+	margin: 0.3em;
 
 	h4,
 	h5 {
@@ -24,7 +24,8 @@
 		margin: 0 auto;
 		padding: 0.3em;
 		font-weight: normal;
-		border-radius: 0 2px 2px 0 / 0 2px 2px 0;
+		font-size: 110%;
+		border-radius: 0.4em;
 		white-space: initial;
 		word-wrap: break-word;
 
@@ -53,8 +54,10 @@
 
 	.rack-icon{
 		font-size: 100%;
+		margin-right: 0.1em;
 		vertical-align: middle;
 		color: inherit;
+		opacity: 0.6;
 	}
 
 }
@@ -69,6 +72,7 @@
 	line-height: 1.5em;
 	padding: 0 0.3em;
 	margin-top: -0.1em;
+	margin-left: 0.3em;
 	text-align: center;
 	opacity: 0.6;
 }
@@ -98,13 +102,13 @@
 	position: relative;
 
 	i {
-		font-size: 14px;
-		margin-top: -2px;
+		font-size: 100%;
+		margin-top: -0.2em;
+		margin-right: 0.1em;
 		vertical-align: middle;
 	}
 
 	.my-shelf-folder-name {
-		min-width: 86px;
 		width: 100%;
 		white-space: initial;
 	}
@@ -115,31 +119,33 @@
 
 	> h5 {
 		position: relative;
-		padding: 0.3em 0.3em 0.3em 1em;
-		border-radius: 0 2px 2px 0 / 0 2px 2px 0;
+		margin: 0.3em 0.3em 0.3em 1em;
+		padding: 0.3em;
+		border-radius: 0.4em;
 		transition: background-color 200ms;
 	}
 }
 
-.my-shelf-folder, .my-shelf-rack h4 {
-	border-top: 1px solid $main-background-color;
-	border-bottom: 1px solid $main-background-color;
+.my-shelf-rack h4:hover .rack-icon,
+.my-shelf-folder:hover h5 {
+	color: $ui-text-color-hover;
 }
 
-.my-shelf-rack h4:hover .rack-icon,
-.my-shelf-folder:hover h5,
 .my-shelf-folder.isShelfSelected h5,
 .my-shelf-rack h4.isShelfSelected {
-	color: $ui-text-color-hover;
+	color: $ui-text-color-selected;
 }
 
-.my-shelf-folder:hover, .my-shelf-rack h4:hover,
-.my-shelf-rack .my-shelf-folder.isShelfSelected,
-.my-shelf-rack h4.isShelfSelected {
-	border-top: 1px solid $ui-text-borderTop-hover;
-	border-bottom: 1px solid $ui-text-borderBottom-hover;
+.my-shelf-folder h5:hover, .my-shelf-rack h4:hover {
 	background-color: $ui-text-background-hover !important;
 	color: $ui-text-color-hover;
+	cursor: pointer;
+}
+
+.my-shelf-rack .my-shelf-folder.isShelfSelected h5,
+.my-shelf-rack h4.isShelfSelected {
+	background-color: $ui-text-background-selected !important;
+	color: $ui-text-color-selected;
 	cursor: pointer;
 }
 

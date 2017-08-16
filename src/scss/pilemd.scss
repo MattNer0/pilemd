@@ -1,15 +1,18 @@
 $main-font-size: 14px;
 $main-font-family: "Roboto";
-$main-background-color: #363e48;
-$ui-text-color: #b9b9b9;
-$ui-text-color-hover: #adacac;
+$main-background-color: #2f3136;
+$ui-text-color: #7a7a7b;
+$ui-text-color-hover: #b9bbbe;
 $ui-text-color-dim: #848487;
-$ui-text-background-hover: #1d242c;
+$ui-text-background-hover: #36393f;
 $ui-text-borderTop-hover: #171c23;
 $ui-text-borderBottom-hover: #313842;
-$title-border-bottom: 2px;
-$resize-panel-handler: #404040;
-$note-separator-line: #242c36;
+
+$ui-text-color-selected: #ffffff;
+$ui-text-background-selected: #42464d;
+
+$resize-panel-handler: #36393e;
+$note-separator-line: #36393e;
 $note-list-body-color: #858585;
 $note-background-color: #fefefe;
 $note-border-color: #ababab;
@@ -25,6 +28,7 @@ $scrollbar-thumb: #333;
 $scrollbar-thumb-border: #555;
 
 $title-bar-height: 2.5em;
+$title-bar-background: #1e2124;
 $system-bar-height: 30px;
 
 @font-face {

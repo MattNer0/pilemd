@@ -37,8 +37,6 @@
 		transition: background-color 200ms ease, margin 200ms ease, height 200ms ease;
 		font-weight: normal;
 		box-sizing: border-box;
-		border-top: 1px solid $main-background-color;
-		border-bottom: 1px solid $main-background-color;
 		overflow: hidden;
 
 		> div{
@@ -94,8 +92,6 @@
 	}
 
 	.my-notes-note.my-notes-note-selected {
-		border-top: 1px solid $ui-text-borderTop-hover;
-		border-bottom: 1px solid $ui-text-borderBottom-hover;
 		background-color: $ui-text-background-hover;
 		color: $ui-text-color;
 		position: relative;
@@ -110,8 +106,6 @@
 	}
 
 	.my-notes-note:hover {
-		border-top: 1px solid $ui-text-borderTop-hover;
-		border-bottom: 1px solid $ui-text-borderBottom-hover;
 		background-color: $ui-text-background-hover !important;
 		color: $ui-text-color-hover;
 		cursor: pointer;

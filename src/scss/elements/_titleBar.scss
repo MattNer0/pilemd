@@ -4,9 +4,8 @@
 	-webkit-app-region: no-drag;
 	padding: 0;
 	margin: 0;
-	background: $main-background-color;
+	background: $title-bar-background;
 	border: none;
-	border-bottom: $title-border-bottom solid $scrollbar-track-background;
 	color: $ui-text-color;
 	overflow: visible;
 
@@ -23,7 +22,7 @@
 
 nav ul {
 	-webkit-font-smoothing:antialiased;
-	background: $main-background-color;
+	background: $title-bar-background;
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -53,7 +52,7 @@ nav > ul {
 		display: block;
 		padding: 0.34em 1.0em 0.2em 0.5em;
 		line-height: 1.8em;
-		height: calc( 100% - #{$title-border-bottom} );
+		height: 100%;
 		text-align: left;
 		outline: none;
 		text-decoration: none;
