@@ -222,7 +222,6 @@ new Vue({
 	methods: {
 		init_scrollbar_racks: function() {
 			this.$nextTick(function () {
-				this.$refs.RacksScrollbar.scrollToY(0);
 				this.$refs.RacksScrollbar.calculateSize();
 			});
 		},

@@ -47,6 +47,11 @@ html, body, h1, h2, h3, h4, h5, p, span, input {
 		position: relative;
 		margin-left: 0;
 		transition: margin 400ms;
+
+		.my-scrollbar .my-editor {
+			margin-left: 1em;
+			margin-right: 1em;
+		}
 	}
 
 	.sidebar,
