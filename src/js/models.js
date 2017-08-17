@@ -1,13 +1,13 @@
-const fs 		= require('fs');
-const path 		= require('path');
-const chokidar 	= require('chokidar');
+const fs = require('fs');
+const path = require('path');
+const chokidar = require('chokidar');
 
-const _ 		= require('lodash');
-const moment 	= require('moment');
-const Datauri 	= require('datauri');
+const _ = require('lodash');
+const moment = require('moment');
+const Datauri = require('datauri');
 
-const arr 		= require('./utils/arr');
-const uid 		= require('./utils/uid');
+const arr = require('./utils/arr');
+const uid = require('./utils/uid');
 const util_file = require('./utils/file');
 
 const BASE_LIB_PATH_KEY = 'libpath';
@@ -25,7 +25,7 @@ function getBaseLibraryPath() {
 }
 
 function doesLibraryExists() {
-	return fs.existsSync( getBaseLibraryPath() );
+	return fs.existsSync(getBaseLibraryPath());
 }
 
 class Model {
@@ -46,9 +46,9 @@ class Note extends Model {
 	constructor(data) {
 		super(data);
 
-		this._ext = data.extension || ".md";
-		
-		var re = new RegExp("\\"+this._ext+"$");
+		this._ext = data.extension || '.md';
+
+		var re = new RegExp('\\' + this._ext + '$');
 
 		this._name = data.name.replace(re, '');
 		this._body = data.body.replace(/    /g, '\t');
@@ -84,39 +84,39 @@ class Note extends Model {
 			rack: this._rack,
 			folder: this._folder,
 			qiitaURL: this.qiitaURL
-		})
+		});
 	}
 
 	get properties() {
 		return {
-			lineCount : ( this._body.match(/\n/g) || []).length,
-			wordCount : this._body.replace(/\n/g," ").replace(/ +/g," ").split(" ").length,
-			charCount : this._body.replace(/\W/g,"").length
-		}
+			lineCount: (this._body.match(/\n/g) || []).length,
+			wordCount: this._body.replace(/\n/g, ' ').replace(/ +/g, ' ').split(' ').length,
+			charCount: this._body.replace(/\W/g, '').length
+		};
 	}
 
 	set path(newValue) {
-		if(newValue != this._path){
-			try{
-				if(fs.existsSync(this._path)) fs.unlink(this._path);
-			} catch(e){}
+		if (newValue != this._path) {
+			try {
+				if (fs.existsSync(this._path)) fs.unlink(this._path);
+			} catch (e) {}
 
 			this._path = newValue;
 		}
 	}
 
 	get path() {
-		if(this._path && fs.existsSync(this._path)){
+		if (this._path && fs.existsSync(this._path)) {
 			return this._path;
 		} else {
-			var new_path = path.join( getBaseLibraryPath(), this._rack.data.fsName, this._folder.data.fsName, this.document_filename)+this._ext;
+			var new_path = path.join(getBaseLibraryPath(), this._rack.data.fsName, this._folder.data.fsName, this.document_filename) + this._ext;
 			console.log(new_path);
 			return new_path;
 		}
 	}
 
 	get document_filename() {
-		return this.title ? this.title.replace(/[^\w _-]/g, '').substr(0, 40) : "";
+		return this.title ? this.title.replace(/[^\w _-]/g, '').substr(0, 40) : '';
 	}
 
 	get body() {
@@ -131,9 +131,9 @@ class Note extends Model {
 	}
 
 	set folder(f) {
-		if(!f){ return; }
+		if (!f) { return; }
 
-		if(f.folderExists){
+		if (f.folderExists) {
 			this._rack = f.data.rack;
 			this._folder = f;
 			this.folderUid = f.uid;
@@ -149,10 +149,10 @@ class Note extends Model {
 	}
 
 	loadBody() {
-		if(fs.existsSync(this.path)){
+		if (fs.existsSync(this.path)) {
 			var content = fs.readFileSync(this.path).toString();
 			content = content.replace(/    /g, '\t');
-			if(content && content != this._body){
+			if (content && content != this._body) {
 				this._body = content;
 			}
 		}
@@ -175,38 +175,38 @@ class Note extends Model {
 			if (row.length > 0) {
 				ret = {
 					title: _.trimLeft(row, '# '),
-					body: lines.slice(0, index).concat(lines.splice(index+1)).join('\n')
+					body: lines.slice(0, index).concat(lines.splice(index + 1)).join('\n')
 				};
 			}
 		});
 
-		if(ret){
+		if (ret) {
 			return ret;
 		}
-		
+
 		return {
-			title: "",
+			title: '',
 			body: this.body
-		}
+		};
 	}
 
 	cleanPreviewBody(text) {
-		text = text.replace(/^\n/, "");
-		text = text.replace(/\* \[ \]/g, "* ");
-		text = text.replace(/\* \[x\]/g, "* ");
+		text = text.replace(/^\n/, '');
+		text = text.replace(/\* \[ \]/g, '* ');
+		text = text.replace(/\* \[x\]/g, '* ');
 		return text;
 	}
 
 	get bodyWithoutTitle() {
-		if(this.body){
-			return this.cleanPreviewBody( this.splitTitleFromBody().body );
+		if (this.body) {
+			return this.cleanPreviewBody(this.splitTitleFromBody().body);
 		} else {
-			return "";
-		}	
+			return '';
+		}
 	}
 
 	get title() {
-		if(this.body){
+		if (this.body) {
 			return this.splitTitleFromBody().title || this._name;
 		} else {
 			return this._name;
@@ -217,10 +217,10 @@ class Note extends Model {
 		return this.body.replace(
 			/!\[(.*?)]\((pilemd:\/\/.*?)\)/mg, (match, p1, p2, offset, string) => {
 				try {
-					var dataURL = new Image(p2, path.basename(p2) ).convertDataURL();
+					var dataURL = new Image(p2, path.basename(p2)).convertDataURL();
 				} catch (e) {
 					console.log(e);
-					return match
+					return match;
 				}
 				return '![' + p1 + ']' + '(' + dataURL + ')';
 			}

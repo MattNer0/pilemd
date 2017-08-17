@@ -8,7 +8,7 @@ settings.loadWindowSize();
 //var Vue = require('vue');
 import Vue from 'vue';
 
-var ApplicationMenu = require('./applicationmenu').ApplicationMenu;
+//var ApplicationMenu = require('./applicationmenu').ApplicationMenu;
 var models = require('./models');
 var initialModels = require('./initialModels');
 var preview = require('./preview');
@@ -126,7 +126,7 @@ new Vue({
 			return this.selectedRackOrFolder;
 		}
 	},
-	created: function() {
+	created() {
 		var notes = [];
 		var folders = [];
 		var racks = [];
@@ -134,13 +134,10 @@ new Vue({
 
 		this.$watch('selectedNote.body', () => {
 			var result = models.Note.setModel(this.selectedNote);
-			if(result && result.error && result.path){
-				dialog.showMessageBox(remote.getCurrentWindow(), {
-					type: "none",
-					buttons: ['Ok'],
-					title: "Error",
-					message: result.error + "\nNote: " + result.path
-				});
+			if (result && result.error && result.path) {
+				this.$refs.dialog.init('Error', result.error + "\nNote: " + result.path, [{
+					label: 'Ok'
+				}]);
 			}
 		});
 
@@ -196,7 +193,7 @@ new Vue({
 		// Save it not to remove
 		//this.watcher = models.makeWatcher(this.racks, this.folders, this.notes);
 	},
-	mounted: function(){
+	mounted(){
 		var self = this;
 		this.$nextTick(function () {
 			
@@ -280,8 +277,7 @@ new Vue({
 
 			this.update_editor_size();
 
-			if(this.isPreview){
-
+			/*if(this.isPreview){
 				var menu = new ApplicationMenu();
 				// FIXME as same as componets/codemirror.js Fucking hell
 				menu.setEditSubmenu([
@@ -300,7 +296,7 @@ new Vue({
 						accelerator: 'CmdOrCtrl+V',
 						role: 'paste'
 					}]);
-			}
+			}*/
 		},
 		addRack: function() {
 			var rack = new models.Rack({name: "", ordering: 0});
@@ -358,10 +354,13 @@ new Vue({
 				}
 			} else {
 				if(this.racks.length > 0){
-					dialog.showErrorBox("Error", "You must select Rack and Folder first!" );
+					var message = 'You must select Rack and Folder first!';
 				} else {
-					dialog.showErrorBox("Error", "You must create a Folder first!" );
+					var message = 'You must create a Folder first!';
 				}
+				this.$refs.dialog.init('Error', message, [{
+					label: 'Ok'
+				}]);
 			}
 		},
 		addNotes: function(noteTexts) {
@@ -467,18 +466,20 @@ new Vue({
 			remote.getCurrentWindow().reload();
 		},
 		openCredits: function() {
-			dialog.showMessageBox(remote.getCurrentWindow(), {
+			/*dialog.showMessageBox(remote.getCurrentWindow(), {
 				type: "none",
 				buttons: ['Ok'],
 				title: "Credits",
-				message: "PileMd was originally created by Hiroki KIYOHARA.\n"+
-					"The full list of Authors is available on GitHub.\n\n"+
-					"This Fork with updated components and additional features is maintained by MattNer0."
-			});
+				message: 
+			});*/
+			var message = "PileMd was originally created by Hiroki KIYOHARA.\n"+
+				"The full list of Authors is available on GitHub.\n\n"+
+				"This Fork with updated components and additional features is maintained by MattNer0.";
+			
+			this.$refs.dialog.init('Credits', message, [{
+				label: 'Ok'
+			}]);
 		},
-		/*update_scrollbar_notes: function() {
-			this.scrollbarNotes.update();
-		},*/
 		update_editor_size: function() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
 			var cellsRight = document.querySelectorAll('.outer_wrapper .sidebar-right .cell-container');

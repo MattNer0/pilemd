@@ -1,0 +1,103 @@
+.modal-mask {
+	position: fixed;
+	z-index: 9998;
+	top: $system-bar-height;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
+	display: table;
+	transition: opacity .3s ease;
+
+	.modal-background {
+		display: block;
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, .5);
+		z-index: -1;
+	}
+
+	.modal-wrapper {
+		display: table-cell;
+		vertical-align: middle;
+	}
+
+	.modal-container {
+		width: 90%;
+		max-width: 45em;
+		margin: 0 auto;
+		padding: 1em;
+		background-color: #fff;
+		border-radius: 2px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
+		transition: all .2s ease;
+	}
+
+	.modal-field {
+		margin: 4px 0 4px 0;
+		font-weight: 600;
+	}
+	.modal-container h3 {
+		font-size: 16px;
+		margin: 8px 0 0 0;
+	}
+
+
+	.modal-container p {
+		margin: 1em 0;
+	}
+
+	.modal-prompts {
+		margin: 0;
+	}
+
+	.modal-field {
+		margin: 4px 0 4px 0;
+		font-weight: 600;
+	}
+
+	.modal-field {
+		margin: 4px 0 4px 0;
+		font-weight: 600;
+	}
+
+	.modal-buttons {
+		display: flex;
+		flex-flow: row wrap;
+		justify-content: flex-end;
+	}
+
+	.modal-button {
+		background-color: $main-background-color;
+		color: $ui-text-color-hover;
+		
+		margin: 0.1em;
+		height: 2em;
+		min-width: 5em;
+
+		border: none;
+		outline: none;
+
+		border-radius: 0.3em;
+		font-size: 100%;
+		font-weight: bold;
+		padding: 0.3em;
+		cursor: pointer;
+	}
+
+	.modal-button:hover {
+		background-color: $ui-text-background-hover;
+		color: $ui-text-color-selected;
+	}
+
+	.modal-enter, .modal-leave-active {
+		opacity: 0;
+	}
+
+	.modal-enter .modal-container,
+	.modal-leave-active .modal-container {
+		transform: scale(1.1);
+	}
+}

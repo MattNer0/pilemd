@@ -13,33 +13,32 @@
 </template>
 
 <script>
-	const Vue = require('vue');
 	const remote = require('electron').remote;
 
 	export default {
 		name: 'windowBar',
 		methods: {
 			win_close: function() {
-				Vue.nextTick(function() {
+				setTimeout(function() {
 					var win = remote.getCurrentWindow();
 					win.close();
-				});
+				}, 100);
 			},
 			win_max: function() {
-				Vue.nextTick(function() {
+				setTimeout(function() {
 					var win = remote.getCurrentWindow();
 					if(win.isMaximized()){
 						win.unmaximize();
 					} else {
 						win.maximize();
 					}
-				});
+				}, 100);
 			},
 			win_min: function() {
-				Vue.nextTick(function() {
+				setTimeout(function() {
 					var win = remote.getCurrentWindow();
 					win.minimize();
-				});
+				}, 100);
 			}
 		}
 	}

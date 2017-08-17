@@ -1,149 +1,54 @@
 <template lang="pug">
-	transition(name="modal")
-		.modal-mask(v-show="show")
-			.modal-wrapper
-				.modal-container
-					h3 {{ title }}
-					p {{ description }}
-					form
-						.modal-prompts
-							.modal-field(v-for="field in prompts")
-								span.modal-field-label {{ field.label }}
-								input(v-if="field.type == 'text'", type="text", :placeholder="field.placeholder", v-model="field.retValue", :name="field.label", required)
-						.modal-buttons
-							button.modal-button.modal-button-cancel(@click="cancel()") Cancel
-							button.modal-button.modal-button-submit(@click="submit()") OK
+	.modal-mask(v-show="show")
+		.modal-background(@click="close")
+		.modal-wrapper
+			.modal-container
+				h3 {{ title }}
+				p(v-html="descriptionHtml")
+				form
+					.modal-prompts
+						.modal-field(v-for="field in prompts")
+							span.modal-field-label {{ field.label }}
+							input(v-if="field.type == 'text'", type="text", :placeholder="field.placeholder", v-model="field.retValue", :name="field.label", required)
+					.modal-buttons
+						template(v-for="button in buttons")
+							button.modal-button(@click.prevent="button_submit(button)", type="button") {{ button.label }}
 </template>
 
 <script>
-	const Vue = require('vue');
-	Vue.prototype.$modal = function(title, description, prompts, okcb) {
-		this.$dispatch('modal-show', {
-			title: title,
-			description: description,
-			prompts: prompts,
-			okcb: okcb
-		});
-	};
 	export default {
 		name: 'modal',
-		props: ['show', 'title', 'description', 'prompts', 'okcb'],
+		data() {
+			return {
+				show: false,
+				title: '',
+				description: '',
+				buttons: [],
+				prompts: [],
+				okcb: undefined
+			};
+		},
+		computed: {
+			descriptionHtml() {
+				return this.description ? this.description.replace(/\n/g,'<br/>') : '';
+			}
+		},
 		methods: {
-			cancel: function() {
-				this.show = false;
+			init(title, description, buttons) {
+				this.title = title;
+				this.description = description;
+				this.buttons = buttons;
+				this.show = true;
 			},
-			submit: function() {
-				this.okcb(this.prompts);
+			close() {
+				if(this.buttons.length == 1) {
+					this.show = false;
+				}
+			},
+			button_submit(button) {
 				this.show = false;
+				if(button.cb) button.cb();
 			}
 		}
 	}
 </script>
-
-<style>
-	.modal-mask {
-		position: fixed;
-		z-index: 9998;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background-color: rgba(0, 0, 0, .5);
-		display: table;
-		transition: opacity .3s ease;
-	}
-
-	.modal-wrapper {
-		display: table-cell;
-		vertical-align: middle;
-	}
-
-	.modal-container {
-		max-width: 300px;
-		margin: 0 auto;
-		padding: 20px 30px;
-		background-color: #fff;
-		border-radius: 2px;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
-		transition: all .2s ease;
-	}
-
-	.modal-field {
-		margin: 4px 0 4px 0;
-		font-weight: 600;
-	}
-	.modal-container h3 {
-		font-size: 16px;
-		margin: 8px 0 0 0;
-	}
-
-
-	.modal-container p {
-		margin-top: 6px;
-		word-wrap: break-word;
-	}
-
-	.modal-prompts {
-		margin-top: 8px;
-		margin-left: 12px;
-		margin-bottom: 24px;
-	}
-
-	.modal-field {
-		margin: 4px 0 4px 0;
-		font-weight: 600;
-	}
-
-	.modal-field {
-		margin: 4px 0 4px 0;
-		font-weight: 600;
-	}
-
-	.modal-buttons {
-		display: flex;
-		flex-flow: row wrap;
-		justify-content: flex-end;
-	}
-
-	.modal-button {
-		margin-left: 10px;
-		height: 30px;
-		width: 56px;
-
-		border-radius: 4px;
-		color: #fff;
-		font-size: 12px;
-		padding: 4px 8px;
-	}
-
-	.modal-button-submit {
-		background: rgba(0, 0, 0, 0) linear-gradient(#4f89ff, #1745ea) repeat scroll 0 0;
-		border: 1px solid #4552f5;
-	}
-
-	.modal-button-submit:hover {
-		background: linear-gradient(#7aabff, #4364ff);
-		border: solid 1px #6b76f5;
-	}
-	.modal-button-cancel {
-		background: rgba(0, 0, 0, 0) linear-gradient(#b7b7b7, #7b7b7b) repeat scroll 0 0;
-		border: 1px solid #7c7c7c;
-	}
-	.modal-button-cancel:hover {
-		background: rgba(0, 0, 0, 0) linear-gradient(#d5d5d5, #a5a5a5) repeat scroll 0 0;
-		border: 1px solid #a9a9a9;
-	}
-
-	.modal-button:hover {
-		cursor: pointer;
-	}
-
-	.modal-enter, .modal-leave-active {
-		opacity: 0;
-	}
-
-	.modal-enter .modal-container,
-	.modal-leave-active .modal-container {
-		transform: scale(1.1);
-	}
-</style>
