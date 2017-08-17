@@ -25,11 +25,12 @@
 	}
 	
 	.my-notes-note {
-		width: 100%;
+		width: auto;
 		display: inline-block;
 		position: relative;
 		vertical-align: top;
-		margin: 0;
+		margin: 0.3em;
+		border-radius: 0.4em;
 		padding: 0.4em;
 		color: $ui-text-color;
 		line-height: 1.2;
@@ -91,16 +92,6 @@
 		border-top: 1px solid $note-separator-line;
 	}
 
-	.my-notes-note.my-notes-note-selected {
-		background-color: $ui-text-background-hover;
-		color: $ui-text-color;
-		position: relative;
-
-		img {
-			opacity: 1;
-		}
-	}
-
 	.my-notes-note.my-notes-note-selected.inFolderNote:after {
 		background-color: rgba(0, 0, 0, 0.1);
 	}
@@ -113,5 +104,15 @@
 
 	.my-notes-note:hover.inFolderNote:after {
 		background-color: rgba(0, 0, 0, 0.1);
+	}
+
+	.my-notes-note.my-notes-note-selected {
+		background-color: $ui-text-background-selected !important;
+		color: $ui-text-color-selected;
+		position: relative;
+
+		img {
+			opacity: 1;
+		}
 	}
 }

@@ -101,7 +101,7 @@ function makeWindow() {
 		minHeight: 437,
 		center: true,
 		title: 'PileMd',
-		backgroundColor: '#3a3e4c',
+		backgroundColor: '#36393e',
 		show: true,
 		darkTheme: true,
 		tabbingIdentifier: 'pilemd',
