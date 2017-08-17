@@ -3,7 +3,7 @@
 		.system-bar-spacing
 		.system-bar
 			.spacer
-			.system-icon(@click="win_min")
+			.system-icon.minimize(@click="win_min")
 				i.material-icons remove
 			.system-icon(@click="win_max")
 				i.material-icons check_box_outline_blank

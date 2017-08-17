@@ -8,15 +8,11 @@
 	border: none;
 	color: $ui-text-color;
 	overflow: visible;
+	position: relative;
+	z-index: 100;
 
-	a.menu-button {
-		display: inline-block;
-		padding: 0.35em 0.5em 0.2em;
-		color: $ui-text-color;
-	}
-
-	li:hover a.menu-button {
-		color: $ui-text-color-hover;
+	nav {
+		height: 100%;
 	}
 }
 
@@ -29,16 +25,22 @@ nav ul {
 	width: 100%;
 }
 
+nav > ul:after {
+	content: "";
+	clear: both;
+}
+
 nav > ul {
+	height: 100%;
 
 	li {
 		float: left;
 		margin: 0;
 		padding: 0;
-		position: relative;
 		height: $title-bar-height;
 
 		a i, div i{
+			-webkit-user-select: none;
 			vertical-align: top;
 		}
 	}
@@ -58,6 +60,10 @@ nav > ul {
 		text-decoration: none;
 		-webkit-transition: all .25s ease;
 		transition: all .25s ease;
+	}
+
+	li > a {
+		-webkit-user-select: none;
 	}
 
 	li > a,
@@ -83,18 +89,43 @@ nav > ul {
 
 	li hr{
 		margin: 0.2em 0.5em;
-		border: 1px solid $ui-text-color;
+		border: 1px solid $resize-panel-handler;
+	}
+
+	li.has-sub {
+
+		.link.material-icons {
+			-webkit-user-select: none;
+
+			display: inline-block;
+			color: $ui-text-color;
+			padding: 0.1em 0.3em 0.1em;
+			font-size: 200%;
+			cursor: pointer;
+		}
+
+		> span:hover .link.material-icons {
+			color: $ui-text-color-hover;
+		}
+
+		> span, > span > span {
+			display: block;
+			height: 100%;
+		}
 	}
 
 	li ul {
-		float: left;
+		/*float: left;
 		left: 0;
 		opacity: 0;
 		position: absolute;
 		top: $title-bar-height;
-		width: 15em;
 		visibility: hidden;
-		z-index: 100;
+		z-index: 100;*/
+		width: 15em;
+		border: 1px solid $resize-panel-handler;
+		background-color: $main-background-color;
+		margin: 0.2em;
 
 		li {
 			height: auto;
@@ -113,7 +144,7 @@ nav > ul {
 		}
 	}
 
-	li.right-align ul{
+	/*li.right-align ul{
 		right: 0;
 		left: initial;
 	}
@@ -121,7 +152,7 @@ nav > ul {
 	li:hover ul {
 		opacity: 1.0;
 		visibility: visible;
-	}
+	}*/
 
 	.my-search {
 		font-size: 14px;

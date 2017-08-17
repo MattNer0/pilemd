@@ -34,6 +34,7 @@
 		vertical-align: middle;
 
 		-webkit-app-region: no-drag;
+		-webkit-user-select: none;
 		cursor: pointer;
 	}
 
@@ -49,6 +50,10 @@
 	.system-icon.close-icon:hover {
 		background-color: #FF0000;
 		color: #FFF;
+	}
+
+	.system-icon.minimize .material-icons {
+		padding-top: 0.5em;
 	}
 
 	.material-icons {

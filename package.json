@@ -4,16 +4,17 @@
 	"description": "",
 	"main": "./dist/main.js",
 	"dependencies": {
-		"electron": "^1.7.5",
 		"chokidar": "^1.4.2",
 		"codemirror": "^5.19.0",
 		"datauri": "^1.0.4",
+		"electron": "^1.7.5",
 		"highlight.js": "9.3.0",
 		"lodash": "^3.10.1",
 		"marked": "^0.3.5",
 		"moment": "^2.11.2",
 		"vue": "^2.4.2",
 		"vue-resource": "^1.3.4",
+		"vue-my-dropdown": "^2.0.5",
 		"vue2-scrollbar": "^0.0.3"
 	},
 	"devDependencies": {
@@ -42,9 +43,9 @@
 	"scripts": {
 		"start": "electron .",
 		"build": "NODE_ENV=development webpack",
-		"prepare": "NODE_ENV=production webpack",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"linux": "gulp electron-linux"
+		"linux": "NODE_ENV=production webpack && gulp electron-linux",
+		"windows": "NODE_ENV=production webpack && gulp electron-windows"
 	},
 	"repository": {
 		"type": "git",
