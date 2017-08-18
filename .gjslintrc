@@ -1,0 +1,3 @@
+--exclude_directories=dist,icons,node_modules
+--disable=5,110,220
+--custom_jsdoc_tags=namespace,version
