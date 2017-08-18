@@ -63,7 +63,6 @@ new Vue({
 	data: {
 		isFullScreen: false,
 		isPreview: settings.get('vue_isPreview') || false,
-		//propertiesOpen: false,
 		preview: "",
 		racks: [],
 		editingRack: null,
@@ -256,10 +255,6 @@ new Vue({
 			settings.set('vue_isFullScreen', this.isFullScreen);
 			this.update_editor_size();
 		},
-		/*toggleProperties: function() {
-			this.propertiesOpen = !this.propertiesOpen;
-			this.update_editor_size();
-		},*/
 		togglePreview: function() {
 			eventHub.$emit('togglePreview');
 		},
@@ -268,27 +263,6 @@ new Vue({
 			settings.set('vue_isPreview', this.isPreview);
 
 			this.update_editor_size();
-
-			/*if(this.isPreview){
-				var menu = new ApplicationMenu();
-				// FIXME as same as componets/codemirror.js Fucking hell
-				menu.setEditSubmenu([
-					{
-						label: 'Cut',
-						accelerator: 'CmdOrCtrl+X',
-						role: 'cut'
-					},
-					{
-						label: 'Copy',
-						accelerator: 'CmdOrCtrl+C',
-						role: 'copy'
-					},
-					{
-						label: 'Paste',
-						accelerator: 'CmdOrCtrl+V',
-						role: 'paste'
-					}]);
-			}*/
 		},
 		addRack: function() {
 			var rack = new models.Rack({name: "", ordering: 0});
@@ -458,31 +432,21 @@ new Vue({
 			remote.getCurrentWindow().reload();
 		},
 		openCredits: function() {
-			/*dialog.showMessageBox(remote.getCurrentWindow(), {
-				type: "none",
-				buttons: ['Ok'],
-				title: "Credits",
-				message: 
-			});*/
 			var message = "PileMd was originally created by Hiroki KIYOHARA.\n"+
 				"The full list of Authors is available on GitHub.\n\n"+
 				"This Fork with updated components and additional features is maintained by MattNer0.";
-			
+
 			this.$refs.dialog.init('Credits', message, [{
 				label: 'Ok'
 			}]);
 		},
 		update_editor_size: function() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
-			//var cellsRight = document.querySelectorAll('.outer_wrapper .sidebar-right .cell-container');
-			//var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + 5;
-			//var widthTotalRight = parseInt( cellsRight[0].style.width.replace('px','') );
-			if (cellsLeft.length == 0) { //|| cellsRight.length == 0
+			if (cellsLeft.length == 0) {
 				return;
 			}
 
 			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + parseInt( cellsLeft[1].style.width.replace('px','') ) + 10;
-			//var widthTotalRight = parseInt( cellsRight[0].style.width.replace('px','') ); //+ parseInt( cellsRight[1].style.width.replace('px','') ) + 10;
 
 			if(this.isFullScreen){
 				document.querySelector('.sidebar').style.left = "-"+widthTotalLeft+'px';
@@ -491,15 +455,7 @@ new Vue({
 				document.querySelector('.sidebar').style.left = "";
 			}
 
-			/*if(this.propertiesOpen && this.selectedNote.data) {
-				document.querySelector('.sidebar-right').style.right = "0px";
-			} else {
-				document.querySelector('.sidebar-right').style.right = "-"+widthTotalRight+'px';
-				widthTotalRight = 0;
-			}*/
-
 			document.querySelector('.main-cell-container').style.marginLeft = widthTotalLeft+'px';
-			//document.querySelector('.main-cell-container').style.marginRight = widthTotalRight+'px';
 		},
 		save_editor_size: function() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');

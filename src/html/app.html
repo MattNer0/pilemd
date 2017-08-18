@@ -79,42 +79,6 @@
 				</vue-scrollbar>
 				<flashmessage :messages="messages"></flashmessage>
 			</div>
-
-			<!--div class="sidebar-right" v-show="selectedNote.title" :style="{ right: ( propertiesOpen ? '0px' : '-'+propertiesWidth+'px' ) }">
-				<div class="cell-container" :style="{ width: propertiesWidth+'px' }">
-					<div v-if="selectedNote.properties">
-						<table>
-							<tr>
-								<td><strong>Line Count: </strong></td>
-								<td class="right"><span>{{ selectedNote.properties.lineCount }}</span></td>
-							</tr>
-							<tr>
-								<td><strong>Word Count: </strong></td>
-								<td class="right"><span>{{ selectedNote.properties.wordCount }}</span></td>
-							</tr>
-							<tr>
-								<td><strong>Char Count: </strong></td>
-								<td class="right"><span>{{ selectedNote.properties.charCount }}</span></td>
-							</tr>
-						</table>
-						<hr>
-						<table>
-							<tr>
-								<td><strong>Created: </strong></td>
-							<tr/>
-							<tr>
-								<td class="right"><span>{{ selectedNote.data.created_at.format('MMM DD, YYYY') }}</span></td>
-							</tr>
-							<tr>
-								<td><strong>Modified: </strong></td>
-							</tr>
-							<tr>
-								<td class="right"><span>{{ selectedNote.data.updated_at.format('MMM DD, YYYY') }}</span></td>
-							</tr>
-						</table>
-					</div>
-				</div>
-			</div-->
 		</div>
 	</div>
 	<modal ref="dialog"></modal>
