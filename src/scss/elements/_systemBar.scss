@@ -20,6 +20,27 @@
 
 	.spacer {
 		flex-grow: 1;
+		padding-bottom: 0.3em;
+		padding-left: 0.5em;
+
+		span {
+			font-weight: bold;
+			color: #AAA;
+		}
+
+		span:last-child {
+			color: #EEE;
+
+			i {
+				color: #AAA;
+			}
+		}
+
+		i {
+			font-size: 120%;
+			vertical-align: middle;
+			color: #AAA;
+		}
 	}
 
 	.system-icon {

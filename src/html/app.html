@@ -1,5 +1,5 @@
 <main id="main-editor">
-	<window-bar></window-bar>
+	<window-bar :note="selectedNote" :rack-folder="selectedRackOrFolder"></window-bar>
 	<title-menu></title-menu>
 	<div class="my-main" :class="{'note_selected': selectedNote.title }">
 		<div :class="{'outer_wrapper': true}">

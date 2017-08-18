@@ -1,5 +1,5 @@
 <template lang="pug">
-	.noteBar(v-show="note.title")
+	.noteBar(v-if="note && note.title")
 		nav: ul
 			li: a(@click="menu_codeBlock", href="#", v-show="!isPreview")
 				i.material-icons code

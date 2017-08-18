@@ -3,6 +3,13 @@
 		.system-bar-spacing
 		.system-bar
 			.spacer
+				span(v-if="enabled && rack") {{ rack.data.name }}
+				span(v-if="enabled && folder")
+					i.material-icons chevron_right
+					|  {{ folder.data.name }}
+				span(v-if="note && note.title")
+					i.material-icons chevron_right
+					|  {{ note.title }}
 			.system-icon.minimize(@click="win_min")
 				i.material-icons remove
 			.system-icon(@click="win_max")
@@ -14,9 +21,38 @@
 
 <script>
 	const remote = require('electron').remote;
+	const models = require('../models');
 
 	export default {
 		name: 'windowBar',
+		props: ['note', 'rackFolder'],
+		computed: {
+			enabled: function() {
+				return this.rackFolder || this.note;
+			},
+			rack: function() {
+				if (this.note && this.note.title) {
+					return this.note.data.rack;
+				} else if(this.rackFolder) {
+					if (this.rackFolder instanceof models.Folder) {
+						return this.rackFolder.data.rack;
+					} else {
+						return this.rackFolder;
+					}
+				}
+				return undefined;
+			},
+			folder: function() {
+				if (this.note && this.note.title) {
+					return this.note.data.folder;
+				} else if(this.rackFolder) {
+					if (this.rackFolder instanceof models.Folder) {
+						return this.rackFolder;
+					}
+				}
+				return undefined;
+			},
+		},
 		methods: {
 			win_close: function() {
 				setTimeout(function() {
