@@ -1,23 +1,33 @@
 <template lang="pug">
-	.CodeMirror-menu(v-show="!$root.isPreview && $root.selectedNote.title")
+	.noteBar(v-show="note.title")
 		nav: ul
-			li: a(@click="menu_codeBlock()", href="#")
+			li: a(@click="menu_codeBlock", href="#", v-show="!isPreview")
 				i.material-icons code
 				|  Code block
-			li: a(@click="menu_checkMark()", href="#")
+			li: a(@click="menu_checkMark", href="#", v-show="!isPreview")
 				i.material-icons done
 				|  Checkbox
+			li.right-align: a(@click="menu_preview", href="#")
+				template(v-if="isPreview")
+					i.material-icons visibility_off
+					|  Preview
+				template(v-else)
+					i.material-icons visibility
+					|  Preview
 </template>
 
 <script>
 	const remote = require('electron').remote;
 
 	export default {
-		name: 'codemirrorMenu',
-		props: [],
+		name: 'noteMenu',
+		props: ['note', 'isFullScreen', 'isPreview'],
 		methods: {
 			codeMirror: function() {
-				return this.$parent.codeMirror;
+				return this.$root.codeMirror;
+			},
+			menu_preview: function() {
+				this.$parent.isPreview = !this.$parent.isPreview;
 			},
 			menu_codeBlock: function() {
 				var cm = this.codeMirror();

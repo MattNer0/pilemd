@@ -144,16 +144,6 @@ nav > ul {
 		}
 	}
 
-	/*li.right-align ul{
-		right: 0;
-		left: initial;
-	}
-
-	li:hover ul {
-		opacity: 1.0;
-		visibility: visible;
-	}*/
-
 	.my-search {
 		font-size: 14px;
 		line-height: 1.0em;
@@ -174,60 +164,4 @@ nav > ul {
 		outline: none;
 		width: 250px;
 	}
-}
-
-.CodeMirror-menu{
-	padding: 0;
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	background: #282828;
-	color: #575757;
-	height: 2em;
-	z-index: 5;
-
-	nav {
-		display: block;
-		margin: 0 auto;
-		width: 100%;
-
-		ul li {
-			display: inline-block;
-			height: 1.9em;
-
-			a {
-				padding-top: 0;
-				padding-bottom: 0;
-			}
-		}
-
-		ul:after {
-			clear: both;
-		    content: "";
-		    display: block;
-		}
-	}
-}
-
-.CodeMirror-menu:before {
-	content: "";
-	position: absolute;
-	width: 10em;
-	height: 2em;
-	left: -10em;
-	top: 0;
-	background: #282828;
-	z-index: 5;
-}
-
-.CodeMirror-menu:after {
-	content: "";
-	position: absolute;
-	width: 10em;
-	height: 2em;
-	right: -10em;
-	top: 0;
-	background: #282828;
-	z-index: 5;
 }

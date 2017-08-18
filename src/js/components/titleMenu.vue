@@ -14,7 +14,7 @@
 					a(@click="$root.toggleProperties()", href="#"): span
 						i.material-icons.rotate input
 						|  Properties
-				li(v-if="$root.selectedNote.data")
+				//-li(v-if="$root.selectedNote.data")
 					a(@click="menu_preview()", href="#")
 						span(v-if="$root.isPreview")
 							i.material-icons visibility_off
@@ -60,9 +60,6 @@
 			});
 		},
 		methods: {
-			menu_preview: function() {
-				this.$parent.isPreview = !this.$parent.isPreview;
-			},
 			menu_open_folder: function() {
 				var self = this;
 				this.menu_visible = false;

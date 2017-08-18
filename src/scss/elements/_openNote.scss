@@ -1,8 +1,9 @@
 .CodeMirror,
 .my-editor-preview {
-	margin: 1em auto;
+	margin: 0 auto;
 	padding: 3.4em 6em;
-	border: 0.1em solid $note-border-color;
+	border-left: 0.1em solid $note-border-color;
+	border-right: 0.1em solid $note-border-color;
 	width: auto;
 	min-height: calc( 100vh - 9em );
 	min-width: 15em;

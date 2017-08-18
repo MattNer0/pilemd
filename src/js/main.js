@@ -33,21 +33,13 @@ import component_notes from './components/notes.vue';
 import component_modal from './components/modal.vue';
 import component_windowBar from './components/windowBar.vue';
 import component_titleMenu from './components/titleMenu.vue';
-import component_codemirrorMenu from './components/codemirrorMenu.vue';
+import component_noteMenu from './components/noteMenu.vue';
 import component_handlerStack from './components/handlerStack.vue';
 import component_handlerNotes from './components/handlerNotes.vue';
 import component_codeMirror from './components/codemirror.vue';
 
 import vueScrollbar from 'vue2-scrollbar';
 require('vue2-scrollbar/dist/style/vue2-scrollbar.css');
-
-//require('./components/modal/modal')(Vue);
-//require('./components/notes/notes')(Vue);
-//require('./components/codemirror')(Vue, {imageURL: '', imageParamName: 'image'});
-//require('./components/resizeHandler').handlerStack(Vue);
-//require('./components/resizeHandler').handlerNotes(Vue);
-//require('./components/menu/titleMenu')(Vue);
-//require('./components/menu/codemirrorMenu')(Vue);
 
 // Loading CSSs
 require('../scss/pilemd.scss');
@@ -100,7 +92,7 @@ new Vue({
 		'modal': component_modal,
 		'windowBar': component_windowBar,
 		'titleMenu': component_titleMenu,
-		'codemirrorMenu': component_codemirrorMenu,
+		'noteMenu': component_noteMenu,
 		'handlerStack': component_handlerStack,
 		'handlerNotes': component_handlerNotes,
 		'codemirror': component_codeMirror,

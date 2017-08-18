@@ -56,26 +56,27 @@
 				</div>
 				<handler-notes v-on:hdrag="editordrag" v-on:hdragend="editordragend"></handler-notes>
 			</div>
-			<div class="cell-container main-cell-container">
-				<codemirror-menu></codemirror-menu>
+			<div class="cell-container main-cell-container" :class="[ 'font'+fontsize ]">
+				<note-menu :note="selectedNote"
+					:is-full-screen="isFullScreen"
+					:is-preview="isPreview">
+				</note-menu>
 				<vue-scrollbar classes="my-scrollbar" ref="MainScrollbar">
 					<div class="scroll-me">
 						<div class="my-editor">
-							<div :class="[ 'font'+fontsize ]">
-								<codemirror v-show="!isPreview && selectedNote.title"
-									:note="selectedNote"
-									:is-full-screen="isFullScreen"
-									:is-preview="isPreview">
-								</codemirror>
-								<div v-show="isPreview && selectedNote.title" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()">
-									<div v-html="preview">
-									</div>
+							<codemirror v-show="!isPreview && selectedNote.title"
+								:note="selectedNote"
+								:is-full-screen="isFullScreen"
+								:is-preview="isPreview">
+							</codemirror>
+							<div v-show="isPreview && selectedNote.title" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()">
+								<div v-html="preview">
 								</div>
 							</div>
-							<flashmessage :messages="messages"></flashmessage>
 						</div>
 					</div>
 				</vue-scrollbar>
+				<flashmessage :messages="messages"></flashmessage>
 			</div>
 
 			<div class="sidebar-right" v-show="selectedNote.title" :style="{ right: ( propertiesOpen ? '0px' : '-'+propertiesWidth+'px' ) }">

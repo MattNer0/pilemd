@@ -89,7 +89,7 @@
 					placeholder: 'Start writing...'
 				});
 				this.cm = cm;
-				this.$parent.codeMirror = cm;
+				this.$root.codeMirror = cm;
 
 				var updateBody = null;
 				cm.on('change', function() {

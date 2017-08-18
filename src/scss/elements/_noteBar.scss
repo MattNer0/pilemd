@@ -1,0 +1,46 @@
+.noteBar{
+	position: absolute;
+	top: 0;
+	right: 1.2em;
+	left: 1.2em;
+	height: 2em;
+	z-index: 5;
+
+	nav {
+		display: block;
+		margin: 0 auto;
+		width: 100%;
+		min-width: 16em;
+		max-width: 69em;
+		font-size: 110%;
+
+		ul {
+			padding: 0.5em 0 0;
+			background: $note-background-color;
+
+			li {
+				height: 1.7em;
+
+				> a, > div {
+					padding-top: 0;
+					padding-bottom: 0;
+					color: $ui-text-color;
+				}
+			}
+
+			li:hover {
+
+				> a, > div {
+					background: $note-background-color !important;
+					color: $note-text-color;
+				}
+			}
+		}
+
+		ul:after {
+			clear: both;
+		    content: "";
+		    display: block;
+		}
+	}
+}
