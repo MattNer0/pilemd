@@ -26,6 +26,19 @@
 					padding-bottom: 0;
 					color: $ui-text-color;
 				}
+
+				ul {
+					padding: 0.4em 0;
+					width: auto;
+
+					li > a, li > div {
+						border: none !important;
+					}
+				}
+			}
+
+			li > div span {
+				display: block;
 			}
 
 			li:hover {

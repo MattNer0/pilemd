@@ -59,7 +59,8 @@
 			<div class="cell-container main-cell-container" :class="[ 'font'+fontsize ]">
 				<note-menu :note="selectedNote"
 					:is-full-screen="isFullScreen"
-					:is-preview="isPreview">
+					:is-preview="isPreview"
+					:fontsize="fontsize">
 				</note-menu>
 				<vue-scrollbar classes="my-scrollbar" ref="MainScrollbar">
 					<div class="scroll-me">
@@ -82,18 +83,6 @@
 			<div class="sidebar-right" v-show="selectedNote.title" :style="{ right: ( propertiesOpen ? '0px' : '-'+propertiesWidth+'px' ) }">
 				<div class="cell-container" :style="{ width: propertiesWidth+'px' }">
 					<div v-if="selectedNote.properties">
-						<strong>Font Size: </strong><br/>
-						<select v-model="fontsize" style="width: 100%;">
-							<option>10</option>
-							<option>12</option>
-							<option>14</option>
-							<option>15</option>
-							<option>16</option>
-							<option>18</option>
-							<option>20</option>
-							<option>24</option>
-						</select>
-						<hr>
 						<table>
 							<tr>
 								<td><strong>Line Count: </strong></td>

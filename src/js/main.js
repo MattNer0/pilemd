@@ -525,6 +525,10 @@ new Vue({
 		},
 		fontsize: function() {
 			settings.set('fontsize', this.fontsize);
+			this.$nextTick(function () {
+				this.$refs.MainScrollbar.calculateSize();
+				this.$refs.MainScrollbar.scrollToY(0);
+			});
 		},
 		selectedNote: function() {
 			if(this.isPreview) {

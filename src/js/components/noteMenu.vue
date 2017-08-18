@@ -14,17 +14,70 @@
 				template(v-else)
 					i.material-icons visibility
 					|  Preview
+			li.right-align
+				div: dropdown(:visible="fontsize_visible", :position="position", v-on:clickout="fontsize_visible = false")
+					span.link(@click="fontsize_visible = !fontsize_visible")
+						i.material-icons format_size
+						|  FontSize
+					.dialog(slot="dropdown"): ul
+						li: a(@click="menu_fontsize(10)", href="#")
+							i.material-icons(v-if="fontsize == 10") check_box
+							i.material-icons(v-else) check_box_outline_blank
+							|  10
+						li: a(@click="menu_fontsize(12)", href="#")
+							i.material-icons(v-if="fontsize == 12") check_box
+							i.material-icons(v-else) check_box_outline_blank
+							|  12
+						li: a(@click="menu_fontsize(14)", href="#")
+							i.material-icons(v-if="fontsize == 14") check_box
+							i.material-icons(v-else) check_box_outline_blank
+							|  14
+						li: a(@click="menu_fontsize(15)", href="#")
+							i.material-icons(v-if="fontsize == 15") check_box
+							i.material-icons(v-else) check_box_outline_blank
+							|  15
+						li: a(@click="menu_fontsize(16)", href="#")
+							i.material-icons(v-if="fontsize == 16") check_box
+							i.material-icons(v-else) check_box_outline_blank
+							|  16
+						li: a(@click="menu_fontsize(18)", href="#")
+							i.material-icons(v-if="fontsize == 18") check_box
+							i.material-icons(v-else) check_box_outline_blank
+							|  18
+						li: a(@click="menu_fontsize(20)", href="#")
+							i.material-icons(v-if="fontsize == 20") check_box
+							i.material-icons(v-else) check_box_outline_blank
+							|  20
+						li: a(@click="menu_fontsize(24)", href="#")
+							i.material-icons(v-if="fontsize == 24") check_box
+							i.material-icons(v-else) check_box_outline_blank
+							|  24
 </template>
 
 <script>
 	const remote = require('electron').remote;
 
+	import myDropdown from 'vue-my-dropdown';
+
 	export default {
 		name: 'noteMenu',
-		props: ['note', 'isFullScreen', 'isPreview'],
+		props: ['note', 'isFullScreen', 'isPreview', 'fontsize'],
+		data: function() {
+			return {
+				'fontsize_visible': false,
+				'position': [ "right", "bottom", "right", "top" ]
+			};
+		},
+		components: {
+			'dropdown': myDropdown
+		},
 		methods: {
 			codeMirror: function() {
 				return this.$root.codeMirror;
+			},
+			menu_fontsize: function(size) {
+				this.$parent.fontsize = size;
+				this.fontsize_visible = false;
 			},
 			menu_preview: function() {
 				this.$parent.isPreview = !this.$parent.isPreview;

@@ -14,14 +14,6 @@
 					a(@click="$root.toggleProperties()", href="#"): span
 						i.material-icons.rotate input
 						|  Properties
-				//-li(v-if="$root.selectedNote.data")
-					a(@click="menu_preview()", href="#")
-						span(v-if="$root.isPreview")
-							i.material-icons visibility_off
-							|  Preview
-						span(v-else)
-							i.material-icons visibility
-							|  Preview
 				li: div
 					i.material-icons search
 					input#search-bar.my-search(v-model="search", type="search", placeholder="Search notes...")
