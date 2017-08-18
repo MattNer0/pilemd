@@ -43,36 +43,36 @@
 						i.material-icons format_size
 					.dialog(slot="dropdown"): ul
 						li: a(@click="menu_fontsize(10)", href="#")
-							i.material-icons(v-if="fontsize == 10") check_box
-							i.material-icons(v-else) check_box_outline_blank
+							i.material-icons(v-if="fontsize == 10") radio_button_checked
+							i.material-icons.faded(v-else) radio_button_unchecked
 							|  10
 						li: a(@click="menu_fontsize(12)", href="#")
-							i.material-icons(v-if="fontsize == 12") check_box
-							i.material-icons(v-else) check_box_outline_blank
+							i.material-icons(v-if="fontsize == 12") radio_button_checked
+							i.material-icons.faded(v-else) radio_button_unchecked
 							|  12
 						li: a(@click="menu_fontsize(14)", href="#")
-							i.material-icons(v-if="fontsize == 14") check_box
-							i.material-icons(v-else) check_box_outline_blank
+							i.material-icons(v-if="fontsize == 14") radio_button_checked
+							i.material-icons.faded(v-else) radio_button_unchecked
 							|  14
 						li: a(@click="menu_fontsize(15)", href="#")
-							i.material-icons(v-if="fontsize == 15") check_box
-							i.material-icons(v-else) check_box_outline_blank
+							i.material-icons(v-if="fontsize == 15") radio_button_checked
+							i.material-icons.faded(v-else) radio_button_unchecked
 							|  15
 						li: a(@click="menu_fontsize(16)", href="#")
-							i.material-icons(v-if="fontsize == 16") check_box
-							i.material-icons(v-else) check_box_outline_blank
+							i.material-icons(v-if="fontsize == 16") radio_button_checked
+							i.material-icons.faded(v-else) radio_button_unchecked
 							|  16
 						li: a(@click="menu_fontsize(18)", href="#")
-							i.material-icons(v-if="fontsize == 18") check_box
-							i.material-icons(v-else) check_box_outline_blank
+							i.material-icons(v-if="fontsize == 18") radio_button_checked
+							i.material-icons.faded(v-else) radio_button_unchecked
 							|  18
 						li: a(@click="menu_fontsize(20)", href="#")
-							i.material-icons(v-if="fontsize == 20") check_box
-							i.material-icons(v-else) check_box_outline_blank
+							i.material-icons(v-if="fontsize == 20") radio_button_checked
+							i.material-icons.faded(v-else) radio_button_unchecked
 							|  20
 						li: a(@click="menu_fontsize(24)", href="#")
-							i.material-icons(v-if="fontsize == 24") check_box
-							i.material-icons(v-else) check_box_outline_blank
+							i.material-icons(v-if="fontsize == 24") radio_button_checked
+							i.material-icons.faded(v-else) radio_button_unchecked
 							|  24
 </template>
 

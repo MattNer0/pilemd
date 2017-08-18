@@ -6,6 +6,10 @@
 	height: 2em;
 	z-index: 5;
 
+	i.material-icons.faded {
+		opacity: 0.4;
+	}
+
 	.properties-dialog{
 		background: $note-background-color;
 		padding: 0.3em;
