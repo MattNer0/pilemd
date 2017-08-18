@@ -6,6 +6,8 @@ codemirror {
 	text-rendering: optimizeSpeed;
 	background-color: $note-background-color;
 	background-image: url('../images/notelines.png');
+	background-size: 22px;
+	background-position: 1em 1.9em;
 }
 
 .CodeMirror{
