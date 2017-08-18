@@ -10,7 +10,7 @@
 					a(@click="$root.toggleFullScreen()", href="#"): span
 						i.material-icons input
 						|  Sidebar
-				li(v-show="$root.selectedNote.data")
+				//-li(v-show="$root.selectedNote.data")
 					a(@click="$root.toggleProperties()", href="#"): span
 						i.material-icons.rotate input
 						|  Properties

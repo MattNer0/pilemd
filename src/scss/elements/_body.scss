@@ -71,7 +71,7 @@ html, body, h1, h2, h3, h4, h5, p, span, input {
 		transition: left 400ms;
 	}
 
-	.sidebar-right {
+	/*.sidebar-right {
 		right: 0;
 		transition: right 400ms;
 
@@ -99,7 +99,7 @@ html, body, h1, h2, h3, h4, h5, p, span, input {
 		span, h5, strong{
 			color: $ui-text-color;
 		}
-	}
+	}*/
 
 	.sidebar:after, .outer_wrapper .sidebar-right:after{
 		content: "";

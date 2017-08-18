@@ -7,18 +7,40 @@
 			li: a(@click="menu_checkMark", href="#", v-show="!isPreview")
 				i.material-icons done
 				|  Checkbox
-			li.right-align: a(@click="menu_preview", href="#")
+			li.right-align: a(@click="menu_preview", href="#", title="Preview")
 				template(v-if="isPreview")
 					i.material-icons visibility_off
-					|  Preview
 				template(v-else)
 					i.material-icons visibility
-					|  Preview
+			li.right-align
+				div: dropdown(:visible="properties_visible", :position="position", v-on:clickout="properties_visible = false")
+					span.link(@click="properties_visible = !properties_visible", title="Properties")
+						i.material-icons info_outline
+					.dialog(slot="dropdown")
+						.properties-dialog(@click="close_properties")
+							table
+								tr
+									td: strong Line Count: 
+									td.right: span {{ note.properties.lineCount }}
+								tr
+									td: strong Word Count: 
+									td.right: span {{ note.properties.wordCount }}
+								tr
+									td: strong Char Count: 
+									td.right: span {{ note.properties.charCount }}
+							hr
+							table
+								//-tr
+									td: strong Created: 
+									td.right: span {{ note.data.created_at.format('MMM DD, YYYY') }}
+								tr
+									td: strong Modified: 
+									td.right: span {{ note.data.updated_at.format('MMM DD, YYYY') }}
+
 			li.right-align
 				div: dropdown(:visible="fontsize_visible", :position="position", v-on:clickout="fontsize_visible = false")
-					span.link(@click="fontsize_visible = !fontsize_visible")
+					span.link(@click="fontsize_visible = !fontsize_visible", title="Font Size")
 						i.material-icons format_size
-						|  FontSize
 					.dialog(slot="dropdown"): ul
 						li: a(@click="menu_fontsize(10)", href="#")
 							i.material-icons(v-if="fontsize == 10") check_box
@@ -65,7 +87,8 @@
 		data: function() {
 			return {
 				'fontsize_visible': false,
-				'position': [ "right", "bottom", "right", "top" ]
+				'properties_visible': false,
+				'position': [ "right", "top", "right", "top" ]
 			};
 		},
 		components: {
@@ -74,6 +97,9 @@
 		methods: {
 			codeMirror: function() {
 				return this.$root.codeMirror;
+			},
+			close_properties: function() {
+				this.properties_visible = false;
 			},
 			menu_fontsize: function(size) {
 				this.$parent.fontsize = size;

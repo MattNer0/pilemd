@@ -63,7 +63,7 @@ new Vue({
 	data: {
 		isFullScreen: false,
 		isPreview: settings.get('vue_isPreview') || false,
-		propertiesOpen: false,
+		//propertiesOpen: false,
 		preview: "",
 		racks: [],
 		editingRack: null,
@@ -256,10 +256,10 @@ new Vue({
 			settings.set('vue_isFullScreen', this.isFullScreen);
 			this.update_editor_size();
 		},
-		toggleProperties: function() {
+		/*toggleProperties: function() {
 			this.propertiesOpen = !this.propertiesOpen;
 			this.update_editor_size();
-		},
+		},*/
 		togglePreview: function() {
 			eventHub.$emit('togglePreview');
 		},
@@ -474,15 +474,15 @@ new Vue({
 		},
 		update_editor_size: function() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
-			var cellsRight = document.querySelectorAll('.outer_wrapper .sidebar-right .cell-container');
+			//var cellsRight = document.querySelectorAll('.outer_wrapper .sidebar-right .cell-container');
 			//var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + 5;
 			//var widthTotalRight = parseInt( cellsRight[0].style.width.replace('px','') );
-			if (cellsLeft.length == 0 || cellsRight.length == 0) {
+			if (cellsLeft.length == 0) { //|| cellsRight.length == 0
 				return;
 			}
 
 			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + parseInt( cellsLeft[1].style.width.replace('px','') ) + 10;
-			var widthTotalRight = parseInt( cellsRight[0].style.width.replace('px','') ); //+ parseInt( cellsRight[1].style.width.replace('px','') ) + 10;
+			//var widthTotalRight = parseInt( cellsRight[0].style.width.replace('px','') ); //+ parseInt( cellsRight[1].style.width.replace('px','') ) + 10;
 
 			if(this.isFullScreen){
 				document.querySelector('.sidebar').style.left = "-"+widthTotalLeft+'px';
@@ -491,15 +491,15 @@ new Vue({
 				document.querySelector('.sidebar').style.left = "";
 			}
 
-			if(this.propertiesOpen && this.selectedNote.data) {
+			/*if(this.propertiesOpen && this.selectedNote.data) {
 				document.querySelector('.sidebar-right').style.right = "0px";
 			} else {
 				document.querySelector('.sidebar-right').style.right = "-"+widthTotalRight+'px';
 				widthTotalRight = 0;
-			}
+			}*/
 
 			document.querySelector('.main-cell-container').style.marginLeft = widthTotalLeft+'px';
-			document.querySelector('.main-cell-container').style.marginRight = widthTotalRight+'px';
+			//document.querySelector('.main-cell-container').style.marginRight = widthTotalRight+'px';
 		},
 		save_editor_size: function() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
