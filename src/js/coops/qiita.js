@@ -16,7 +16,6 @@ function getQiitaToken() {
   return localStorage.getItem(QIITA_TOKEN_KEY);
 }
 
-
 module.exports = function(Vue, option) {
   Vue.use(require('vue-resource'));
   Vue.use(require('../components/flashmessage'));
@@ -30,7 +29,7 @@ module.exports = function(Vue, option) {
         var token = prompts[0].retValue;
         if (!(token.length > 0)) {
           this.$message('error', 'Specify correct string', 5000);
-          return
+          return;
         }
         setQiitaToken(token);
         this.$message('info', 'Login Succeed');

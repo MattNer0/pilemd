@@ -9,7 +9,7 @@ function calculateSearchMeaning(selectedRackOrFolder, searchInput) {
 	} else if (selectedRackOrFolder instanceof models.Rack) {
 		folderUids = selectedRackOrFolder.folders.map((f) => {return f.uid});
 	} else {
-		folderUids = [selectedRackOrFolder.uid]
+		folderUids = [selectedRackOrFolder.uid];
 	}
 
 	return {
@@ -23,7 +23,7 @@ function allWords(text, words) {
 	 * allWords("Hello Goodbye", ["ell", "oo"]) => true
 	 * allWords("Hi Goodbye", ["ell", "oo"]) => false
 	 */
-	return _.all(_.map(words, (word) => { return _.includes(text, word) }))
+	return _.all(_.map(words, (word) => { return _.includes(text, word) }));
 }
 
 function searchNotes(selectedRackOrFolder, searchInput, notes) {
@@ -32,11 +32,11 @@ function searchNotes(selectedRackOrFolder, searchInput, notes) {
 	}
 	var searchPayload = calculateSearchMeaning(selectedRackOrFolder, searchInput);
 	var filteredNotes = notes.filter((note) => {
-		if(!searchPayload.folderUids || _.includes(searchPayload.folderUids, note.folderUid)){
-			if(searchPayload.words.length == 0) return true;
+		if (!searchPayload.folderUids || _.includes(searchPayload.folderUids, note.folderUid)) {
+			if (searchPayload.words.length == 0) return true;
 
-			if(!note.body) note.loadBody();
-			if( allWords(note.body.toLowerCase(), searchPayload.words) ) return true;
+			if (!note.body) note.loadBody();
+			if (allWords(note.body.toLowerCase(), searchPayload.words)) return true;
 		}
 		return false;
 	});

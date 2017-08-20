@@ -65,7 +65,6 @@ new Vue({
 		isPreview: settings.get('vue_isPreview') || false,
 		preview: "",
 		racks: [],
-		editingRack: null,
 		folders: [],
 		notes: [],
 		selectedRackOrFolder: null,
@@ -108,13 +107,17 @@ new Vue({
 					});
 				}
 			}
-			return searcher.searchNotes(this.filterFolder, this.search, this.notes);
+			return searcher.searchNotes(this.selectedRackOrFolder, this.search, this.notes);
 		},
 		filterFolder: function() {
 			if(this.selectedRackOrFolder instanceof models.Rack && this.selectedNote.data) {
 				return this.selectedNote.data.folder;
 			}
 			return this.selectedRackOrFolder;
+		},
+		selectedFolder: function() {
+			if(this.selectedRackOrFolder instanceof models.Folder) return this.selectedRackOrFolder;
+			return undefined;
 		}
 	},
 	created() {
@@ -184,7 +187,7 @@ new Vue({
 		// Save it not to remove
 		//this.watcher = models.makeWatcher(this.racks, this.folders, this.notes);
 	},
-	mounted(){
+	mounted() {
 		var self = this;
 		this.$nextTick(function () {
 			
@@ -194,11 +197,7 @@ new Vue({
 				self.update_editor_size();
 			});
 
-			var handlerStack = document.getElementById('handlerStack')
-			if(handlerStack) handlerStack.previousElementSibling.style.width = this.racksWidth+"px";
-
-			var handlerNotes = document.getElementById('handlerNotes')
-			if(handlerNotes) handlerNotes.previousElementSibling.style.width = this.notesWidth+"px";
+			this.init_sidebar_width();
 
 			setTimeout(function(){
 				self.update_editor_size();
@@ -208,25 +207,32 @@ new Vue({
 		eventHub.$on('togglePreview', self.togglePreviewCallBack);
 	},
 	methods: {
-		init_scrollbar_racks: function() {
+		init_sidebar_width() {
+			var handlerStack = document.getElementById('handlerStack')
+			if(handlerStack) handlerStack.previousElementSibling.style.width = this.racksWidth+"px";
+
+			var handlerNotes = document.getElementById('handlerNotes')
+			if(handlerNotes) handlerNotes.previousElementSibling.style.width = this.notesWidth+"px";
+		},
+		init_scrollbar_racks() {
 			this.$nextTick(function () {
 				this.$refs.RacksScrollbar.calculateSize();
 			});
 		},
-		init_scrollbar_note: function() {
+		init_scrollbar_note() {
 			this.$nextTick(function () {
 				this.$refs.MainScrollbar.scrollToY(0);
 				this.$refs.MainScrollbar.calculateSize();
 			});
 		},
-		changeRackOrFolder: function(obj) {
+		changeRackOrFolder(obj) {
 			this.selectedRackOrFolder = obj;
 			this.init_scrollbar_racks();
 		},
-		changeNote: function(obj) {
+		changeNote(obj) {
 			this.selectedNote = obj;
 		},
-		openrack: function(rack) {
+		openRack(rack) {
 			var newData = rack.readContents();
 			if(newData) {
 				this.folders = this.folders.concat( newData );
@@ -242,40 +248,71 @@ new Vue({
 			rack.openFolders = true;
 			this.init_scrollbar_racks();
 		},
-		closerack: function(rack) {
+		closerack(rack) {
 			rack.openFolders = false;
 			this.init_scrollbar_racks();
 		},
-		folderDrag: function(obj) {
-			var rack = obj.rack;
-			rack.folders = rack.folders.sort(function(a, b) { return a.ordering - b.ordering });
-		},
-		toggleFullScreen: function() {
-			this.isFullScreen = !this.isFullScreen;
-			settings.set('vue_isFullScreen', this.isFullScreen);
-			this.update_editor_size();
-		},
-		togglePreview: function() {
-			eventHub.$emit('togglePreview');
-		},
-		togglePreviewCallBack: function() {
-			this.isPreview = !this.isPreview;
-			settings.set('vue_isPreview', this.isPreview);
-
-			this.update_editor_size();
-		},
-		addRack: function() {
-			var rack = new models.Rack({name: "", ordering: 0});
+		addRack(rack) {
 			var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
-			racks.push(rack);
+			racks.unshift(rack);
 			racks.forEach((r, i) => {
 				r.ordering = i;
 				models.Rack.setModel(r);
 			});
 			this.racks = racks;
-			this.editingRack = rack;
 		},
-		calcSaveUid: function() {
+		removeRack(rack) {
+			rack.remove(this.notes, this.folders);
+			var index = this.racks.indexOf(rack);
+			this.racks.splice(index, 1);
+			this.selectedRackOrFolder = null;
+			if(this.selectedNote.data.rack == rack) {
+				this.selectedNote = {};
+			}
+		},
+		addFolderToRack(rack, folder) {
+			this.openRack(rack);
+			var folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
+			folders.unshift(folder);
+			folders.forEach((f, i) => {
+				f.ordering = i;
+				models.Folder.setModel(f);
+			});
+			rack.folders = folders;
+			this.folders.push(folder);
+		},
+		removeFolder(folder) {
+			folder.remove(this.notes);
+			
+			var index = this.folders.indexOf(folder);
+			this.folders.splice(index, 1);
+
+			index = folder.data.rack.folders.indexOf(folder);
+			folder.data.rack.folders.splice(index, 1);
+
+			this.selectedRackOrFolder = null;
+			if(this.selectedNote.data.folder == folder) {
+				this.selectedNote = {};
+			}
+		},
+		folderDrag(obj) {
+			var rack = obj.rack;
+			rack.folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
+		},
+		toggleFullScreen() {
+			this.isFullScreen = !this.isFullScreen;
+			settings.set('vue_isFullScreen', this.isFullScreen);
+			this.update_editor_size();
+		},
+		togglePreview() {
+			eventHub.$emit('togglePreview');
+		},
+		togglePreviewCallBack() {
+			this.isPreview = !this.isPreview;
+			settings.set('vue_isPreview', this.isPreview);
+			this.update_editor_size();
+		},
+		calcSaveUid() {
 			if (this.selectedRackOrFolder instanceof models.Rack) {
 				var f = this.selectedRackOrFolder.folders;
 				if (!f || f.length == 0) {
@@ -289,7 +326,7 @@ new Vue({
 				return null;
 			}
 		},
-		getCurrentFolder: function() {
+		getCurrentFolder() {
 			if (this.selectedRackOrFolder == null){
 				return null;
 			} else if (this.selectedRackOrFolder instanceof models.Rack) {
@@ -305,7 +342,7 @@ new Vue({
 				return null;
 			}
 		},
-		addNote: function() {
+		addNote() {
 			var currFolder = this.getCurrentFolder();
 			var newNote = models.Note.newEmptyNote(currFolder);
 			if(newNote){
@@ -329,7 +366,7 @@ new Vue({
 				}]);
 			}
 		},
-		addNotes: function(noteTexts) {
+		addNotes(noteTexts) {
 			var uid = this.calcSaveUid();
 			var newNotes = noteTexts.map((noteText) => {
 				return new models.Note({body: noteText, folderUid: uid})
@@ -339,13 +376,13 @@ new Vue({
 			});
 			this.notes = newNotes.concat(this.notes)
 		},
-		isSearchAll: function() {
+		isSearchAll() {
 			return this.selectedRackOrFolder === null;
 		},
-		selectAll: function() {
+		selectAll() {
 			this.selectedRackOrFolder = null;
 		},
-		allDragOver: function(event) {
+		allDragOver(event) {
 			if (!this.draggingNote || this.draggingNote.folderUid == null) {
 				event.preventDefault();
 				return false
@@ -353,11 +390,11 @@ new Vue({
 			//event.preventDefault();
 			this.allDragHover = true;
 		},
-		allDragLeave: function(event) {
+		allDragLeave(event) {
 			if (!this.draggingNote) {return false}
 			this.allDragHover = false;
 		},
-		dropToAll: function(event) {
+		dropToAll(event) {
 			if (!this.draggingNote || this.draggingNote.folderUid == null) {
 				event.preventDefault();
 				event.stopPropagation();
@@ -376,18 +413,18 @@ new Vue({
 			});
 		},
 		// Electron methods
-		shelfMenu: function() {
+		shelfMenu() {
 			var menu = new Menu();
 			menu.append(new MenuItem({label: 'Add Rack', click: () => {this.addRack()}}));
 			menu.popup(remote.getCurrentWindow());
 		},
-		previewMenu: function() {
+		previewMenu() {
 			var menu = new Menu();
 			menu.append(new MenuItem({label: 'Toggle Preview', click: () => {this.togglePreview()}}));
 			//menu.append(new MenuItem({label: 'Copy', accelerator: 'CmdOrCtrl+C', click: () => {} }));
 			menu.popup(remote.getCurrentWindow());
 		},
-		importNotes: function() {
+		importNotes() {
 			var notePaths = dialog.showOpenDialog(remote.getCurrentWindow(), {
 				title: 'Import Note',
 				filters: [{name: 'Markdown', extensions: ['md', 'markdown', 'txt']}],
@@ -401,7 +438,7 @@ new Vue({
 			});
 			this.addNotes(noteBodies);
 		},
-		moveSync: function() {
+		moveSync() {
 			var currentPath = models.getBaseLibraryPath();
 			if (!currentPath) {this.$message('error', 'Current Syncing Dir Not found', 5000)}
 			var newPath = dialog.showSaveDialog(remote.getCurrentWindow(), {
@@ -417,7 +454,7 @@ new Vue({
 				remote.getCurrentWindow().reload();
 			});
 		},
-		openSync: function() {
+		openSync() {
 			var currentPath = models.getBaseLibraryPath();
 			var newPaths = dialog.showOpenDialog(remote.getCurrentWindow(), {
 				title: 'Open Existing Sync Folder',
@@ -431,7 +468,7 @@ new Vue({
 			settings.set('baseLibraryPath', newPath);
 			remote.getCurrentWindow().reload();
 		},
-		openCredits: function() {
+		openCredits() {
 			var message = "PileMd was originally created by Hiroki KIYOHARA.\n"+
 				"The full list of Authors is available on GitHub.\n\n"+
 				"This Fork with updated components and additional features is maintained by MattNer0.";
@@ -440,7 +477,7 @@ new Vue({
 				label: 'Ok'
 			}]);
 		},
-		update_editor_size: function() {
+		update_editor_size() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
 			if (cellsLeft.length == 0) {
 				return;
@@ -448,7 +485,7 @@ new Vue({
 
 			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + parseInt( cellsLeft[1].style.width.replace('px','') ) + 10;
 
-			if(this.isFullScreen){
+			if(this.isFullScreen) {
 				document.querySelector('.sidebar').style.left = "-"+widthTotalLeft+'px';
 				widthTotalLeft = 0;
 			} else {
@@ -457,36 +494,36 @@ new Vue({
 
 			document.querySelector('.main-cell-container').style.marginLeft = widthTotalLeft+'px';
 		},
-		save_editor_size: function() {
+		save_editor_size() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
 			this.racksWidth = cellsLeft.length > 0 ? parseInt( cellsLeft[0].style.width.replace('px','') ) : 180;
 			this.notesWidth = cellsLeft.length > 1 ? parseInt( cellsLeft[1].style.width.replace('px','') ) : 180;
 			settings.set('racksWidth', this.racksWidth);
 			settings.set('notesWidth', this.notesWidth);
 		},
-		editordrag: function() {
+		editordrag() {
 			this.update_editor_size();
 		},
-		editordragend: function() {
+		editordragend() {
 			this.update_editor_size();
 			this.save_editor_size();
 		}
 	},
 	watch: {
-		isPreview: function() {
+		isPreview() {
 			if(this.selectedNote.data){
 				this.preview = preview.render(this.selectedNote, this);
 			}
 			this.init_scrollbar_note();
 		},
-		fontsize: function() {
+		fontsize() {
 			settings.set('fontsize', this.fontsize);
 			this.$nextTick(function () {
 				this.$refs.MainScrollbar.calculateSize();
 				this.$refs.MainScrollbar.scrollToY(0);
 			});
 		},
-		selectedNote: function() {
+		selectedNote() {
 			if(this.isPreview) {
 				this.preview = preview.render(this.selectedNote, this);
 			}
@@ -496,7 +533,7 @@ new Vue({
 				this.$refs.MainScrollbar.scrollToY(0);
 			});
 		},
-		selectedRackOrFolder: function() {
+		selectedRackOrFolder() {
 			if (this.selectedRackOrFolder) {
 				var newData = this.selectedRackOrFolder.readContents();
 

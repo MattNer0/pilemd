@@ -5,16 +5,16 @@ const electron = require('electron');
 const remote = electron.remote;
 
 var settings_data = {};
-var settings_filename = "pilemdConfig.json";
+var settings_filename = 'pilemdConfig.json';
 var settings_path;
 
 module.exports = {
 	init(filename) {
-		if(filename) settings_filename = filename;
-		settings_path = path.join( remote.app.getPath('appData'), settings_filename);
-		try{
-			settings_data = JSON.parse(fs.readFileSync( settings_path ));
-		} catch(e){
+		if (filename) settings_filename = filename;
+		settings_path = path.join(remote.app.getPath('appData'), settings_filename);
+		try {
+			settings_data = JSON.parse(fs.readFileSync(settings_path));
+		} catch (e) {
 			settings_data = {};
 		}
 	},
@@ -26,15 +26,15 @@ module.exports = {
 	set(key, value) {
 		settings_data[key] = value;
 		fs.writeFile(settings_path, JSON.stringify(settings_data), (err) => {
-			if(err) console.log(err);
+			if (err) console.log(err);
 		});
 	},
 
 	loadWindowSize() {
 		var win = remote.getCurrentWindow();
-		if(settings_data['screen_maximized']){
+		if (settings_data['screen_maximized']) {
 			win.maximize();
-		} else if(settings_data['screen_width'] && settings_data['screen_height']){
+		} else if (settings_data['screen_width'] && settings_data['screen_height']) {
 			win.setSize(settings_data['screen_width'] , settings_data['screen_height']);
 			win.center();
 		}
@@ -44,7 +44,7 @@ module.exports = {
 		var win = remote.getCurrentWindow();
 		var current_size = win.getSize();
 
-		if(win.isMaximized()){
+		if (win.isMaximized()) {
 			settings_data['screen_maximized'] = true;
 		} else {
 			settings_data['screen_maximized'] = false;
@@ -53,7 +53,7 @@ module.exports = {
 		}
 
 		fs.writeFile(settings_path, JSON.stringify(settings_data), (err) => {
-			if(err) console.log(err);
+			if (err) console.log(err);
 		});
 	}
 };

@@ -8,7 +8,8 @@
 						|  New Note
 				li
 					a(@click="$root.toggleFullScreen()", href="#"): span
-						i.material-icons input
+						i.material-icons(v-if="isFullScreen") fullscreen_exit
+						i.material-icons(v-else) fullscreen
 						|  Sidebar
 				//-li(v-show="$root.selectedNote.data")
 					a(@click="$root.toggleProperties()", href="#"): span

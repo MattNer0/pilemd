@@ -1,5 +1,10 @@
 <template lang="pug">
 	.my-notes
+		.my-separator(v-if="selectedFolder")
+			.my-notes-note.new-note(@click="$root.addNote()")
+				h5.my-notes-note-title
+					i.material-icons note_add
+					|  New Note
 		.my-separator(v-for="separated in notesFiltered", v-bind:key="separated.dateStr")
 			.my-separator-date {{ separated.dateStr }}
 			.my-notes-note(v-for="note in separated.notes",
@@ -18,6 +23,7 @@
 					img(:src="note.img")
 				.my-notes-note-body(v-if="!note.img && note.body.length != 0")
 					| {{ note.bodyWithoutTitle | truncate(80) }}
+
 </template>
 
 <script>
@@ -45,7 +51,7 @@
 
 	export default {
 		name: 'notes',
-		props: ['notes', 'originalNotes', 'selectedNote', 'draggingNote', 'toggleFullScreen', 'selectedRackOrFolder'],
+		props: ['notes', 'originalNotes', 'selectedNote', 'draggingNote', 'toggleFullScreen', 'selectedFolder'],
 		data: function() {
 			return {
 				notesDisplayOrder: 'updatedAt'

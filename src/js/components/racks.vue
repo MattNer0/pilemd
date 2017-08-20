@@ -63,24 +63,24 @@
 
 	export default {
 		name: 'racks',
-		props: ['racks', 'folders', 'notes', 'filteredNotes', 'selectedRackOrFolder', 'selectedNote', 'editingRack', 'draggingNote', 'toggleFullScreen'],
+		props: ['racks', 'folders', 'notes', 'filteredNotes', 'selectedRackOrFolder', 'selectedNote', 'draggingNote', 'toggleFullScreen'],
 		data: function() {
 			return {
 				draggingRack: null,
 				draggingFolder: null,
 				draggingFolderRack: null,
+				editingRack: null,
 				editingFolder: null,
 				scrollbarNotes: null
 			};
 		},
 		directives: {
-			'focus': function(value) {
-				if (!value) {
+			'focus': function(element) {
+				if (!element) {
 					return;
 				}
-				var el = this.el;
 				Vue.nextTick(function() {
-					el.focus();
+					element.focus();
 				});
 			}
 		},
@@ -100,38 +100,21 @@
 				this.$emit('select', rack);
 			},
 			addRack: function() {
-				// Same with the method in main.js
-				var rack = new models.Rack({name: '', ordering: 0});
-				var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
-				racks.push(rack);
-				racks.forEach((r, i) => {
-					r.ordering = i;
-					Rack.setModel(r);
+				var rack = new Rack({
+					name: "",
+					ordering: 0
 				});
-				this.racks = racks;
+				this.$root.addRack(rack);
 				this.editingRack = rack;
 			},
-			removeRack: function(rack) {
-				rack.remove(this.notes, this.folders);
-				var index = this.racks.indexOf(rack);
-				this.racks.splice(index, 1);
-				this.selectedRackOrFolder = null;
-			},
 			addFolder: function(rack) {
-				this.$emit('openrack', rack);
 				var folder = new Folder({
 					name: '',
 					rack: rack,
 					rackUid: rack.uid,
 					ordering: 0
 				});
-				var folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
-				folders.unshift(folder);
-				folders.forEach((f, i) => {
-					f.ordering = i;
-					Folder.setModel(f);
-				});
-				this.folders.push(folder);
+				this.$root.addFolderToRack(rack, folder);
 				this.editingFolder = folder;
 			},
 			doneFolderEdit: function(rack, folder) {
@@ -141,8 +124,8 @@
 				this.$emit('select', folder);
 			},
 			removeFolder: function(rack, folder) {
-				folder.remove(this.notes);
 				this.$emit('select', rack);
+				this.$root.removeFolder(folder);
 			},
 			isSelectedRack: function(rack) {
 				return this.selectedRackOrFolder === rack;
@@ -339,29 +322,70 @@
 			},
 			rackMenu: function(rack) {
 				var menu = new Menu();
-				menu.append(new MenuItem({label: 'Rename Rack', click: () => {this.editingRack = rack}}));
-				menu.append(new MenuItem({label: 'Add Folder', click: () => {this.addFolder(rack)}}));
-				menu.append(new MenuItem({label: 'Add Rack', click: () => {this.addRack()}}));
+				menu.append(new MenuItem({
+					label: 'Rename Rack',
+					click: () => {
+						this.editingRack = rack
+					}
+				}));
+				
+				menu.append(new MenuItem({
+					label: 'Add Folder',
+					click: () => {
+						this.addFolder(rack)
+					}
+				}));
+				
+				menu.append(new MenuItem({
+					label: 'Add Rack',
+					click: () => {
+						this.addRack();
+					}
+				}));
+				
 				menu.append(new MenuItem({type: 'separator'}));
+				
 				menu.append(new MenuItem({
 					label: 'Delete Rack', click: () => {
 						if (confirm('Delete Rack "' + rack.name + '" and Folders/Notes in it?')) {
-							this.removeRack(rack)
+							this.$root.removeRack(rack);
 						}
 					}
 				}));
+				
 				menu.popup(remote.getCurrentWindow());
 			},
 			folderMenu: function(rack, folder) {
 				var menu = new Menu();
-				menu.append(new MenuItem({label: 'Rename Folder', click: () => {this.editingFolder = folder}}));
-				menu.append(new MenuItem({label: 'Add Folder', click: () => {this.addFolder(rack)}}));
-				menu.append(new MenuItem({type: 'separator'}));
-				menu.append(new MenuItem({label: 'Delete Folder', click: () => {
-					if (confirm('Delete Folder "' + folder.name + '" and Notes in it?')) {
-						this.removeFolder(rack, folder)
+				menu.append(new MenuItem({
+					label: 'Rename Folder',
+					click: () => {
+						this.editingFolder = folder
 					}
-				}}));
+				}));
+				menu.append(new MenuItem({
+					label: 'Add Folder',
+					click: () => {
+						this.addFolder(rack)
+					}
+				}));
+				menu.append(new MenuItem({type: 'separator'}));
+				menu.append(new MenuItem({
+					label: 'Add Note',
+					click: () => {
+						this.$emit('select', folder);
+						this.$root.addNote();
+					}
+				}));
+				menu.append(new MenuItem({type: 'separator'}));
+				menu.append(new MenuItem({
+					label: 'Delete Folder',
+					click: () => {
+						if (confirm('Delete Folder "' + folder.name + '" and Notes in it?')) {
+							this.removeFolder(rack, folder)
+						}
+					}
+				}));
 				menu.popup(remote.getCurrentWindow());
 			}
 		}

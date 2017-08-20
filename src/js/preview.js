@@ -107,7 +107,7 @@ highlightjs.registerLanguage('xl', require('highlight.js/lib/languages/xl'));
 highlightjs.registerLanguage('xquery', require('highlight.js/lib/languages/xquery'));
 highlightjs.registerLanguage('yaml', require('highlight.js/lib/languages/yaml'));
 
-function clean_matched(matched){
+function clean_matched(matched) {
 	matched = matched.replace('<del>', '~~');
 	matched = matched.replace('</del>', '~~');
 	matched = matched.replace('<strong>', '**');
@@ -115,7 +115,7 @@ function clean_matched(matched){
 	return encodeURI(matched);
 }
 
-function renderCheckboxText(text){
+function renderCheckboxText(text) {
 	if (/^\s*\[[x ]\]\s*/.test(text)) {
 		var matched = text;
 		//var matched = encodeURI(text); ///^(.*?)(<|$)/.exec(text)[1];
@@ -123,21 +123,21 @@ function renderCheckboxText(text){
 			.replace(/^\s*\[ \]\s*/, '<span><input class="my-el-todo-list" data-value="' + clean_matched(matched) + '" type="checkbox" /></span> ')
 			.replace(/^\s*\[x\]\s*/, '<span><input class="my-el-todo-list" data-value="' + clean_matched(matched) + '" type="checkbox" checked /></span> ');
 
-		if( text.indexOf('checked') >= 0 ){
+		if (text.indexOf('checked') >= 0) {
 			return '<li class="checkbox checkbox-checked"><label>' + text + '</label></li>';
 		} else {
 			return '<li class="checkbox"><label>' + text + '</label></li>';
 		}
 
 	} else if (/^<p>\s*\[[x ]\]\s*/.test(text)) {
-		text = text.replace(/<[\/]{0,1}p>/g, "");
+		text = text.replace(/<[\/]{0,1}p>/g, '');
 		var matched = text;
 		//var matched = encodeURI(text); ///^(.*?)(<|$)/.exec(text)[1];
 		text = text
 			.replace(/^\s*\[ \]\s*/, '<span><input class="my-el-todo-list" data-value="' + clean_matched(matched) + '" type="checkbox" /></span> ')
 			.replace(/^\s*\[x\]\s*/, '<span><input class="my-el-todo-list" data-value="' + clean_matched(matched) + '" type="checkbox" checked /></span> ');
 
-		if( text.indexOf('checked') >= 0 ){
+		if (text.indexOf('checked') >= 0) {
 			return '<li class="checkbox checkbox-checked"><label>' + text + '</label></li>';
 		} else {
 			return '<li class="checkbox"><label>' + text + '</label></li>';
@@ -163,7 +163,7 @@ marked.setOptions({
 	sanitize: true,
 	smartLists: true,
 	smartypants: false,
-	highlight: function (code) {
+	highlight: function(code) {
 		return '<div class="hljs">' + highlightjs.highlightAuto(code).value + '</div>';
 	}
 });
@@ -313,7 +313,6 @@ function render(note, v) {
 	});
 	return p;
 }
-
 
 module.exports = {
 	render: render

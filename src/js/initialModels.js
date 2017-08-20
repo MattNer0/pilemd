@@ -12,13 +12,13 @@ function initialFolder() {
 		p = path.join(p, 'pmlibrary');
 		models.setBaseLibraryPath(p);
 		fs.mkdirSync(p);
-	} catch(e) {}
+	} catch (e) {}
 }
 
 
 function migrateFromLocalStorage() {
 	if (localStorage.getItem('migratedFromLS')) {
-		return null
+		return null;
 	}
 	try {
 		var noteUids = JSON.parse(localStorage.getItem('notes'));
@@ -45,7 +45,6 @@ function migrateFromLocalStorage() {
 		return null;
 	}
 }
-
 
 function makeInitialNotes(rack, folder) {
 	

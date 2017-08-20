@@ -38,7 +38,7 @@ class Model {
 	update(data) {
 		this.uid = data.uid;
 	}
-}
+};
 
 Model.storagePrefix = 'models';
 
@@ -98,7 +98,7 @@ class Note extends Model {
 	set path(newValue) {
 		if (newValue != this._path) {
 			try {
-				if (fs.existsSync(this._path)) fs.unlink(this._path);
+				if (fs.existsSync(this._path)) fs.unlinkSync(this._path);
 			} catch (e) {}
 
 			this._path = newValue;
@@ -353,7 +353,7 @@ class Note extends Model {
 	static removeModelFromStorage(model) {
 		if (!model) { return }
 		if(fs.existsSync(model.data.path)) {
-			fs.unlink(model.data.path);
+			fs.unlinkSync(model.data.path);
 		}
 	}
 }
@@ -445,9 +445,7 @@ class Folder extends Model {
 		}
 	}
 
-	static readFoldersByRack(rack) {
-		//console.log(">> Loading folders");
-		
+	static readFoldersByRack(rack) {		
 		var valid_folders = [];
 		if( fs.existsSync(rack.data.path) ) {
 		
@@ -471,7 +469,6 @@ class Folder extends Model {
 				}
 			}
 		}
-
 		return valid_folders;
 	}
 
@@ -499,7 +496,7 @@ class Folder extends Model {
 	static removeModelFromStorage(model) {
 		if (!model) { return }
 		if(fs.existsSync(model.data.path)) {
-			if( fs.existsSync(path.join(model.data.path, '.folder')) ) fs.unlink( path.join(model.data.path, '.folder') );
+			if( fs.existsSync(path.join(model.data.path, '.folder')) ) fs.unlinkSync( path.join(model.data.path, '.folder') );
 			fs.rmdirSync(model.data.path);
 			model.uid = null;
 		}
@@ -627,6 +624,15 @@ class Rack extends Model {
 			}
 		}
 		model.saveOrdering();
+	}
+
+	static removeModelFromStorage(model) {
+		if (!model) { return }
+		if(fs.existsSync(model.data.path)) {
+			if( fs.existsSync(path.join(model.data.path, '.rack')) ) fs.unlinkSync( path.join(model.data.path, '.rack') );
+			fs.rmdirSync(model.data.path);
+			model.uid = null;
+		}
 	}
 }
 Rack.storagePrefix = 'racks';

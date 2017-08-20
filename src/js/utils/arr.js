@@ -10,15 +10,12 @@ function sortBy(objs, property, asc) {
   });
 }
 
-
 function remove(objs, detector) {
   if (!objs.length) return;
   var t = objs.find(detector);
   if (!t) return;
   var index = objs.indexOf(t);
-  if (index > -1) {
-    return objs.splice(index, 1)
-  }
+  if (index > -1) return objs.splice(index, 1);
 }
 
 module.exports = {

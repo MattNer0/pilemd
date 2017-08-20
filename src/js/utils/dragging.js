@@ -3,7 +3,6 @@ function dragOverPercentage(element, clientY) {
   return (clientY - rect.top) / (rect.bottom - rect.top);
 }
 
-
 module.exports = {
   dragOverPercentage: dragOverPercentage
 };

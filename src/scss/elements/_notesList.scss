@@ -25,7 +25,6 @@
 	}
 	
 	.my-notes-note {
-		width: auto;
 		display: inline-block;
 		position: relative;
 		vertical-align: top;
@@ -33,6 +32,7 @@
 		border-radius: 0.4em;
 		padding: 0.4em;
 		color: $ui-text-color;
+		width: calc( 100% - 0.8em );
 		line-height: 1.2;
 		-webkit-user-select: none;
 		transition: background-color 200ms ease, margin 200ms ease, height 200ms ease;
@@ -114,5 +114,15 @@
 		img {
 			opacity: 1;
 		}
+	}
+
+	.my-notes-note.new-note {
+		border: 1px dashed $ui-text-color-dim;
+		opacity: 0.8;
+	}
+
+	.my-notes-note.new-note:hover {
+		border: 1px dashed $ui-text-color;
+		opacity: 1.0;
 	}
 }

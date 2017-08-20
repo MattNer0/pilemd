@@ -6,14 +6,13 @@ const TODAY_TEXT = 'Today';
 const YESTERDAY_TEXT = 'Yesterday';
 const WEEK_AGO_TEXT = 'A Week Ago';
 
-
 module.exports = function(Vue, options) {
 	Vue.filter('dateSeparated', function(notes, property) {
 		if (notes.length == 0) {
 			return [{
 				dateStr: "No notes, let's write",
 				notes: []
-			}]
+			}];
 		}
 		var now = moment();
 		var sorted = arr.sortBy(notes.slice(), property);
@@ -25,13 +24,13 @@ module.exports = function(Vue, options) {
 		function getDateStr(d) {
 			var diff = getDateDiff(now, d);
 			if (diff == 0) {
-				return TODAY_TEXT
+				return TODAY_TEXT;
 			} else if (diff == 1) {
-				return YESTERDAY_TEXT
+				return YESTERDAY_TEXT;
 			} else if (diff == 7) {
-				return WEEK_AGO_TEXT + ' (' + d.format('MMM DD') + ')'
+				return WEEK_AGO_TEXT + ' (' + d.format('MMM DD') + ')';
 			} else {
-				return d.format('ddd, MMM DD')
+				return d.format('ddd, MMM DD');
 			}
 		}
 		var ret = [];
@@ -43,7 +42,7 @@ module.exports = function(Vue, options) {
 				ret.push(lastDate);
 				lastDate = {dateStr: getDateStr(note[property]), date: note[property], notes: [note]};
 			} else {
-				lastDate.notes.push(note)
+				lastDate.notes.push(note);
 			}
 		});
 		ret.push(lastDate);
