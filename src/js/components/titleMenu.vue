@@ -2,7 +2,7 @@
 	#title-bar
 		nav#cssmenu
 			ul
-				li
+				//-li
 					a(@click="$root.addNote()", href="#"): span
 						i.material-icons note_add
 						|  New Note
