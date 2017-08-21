@@ -5,7 +5,7 @@
 	border-left: 0.1em solid $note-border-color;
 	border-right: 0.1em solid $note-border-color;
 	width: auto;
-	min-height: calc( 100vh - 9em );
+	min-height: calc( 100vh - 2px - #{$title-bar-height} - #{$system-bar-height} );
 	min-width: 15em;
 	max-width: 70em;
 	height: auto;
