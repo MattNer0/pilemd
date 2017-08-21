@@ -30,9 +30,6 @@
 									td.right: span {{ note.properties.charCount }}
 							hr
 							table
-								//-tr
-									td: strong Created: 
-									td.right: span {{ note.data.created_at.format('MMM DD, YYYY') }}
 								tr
 									td: strong Modified: 
 									td.right: span {{ note.data.updated_at.format('MMM DD, YYYY') }}

@@ -2,22 +2,15 @@
 	#title-bar
 		nav#cssmenu
 			ul
-				//-li
-					a(@click="$root.addNote()", href="#"): span
-						i.material-icons note_add
-						|  New Note
 				li
 					a(@click="$root.toggleFullScreen()", href="#"): span
 						i.material-icons(v-if="isFullScreen") fullscreen_exit
 						i.material-icons(v-else) fullscreen
 						|  Sidebar
-				//-li(v-show="$root.selectedNote.data")
-					a(@click="$root.toggleProperties()", href="#"): span
-						i.material-icons.rotate input
-						|  Properties
 				li: div
 					i.material-icons search
-					input#search-bar.my-search(v-model="search", type="search", placeholder="Search notes...")
+					input#search-bar.my-search(v-model="search", type="text", placeholder="Search notes...")
+					i.material-icons(v-show="search", @click="clear_search") clear
 				
 				li.has-sub.right-align
 					dropdown(:visible="menu_visible", :position="position", v-on:clickout="menu_visible = false")
@@ -36,7 +29,7 @@
 
 	export default {
 		name: 'titleMenu',
-		props: ['selectedNote', 'selectedRackOrFolder', 'isFullScreen', 'isPreview'],
+		props: ['isFullScreen'],
 		data: function() {
 			return {
 				'search': "",
@@ -47,12 +40,10 @@
 		components: {
 			'dropdown': myDropdown
 		},
-		created: function() {
-			this.$watch('search', () => {
-				this.$parent.search = this.search;
-			});
-		},
 		methods: {
+			clear_search() {
+				this.search = "";
+			},
 			menu_open_folder: function() {
 				var self = this;
 				this.menu_visible = false;
@@ -78,6 +69,11 @@
 				setTimeout(function() {
 					self.$parent.openCredits();
 				}, 100);
+			}
+		},
+		watch: {
+			search() {
+				this.$parent.search = this.search;
 			}
 		}
 	}
