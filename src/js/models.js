@@ -416,6 +416,15 @@ class Folder extends Model {
 		return fs.existsSync(this._path);
 	}
 
+	set rack(r) {
+		if (!r) { return; }
+
+		if (r.rackExists) {
+			this._rack = r;
+			this.rackUid = r.uid;
+		}
+	}
+
 	set notes(notes_list) {
 		this._notes = notes_list;
 	}
@@ -547,6 +556,10 @@ class Rack extends Model {
 		if(newValue != this._path){
 			this._path = newValue;
 		}
+	}
+
+	get rackExists() {
+		return fs.existsSync(this._path);
 	}
 
 	update(data) {

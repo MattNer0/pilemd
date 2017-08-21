@@ -1,6 +1,12 @@
 <main id="main-editor">
 	<window-bar :note="selectedNote" :rack-folder="selectedRackOrFolder"></window-bar>
-	<title-menu :is-full-screen="isFullScreen"></title-menu>
+	<title-menu
+		:toggle-full-screen="toggleFullScreen"
+		:open-sync="openSync"
+		:move-sync="moveSync"
+		:open-credits="openCredits"
+		:is-full-screen="isFullScreen">
+	</title-menu>
 	<div class="my-main" :class="{'note_selected': selectedNote.title }">
 		<div :class="{'outer_wrapper': true}">
 			<div class="sidebar">
@@ -8,14 +14,6 @@
 				<div class="cell-container">
 					<div class="my-shelf" @contextmenu="shelfMenu()">
 						<div class="my-shelf-wrapper">
-							<!--div :class="{'isShelfSelected': ((isSearchAll() && !draggingNote) || allDragHover), 'noteIsHere': selectedNote.folderUid === null}"
-								@click.prevent.stop="selectAll()"
-								@dragover.stop="allDragOver($event)"
-								@dragleave.prevent.stop="allDragLeave($event)"
-								@drop.prevent.stop="dropToAll($event)"
-								class="my-shelf-all">
-								<a>All</a>
-							</div-->
 							<vue-scrollbar classes="my-scrollbar" ref="RacksScrollbar">
 								<div class="scroll-me">
 									<racks
@@ -26,11 +24,13 @@
 										:selected-rack-or-folder="selectedRackOrFolder"
 										:dragging-note="draggingNote"
 										:selected-note="selectedNote"
-										:toggle-full-screen="toggleFullScreen"
-										v-on:select="changeRackOrFolder"
-										v-on:openrack="openRack"
-										v-on:closerack="closerack"
-										v-on:folderdragend="folderDrag">
+										:change-rack-or-folder="changeRackOrFolder"
+										:open-rack="openRack"
+										:close-rack="closerack"
+										:folder-drag-ended="folderDragEnded"
+										:set-dragging-note="setDraggingNote"
+										:delete-folder="deleteFolder"
+										:add-folder-to-rack="addFolderToRack">
 									</racks>
 								</div>
 							</vue-scrollbar>
@@ -48,7 +48,8 @@
 							:selected-note="selectedNote"
 							:selected-folder="selectedFolder"
 							:dragging-note="draggingNote"
-							v-on:select="changeNote">
+							:change-note="changeNote"
+							:set-dragging-note="setDraggingNote">
 							</notes>
 						</div>
 					</vue-scrollbar>

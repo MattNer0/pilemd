@@ -97,6 +97,13 @@ new Vue({
 		'vueScrollbar': vueScrollbar
 	},
 	computed: {
+		
+		/**
+		 * Filters notes based on search terms.
+		 * It also makes sure that all the notes inside the current selected rack are loaded,
+		 * otherwise we wouldn't be able to find any results for the current search.
+		 * @return {Array} notes array
+		 */
 		filteredNotes: function() {
 			var self = this;
 			if(this.search && this.selectedRackOrFolder){
@@ -109,12 +116,10 @@ new Vue({
 			}
 			return searcher.searchNotes(this.selectedRackOrFolder, this.search, this.notes);
 		},
-		filterFolder: function() {
-			if(this.selectedRackOrFolder instanceof models.Rack && this.selectedNote.data) {
-				return this.selectedNote.data.folder;
-			}
-			return this.selectedRackOrFolder;
-		},
+		/**
+		 * Returns currently selected folder or "undefined" if no folder is selected.
+		 * @return {Object} currently selected folder
+		 */
 		selectedFolder: function() {
 			if(this.selectedRackOrFolder instanceof models.Folder) return this.selectedRackOrFolder;
 			return undefined;
@@ -207,6 +212,9 @@ new Vue({
 		eventHub.$on('togglePreview', self.togglePreviewCallBack);
 	},
 	methods: {
+		/**
+		 * Initialize the width of the left sidebar elements.
+		 */
 		init_sidebar_width() {
 			var handlerStack = document.getElementById('handlerStack')
 			if(handlerStack) handlerStack.previousElementSibling.style.width = this.racksWidth+"px";
@@ -214,24 +222,55 @@ new Vue({
 			var handlerNotes = document.getElementById('handlerNotes')
 			if(handlerNotes) handlerNotes.previousElementSibling.style.width = this.notesWidth+"px";
 		},
-		init_scrollbar_racks() {
+		/**
+		 * Calculates the size of the content inside the racks sidebar to display the scrollbar properly.
+		 */
+		refreshScrollbarRacks() {
 			this.$nextTick(function () {
 				this.$refs.RacksScrollbar.calculateSize();
 			});
 		},
-		init_scrollbar_note() {
+		/**
+		 * Calculates the size of the content inside the main Note view to display the scrollbar properly.
+		 * It also scrolls the view all the way to the top.
+		 */
+		refreshScrollbarNote() {
 			this.$nextTick(function () {
 				this.$refs.MainScrollbar.scrollToY(0);
 				this.$refs.MainScrollbar.calculateSize();
 			});
 		},
+		/**
+		 * Event called when rack or folder is selected.
+		 * @param  {Object}  obj  selected rack or folder
+		 * @return {Object}       previous rack or folder selected
+		 */
 		changeRackOrFolder(obj) {
+			var rf = this.selectedRackOrFolder;
 			this.selectedRackOrFolder = obj;
-			this.init_scrollbar_racks();
+			this.refreshScrollbarRacks();
+			return rf;
 		},
-		changeNote(obj) {
-			this.selectedNote = obj;
+		/**
+		 * Event called when a note is selected.
+		 * @param  {Object}  note  selected note
+		 */
+		changeNote(note) {
+			this.selectedNote = note;
 		},
+		/**
+		 * Event called when a note is dragged.
+		 * @param  {Object}  note  Note being dragged
+		 */
+		setDraggingNote(note) {
+			this.draggingNote = note;
+		},
+		/**
+		 * Event called when user selects a new Rack.
+		 * Loads folders inside the specified Rack and orders them.
+		 * The folders are then displayed in the sidebar
+		 * @param  {Object}  rack  rack to be opened
+		 */
 		openRack(rack) {
 			var newData = rack.readContents();
 			if(newData) {
@@ -246,12 +285,27 @@ new Vue({
 			}
 			rack.folders = rack.folders.sort(function(a, b) { return a.ordering - b.ordering });
 			rack.openFolders = true;
-			this.init_scrollbar_racks();
+			this.refreshScrollbarRacks();
 		},
+		/**
+		 * Hides rack content (folders).
+		 * @param  {Object}  rack  rack to be closed
+		 */
 		closerack(rack) {
+			if(this.selectedNote && this.selectedNote.data && this.selectedNote.isRack(rack)){
+				return;
+			}
 			rack.openFolders = false;
-			this.init_scrollbar_racks();
+			if(this.selectedRackOrFolder == rack) {
+				this.selectedRackOrFolder = null;
+			}
+			this.refreshScrollbarRacks();
 		},
+		/**
+		 * Adds a new rack to the working directory.
+		 * The new rack is placed on top of the list.
+		 * @param {Object}  rack  new rack
+		 */
 		addRack(rack) {
 			var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
 			racks.unshift(rack);
@@ -261,15 +315,25 @@ new Vue({
 			});
 			this.racks = racks;
 		},
+		/**
+		 * Removes one Rack and its contents from the current working directory.
+		 * @param  {Object}  rack  rack to be removed
+		 */
 		removeRack(rack) {
 			rack.remove(this.notes, this.folders);
-			var index = this.racks.indexOf(rack);
-			this.racks.splice(index, 1);
+			arr.remove(this.racks, (r) => {return r == rack});
 			this.selectedRackOrFolder = null;
+			// We need to close the current selected note if it was from the removed rack.
 			if(this.selectedNote.data.rack == rack) {
 				this.selectedNote = {};
 			}
 		},
+		/**
+		 * Inserts a new Folder inside the selected Rack.
+		 * The new Folder is placed on top of the list.
+		 * @param {Object}  rack    current rack
+		 * @param {Object}  folder  new folder
+		 */
 		addFolderToRack(rack, folder) {
 			this.openRack(rack);
 			var folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
@@ -281,29 +345,42 @@ new Vue({
 			rack.folders = folders;
 			this.folders.push(folder);
 		},
-		removeFolder(folder) {
+		/**
+		 * Deletes a folder and its contents from the parent rack.
+		 * @param  {Object}  folder  folder to be removed
+		 */
+		deleteFolder(folder) {
 			folder.remove(this.notes);
 			
-			var index = this.folders.indexOf(folder);
-			this.folders.splice(index, 1);
-
-			index = folder.data.rack.folders.indexOf(folder);
-			folder.data.rack.folders.splice(index, 1);
+			arr.remove(this.folders, (f) => {return f == folder});
+			arr.remove(folder.data.rack.folders, (f) => {return f == folder});
 
 			this.selectedRackOrFolder = null;
+			// We need to close the current selected note if it was from the removed folder.
 			if(this.selectedNote.data.folder == folder) {
 				this.selectedNote = {};
 			}
 		},
-		folderDrag(obj) {
-			var rack = obj.rack;
+		/**
+		 * Event called after folder was dragged into a rack.
+		 * @param  {Object}  rack    rack folder dragged into
+		 * @param  {Object}  folder  dragged folder
+		 */
+		folderDragEnded(rack, folder) {
+			if(!rack) return;
 			rack.folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
 		},
+		/**
+		 * Toggles left sidebar.
+		 */
 		toggleFullScreen() {
 			this.isFullScreen = !this.isFullScreen;
 			settings.set('vue_isFullScreen', this.isFullScreen);
 			this.update_editor_size();
 		},
+		/**
+		 * Toggles markdown note preview.
+		 */
 		togglePreview() {
 			eventHub.$emit('togglePreview');
 		},
@@ -514,7 +591,7 @@ new Vue({
 			if(this.selectedNote.data){
 				this.preview = preview.render(this.selectedNote, this);
 			}
-			this.init_scrollbar_note();
+			this.refreshScrollbarNote();
 		},
 		fontsize() {
 			settings.set('fontsize', this.fontsize);
@@ -542,7 +619,7 @@ new Vue({
 						this.notes = this.notes.concat( newData );
 						this.selectedRackOrFolder.notes = newData;
 					}
-					var filteredNotes = searcher.searchNotes(this.filterFolder, this.search, this.notes);
+					var filteredNotes = searcher.searchNotes(this.selectedRackOrFolder, this.search, this.notes);
 					filteredNotes.forEach(function(note){
 						if(!note.body) note.loadBody();
 					});

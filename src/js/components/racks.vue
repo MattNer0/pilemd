@@ -63,7 +63,21 @@
 
 	export default {
 		name: 'racks',
-		props: ['racks', 'folders', 'notes', 'filteredNotes', 'selectedRackOrFolder', 'selectedNote', 'draggingNote', 'toggleFullScreen'],
+		props: {
+			'racks': Array,
+			'folders': Array,
+			'filteredNotes': Array,
+			'selectedRackOrFolder': Object,
+			'selectedNote': Object,
+			'draggingNote': Object,
+			'changeRackOrFolder': Function,
+			'openRack': Function,
+			'closeRack': Function,
+			'folderDragEnded': Function,
+			'setDraggingNote': Function,
+			'deleteFolder': Function,
+			'addFolderToRack': Function
+		},
 		data: function() {
 			return {
 				draggingRack: null,
@@ -97,7 +111,7 @@
 				if (!this.editingRack) { return }
 				Rack.setModel(rack);
 				this.editingRack = null;
-				this.$emit('select', rack);
+				this.changeRackOrFolder(rack);
 			},
 			addRack: function() {
 				var rack = new Rack({
@@ -114,18 +128,14 @@
 					rackUid: rack.uid,
 					ordering: 0
 				});
-				this.$root.addFolderToRack(rack, folder);
+				this.addFolderToRack(rack, folder);
 				this.editingFolder = folder;
 			},
 			doneFolderEdit: function(rack, folder) {
 				if (!this.editingFolder) { return }
 				Folder.setModel(folder);
 				this.editingFolder = null;
-				this.$emit('select', folder);
-			},
-			removeFolder: function(rack, folder) {
-				this.$emit('select', rack);
-				this.$root.removeFolder(folder);
+				this.changeRackOrFolder(folder);
 			},
 			isSelectedRack: function(rack) {
 				return this.selectedRackOrFolder === rack;
@@ -144,43 +154,31 @@
 				});
 			},
 			selectRack: function(rack) {
-				this.$emit('select', rack);
-				if(rack.openFolders){
-					this.$emit('closerack', rack);
+				var previousRackOrFolder = this.changeRackOrFolder(rack);
+				if(rack.openFolders && previousRackOrFolder == rack){
+					this.closeRack(rack);
 				} else {
-					this.$emit('openrack', rack);
+					this.openRack(rack);
 				}
 			},
 			selectFolder: function(folder) {
-				this.$emit('select', folder);
-			},
-			openRack: function(rack) {
-				this.$emit('openrack', rack);
-				/*var newData = rack.readContents();
-				if(newData) this.folders = this.folders.concat( newData );
-				rack.openFolders = true;*/
-			},
-			closeRack: function(rack) {
-				if(this.selectedNote && this.selectedNote.data && this.selectedNote.isRack(rack)){
-					return
-				}
-				this.$emit('closerack', rack);
+				this.changeRackOrFolder(folder);
 			},
 			// Dragging
 			rackDragStart: function(event, rack) {
-				this.$emit('closerack', rack);
+				this.closeRack(rack);
 				event.dataTransfer.setDragImage(event.target, 0, 0);
 				this.draggingRack = rack;
 			},
 			rackDragEnd: function() {
 				this.draggingRack = null;
-				this.$emit('select', null);
+				this.changeRackOrFolder(null);
 			},
 			rackDragOver: function(event, rack) {
 				if (this.draggingFolder) {
 					event.preventDefault();
 					rack.dragHover = true;
-					this.$emit('openrack', rack);
+					this.openRack(rack);
 					var newData = rack.readContents();
 					if(newData) this.folders = this.folders.concat( newData );
 
@@ -200,29 +198,41 @@
 			},
 			rackDragLeave: function(rack) {
 				if (this.draggingFolder && this.draggingFolderRack && !this.draggingFolderRack.uid == rack.uid) {
-					this.$emit('closerack', rack);
+					this.closeRack(rack);
 				}
 				rack.dragHover = false;
 				rack.sortUpper = false;
 				rack.sortLower = false;
 			},
+			/**
+			 * Handles dropping a rack or a folder inside a rack.
+			 * @param  {Object}  event   drag event
+			 * @param  {Object}  rack    current rack
+			 */
 			dropToRack: function(event, rack) {
-				if(!rack.openFolders) this.$emit('openrack', rack);
 				if (this.draggingFolder) {
 					console.log("Dropping to rack");
+					if(!rack.openFolders) this.openRack(rack);
+					var draggingFolder = this.draggingFolder;
 					// Drop Folder to Rack
-					rack.folders.forEach((f) => {
+					
+					var folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
+					if(draggingFolder.data.rack != rack) {
+						arr.remove(draggingFolder.data.rack.folders, (f) => {return f == draggingFolder});
+						draggingFolder.rack = rack;
+					}
+					draggingFolder.ordering = 0;
+					folders.unshift(draggingFolder);
+					folders.forEach((f) => {
 						f.ordering += 1;
 						Folder.setModel(f);
 					});
-					this.draggingFolder.rackUid = rack.uid;
-					this.draggingFolder.ordering = 0;
-					Folder.setModel(this.draggingFolder);
+					rack.folders = folders;
 					rack.dragHover = false;
 					this.draggingFolder = null;
 					this.draggingFolderRack = null;
 				} else if (this.draggingRack && this.draggingRack != rack) {
-					console.log("Dropping Rack for sorting");
+					console.log("Dropping Rack");
 					var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
 					arr.remove(racks, (r) => {return r == this.draggingRack});
 					var i = racks.indexOf(rack);
@@ -249,10 +259,7 @@
 				this.draggingFolderRack = rack;
 			},
 			folderDragEnd: function() {
-				this.$emit('folderdragend', {
-					folder: this.draggingFolder,
-					rack: this.draggingFolderRack
-				});
+				this.folderDragEnded(this.draggingFolderRack, this.draggingFolder)
 				this.draggingFolder = null;
 				this.draggingFolderRack = null;
 			},
@@ -286,38 +293,54 @@
 					folder.sortUpper = false;
 				}
 			},
+			/**
+			 * Handles dropping a note or a folder inside a folder.
+			 * @param  {Object}  event   drag event
+			 * @param  {Object}  rack    parent rack
+			 * @param  {Object}  folder  current folder
+			 */
 			dropToFolder: function(event, rack, folder) {
 				if (this.draggingNote && this.draggingNote.folderUid != folder.uid) {
+					console.log("Dropping to Folder");
 					event.stopPropagation();
 					// Dropping note to folder
 					folder.dragHover = false;
 					var note = this.draggingNote;
 					//note.folderUid = folder.uid;
+					arr.remove(note.data.folder.notes, (n) => {return n == note});
 					note.folder = folder;
+					folder.notes.unshift(note);
 					Note.setModel(note);
-					this.draggingNote = null;
+					this.setDraggingNote(null);
 					var s = this.selectedRackOrFolder;
-					this.$emit('select', null);
+					this.changeRackOrFolder(null);
 					Vue.nextTick(() => {
-						this.$emit('select', s);
+						this.changeRackOrFolder(s);
 					});
 				} else if (this.draggingFolder && this.draggingFolder != folder) {
+					console.log("Dropping Folder");
 					event.stopPropagation();
+					var draggingFolder = this.draggingFolder;
 					var folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
-					arr.remove(folders, (f) => {return f == this.draggingFolder});
+					arr.remove(folders, (f) => {return f == draggingFolder});
+					if(draggingFolder.data.rack != rack) {
+						arr.remove(draggingFolder.data.rack.folders, (f) => {return f == draggingFolder});
+						draggingFolder.rack = rack;
+					}
 					var i = folders.indexOf(folder);
 					if (folder.sortUpper) {
-						folders.splice(i, 0, this.draggingFolder);
+						folders.splice(i, 0, draggingFolder);
 					} else {
-						folders.splice(i+1, 0, this.draggingFolder);
+						folders.splice(i+1, 0, draggingFolder);
 					}
-					this.draggingFolder.rackUid = rack.uid;
 					folders.forEach((f, i) => {
 						f.ordering = i;
 						Folder.setModel(f);
 					});
+					rack.folders = folders;
 					folder.sortUpper = false;
 					folder.sortLower = false;
+					this.draggingFolder = null;
 				}
 			},
 			rackMenu: function(rack) {
@@ -373,7 +396,7 @@
 				menu.append(new MenuItem({
 					label: 'Add Note',
 					click: () => {
-						this.$emit('select', folder);
+						this.changeRackOrFolder(folder);
 						this.$root.addNote();
 					}
 				}));
@@ -382,7 +405,8 @@
 					label: 'Delete Folder',
 					click: () => {
 						if (confirm('Delete Folder "' + folder.name + '" and Notes in it?')) {
-							this.removeFolder(rack, folder)
+							this.changeRackOrFolder(rack);
+							this.deleteFolder(folder)
 						}
 					}
 				}));

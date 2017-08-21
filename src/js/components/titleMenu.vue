@@ -3,7 +3,7 @@
 		nav#cssmenu
 			ul
 				li
-					a(@click="$root.toggleFullScreen()", href="#"): span
+					a(@click="toggleFullScreen", href="#"): span
 						i.material-icons(v-if="isFullScreen") fullscreen_exit
 						i.material-icons(v-else) fullscreen
 						|  Sidebar
@@ -29,7 +29,7 @@
 
 	export default {
 		name: 'titleMenu',
-		props: ['isFullScreen'],
+		props: ['isFullScreen', 'toggleFullScreen', 'openSync', 'moveSync', 'openCredits'],
 		data: function() {
 			return {
 				'search': "",
@@ -48,14 +48,14 @@
 				var self = this;
 				this.menu_visible = false;
 				setTimeout(function() {
-					self.$parent.openSync();
+					self.openSync();
 				}, 100);
 			},
 			menu_move_folder: function() {
 				var self = this;
 				this.menu_visible = false;
 				setTimeout(function() {
-					self.$parent.moveSync();
+					self.moveSync();
 				}, 100);
 			},
 			menu_devTools: function() {
@@ -67,7 +67,7 @@
 				var self = this;
 				this.menu_visible = false;
 				setTimeout(function() {
-					self.$parent.openCredits();
+					self.openCredits();
 				}, 100);
 			}
 		},

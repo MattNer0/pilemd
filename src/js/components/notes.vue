@@ -51,7 +51,16 @@
 
 	export default {
 		name: 'notes',
-		props: ['notes', 'originalNotes', 'selectedNote', 'draggingNote', 'toggleFullScreen', 'selectedFolder'],
+		props: {
+			'notes': Array,
+			'originalNotes': Array,
+			'selectedNote': Object,
+			'draggingNote': Object,
+			'selectedFolder': Object,
+			'toggleFullScreen': Function,
+			'changeNote': Function,
+			'setDraggingNote': Function
+		},
 		data: function() {
 			return {
 				notesDisplayOrder: 'updatedAt'
@@ -78,9 +87,11 @@
 		methods: {
 			selectNote: function(note) {
 				note.loadBody();
-				this.$emit('select', note);
+				this.changeNote(note);
 			},
 			selectNoteAndWide: function(note) {
+				note.loadBody();
+				this.changeNote(note);
 				this.toggleFullScreen();
 			},
 			removeNote: function(note) {
@@ -103,9 +114,9 @@
 						self.originalNotes.splice(index, 1);
 						Note.removeModelFromStorage(note);
 						if (self.notes.length > 1) {
-							this.$emit('select', Note.beforeNote(self.notes.slice(), note, self.notesDisplayOrder));
+							self.changeNote(Note.beforeNote(self.notes.slice(), note, self.notesDisplayOrder));
 						} else {
-							this.$emit('select', Note.beforeNote(self.originalNotes.slice(), note, self.notesDisplayOrder));
+							self.changeNote(Note.beforeNote(self.originalNotes.slice(), note, self.notesDisplayOrder));
 						}
 					}
 				});
@@ -113,10 +124,10 @@
 			// Dragging
 			noteDragStart: function(event, note) {
 				event.dataTransfer.setDragImage(event.target, 0, 0);
-				this.draggingNote = note;
+				this.setDraggingNote(note);
 			},
 			noteDragEnd: function() {
-				this.draggingNote = null;
+				this.setDraggingNote(null);
 			},
 			// Electron methods
 			copyNoteBody: function(note) {
