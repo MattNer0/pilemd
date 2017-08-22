@@ -30,13 +30,14 @@
 		position: relative;
 		vertical-align: top;
 		margin: 0.3em;
-		border-radius: 0.4em;
+		border-radius: $note-list-border-radius;
 		padding: 0.4em;
-		color: $ui-text-color;
-		width: calc( 100% - 0.8em );
+		color: $note-list-text-color;
+		background: $note-list-background;
+		width: calc( 100% - 0.6em );
 		line-height: 1.2;
 		-webkit-user-select: none;
-		transition: background-color 200ms ease, margin 200ms ease, height 200ms ease;
+		transition: background 200ms ease, margin 200ms ease, height 200ms ease;
 		font-weight: normal;
 		box-sizing: border-box;
 		overflow: hidden;
@@ -98,8 +99,8 @@
 	}
 
 	.my-notes-note:hover {
-		background-color: $ui-text-background-hover !important;
-		color: $ui-text-color-hover;
+		background: $note-list-background-hover;
+		color: $note-list-text-color-hover;
 		cursor: pointer;
 	}
 
@@ -108,22 +109,32 @@
 	}
 
 	.my-notes-note.my-notes-note-selected {
-		background-color: $ui-text-background-selected !important;
-		color: $ui-text-color-selected;
+		background: $note-list-background-selected;
+		color: $note-list-text-color-selected;
 		position: relative;
 
 		img {
 			opacity: 1;
+		}
+
+		.my-notes-note-date,
+		.my-notes-note-image,
+		.my-notes-note-body {
+			color: $note-list-body-color-selected;
 		}
 	}
 
 	.my-notes-note.new-note {
 		border: 1px dashed $ui-text-color-dim;
 		opacity: 0.8;
+		color: $ui-text-color;
+		background: transparent;
 	}
 
 	.my-notes-note.new-note:hover {
 		border: 1px dashed $ui-text-color;
+		background: $ui-text-background-hover;
+		color: $ui-text-color-hover;
 		opacity: 1.0;
 	}
 }

@@ -9,6 +9,7 @@ $note-border-color: #ababab;
 $note-text-color: #333;
 $note-header1-color: #3f51b5;
 $note-bold-color: #000;
+$note-bar-text-color: #7a7a7b;
 
 /* dark theme */
 $body-background-color: #36393e;
@@ -21,7 +22,16 @@ $ui-text-color-selected: #ffffff;
 $ui-text-background-selected: #42464d;
 $resize-panel-handler: #36393e;
 $note-separator-line: #36393e;
+$note-list-background: transparent;
+$note-list-background-hover: $ui-text-background-hover;
+$note-list-background-selected: $ui-text-background-selected;
+$note-list-text-color: $ui-text-color;
+$note-list-text-color-hover: $ui-text-color-hover;
+$note-list-text-color-selected: $ui-text-color-selected;
 $note-list-body-color: #858585;
+$note-list-body-color-selected: $note-list-body-color;
+$note-list-border-radius: 0.4em;
+$folder-list-border-radius: 0.4em;
 $folder-dragdrop-separator: #62c8f3;
 $folder-badge-background: #212023;
 $folder-badge-color: #adacac;

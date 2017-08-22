@@ -16,7 +16,7 @@
 .my-shelf-rack {
 	position: relative;
 	padding: 0;
-	margin: 0.2em 0;
+	margin: 0.2em 0.2em;
 
 	h4,
 	h5 {
@@ -25,7 +25,7 @@
 		padding: 0.3em;
 		font-weight: normal;
 		font-size: 110%;
-		border-radius: 0.4em;
+		border-radius: $folder-list-border-radius;
 		white-space: initial;
 		word-wrap: break-word;
 
@@ -119,9 +119,9 @@
 
 	> h5 {
 		position: relative;
-		margin: 0.3em 0.3em 0.3em 1em;
+		margin: 0.3em 0 0.3em 1em;
 		padding: 0.3em;
-		border-radius: 0.4em;
+		border-radius: $folder-list-border-radius;
 		transition: background-color 200ms;
 	}
 }
@@ -132,7 +132,8 @@
 }
 
 .my-shelf-folder.isShelfSelected h5,
-.my-shelf-rack h4.isShelfSelected {
+.my-shelf-rack h4.isShelfSelected,
+.my-shelf-rack h4.isShelfSelected .rack-icon {
 	color: $ui-text-color-selected;
 }
 

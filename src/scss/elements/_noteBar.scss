@@ -15,11 +15,11 @@
 		padding: 0.3em;
 		min-width: 14em;
 		border-radius: 0.3em;
-		border: 1px solid $ui-text-color;
+		border: 1px solid $note-bar-text-color;
 
 		table {
 			width: 100%;
-			color: $ui-text-color;
+			color: $note-bar-text-color;
 
 			td.right {
 				text-align: right;
@@ -44,18 +44,18 @@
 
 				> a, > div {
 					padding: 0 0.5em;
-					color: $ui-text-color;
+					color: $note-bar-text-color;
 				}
 
 				hr {
-					border: 1px solid $ui-text-color;
+					border: 1px solid $note-bar-text-color;
 				}
 
 				ul {
 					padding: 0.4em 0;
 					width: auto;
 					border-radius: 0.3em;
-					border: 1px solid $ui-text-color;
+					border: 1px solid $note-bar-text-color;
 
 					li > a, li > div {
 						border: none !important;

@@ -43,6 +43,7 @@ require('vue2-scrollbar/dist/style/vue2-scrollbar.css');
 
 // Loading CSSs
 require('../scss/pilemd-light.scss');
+require('../scss/pilemd-original.scss');
 require('../scss/pilemd.scss');
 
 // Not to accept image dropping and so on.
@@ -64,7 +65,7 @@ new Vue({
 	data: {
 		isFullScreen: false,
 		isPreview: settings.get('vue_isPreview') || false,
-		selectedTheme: settings.get('theme') || 'dark',
+		selectedTheme: settings.get('theme') || 'original',
 		preview: "",
 		racks: [],
 		folders: [],
@@ -568,14 +569,25 @@ new Vue({
 			}]);
 		},
 		changeTheme(value) {
-			if(value == 'light' || value == 'dark'){
+			var allowedThemes = ['original', 'light', 'dark'];
+			if(allowedThemes.indexOf(value) >= 0){
 				this.selectedTheme = value;
 				settings.set('theme', value);
+
 				var body = document.querySelector('body');
-				if(value == 'light') {
-					body.classList.add("light-theme");
-				} else {
-					body.classList.remove("light-theme");
+				switch(value) {
+					case 'original':
+						body.classList.add('original-theme');
+						body.classList.remove("light-theme");
+						break;
+					case 'light':
+						body.classList.add('light-theme');
+						body.classList.remove('original-theme');
+						break;
+					case 'dark':
+						body.classList.remove('light-theme');
+						body.classList.remove('original-theme');
+						break;
 				}
 			}
 		},

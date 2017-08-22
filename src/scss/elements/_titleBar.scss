@@ -4,7 +4,6 @@
 	-webkit-app-region: no-drag;
 	padding: 0;
 	margin: 0;
-	background: $title-bar-background;
 	border: none;
 	color: $ui-text-color;
 	overflow: visible;
@@ -23,6 +22,7 @@ nav ul {
 	margin: 0;
 	padding: 0;
 	width: 100%;
+	transition: background .25s ease;
 }
 
 nav > ul:after {
@@ -58,7 +58,6 @@ nav > ul {
 		text-align: left;
 		outline: none;
 		text-decoration: none;
-		-webkit-transition: all .25s ease;
 		transition: all .25s ease;
 	}
 
@@ -117,7 +116,7 @@ nav > ul {
 	li ul {
 		width: 15em;
 		border: 1px solid $resize-panel-handler;
-		background-color: $main-background-color;
+		background: $main-background-color;
 		margin: 0.2em;
 
 		li {
