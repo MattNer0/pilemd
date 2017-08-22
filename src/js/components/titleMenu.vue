@@ -16,10 +16,20 @@
 					dropdown(:visible="menu_visible", :position="position", v-on:clickout="menu_visible = false")
 						i.link.material-icons(@click="menu_visible = !menu_visible") more_vert
 						.dialog(slot="dropdown"): ul
-							li: a(@click="menu_open_folder", href="#") Open Existing Sync Folder
-							li: a(@click="menu_move_folder", href="#") Move Sync Folder
-							li: a(@click="menu_devTools", href="#") Open DevTools
-							li: a(@click="menu_credits", href="#") Credits
+							li: a(@click.prevent="menu_open_folder", href="#") Open Existing Sync Folder
+							li: a(@click.prevent="menu_move_folder", href="#") Move Sync Folder
+							li: hr
+							li: a(@click.prevent="changeTheme('dark')", href="#")
+								i.material-icons(v-if="selectedTheme == 'dark'") radio_button_checked
+								i.material-icons.faded(v-else) radio_button_unchecked
+								|  Dark Theme
+							li: a(@click.prevent="changeTheme('light')", href="#")
+								i.material-icons(v-if="selectedTheme == 'light'") radio_button_checked
+								i.material-icons.faded(v-else) radio_button_unchecked
+								|  Light Theme
+							li: hr
+							li: a(@click.prevent="menu_devTools", href="#") Open DevTools
+							li: a(@click.prevent="menu_credits", href="#") Credits
 </template>
 
 <script>
@@ -29,7 +39,15 @@
 
 	export default {
 		name: 'titleMenu',
-		props: ['isFullScreen', 'toggleFullScreen', 'openSync', 'moveSync', 'openCredits'],
+		props: {
+			'isFullScreen': Boolean,
+			'selectedTheme': String,
+			'toggleFullScreen': Function,
+			'openSync': Function,
+			'moveSync': Function,
+			'openCredits': Function,
+			'changeTheme': Function
+		},
 		data: function() {
 			return {
 				'search': "",

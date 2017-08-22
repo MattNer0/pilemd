@@ -42,6 +42,7 @@ import vueScrollbar from 'vue2-scrollbar';
 require('vue2-scrollbar/dist/style/vue2-scrollbar.css');
 
 // Loading CSSs
+require('../scss/pilemd-light.scss');
 require('../scss/pilemd.scss');
 
 // Not to accept image dropping and so on.
@@ -63,6 +64,7 @@ new Vue({
 	data: {
 		isFullScreen: false,
 		isPreview: settings.get('vue_isPreview') || false,
+		selectedTheme: settings.get('theme') || 'dark',
 		preview: "",
 		racks: [],
 		folders: [],
@@ -189,6 +191,8 @@ new Vue({
 			this.selectedNote = initial_notes[0];
 		}
 
+		this.changeTheme(this.selectedTheme);
+
 		// Save it not to remove
 		//this.watcher = models.makeWatcher(this.racks, this.folders, this.notes);
 	},
@@ -228,6 +232,15 @@ new Vue({
 		refreshScrollbarRacks() {
 			this.$nextTick(function () {
 				this.$refs.RacksScrollbar.calculateSize();
+			});
+		},
+		/**
+		 * Calculates the size of the content inside the notes sidebar to display the scrollbar properly.
+		 */
+		refreshScrollbarNotes() {
+			this.$nextTick(function () {
+				this.$refs.NotesScrollbar.calculateSize();
+				this.$refs.NotesScrollbar.scrollToY(0);
 			});
 		},
 		/**
@@ -554,6 +567,18 @@ new Vue({
 				label: 'Ok'
 			}]);
 		},
+		changeTheme(value) {
+			if(value == 'light' || value == 'dark'){
+				this.selectedTheme = value;
+				settings.set('theme', value);
+				var body = document.querySelector('body');
+				if(value == 'light') {
+					body.classList.add("light-theme");
+				} else {
+					body.classList.remove("light-theme");
+				}
+			}
+		},
 		update_editor_size() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
 			if (cellsLeft.length == 0) {
@@ -595,20 +620,14 @@ new Vue({
 		},
 		fontsize() {
 			settings.set('fontsize', this.fontsize);
-			this.$nextTick(function () {
-				this.$refs.MainScrollbar.calculateSize();
-				this.$refs.MainScrollbar.scrollToY(0);
-			});
+			this.refreshScrollbarNote();
 		},
 		selectedNote() {
 			if(this.isPreview) {
 				this.preview = preview.render(this.selectedNote, this);
 			}
 			this.selectedRackOrFolder = this.selectedNote.data.folder;
-			this.$nextTick(function () {
-				this.$refs.MainScrollbar.calculateSize();
-				this.$refs.MainScrollbar.scrollToY(0);
-			});
+			this.refreshScrollbarNote();
 		},
 		selectedRackOrFolder() {
 			if (this.selectedRackOrFolder) {
@@ -626,11 +645,8 @@ new Vue({
 				} else {
 					if(newData) this.folders = this.folders.concat( newData );
 				}
-				this.$nextTick(function () {
-					this.$refs.NotesScrollbar.calculateSize();
-					this.$refs.NotesScrollbar.scrollToY(0);
-				});
 			}
+			this.refreshScrollbarNotes();
 		}
 	}
 });

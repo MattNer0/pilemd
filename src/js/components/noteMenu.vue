@@ -39,35 +39,35 @@
 					span.link(@click="fontsize_visible = !fontsize_visible", title="Font Size")
 						i.material-icons format_size
 					.dialog(slot="dropdown"): ul
-						li: a(@click="menu_fontsize(10)", href="#")
+						li: a(@click.prevent="menu_fontsize(10)", href="#")
 							i.material-icons(v-if="fontsize == 10") radio_button_checked
 							i.material-icons.faded(v-else) radio_button_unchecked
 							|  10
-						li: a(@click="menu_fontsize(12)", href="#")
+						li: a(@click.prevent="menu_fontsize(12)", href="#")
 							i.material-icons(v-if="fontsize == 12") radio_button_checked
 							i.material-icons.faded(v-else) radio_button_unchecked
 							|  12
-						li: a(@click="menu_fontsize(14)", href="#")
+						li: a(@click.prevent="menu_fontsize(14)", href="#")
 							i.material-icons(v-if="fontsize == 14") radio_button_checked
 							i.material-icons.faded(v-else) radio_button_unchecked
 							|  14
-						li: a(@click="menu_fontsize(15)", href="#")
+						li: a(@click.prevent="menu_fontsize(15)", href="#")
 							i.material-icons(v-if="fontsize == 15") radio_button_checked
 							i.material-icons.faded(v-else) radio_button_unchecked
 							|  15
-						li: a(@click="menu_fontsize(16)", href="#")
+						li: a(@click.prevent="menu_fontsize(16)", href="#")
 							i.material-icons(v-if="fontsize == 16") radio_button_checked
 							i.material-icons.faded(v-else) radio_button_unchecked
 							|  16
-						li: a(@click="menu_fontsize(18)", href="#")
+						li: a(@click.prevent="menu_fontsize(18)", href="#")
 							i.material-icons(v-if="fontsize == 18") radio_button_checked
 							i.material-icons.faded(v-else) radio_button_unchecked
 							|  18
-						li: a(@click="menu_fontsize(20)", href="#")
+						li: a(@click.prevent="menu_fontsize(20)", href="#")
 							i.material-icons(v-if="fontsize == 20") radio_button_checked
 							i.material-icons.faded(v-else) radio_button_unchecked
 							|  20
-						li: a(@click="menu_fontsize(24)", href="#")
+						li: a(@click.prevent="menu_fontsize(24)", href="#")
 							i.material-icons(v-if="fontsize == 24") radio_button_checked
 							i.material-icons.faded(v-else) radio_button_unchecked
 							|  24

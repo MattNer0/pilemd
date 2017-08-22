@@ -115,13 +115,6 @@ nav > ul {
 	}
 
 	li ul {
-		/*float: left;
-		left: 0;
-		opacity: 0;
-		position: absolute;
-		top: $title-bar-height;
-		visibility: hidden;
-		z-index: 100;*/
 		width: 15em;
 		border: 1px solid $resize-panel-handler;
 		background-color: $main-background-color;
@@ -130,17 +123,6 @@ nav > ul {
 		li {
 			height: auto;
 			float: none;
-		}
-
-		li > a, li > div {
-			border-top: 0.1em solid $main-background-color;
-			border-bottom: 0.1em solid $main-background-color;
-		}
-
-		li:hover > a,
-		li:hover > div {
-			border-top: 0.1em solid $ui-text-borderTop-hover;
-			border-bottom: 0.1em solid $ui-text-borderBottom-hover;
 		}
 	}
 

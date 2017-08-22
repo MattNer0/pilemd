@@ -10,25 +10,25 @@ $note-text-color: #333;
 $note-header1-color: #3f51b5;
 $note-bold-color: #000;
 
-/* dark theme */
-$body-background-color: #36393e;
-$main-background-color: #2f3136;
-$ui-text-color: #7a7a7b;
-$ui-text-color-hover: #b9bbbe;
+/* light theme */
+$body-background-color: #dedede;
+$main-background-color: #f3f3f4;
+$ui-text-color: #4a4d50;
+$ui-text-color-hover: #5d6269;
 $ui-text-color-dim: #848487;
-$ui-text-background-hover: #36393f;
-$ui-text-color-selected: #ffffff;
-$ui-text-background-selected: #42464d;
-$resize-panel-handler: #36393e;
-$note-separator-line: #36393e;
+$ui-text-background-hover: #e3e3e5;
+$ui-text-color-selected: #333;
+$ui-text-background-selected: #c5c5c5;
+$resize-panel-handler: #bfbfbf;
+$note-separator-line: #d6d6d6;
 $note-list-body-color: #858585;
 $folder-dragdrop-separator: #62c8f3;
-$folder-badge-background: #212023;
-$folder-badge-color: #adacac;
+$folder-badge-background: #FFF;
+$folder-badge-color: #656565;
 $scrollbar-track-background: rgba(255, 255, 255, 0.1);
 $scrollbar-thumb: #333;
 $scrollbar-thumb-border: #555;
-$title-bar-background: #1e2124;
+$title-bar-background: #bfbfbf;
 
 @font-face {
 	font-family: 'Roboto';
@@ -54,7 +54,7 @@ html {
 	border: 1px solid $title-bar-background;
 }
 
-body {
+body.light-theme {
 	margin: 0;
 	padding: 0;
 	font-family: $main-font-family;
@@ -70,16 +70,18 @@ html, body, h1, h2, h3, h4, h5, p, span, input {
 
 @import 'materialIcons';
 @import 'highlight';
-@import 'elements/body';
-@import 'elements/scrollbar';
-@import 'elements/systemBar';
-@import 'elements/titleBar';
-@import 'elements/noteBar';
-@import 'elements/openNote';
-@import 'elements/notesList';
-@import 'elements/foldersList';
-@import 'elements/flashMessage';
-@import 'elements/modal';
+body.light-theme {
+	@import 'elements/body';
+	@import 'elements/scrollbar';
+	@import 'elements/systemBar';
+	@import 'elements/titleBar';
+	@import 'elements/noteBar';
+	@import 'elements/openNote';
+	@import 'elements/notesList';
+	@import 'elements/foldersList';
+	@import 'elements/flashMessage';
+	@import 'elements/modal';
+}
 
 div {
 	box-sizing: border-box;
