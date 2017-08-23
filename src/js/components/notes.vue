@@ -5,6 +5,10 @@
 				h5.my-notes-note-title
 					i.material-icons note_add
 					|  New Note
+			.my-notes-note.new-note(@click="$root.addEncryptedNote()")
+				h5.my-notes-note-title
+					i.material-icons note_add
+					|  New Encrypted Note
 		.my-separator(v-for="separated in notesFiltered", v-bind:key="separated.dateStr")
 			.my-separator-date {{ separated.dateStr }}
 			.my-notes-note(v-for="note in separated.notes",
@@ -17,7 +21,9 @@
 				:class="{'my-notes-note-selected': selectedNote === note}",
 				draggable="true")
 				h5.my-notes-note-title(v-if="note.title")
-					i.material-icons description
+					i.material-icons(v-if="note.isEncryptedNote && note.isEncrypted") lock
+					i.material-icons(v-else-if="note.isEncryptedNote && !note.isEncrypted") lock_open
+					i.material-icons(v-else) description
 					| {{ note.title }}
 				.my-notes-note-image(v-if="note.img")
 					img(:src="note.img")
@@ -86,11 +92,9 @@
 		},
 		methods: {
 			selectNote: function(note) {
-				note.loadBody();
 				this.changeNote(note);
 			},
 			selectNoteAndWide: function(note) {
-				note.loadBody();
 				this.changeNote(note);
 				this.toggleFullScreen();
 			},

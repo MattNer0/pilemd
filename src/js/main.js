@@ -270,7 +270,30 @@ new Vue({
 		 * @param  {Object}  note  selected note
 		 */
 		changeNote(note) {
-			this.selectedNote = note;
+			var self = this;
+
+			if(!note.body) note.loadBody();
+			if(note.isEncrypted){
+				var message = "Insert the secret key to Encrypt and Decrypt this note";
+				this.$refs.dialog.init('Secret Key', message, [{
+					label: 'Ok',
+					cb(data){
+						note.decrypt(data.secretkey);
+						self.selectedNote = note;
+					}
+				}, {
+					label: 'Cancel',
+					cancel: true
+				}], [{
+					type: 'password',
+					retValue: '',
+					label: 'Secret Key',
+					name: 'secretkey',
+					required: true
+				}]);
+			} else {
+				this.selectedNote = note;
+			}
 		},
 		/**
 		 * Event called when a note is dragged.
@@ -433,6 +456,9 @@ new Vue({
 				return null;
 			}
 		},
+		/**
+		 * Add new note to the current selected Folder
+		 */
 		addNote() {
 			var currFolder = this.getCurrentFolder();
 			var newNote = models.Note.newEmptyNote(currFolder);
@@ -440,7 +466,34 @@ new Vue({
 				if(currFolder.notes) currFolder.notes.unshift(newNote);
 				this.notes.unshift(newNote);
 				models.Note.setModel(newNote);
-				this.selectedNote = newNote;
+				this.changeNote(newNote);
+				this.isPreview = false;
+
+				if (this.search.length > 0) {
+					this.search = '';
+				}
+			} else {
+				if(this.racks.length > 0){
+					var message = 'You must select Rack and Folder first!';
+				} else {
+					var message = 'You must create a Folder first!';
+				}
+				this.$refs.dialog.init('Error', message, [{
+					label: 'Ok'
+				}]);
+			}
+		},
+		/**
+		 * Add new encrypted note to the current selected Folder
+		 */
+		addEncryptedNote() {
+			var currFolder = this.getCurrentFolder();
+			var newNote = models.EncryptedNote.newEmptyNote(currFolder);
+			if(newNote){
+				if(currFolder.notes) currFolder.notes.unshift(newNote);
+				this.notes.unshift(newNote);
+				models.Note.setModel(newNote);
+				this.changeNote(newNote);
 				this.isPreview = false;
 
 				if (this.search.length > 0) {

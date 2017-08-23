@@ -40,8 +40,6 @@ class Model {
 	}
 };
 
-Model.storagePrefix = 'models';
-
 class Note extends Model {
 	constructor(data) {
 		super(data);
@@ -85,6 +83,14 @@ class Note extends Model {
 			folder: this._folder,
 			qiitaURL: this.qiitaURL
 		});
+	}
+
+	get isEncrypted() {
+		return false;
+	}
+
+	get isEncryptedNote() {
+		return false;
 	}
 
 	get properties() {
@@ -292,7 +298,17 @@ class Note extends Model {
 					if(noteStat.isFile() && valid_formats.indexOf(noteExt) >= 0 ){
 						valid_notes.push(new Note({
 							name: note,
-							body: "", //fs.readFileSync(notePath).toString(),
+							body: "",
+							path: notePath,
+							extension: noteExt,
+							folder: folder,
+							created_at: noteStat.birthtime,
+							updated_at: noteStat.mtime
+						}));
+					} else if(noteStat.isFile() && noteExt == '.mdencrypted' ){
+						valid_notes.push(new EncryptedNote({
+							name: note,
+							body: "",
 							path: notePath,
 							extension: noteExt,
 							folder: folder,
@@ -312,6 +328,12 @@ class Note extends Model {
 			return { error: "No model" };
 		}
 
+		var body = model.data.body;
+		if(model.isEncryptedNote){
+			if(this._encrypted) return { error: "Encrypted" };
+			body = model.encrypt();
+		}
+
 		var outer_folder = path.join( getBaseLibraryPath(), model.data.rack.data.fsName, model.data.folder.data.fsName );
 		if(model.data.document_filename){
 			var new_path = path.join(outer_folder, model.data.document_filename) + model.data.extension;
@@ -321,7 +343,7 @@ class Note extends Model {
 				while(num > 0){
 					try{
 						fs.statSync(new_path);
-						if( model.data.body && model.data.body != fs.readFileSync(new_path).toString() ){
+						if( body && body != fs.readFileSync(new_path).toString() ){
 							new_path = path.join(outer_folder, model.data.document_filename)+num+model.data.extension;
 						} else {
 							new_path = null;
@@ -332,15 +354,15 @@ class Note extends Model {
 					}
 				}
 
-				if(new_path && model.data.body.length > 0){
-					fs.writeFileSync(new_path, model.data.body);
+				if(new_path && body.length > 0){
+					fs.writeFileSync(new_path, body);
 					model.path = new_path;
 				}
 			} else {
 				try{
 					//fs.accessSync(new_path, fs.constants.R_OK | fs.constants.W_OK );
-					if( model.data.body.length > 0 && model.data.body != fs.readFileSync(new_path).toString() ){
-						fs.writeFileSync(new_path, model.data.body);
+					if( body.length > 0 && body != fs.readFileSync(new_path).toString() ){
+						fs.writeFileSync(new_path, body);
 					}
 				} catch(e){
 					console.log("Couldn't save the note. Permission Error");
@@ -357,8 +379,72 @@ class Note extends Model {
 		}
 	}
 }
-Note.storagePrefix = 'notes';
 
+var encrypt = require('encryptjs');
+
+class EncryptedNote extends Note {
+	constructor(data) {
+		super(data);
+
+		this._ext = '.mdencrypted';
+		this._encrypted = true;
+		this._secretkey = null;
+		this._descrypted_title = '';
+	}
+
+	get isEncrypted() {
+		return this._encrypted;
+	}
+
+	get isEncryptedNote() {
+		return true;
+	}
+
+	get title() {
+		return this._descrypted_title || this._name;
+	}
+
+	decrypt(secretkey) {
+		if(!secretkey && !this._secretkey) return false;
+
+		if(this._encrypted) {
+			if(secretkey) this._secretkey = secretkey;
+			if(this._body) {
+				this._body = encrypt.decrypt(this._body, this._secretkey, 256);
+				this._descrypted_title = this.splitTitleFromBody().title;
+			}
+			this._encrypted = false;
+			return true;
+		}
+
+		return false;
+	}
+
+	encrypt(secretkey) {
+		if(this._encrypted) {
+			return this._body;
+		} else {
+			this._descrypted_title = this.splitTitleFromBody().title;
+			if(secretkey) this._secretkey = secretkey;
+			var encrypt_body = encrypt.encrypt(this._body, this._secretkey, 256);
+			return encrypt_body;
+		}
+	}
+
+	static newEmptyNote(folder) {
+		if(folder){
+			return new EncryptedNote({
+				name: "NewNote",
+				body: "",
+				path: "",
+				folder: folder,
+				folderUid: folder.uid
+			});
+		} else {
+			return false;
+		}
+	}
+}
 
 class Folder extends Model {
 	constructor(data) {
@@ -511,8 +597,6 @@ class Folder extends Model {
 		}
 	}
 }
-Folder.storagePrefix = 'folders';
-
 
 class Rack extends Model {
 
@@ -648,11 +732,10 @@ class Rack extends Model {
 		}
 	}
 }
-Rack.storagePrefix = 'racks';
-
 
 const CLASS_MAPPER = {
 	notes: Note,
+	encryptedNotes: EncryptedNote,
 	folders: Folder,
 	racks: Rack
 };
@@ -777,6 +860,7 @@ class Image {
 
 module.exports = {
 	Note: Note,
+	EncryptedNote: EncryptedNote,
 	Folder: Folder,
 	Rack: Rack,
 	getBaseLibraryPath: getBaseLibraryPath,
