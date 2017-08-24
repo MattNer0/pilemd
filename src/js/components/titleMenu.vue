@@ -56,7 +56,7 @@
 			return {
 				'search': "",
 				'menu_visible': false,
-				'position': [ "right", "bottom", "right", "top" ]
+				'position': [ "right", "top", "right", "top" ]
 			};
 		},
 		components: {
