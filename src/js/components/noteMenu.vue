@@ -7,7 +7,7 @@
 			li: a(@click="menu_checkMark", href="#", v-show="!isPreview")
 				i.material-icons done
 				|  Checkbox
-			li.right-align: a(@click="menu_preview", href="#", title="Preview")
+			li.right-align: a(@click="togglePreview", href="#", title="Preview")
 				template(v-if="isPreview")
 					i.material-icons visibility_off
 				template(v-else)
@@ -80,7 +80,7 @@
 
 	export default {
 		name: 'noteMenu',
-		props: ['note', 'isFullScreen', 'isPreview', 'fontsize'],
+		props: ['note', 'isFullScreen', 'isPreview', 'fontsize', 'togglePreview'],
 		data: function() {
 			return {
 				'fontsize_visible': false,
@@ -101,9 +101,6 @@
 			menu_fontsize: function(size) {
 				this.$parent.fontsize = size;
 				this.fontsize_visible = false;
-			},
-			menu_preview: function() {
-				this.$parent.isPreview = !this.$parent.isPreview;
 			},
 			menu_codeBlock: function() {
 				var cm = this.codeMirror();

@@ -15,15 +15,13 @@ var preview = require('./preview');
 var searcher = require('./searcher');
 
 // Electron things
-var remote = require('electron').remote;
+var electron = require('electron');
+var remote = electron.remote;
 var Menu = remote.Menu;
 var MenuItem = remote.MenuItem;
 var dialog = remote.dialog;
 
 var arr = require('./utils/arr');
-
-var eventHub = new Vue();
-global.eventHub = eventHub;
 
 // Vue.js plugins
 
@@ -212,8 +210,6 @@ new Vue({
 				self.update_editor_size();
 			}, 100);
 		});
-
-		eventHub.$on('togglePreview', self.togglePreviewCallBack);
 	},
 	methods: {
 		/**
@@ -410,9 +406,6 @@ new Vue({
 		 * Toggles markdown note preview.
 		 */
 		togglePreview() {
-			eventHub.$emit('togglePreview');
-		},
-		togglePreviewCallBack() {
 			this.isPreview = !this.isPreview;
 			settings.set('vue_isPreview', this.isPreview);
 			this.update_editor_size();
@@ -554,8 +547,39 @@ new Vue({
 			menu.popup(remote.getCurrentWindow());
 		},
 		previewMenu() {
+			var clipboard = electron.clipboard;
+			var self = this;
 			var menu = new Menu();
-			menu.append(new MenuItem({label: 'Toggle Preview', click: () => {this.togglePreview()}}));
+
+			menu.append(new MenuItem({
+				label: 'Copy',
+				accelerator: 'CmdOrCtrl+C',
+				click() {
+					document.execCommand("copy");
+				}
+			}));
+
+			menu.append(new MenuItem({ type: 'separator' }));
+			menu.append(new MenuItem({
+				label: 'Copy to clipboard (Markdown)',
+				click() {
+					if(self.selectedNote) clipboard.writeText(self.selectedNote.bodyWithDataURL);
+				}
+			}));
+			menu.append(new MenuItem({
+				label: 'Copy to clipboard (HTML)',
+				click() {
+					if(self.preview) clipboard.writeText(self.preview);
+				}
+			}));
+			menu.append(new MenuItem({ type: 'separator' }));
+			menu.append(new MenuItem({
+				label: 'Toggle Preview',
+				click() {
+					self.togglePreview();
+				}
+			}));
+
 			//menu.append(new MenuItem({label: 'Copy', accelerator: 'CmdOrCtrl+C', click: () => {} }));
 			menu.popup(remote.getCurrentWindow());
 		},

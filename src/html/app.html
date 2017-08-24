@@ -55,14 +55,16 @@
 				<note-menu :note="selectedNote"
 					:is-full-screen="isFullScreen"
 					:is-preview="isPreview"
-					:fontsize="fontsize">
+					:fontsize="fontsize"
+					:toggle-preview="togglePreview">
 				</note-menu>
 				<div class="my-editor" ref="myEditor">
 					<div>
 						<codemirror v-show="!isPreview && selectedNote.title"
 							:note="selectedNote"
 							:is-full-screen="isFullScreen"
-							:is-preview="isPreview">
+							:is-preview="isPreview"
+							:toggle-preview="togglePreview">
 						</codemirror>
 						<div v-show="isPreview && selectedNote.title" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()">
 							<div v-html="preview">

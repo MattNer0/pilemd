@@ -68,7 +68,7 @@
 
 	export default {
 		name: 'codemirror',
-		props: ['note', 'isFullScreen', 'isPreview'],
+		props: ['note', 'isFullScreen', 'isPreview', 'togglePreview'],
 		mounted: function () {
 			var self = this;
 
@@ -184,25 +184,6 @@
 					}, 90);
 				});
 
-				this.$watch('isFullScreen', () => {
-					Vue.nextTick(() => {
-						setTimeout(() => {
-							cm.refresh();
-							cm.focus();
-						}, 300);
-					});
-				});
-
-				this.$watch('isPreview', (value) => {
-					if (!value) {
-						Vue.nextTick(() => {
-							cm.refresh();
-							cm.focus();
-							//setMenu();
-						});
-					}
-				});
-
 				this.$watch('note', function(value) {
 					// When swapped the doc;
 					var doc = null;
@@ -280,10 +261,27 @@
 					);
 					self.$message('info', 'Saved image to ' + image.makeFilePath());
 				});
+			}
+		},
+		watch: {
+			isFullScreen() {
+				var self = this;
+				Vue.nextTick(() => {
+					setTimeout(() => {
+						self.cm.refresh();
+						self.cm.focus();
+					}, 300);
+				});
 			},
-			togglePreview: function() {
-				eventHub.$emit('togglePreview');
-			},
+			isPreview() {
+				var self = this;
+				if (!this.isPreview) {
+					Vue.nextTick(() => {
+						self.cm.refresh();
+						self.cm.focus();
+					});
+				}
+			}
 		}
 	}
 </script>
