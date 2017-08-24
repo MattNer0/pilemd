@@ -31,6 +31,7 @@ import component_flashmessage from './components/flashmessage.vue';
 import component_racks from './components/racks.vue';
 import component_notes from './components/notes.vue';
 import component_modal from './components/modal.vue';
+import component_addNote from './components/addNote.vue';
 import component_windowBar from './components/windowBar.vue';
 import component_titleMenu from './components/titleMenu.vue';
 import component_noteMenu from './components/noteMenu.vue';
@@ -91,6 +92,7 @@ new Vue({
 		'racks': component_racks,
 		'notes': component_notes,
 		'modal': component_modal,
+		'addNote': component_addNote,
 		'windowBar': component_windowBar,
 		'titleMenu': component_titleMenu,
 		'noteMenu': component_noteMenu,

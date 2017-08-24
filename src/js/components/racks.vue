@@ -400,6 +400,13 @@
 						this.$root.addNote();
 					}
 				}));
+				menu.append(new MenuItem({
+					label: 'Add Encrypted Note',
+					click: () => {
+						this.changeRackOrFolder(folder);
+						this.$root.addEncryptedNote();
+					}
+				}));
 				menu.append(new MenuItem({type: 'separator'}));
 				menu.append(new MenuItem({
 					label: 'Delete Folder',

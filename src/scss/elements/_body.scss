@@ -20,9 +20,13 @@
 		vertical-align: top;
 	}
 
-	.my-scrollbar{
+	.my-scrollbar {
 		max-height: calc( 100vh - 2px - #{$title-bar-height} - #{$system-bar-height} );
 		background-color: transparent;
+	}
+
+	.my-scrollbar-notes {
+		max-height: calc( 100vh - 2px - #{$title-bar-height} - #{$system-bar-height} - 3.5em );
 	}
 
 	.cell-container.main-cell-container{

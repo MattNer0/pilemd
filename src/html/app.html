@@ -42,7 +42,8 @@
 				<handler-stack v-on:hdrag="editordrag" v-on:hdragend="editordragend"></handler-stack>
 				<!-- :style="{ width: notesWidth+'px' }" -->
 				<div class="cell-container">
-					<vue-scrollbar classes="my-scrollbar" ref="NotesScrollbar">
+					<add-note v-if="selectedFolder"></add-note>
+					<vue-scrollbar classes="my-scrollbar my-scrollbar-notes" ref="NotesScrollbar">
 						<div class="scroll-me">
 							<notes :notes="filteredNotes"
 							:toggle-full-screen="toggleFullScreen"

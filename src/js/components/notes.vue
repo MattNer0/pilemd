@@ -1,14 +1,5 @@
 <template lang="pug">
 	.my-notes
-		.my-separator(v-if="selectedFolder")
-			.my-notes-note.new-note(@click="$root.addNote()")
-				h5.my-notes-note-title
-					i.material-icons note_add
-					|  New Note
-			.my-notes-note.new-note(@click="$root.addEncryptedNote()")
-				h5.my-notes-note-title
-					i.material-icons note_add
-					|  New Encrypted Note
 		.my-separator(v-for="separated in notesFiltered", v-bind:key="separated.dateStr")
 			.my-separator-date {{ separated.dateStr }}
 			.my-notes-note(v-for="note in separated.notes",
@@ -62,14 +53,15 @@
 			'originalNotes': Array,
 			'selectedNote': Object,
 			'draggingNote': Object,
-			'selectedFolder': Object,
 			'toggleFullScreen': Function,
 			'changeNote': Function,
 			'setDraggingNote': Function
 		},
 		data: function() {
 			return {
-				notesDisplayOrder: 'updatedAt'
+				notesDisplayOrder: 'updatedAt',
+				'addnote_visible': false,
+				'position': [ "left", "top", "left", "top" ]
 			};
 		},
 		mounted: function() {
