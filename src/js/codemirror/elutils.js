@@ -80,9 +80,14 @@ function uploadFile(cm, file){
 	return true;
 }
 
+function selectAllText(cm) {
+	cm.execCommand("selectAll");
+}
+
 module.exports = {
 	killLine: killLine,
 	copyText: copyText,
 	cutText: cutText,
-	pasteText: pasteText
+	pasteText: pasteText,
+	selectAllText: selectAllText
 };

@@ -25,6 +25,7 @@
 	const copyText = elutils.copyText;
 	const cutText = elutils.cutText;
 	const pasteText = elutils.pasteText;
+	const selectAllText = elutils.selectAllText;
 
 	const IMAGE_TAG_TEMP = _.template('![<%- filename %>](<%- fileurl %>)\n');
 
@@ -138,6 +139,13 @@
 							label: 'Paste',
 							accelerator: 'CmdOrCtrl+V',
 							click: () => { pasteText(cm) }
+						}));
+
+						menu.append(new MenuItem({ type: 'separator' }));
+						menu.append(new MenuItem({
+							label: 'Select All',
+							accelerator: 'CmdOrCtrl+A',
+							click: () => { selectAllText(cm) }
 						}));
 
 						menu.append(new MenuItem({ type: 'separator' }));

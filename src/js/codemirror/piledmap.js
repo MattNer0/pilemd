@@ -3,6 +3,7 @@ const copyText = elutils.copyText;
 const cutText = elutils.cutText;
 const pasteText = elutils.pasteText;
 const killLine = elutils.killLine;
+const selectAllText = elutils.selectAllText;
 
 const TODO_REGEXP = /^( *)((\*|\-) \[( |x)] )(.*)$/;
 const LI_REGEXP = /^( *)((\*|\-) )(.*)$/;
@@ -137,6 +138,7 @@ function enterHandler(before, after) {
     "Home": "goLineStart",
     'Ctrl-C': copyText,
     'Alt-W': copyText,
+    'Ctrl-A': 'selectAll',
     'Ctrl-Y': pasteText,
     'Ctrl-V': pasteText,
     'Alt-V': pasteText,
