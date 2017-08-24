@@ -6,37 +6,59 @@
 ---
 
 **Website**: https://pilemd.com/
+
 **Original Project**: https://github.com/hirokiky/pilemd
 
 ---
 
-> **Note**:
-> I'm kind of going my own way with this right now...
+## Upgrades
 
-## Quick list of changes
+- updated _electron_
+- updated _[Vue.js](https://vuejs.org/)_ to 2.x
+- [single file components](https://vuejs.org/v2/guide/single-file-components.html) with `.vue` extension
+- new template engine for Vue.js components: _Pug_
+- stylesheet language: _Sass_
+- _Uglify.js_ to minify javascript code
+
+## Quick list of new features
 
 - file system folder structure with **racks**, **folders** and `.md` note files for easy access
 - `.rack` and `.folder` files to store metadata like display order
 - **note** contents are only loaded when the **folder** or the **note** itself is opened (instead of loading everything on startup)
-- sidebar with expandable tree menu list of the **folders** inside **racks**
+- sidebar with expandable tree menu list (**folders** and **racks**)
 - resize sidebar width (could use more work but it's there)
-- properties sidebar with word/line count and option to change font size
+- note menu with option to change font size
+- properties window with word/line count
 - application settings saved inside `appData` folder (window size, last open folder, preview toggle, etc.) 
-- added preview mode toggle from right click menu for quicker access
+- added more items to the right click menu in preview mode (toggle, copy, etc.)
 - checkbox display and interaction in preview mode
 - style changes all around for the heck of it
+- choose between three different themes (original,light,dark)
+- **encrypted** notes (password protected)
 
-## Run
+## Run (development)
 
 ```
 npm install
-NODE_ENV=development webpack
-electron .
+npm run build
+npm run start
+
 ```
 
-## Build
+## Build (production)
 
-* `gulp`
-* `PM_OSX_SIGN='...' gulp electron`
-* `gulp electron-linux`
-* `gulp electron-windows`
+```
+npm run linux
+```
+
+or
+
+```
+npm run windows
+```
+
+or
+
+```
+npm run darwin
+```

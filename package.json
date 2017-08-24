@@ -1,6 +1,6 @@
 {
 	"name": "pilemd",
-	"version": "0.12.0",
+	"version": "0.13.0",
 	"description": "",
 	"main": "./dist/main.js",
 	"dependencies": {
@@ -48,7 +48,8 @@
 		"build": "NODE_ENV=development webpack",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"linux": "NODE_ENV=production webpack && gulp electron-linux",
-		"windows": "NODE_ENV=production webpack && gulp electron-windows"
+		"windows": "NODE_ENV=production webpack && gulp electron-windows",
+		"darwin": "NODE_ENV=production webpack && gulp electron-darwin"
 	},
 	"repository": {
 		"type": "git",

@@ -22,7 +22,7 @@ var BASE_OPTION = {
 	prune: false
 };
 
-gulp.task('electron', function(done) {
+gulp.task('electron-darwin', function(done) {
 	packager(_.defaults(_.clone(BASE_OPTION), {
 		out: 'releases/darwin/',
 		platform: 'darwin',
