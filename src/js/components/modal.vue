@@ -1,6 +1,6 @@
 <template lang="pug">
 	.modal-mask(v-show="show")
-		.modal-background(@click="close")
+		.modal-background(@click="clickout_close")
 		.modal-wrapper
 			.modal-container
 				h3 {{ title }}
@@ -10,13 +10,17 @@
 						.modal-field(v-for="field in prompts")
 							span.modal-field-label {{ field.label }}
 							input(v-if="field.type == 'text'", type="text", v-model="field.retValue", :name="field.name")
-							input(v-else-if="field.type == 'password'", type="password", v-model="field.retValue", :name="field.label")
+							vue-password(v-else-if="field.type == 'password'", v-model="field.retValue", classes="input", :name="field.label")
+							//-input(, type="password", v-model="field.retValue")
 					.modal-buttons
 						template(v-for="button in buttons")
 							button.modal-button(@click.prevent="button_submit(button)", type="button") {{ button.label }}
 </template>
 
 <script>
+
+	import VuePassword from 'vue-password';
+
 	export default {
 		name: 'modal',
 		data() {
@@ -28,6 +32,9 @@
 				prompts: [],
 				okcb: undefined
 			};
+		},
+		components: {
+			'vue-password': VuePassword
 		},
 		computed: {
 			descriptionHtml() {
@@ -48,10 +55,23 @@
 				this.buttons = buttons;
 				this.prompts = prompts;
 				this.show = true;
+
+				setTimeout(function(){
+					var pswd = document.querySelector('.VuePassword__Input input');
+					if(pswd) pswd.focus();
+				}, 100);
 			},
-			close() {
+			reset_data() {
+				this.title = '';
+				this.description = '';
+				this.buttons = [];
+				this.prompts = [];
+				this.show = false;
+			},
+			clickout_close() {
 				if(this.buttons.length == 1 && this.prompts.length == 0) {
 					this.show = false;
+					this.reset_data();
 				}
 			},
 			button_submit(button) {
@@ -65,6 +85,7 @@
 				}
 				
 				if(button.cb) button.cb(this.promptsObject);
+				this.reset_data();
 			}
 		}
 	}

@@ -37,7 +37,7 @@ $folder-badge-background: #212023;
 $folder-badge-color: #adacac;
 $scrollbar-track-background: rgba(255, 255, 255, 0.1);
 $scrollbar-thumb: #333;
-$scrollbar-thumb-border: #555;
+$scrollbar-thumb-border: #444;
 $title-bar-background: #1e2124;
 
 @font-face {
@@ -91,6 +91,6 @@ html, body, h1, h2, h3, h4, h5, p, span, input {
 @import 'elements/flashMessage';
 @import 'elements/modal';
 
-div {
+div, input, svg {
 	box-sizing: border-box;
 }

@@ -39,9 +39,6 @@ import component_handlerStack from './components/handlerStack.vue';
 import component_handlerNotes from './components/handlerNotes.vue';
 import component_codeMirror from './components/codemirror.vue';
 
-import vueScrollbar from 'vue2-scrollbar';
-require('vue2-scrollbar/dist/style/vue2-scrollbar.css');
-
 // Loading CSSs
 require('../scss/pilemd-light.scss');
 require('../scss/pilemd-original.scss');
@@ -98,8 +95,7 @@ new Vue({
 		'noteMenu': component_noteMenu,
 		'handlerStack': component_handlerStack,
 		'handlerNotes': component_handlerNotes,
-		'codemirror': component_codeMirror,
-		'vueScrollbar': vueScrollbar
+		'codemirror': component_codeMirror
 	},
 	computed: {
 		
@@ -140,7 +136,8 @@ new Vue({
 			var result = models.Note.setModel(this.selectedNote);
 			if (result && result.error && result.path) {
 				this.$refs.dialog.init('Error', result.error + "\nNote: " + result.path, [{
-					label: 'Ok'
+					label: 'Ok',
+					cancel: true
 				}]);
 			}
 		});
@@ -230,30 +227,16 @@ new Vue({
 			if(handlerNotes) handlerNotes.previousElementSibling.style.width = this.notesWidth+"px";
 		},
 		/**
-		 * Calculates the size of the content inside the racks sidebar to display the scrollbar properly.
-		 */
-		refreshScrollbarRacks() {
-			this.$nextTick(function () {
-				this.$refs.RacksScrollbar.calculateSize();
-			});
-		},
-		/**
 		 * Calculates the size of the content inside the notes sidebar to display the scrollbar properly.
 		 */
-		refreshScrollbarNotes() {
+		scrollUpScrollbarNotes() {
 			this.$nextTick(function () {
-				this.$refs.NotesScrollbar.calculateSize();
-				this.$refs.NotesScrollbar.scrollToY(0);
+				this.$refs.refNotes.scrollTop = 0;
 			});
 		},
-		/**
-		 * Calculates the size of the content inside the main Note view to display the scrollbar properly.
-		 * It also scrolls the view all the way to the top.
-		 */
-		refreshScrollbarNote() {
+		scrollUpScrollbarNote() {
 			this.$nextTick(function () {
-				this.$refs.MainScrollbar.scrollToY(0);
-				this.$refs.MainScrollbar.calculateSize();
+				this.$refs.myEditor.scrollTop = 0;
 			});
 		},
 		/**
@@ -264,7 +247,6 @@ new Vue({
 		changeRackOrFolder(obj) {
 			var rf = this.selectedRackOrFolder;
 			this.selectedRackOrFolder = obj;
-			this.refreshScrollbarRacks();
 			return rf;
 		},
 		/**
@@ -280,8 +262,17 @@ new Vue({
 				this.$refs.dialog.init('Secret Key', message, [{
 					label: 'Ok',
 					cb(data){
-						note.decrypt(data.secretkey);
-						self.selectedNote = note;
+						var result = note.decrypt(data.secretkey);
+						if(result.error) {
+							setTimeout(function(){
+								self.$refs.dialog.init('Error', result.error + "\nNote: " + note.path, [{
+									label: 'Ok',
+									cancel: true
+								}]);	
+							}, 100);
+						} else {
+							self.selectedNote = note;
+						}
 					}
 				}, {
 					label: 'Cancel',
@@ -324,7 +315,6 @@ new Vue({
 			}
 			rack.folders = rack.folders.sort(function(a, b) { return a.ordering - b.ordering });
 			rack.openFolders = true;
-			this.refreshScrollbarRacks();
 		},
 		/**
 		 * Hides rack content (folders).
@@ -338,7 +328,6 @@ new Vue({
 			if(this.selectedRackOrFolder == rack) {
 				this.selectedRackOrFolder = null;
 			}
-			this.refreshScrollbarRacks();
 		},
 		/**
 		 * Adds a new rack to the working directory.
@@ -620,7 +609,8 @@ new Vue({
 				"This Fork with updated components and additional features is maintained by MattNer0.";
 
 			this.$refs.dialog.init('Credits', message, [{
-				label: 'Ok'
+				label: 'Ok',
+				cancel: true
 			}]);
 		},
 		changeTheme(value) {
@@ -683,18 +673,17 @@ new Vue({
 			if(this.selectedNote.data){
 				this.preview = preview.render(this.selectedNote, this);
 			}
-			this.refreshScrollbarNote();
+			this.scrollUpScrollbarNote();
 		},
 		fontsize() {
 			settings.set('fontsize', this.fontsize);
-			this.refreshScrollbarNote();
 		},
 		selectedNote() {
 			if(this.isPreview) {
 				this.preview = preview.render(this.selectedNote, this);
 			}
 			this.selectedRackOrFolder = this.selectedNote.data.folder;
-			this.refreshScrollbarNote();
+			this.scrollUpScrollbarNote();
 		},
 		selectedRackOrFolder() {
 			if (this.selectedRackOrFolder) {
@@ -713,7 +702,7 @@ new Vue({
 					if(newData) this.folders = this.folders.concat( newData );
 				}
 			}
-			this.refreshScrollbarNotes();
+			this.scrollUpScrollbarNotes();
 		}
 	}
 });

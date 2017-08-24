@@ -16,26 +16,20 @@
 				<div class="cell-container">
 					<div class="my-shelf" @contextmenu="shelfMenu()">
 						<div class="my-shelf-wrapper">
-							<vue-scrollbar classes="my-scrollbar" ref="RacksScrollbar">
-								<div class="scroll-me">
-									<racks
-										:racks="racks"
-										:folders="folders"
-										:notes="notes"
-										:filtered-notes="filteredNotes"
-										:selected-rack-or-folder="selectedRackOrFolder"
-										:dragging-note="draggingNote"
-										:selected-note="selectedNote"
-										:change-rack-or-folder="changeRackOrFolder"
-										:open-rack="openRack"
-										:close-rack="closerack"
-										:folder-drag-ended="folderDragEnded"
-										:set-dragging-note="setDraggingNote"
-										:delete-folder="deleteFolder"
-										:add-folder-to-rack="addFolderToRack">
-									</racks>
-								</div>
-							</vue-scrollbar>
+							<racks
+								:racks="racks"
+								:folders="folders"
+								:selected-rack-or-folder="selectedRackOrFolder"
+								:dragging-note="draggingNote"
+								:selected-note="selectedNote"
+								:change-rack-or-folder="changeRackOrFolder"
+								:open-rack="openRack"
+								:close-rack="closerack"
+								:folder-drag-ended="folderDragEnded"
+								:set-dragging-note="setDraggingNote"
+								:delete-folder="deleteFolder"
+								:add-folder-to-rack="addFolderToRack">
+							</racks>
 						</div>
 					</div>
 				</div>
@@ -43,9 +37,8 @@
 				<!-- :style="{ width: notesWidth+'px' }" -->
 				<div class="cell-container">
 					<add-note v-if="selectedFolder"></add-note>
-					<vue-scrollbar classes="my-scrollbar my-scrollbar-notes" ref="NotesScrollbar">
-						<div class="scroll-me">
-							<notes :notes="filteredNotes"
+					<div class="my-shelf-notes" ref="refNotes">
+						<notes :notes="filteredNotes"
 							:toggle-full-screen="toggleFullScreen"
 							:original-notes="notes"
 							:selected-note="selectedNote"
@@ -53,9 +46,8 @@
 							:dragging-note="draggingNote"
 							:change-note="changeNote"
 							:set-dragging-note="setDraggingNote">
-							</notes>
-						</div>
-					</vue-scrollbar>
+						</notes>
+					</div>
 				</div>
 				<handler-notes v-on:hdrag="editordrag" v-on:hdragend="editordragend"></handler-notes>
 			</div>
@@ -65,21 +57,24 @@
 					:is-preview="isPreview"
 					:fontsize="fontsize">
 				</note-menu>
-				<vue-scrollbar classes="my-scrollbar" ref="MainScrollbar">
-					<div class="scroll-me">
-						<div class="my-editor">
-							<codemirror v-show="!isPreview && selectedNote.title"
-								:note="selectedNote"
-								:is-full-screen="isFullScreen"
-								:is-preview="isPreview">
-							</codemirror>
-							<div v-show="isPreview && selectedNote.title" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()">
-								<div v-html="preview">
-								</div>
+				<div class="my-editor" ref="myEditor">
+					<div>
+						<codemirror v-show="!isPreview && selectedNote.title"
+							:note="selectedNote"
+							:is-full-screen="isFullScreen"
+							:is-preview="isPreview">
+						</codemirror>
+						<div v-show="isPreview && selectedNote.title" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()">
+							<div v-html="preview">
 							</div>
 						</div>
 					</div>
-				</vue-scrollbar>
+				</div>
+				<!--vue-scrollbar classes="my-scrollbar" ref="MainScrollbar">
+					<div class="scroll-me">
+						
+					</div>
+				</vue-scrollbar-->
 				<flashmessage :messages="messages"></flashmessage>
 			</div>
 		</div>

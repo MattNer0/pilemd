@@ -66,7 +66,7 @@
 		props: {
 			'racks': Array,
 			'folders': Array,
-			'filteredNotes': Array,
+			/*'filteredNotes': Array,*/
 			'selectedRackOrFolder': Object,
 			'selectedNote': Object,
 			'draggingNote': Object,
@@ -143,11 +143,11 @@
 			isSelectedFolder: function(folder) {
 				return this.selectedRackOrFolder === folder;
 			},
-			filterNotesByFolder: function(folder) {
+			/*filterNotesByFolder: function(folder) {
 				return this.filteredNotes.filter(function(obj){
 					return obj.isFolder(folder);
 				});
-			},
+			},*/
 			notesByFolder: function(folder) {
 				return this.notes.filter(function(obj){
 					return obj.isFolder(folder);

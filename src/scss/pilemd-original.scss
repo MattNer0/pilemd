@@ -37,7 +37,7 @@ $folder-badge-background: #528686;
 $folder-badge-color: #dcebec;
 $scrollbar-track-background: rgba(255, 255, 255, 0.1);
 $scrollbar-thumb: #333;
-$scrollbar-thumb-border: #555;
+$scrollbar-thumb-border: #444;
 $title-bar-background: #4a7d7d;
 
 @font-face {
@@ -93,6 +93,6 @@ body.original-theme {
 	@import 'elements/modal';
 }
 
-div {
+div, input, svg {
 	box-sizing: border-box;
 }

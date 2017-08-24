@@ -34,7 +34,7 @@
 		margin-left: 0;
 		transition: margin 400ms;
 
-		.my-scrollbar .my-editor {
+		.my-editor > div {
 			margin-left: 1em;
 			margin-right: 1em;
 		}
@@ -69,25 +69,11 @@
 		cursor: col-resize;
 	}
 
-	.my-shelf-wrapper:hover, .my-shelf-all:hover {
-		cursor: pointer;
-	}
-
-	.my-shelf-all {
-		display: none;
-		font-weight: 500;
-		padding: 1px 0 1px 15px;
-		border-radius: 0 2px 2px 0 / 0 2px 2px 0;
-
-		-webkit-user-select: none;
-		transition: background-color 200ms;
-	}
-
 	.my-editor {
 		height: 100%;
 	    width: auto;
 	    margin: 0 auto;
-	    overflow-y: auto;
+	    overflow-y: scroll;
 	    position: relative;
 	}
 }

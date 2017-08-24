@@ -57,6 +57,12 @@ class Note extends Model {
 		this.folderUid = data.folder ? data.folder.data.uid : null;
 		this.doc = null;
 
+		if (this._body == '') {
+			this._loadedBody = false;
+		} else {
+			this._loadedBody = true;
+		}
+
 		if (data.updated_at) {
 			this.updatedAt = moment(data.updated_at);
 		} else {
@@ -155,12 +161,15 @@ class Note extends Model {
 	}
 
 	loadBody() {
+		if (this._loadedBody) return;
+
 		if (fs.existsSync(this.path)) {
 			var content = fs.readFileSync(this.path).toString();
 			content = content.replace(/    /g, '\t');
 			if (content && content != this._body) {
 				this._body = content;
 			}
+			this._loadedBody = true;
 		}
 	}
 
@@ -404,30 +413,43 @@ class EncryptedNote extends Note {
 		return this._descrypted_title || this._name;
 	}
 
+	get verifyString() {
+		return 'sQhjzdTyiedGjqoCSbtft25da6W2zTpN22dH3wvKSzwxZNTfVV';
+	}
+
 	decrypt(secretkey) {
-		if(!secretkey && !this._secretkey) return false;
+		if(!secretkey && !this._secretkey) return { error: 'Secret Key missing' };
 
 		if(this._encrypted) {
 			if(secretkey) this._secretkey = secretkey;
-			if(this._body) {
-				this._body = encrypt.decrypt(this._body, this._secretkey, 256);
-				this._descrypted_title = this.splitTitleFromBody().title;
+			if(this._body && this._body.length > 0) {
+				var descrypted_body = encrypt.decrypt(this._body, this._secretkey, 256);
+				if(descrypted_body.indexOf(this.verifyString) == 0) {
+					descrypted_body = descrypted_body.replace(this.verifyString,'');
+					this._body = descrypted_body;
+					this._descrypted_title = this.splitTitleFromBody().title;
+				} else {
+					this._secretkey = null;
+					return { error: 'Secret Key was not correct' };
+				}
 			}
 			this._encrypted = false;
 			return true;
 		}
 
-		return false;
+		return { error: 'Note was not encrypted' };
 	}
 
 	encrypt(secretkey) {
 		if(this._encrypted) {
 			return this._body;
-		} else {
+		} else if(this._body && this._body.length > 0) {
 			this._descrypted_title = this.splitTitleFromBody().title;
 			if(secretkey) this._secretkey = secretkey;
-			var encrypt_body = encrypt.encrypt(this._body, this._secretkey, 256);
+			var encrypt_body = encrypt.encrypt(this.verifyString+this._body, this._secretkey, 256);
 			return encrypt_body;
+		} else {
+			return '';
 		}
 	}
 
