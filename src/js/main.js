@@ -24,7 +24,6 @@ var dialog = remote.dialog;
 var arr = require('./utils/arr');
 
 // Vue.js plugins
-
 import component_flashmessage from './components/flashmessage.vue';
 import component_racks from './components/racks.vue';
 import component_notes from './components/notes.vue';

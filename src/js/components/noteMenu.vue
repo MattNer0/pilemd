@@ -1,19 +1,37 @@
 <template lang="pug">
 	.noteBar(v-if="note && note.title")
 		nav: ul
-			li: a(@click="menu_codeBlock", href="#", v-show="!isPreview")
-				i.material-icons code
-				|  Code block
-			li: a(@click="menu_checkMark", href="#", v-show="!isPreview")
+
+			li(v-show="!isPreview"): a(@click="menu_checkMark", href="#", title="Insert Checkbox")
 				i.material-icons done
 				|  Checkbox
+
+			li(v-show="!isPreview"): a(@click="menu_codeBlock", href="#", title="Insert Code block")
+				i.material-icons code
+				|  Code block
+
+			li(v-show="!isPreview")
+				div: dropdown(:visible="table_visible", :position="position_left", v-on:clickout="table_visible = false")
+					span.link(@click="table_visible = !table_visible", title="Table")
+						i.material-icons border_all
+						|  Table
+					.dialog(slot="dropdown")
+						.table-dialog(@click="close_table")
+							table.select-table-size(cellpadding="2")
+								tr(v-for="r in table_max_row")
+									td(v-for="c in table_max_column", @click="tableSelect(r,c)", @mouseenter="tableHover(r,c)", ref="tablesizetd")
+							template(v-show="table_hover_row > 0")
+								hr
+								span {{ table_hover_row }} x {{ table_hover_column }}
+
 			li.right-align: a(@click="togglePreview", href="#", title="Preview")
 				template(v-if="isPreview")
 					i.material-icons visibility_off
 				template(v-else)
 					i.material-icons visibility
+
 			li.right-align
-				div: dropdown(:visible="properties_visible", :position="position", v-on:clickout="properties_visible = false")
+				div: dropdown(:visible="properties_visible", :position="position_right", v-on:clickout="properties_visible = false")
 					span.link(@click="properties_visible = !properties_visible", title="Properties")
 						i.material-icons info_outline
 					.dialog(slot="dropdown")
@@ -34,8 +52,9 @@
 									td: strong Modified: 
 									td.right: span {{ note.data.updated_at.format('MMM DD, YYYY') }}
 
+
 			li.right-align
-				div: dropdown(:visible="fontsize_visible", :position="position", v-on:clickout="fontsize_visible = false")
+				div: dropdown(:visible="fontsize_visible", :position="position_right", v-on:clickout="fontsize_visible = false")
 					span.link(@click="fontsize_visible = !fontsize_visible", title="Font Size")
 						i.material-icons format_size
 					.dialog(slot="dropdown"): ul
@@ -85,24 +104,86 @@
 			return {
 				'fontsize_visible': false,
 				'properties_visible': false,
-				'position': [ "right", "top", "right", "top" ]
+				'table_visible': false,
+				'table_max_row': 10,
+				'table_max_column': 10,
+				'table_hover_row': 0,
+				'table_hover_column': 0,
+				'position_left': [ "left", "top", "left", "top" ],
+				'position_right': [ "right", "top", "right", "top" ]
 			};
 		},
 		components: {
 			'dropdown': myDropdown
 		},
 		methods: {
-			codeMirror: function() {
+			codeMirror() {
 				return this.$root.codeMirror;
 			},
-			close_properties: function() {
+			close_properties() {
 				this.properties_visible = false;
 			},
-			menu_fontsize: function(size) {
+			close_table() {
+				this.table_visible = false;
+				this.tableClean();
+			},
+			tableClean() {
+				for (var i=0;i<this.table_max_row;i++) {
+					for (var j=0;j<this.table_max_column;j++) {
+						this.$refs.tablesizetd[i*this.table_max_row+j].classList.remove("selected");
+					}
+				}
+			},
+			tableSelect(row, column) {
+				this.table_visible = false;
+				console.log(row, column);
+
+				var markdown_table = []
+				for (var i=0;i<row;i++) {
+					var column_table = [];
+					for (var j=0;j<column;j++) {
+						column_table.push('....');
+					}
+					markdown_table.push(column_table);
+				}
+
+				var table = require('markdown-table');
+				var cm = this.codeMirror();
+				var cursor = cm.getCursor();
+
+				if(cursor.ch == 0){
+					if(cm.doc.getLine(cursor.line).length > 0){
+						cm.doc.replaceRange( table(markdown_table)+'\n', cursor);
+					} else {
+						cm.doc.replaceRange( table(markdown_table), cursor);
+					}
+				} else {
+					cursor.ch = cm.doc.getLine(cursor.line).length;
+					cm.doc.replaceRange( '\n'+table(markdown_table), cursor);
+					cursor.line += 1;
+				}
+				
+				cm.doc.setCursor({
+					line: cursor.line,
+					ch: 0
+				});
+				cm.focus();
+			},
+			tableHover(row, column) {
+				this.tableClean();
+				for (var i=0;i<row;i++) {
+					for (var j=0;j<column;j++) {
+						this.$refs.tablesizetd[i*this.table_max_row+j].classList.add('selected');
+					}
+				}
+				this.table_hover_row = row;
+				this.table_hover_column = column;
+			},
+			menu_fontsize(size) {
 				this.$parent.fontsize = size;
 				this.fontsize_visible = false;
 			},
-			menu_codeBlock: function() {
+			menu_codeBlock() {
 				var cm = this.codeMirror();
 				var cursor = cm.getCursor();
 
@@ -125,7 +206,7 @@
 				});
 				cm.focus();
 			},
-			menu_checkMark: function() {
+			menu_checkMark() {
 				var cm = this.codeMirror();
 				var cursor = cm.getCursor();
 				

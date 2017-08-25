@@ -27,7 +27,7 @@
 - **note** contents are only loaded when the **folder** or the **note** itself is opened (instead of loading everything on startup)
 - sidebar with expandable tree menu list (**folders** and **racks**)
 - resize sidebar width (could use more work but it's there)
-- note menu with option to change font size
+- note menu with option to change font size, insert tables and more
 - properties window with word/line count
 - application settings saved inside `appData` folder (window size, last open folder, preview toggle, etc.) 
 - added more items to the right click menu in preview mode (toggle, copy, etc.)
@@ -42,7 +42,6 @@
 npm install
 npm run build
 npm run start
-
 ```
 
 ## Build (production)
