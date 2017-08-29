@@ -102,7 +102,7 @@ new Vue({
 		 * otherwise we wouldn't be able to find any results for the current search.
 		 * @return {Array} notes array
 		 */
-		filteredNotes: function() {
+		filteredNotes() {
 			var self = this;
 			if(this.search && this.selectedRackOrFolder){
 				if (this.selectedRackOrFolder instanceof models.Rack) {
@@ -118,9 +118,18 @@ new Vue({
 		 * Returns currently selected folder or "undefined" if no folder is selected.
 		 * @return {Object} currently selected folder
 		 */
-		selectedFolder: function() {
+		selectedFolder() {
 			if(this.selectedRackOrFolder instanceof models.Folder) return this.selectedRackOrFolder;
 			return undefined;
+		},
+		/**
+		 * Check if the title attribute is defined to see
+		 * if the "selectedNote" is really a note object or just an empty object
+		 * @return {Boolean} true if note is selected
+		 */
+		isNoteSelected() {
+			if(this.selectedNote.title) return true;
+			return false;
 		}
 	},
 	created() {
@@ -222,13 +231,16 @@ new Vue({
 			if(handlerNotes) handlerNotes.previousElementSibling.style.width = this.notesWidth+"px";
 		},
 		/**
-		 * Calculates the size of the content inside the notes sidebar to display the scrollbar properly.
+		 * Scrolls to the top of the notes sidebar.
 		 */
 		scrollUpScrollbarNotes() {
 			this.$nextTick(function () {
 				this.$refs.refNotes.scrollTop = 0;
 			});
 		},
+		/**
+		 * Scrolls to the top of the selected note.
+		 */
 		scrollUpScrollbarNote() {
 			this.$nextTick(function () {
 				this.$refs.myEditor.scrollTop = 0;
@@ -316,9 +328,9 @@ new Vue({
 		 * @param  {Object}  rack  rack to be closed
 		 */
 		closerack(rack) {
-			if(this.selectedNote && this.selectedNote.data && this.selectedNote.isRack(rack)){
+			/*if(this.selectedNote && this.selectedNote.data && this.selectedNote.isRack(rack)){
 				return;
-			}
+			}*/
 			rack.openFolders = false;
 			if(this.selectedRackOrFolder == rack) {
 				this.selectedRackOrFolder = null;
@@ -339,6 +351,21 @@ new Vue({
 			this.racks = racks;
 		},
 		/**
+		 * Adds a new rack separator to the working directory.
+		 * The new rack is placed on top of the list.
+		 */
+		addRackSeparator() {
+
+			var rack = new models.RackSeparator();
+			var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
+			racks.unshift(rack);
+			racks.forEach((r, i) => {
+				r.ordering = i;
+				models.Rack.setModel(r);
+			});
+			this.racks = racks;
+		},
+		/**
 		 * Removes one Rack and its contents from the current working directory.
 		 * @param  {Object}  rack  rack to be removed
 		 */
@@ -347,7 +374,7 @@ new Vue({
 			arr.remove(this.racks, (r) => {return r == rack});
 			this.selectedRackOrFolder = null;
 			// We need to close the current selected note if it was from the removed rack.
-			if(this.selectedNote.data.rack == rack) {
+			if(this.isNoteSelected && this.selectedNote.data.rack == rack) {
 				this.selectedNote = {};
 			}
 		},
@@ -380,7 +407,7 @@ new Vue({
 
 			this.selectedRackOrFolder = null;
 			// We need to close the current selected note if it was from the removed folder.
-			if(this.selectedNote.data.folder == folder) {
+			if(this.isNoteSelected && this.selectedNote.data.folder == folder) {
 				this.selectedNote = {};
 			}
 		},
@@ -423,6 +450,12 @@ new Vue({
 				return null;
 			}
 		},
+		/**
+		 * Finds the currently selected folder.
+		 * If a rack object is selected instead of a folder object,
+		 * then it will get the first folder inside the rack.
+		 * @return  {Object}  folder object if one is selected, "null" otherwise
+		 */
 		getCurrentFolder() {
 			if (this.selectedRackOrFolder == null){
 				return null;
@@ -503,7 +536,7 @@ new Vue({
 			});
 			this.notes = newNotes.concat(this.notes)
 		},
-		isSearchAll() {
+		/*isSearchAll() {
 			return this.selectedRackOrFolder === null;
 		},
 		selectAll() {
@@ -538,13 +571,18 @@ new Vue({
 			Vue.nextTick(() => {
 				this.selectedRackOrFolder = s;
 			});
-		},
-		// Electron methods
+		},*/
+		/**
+		 * Displays context menu for the list of racks.
+		 */
 		shelfMenu() {
 			var menu = new Menu();
 			menu.append(new MenuItem({label: 'Add Rack', click: () => {this.addRack()}}));
 			menu.popup(remote.getCurrentWindow());
 		},
+		/**
+		 * Displays context menu on the selected note in preview mode.
+		 */
 		previewMenu() {
 			var clipboard = electron.clipboard;
 			var self = this;
@@ -557,7 +595,6 @@ new Vue({
 					document.execCommand("copy");
 				}
 			}));
-
 			menu.append(new MenuItem({ type: 'separator' }));
 			menu.append(new MenuItem({
 				label: 'Copy to clipboard (Markdown)',
@@ -578,8 +615,6 @@ new Vue({
 					self.togglePreview();
 				}
 			}));
-
-			//menu.append(new MenuItem({label: 'Copy', accelerator: 'CmdOrCtrl+C', click: () => {} }));
 			menu.popup(remote.getCurrentWindow());
 		},
 		importNotes() {
@@ -626,6 +661,9 @@ new Vue({
 			settings.set('baseLibraryPath', newPath);
 			remote.getCurrentWindow().reload();
 		},
+		/**
+		 * Shows the Credits dialog window.
+		 */
 		openCredits() {
 			var message = "PileMd was originally created by Hiroki KIYOHARA.\n"+
 				"The full list of Authors is available on GitHub.\n\n"+
@@ -636,9 +674,13 @@ new Vue({
 				cancel: true
 			}]);
 		},
+		/**
+		 * Change the application theme.
+		 * @param  {String}  value  theme name
+		 */
 		changeTheme(value) {
 			var allowedThemes = ['original', 'light', 'dark'];
-			if(allowedThemes.indexOf(value) >= 0){
+			if(allowedThemes.indexOf(value) >= 0) {
 				this.selectedTheme = value;
 				settings.set('theme', value);
 
@@ -659,6 +701,12 @@ new Vue({
 				}
 			}
 		},
+		/**
+		 * Calculates the sidebar width and
+		 * changes the main container margins to accomodate it.
+		 * If the application is in fullscreen mode (sidebar hidden)
+		 * then the sidebar is moved outside of the visible workspace.
+		 */
 		update_editor_size() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
 			if (cellsLeft.length == 0) {
@@ -676,6 +724,9 @@ new Vue({
 
 			document.querySelector('.main-cell-container').style.marginLeft = widthTotalLeft+'px';
 		},
+		/**
+		 * Saves the sidebar width (both racks and notes lists).
+		 */
 		save_editor_size() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
 			this.racksWidth = cellsLeft.length > 0 ? parseInt( cellsLeft[0].style.width.replace('px','') ) : 180;
@@ -683,10 +734,10 @@ new Vue({
 			settings.set('racksWidth', this.racksWidth);
 			settings.set('notesWidth', this.notesWidth);
 		},
-		editordrag() {
+		sidebarDrag() {
 			this.update_editor_size();
 		},
-		editordragend() {
+		sidebarDragEnd() {
 			this.update_editor_size();
 			this.save_editor_size();
 		}

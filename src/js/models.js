@@ -9,6 +9,7 @@ const Datauri = require('datauri');
 const arr = require('./utils/arr');
 const uid = require('./utils/uid');
 const util_file = require('./utils/file');
+const libini = require('./utils/libini');
 
 const BASE_LIB_PATH_KEY = 'libpath';
 
@@ -623,7 +624,6 @@ class Folder extends Model {
 class Rack extends Model {
 
 	constructor(data) {
-
 		super(data);
 
 		this.name = data.name.replace(/^\d+\. /, "") || '';
@@ -721,12 +721,16 @@ class Rack extends Model {
 					}
 				}
 			}
+
+			var separators = RackSeparator.readRacks();
+			if(separators) valid_racks = valid_racks.concat(separators);
 		}
 
 		return valid_racks;
 	}
 
 	static setModel(model) {
+		if (model && model instanceof RackSeparator ) { return RackSeparator.setModel(model); }
 		if (!model || !model.data.name) { return }
 
 		var new_path = path.join( getBaseLibraryPath(), model.data.fsName );
@@ -755,11 +759,67 @@ class Rack extends Model {
 	}
 }
 
+class RackSeparator extends Rack {
+
+	constructor(data) {
+		if(!data) data = { name: '' };
+		data.load_ordering = false;
+		data.path = null;
+		super(data);
+	}
+
+	get data() {
+		return _.assign(super.data, {
+			separator: true
+		});
+	}
+
+	get rackExists() {
+		return false;
+	}
+
+	readContents() {
+		return null;
+	}
+
+	remove() {
+		RackSeparator.removeModelFromStorage(this);
+	}
+
+	static readRacks() {
+		var valid_racks = [];
+		if( fs.existsSync(getBaseLibraryPath()) ) {
+			var racks = libini.readKeyAsArray( getBaseLibraryPath(), 'separator');
+			for (var r = 0; r < racks.length; r++) {
+				valid_racks.push(new RackSeparator({
+					uid: racks[r].key,
+					name: racks[r].key,
+					ordering: racks[r].value
+				}));
+			}
+		}
+		return valid_racks;
+	}
+
+	static setModel(model) {
+		if (!model || !model.uid) { return }
+		/* load INI file and save new rack separator data */
+		libini.writeKey(getBaseLibraryPath(), ['separator', model.uid], model.data.ordering );
+	}
+
+	static removeModelFromStorage(model) {
+		if (!model) { return }
+		/* load INI file and remove rack separator */
+		libini.removeKey(getBaseLibraryPath(), ['separator', model.uid]);
+	}
+}
+
 const CLASS_MAPPER = {
 	notes: Note,
 	encryptedNotes: EncryptedNote,
 	folders: Folder,
-	racks: Rack
+	racks: Rack,
+	rackSeparators: RackSeparator
 };
 
 function makeWatcher(racks, folders, notes) {
@@ -885,6 +945,7 @@ module.exports = {
 	EncryptedNote: EncryptedNote,
 	Folder: Folder,
 	Rack: Rack,
+	RackSeparator: RackSeparator,
 	getBaseLibraryPath: getBaseLibraryPath,
 	setBaseLibraryPath: setBaseLibraryPath,
 	doesLibraryExists: doesLibraryExists,

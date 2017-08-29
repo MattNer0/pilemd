@@ -175,3 +175,10 @@
 .my-shelf-folder.noteDragging {
 	color: #fefefe;
 }
+
+.my-shelf-rack .rack-separator, .my-shelf-rack .rack-separator:hover {
+	background: $resize-panel-handler;
+	cursor: move;
+	padding: 0;
+    height: 0.3em;
+}

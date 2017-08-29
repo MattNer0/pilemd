@@ -17,12 +17,12 @@
 						|  Table
 					.dialog(slot="dropdown")
 						.table-dialog(@click="close_table")
-							table.select-table-size(cellpadding="2")
+							table.select-table-size(cellpadding="2", @mouseleave="tableClean")
 								tr(v-for="r in table_max_row")
 									td(v-for="c in table_max_column", @click="tableSelect(r,c)", @mouseenter="tableHover(r,c)", ref="tablesizetd")
-							template(v-show="table_hover_row > 0")
-								hr
-								span {{ table_hover_row }} x {{ table_hover_column }}
+							span(v-if="table_hover_row > 0") {{ table_hover_row }} x {{ table_hover_column }}
+							span(v-else)
+								| Select the Table Size
 
 			li.right-align: a(@click="togglePreview", href="#", title="Preview")
 				template(v-if="isPreview")
@@ -133,6 +133,8 @@
 						this.$refs.tablesizetd[i*this.table_max_row+j].classList.remove("selected");
 					}
 				}
+				this.table_hover_row = 0;
+				this.table_hover_column = 0;
 			},
 			tableSelect(row, column) {
 				this.table_visible = false;

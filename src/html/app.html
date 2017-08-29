@@ -9,7 +9,7 @@
 		:selected-theme="selectedTheme"
 		:change-theme="changeTheme">
 	</title-menu>
-	<div class="my-main" :class="{'note_selected': selectedNote.title }">
+	<div class="my-main" :class="{'note_selected': isNoteSelected }">
 		<div :class="{'outer_wrapper': true}">
 			<div class="sidebar">
 				<!-- :style="{ width: racksWidth+'px' }" -->
@@ -28,12 +28,13 @@
 								:folder-drag-ended="folderDragEnded"
 								:set-dragging-note="setDraggingNote"
 								:delete-folder="deleteFolder"
-								:add-folder-to-rack="addFolderToRack">
+								:add-folder-to-rack="addFolderToRack"
+								:add-rack-separator="addRackSeparator">
 							</racks>
 						</div>
 					</div>
 				</div>
-				<handler-stack v-on:hdrag="editordrag" v-on:hdragend="editordragend"></handler-stack>
+				<handler-stack :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd"></handler-stack>
 				<!-- :style="{ width: notesWidth+'px' }" -->
 				<div class="cell-container">
 					<add-note v-if="selectedFolder"></add-note>
@@ -49,7 +50,7 @@
 						</notes>
 					</div>
 				</div>
-				<handler-notes v-on:hdrag="editordrag" v-on:hdragend="editordragend"></handler-notes>
+				<handler-notes :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd"></handler-notes>
 			</div>
 			<div class="cell-container main-cell-container" :class="[ 'font'+fontsize ]">
 				<note-menu :note="selectedNote"
@@ -60,13 +61,13 @@
 				</note-menu>
 				<div class="my-editor" ref="myEditor">
 					<div>
-						<codemirror v-show="!isPreview && selectedNote.title"
+						<codemirror v-show="!isPreview && isNoteSelected"
 							:note="selectedNote"
 							:is-full-screen="isFullScreen"
 							:is-preview="isPreview"
 							:toggle-preview="togglePreview">
 						</codemirror>
-						<div v-show="isPreview && selectedNote.title" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()">
+						<div v-show="isPreview && isNoteSelected" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()">
 							<div v-html="preview">
 							</div>
 						</div>

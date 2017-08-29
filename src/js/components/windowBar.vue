@@ -25,7 +25,10 @@
 
 	export default {
 		name: 'windowBar',
-		props: ['note', 'rackFolder'],
+		props: {
+			'note': Object,
+			'rackFolder': Object
+		},
 		computed: {
 			enabled: function() {
 				return this.rackFolder || this.note;

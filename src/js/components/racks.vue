@@ -9,7 +9,8 @@
 			@dragleave.stop="rackDragLeave(rack)"
 			@drop.stop="dropToRack($event, rack)"
 			@contextmenu.prevent.stop="rackMenu(rack)")
-			h4(@click.prevent.stop="selectRack(rack)"
+			h4.rack-separator(v-if="rack.data.separator")
+			h4(v-else, @click.prevent.stop="selectRack(rack)"
 				:class="{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote() && rack.openFolders) || rack.dragHover }")
 				i.material-icons.rack-icon.closed-icon label
 				i.material-icons.rack-icon.opened-icon label_outline
@@ -76,7 +77,8 @@
 			'folderDragEnded': Function,
 			'setDraggingNote': Function,
 			'deleteFolder': Function,
-			'addFolderToRack': Function
+			'addFolderToRack': Function,
+			'addRackSeparator': Function
 		},
 		data: function() {
 			return {
@@ -363,6 +365,13 @@
 					label: 'Add Rack',
 					click: () => {
 						this.addRack();
+					}
+				}));
+
+				menu.append(new MenuItem({
+					label: 'Add Rack Separator',
+					click: () => {
+						this.addRackSeparator();
 					}
 				}));
 				
