@@ -100,7 +100,7 @@ new Vue({
 		 * Filters notes based on search terms.
 		 * It also makes sure that all the notes inside the current selected rack are loaded,
 		 * otherwise we wouldn't be able to find any results for the current search.
-		 * @return {Array} notes array
+		 * @return  {Array}  notes array
 		 */
 		filteredNotes() {
 			var self = this;
@@ -116,7 +116,7 @@ new Vue({
 		},
 		/**
 		 * Returns currently selected folder or "undefined" if no folder is selected.
-		 * @return {Object} currently selected folder
+		 * @return  {Object}  currently selected folder
 		 */
 		selectedFolder() {
 			if(this.selectedRackOrFolder instanceof models.Folder) return this.selectedRackOrFolder;
@@ -125,7 +125,7 @@ new Vue({
 		/**
 		 * Check if the title attribute is defined to see
 		 * if the "selectedNote" is really a note object or just an empty object
-		 * @return {Boolean} true if note is selected
+		 * @return  {Boolean}  true if note is selected
 		 */
 		isNoteSelected() {
 			if(this.selectedNote.title) return true;
@@ -577,7 +577,14 @@ new Vue({
 		 */
 		shelfMenu() {
 			var menu = new Menu();
-			menu.append(new MenuItem({label: 'Add Rack', click: () => {this.addRack()}}));
+			menu.append(new MenuItem({
+				label: 'Add Rack',
+				click() { this.addRack(); }
+			}));
+			menu.append(new MenuItem({
+				label: 'Add Rack Separator',
+				click() { this.addRackSeparator(); }
+			}));
 			menu.popup(remote.getCurrentWindow());
 		},
 		/**
@@ -591,9 +598,7 @@ new Vue({
 			menu.append(new MenuItem({
 				label: 'Copy',
 				accelerator: 'CmdOrCtrl+C',
-				click() {
-					document.execCommand("copy");
-				}
+				click() { document.execCommand("copy"); }
 			}));
 			menu.append(new MenuItem({ type: 'separator' }));
 			menu.append(new MenuItem({
@@ -611,9 +616,7 @@ new Vue({
 			menu.append(new MenuItem({ type: 'separator' }));
 			menu.append(new MenuItem({
 				label: 'Toggle Preview',
-				click() {
-					self.togglePreview();
-				}
+				click() { self.togglePreview(); }
 			}));
 			menu.popup(remote.getCurrentWindow());
 		},
