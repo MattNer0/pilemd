@@ -5,6 +5,10 @@
 <script>
 	export default {
 		name: 'handlerNotes',
+		props: {
+			'sidebarDrag': Function,
+			'sidebarDragEnd': Function
+		},
 		data: function() {
 			return {
 				initialPos: {
@@ -29,8 +33,6 @@
 			dragstart: function(e) {
 				// hide the 'ghost' of the draggin element
 				e.dataTransfer.setDragImage(document.createElement('div'), 0, 0);
-
-				// set dummy data for dragging Firefox
 				e.dataTransfer.setData('text/plain', '');
 
 				this.dragging = true;
@@ -43,10 +45,7 @@
 
 			dragend: function(e) {
 				this.dragging = false;
-				this.$emit('hdragend');
-				//this.$root.update_editor_size();
-				//this.$root.save_editor_size();
-				//this.$root.update_scrollbar_notes();
+				this.sidebarDragEnd();
 			},
 
 			drag: function(e) {
@@ -57,9 +56,7 @@
 				var new_width = this.start_width + e.pageX - this.initialPos.x;
 				if (new_width >= this.min_width && new_width <= this.max_width) {
 					this.$el.previousElementSibling.style.width = new_width + 'px';
-					this.$emit('hdrag');
-					//this.$root.update_editor_size();
-					//this.$root.update_scrollbar_notes();
+					this.sidebarDrag();
 				}
 			}
 		}
