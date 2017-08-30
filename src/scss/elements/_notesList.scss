@@ -12,6 +12,7 @@
 	padding: 0.5em 0;
 	-webkit-user-select: none;
 	white-space: normal;
+	text-align: left;
 
 	.my-separator {
 		width: 100%;
@@ -60,12 +61,6 @@
 			opacity: 0.8;
 		}
 
-		.favicon {
-			width: 1.5em;
-			height: 1.5em;
-			margin-right: 0.5em;
-		}
-
 		h5.my-notes-note-title {
 			margin: 0;
 			padding: 0;
@@ -88,10 +83,6 @@
 				top: -0.07em;
 				font-size: 160%;
 			}
-		}
-
-		h5.my-notes-note-title.my-bookmark-title{
-			padding-left: 0;
 		}
 
 		.my-notes-note-date{
@@ -200,6 +191,56 @@
 			background-color: $ui-text-background-hover !important;
 			color: $ui-text-color-hover;
 			cursor: pointer;
+		}
+	}
+
+	.my-bookmark-separator {
+		width: 100%;
+		display: inline-block;
+
+		.my-separator-date {
+			display: none;
+		}
+
+		.favicon {
+			width: 0.9em;
+			height: 0.9em;
+			margin-right: 0.5em;
+		}
+
+		.my-notes-note {
+			width: calc( 20% - 2em );
+			height: 10em;
+			display: inline-block;
+			background: $note-background-color;
+			color: $note-text-color;
+			margin: 1em;
+
+			h5.my-notes-note-title {
+				padding-left: 0;
+				height: 1.4em;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+			}
+
+			.my-notes-note-image {
+				margin-top: 0;
+				padding-left: 0;
+				height: 8.5em;
+			}
+
+			.my-notes-note-body {
+				padding-left: 0;
+				height: 1.4em;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+			}
+		}
+
+		.my-notes-note:hover {
+			background: $note-border-color;
 		}
 	}
 }

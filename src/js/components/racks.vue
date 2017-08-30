@@ -113,7 +113,7 @@
 			},
 			doneRackEdit: function(rack) {
 				if (!this.editingRack) { return }
-				Rack.setModel(rack);
+				rack.saveModel();
 				this.editingRack = null;
 				this.changeRackOrFolder(rack);
 			},
@@ -126,18 +126,28 @@
 				this.editingRack = rack;
 			},
 			addFolder: function(rack) {
-				var folder = new Folder({
-					name: '',
-					rack: rack,
-					rackUid: rack.uid,
-					ordering: 0
-				});
+				var folder;
+				if (rack.data.bookmarks) {
+					folder = new models.BookmarkFolder({
+						name: '',
+						rack: rack,
+						rackUid: rack.uid,
+						ordering: 0
+					});
+				} else {
+					folder = new models.Folder({
+						name: '',
+						rack: rack,
+						rackUid: rack.uid,
+						ordering: 0
+					});
+				}
 				this.addFolderToRack(rack, folder);
 				this.editingFolder = folder;
 			},
 			doneFolderEdit: function(rack, folder) {
 				if (!this.editingFolder) { return }
-				Folder.setModel(folder);
+				folder.saveModel();
 				this.editingFolder = null;
 				this.changeRackOrFolder(folder);
 			},
@@ -229,9 +239,10 @@
 					folders.unshift(draggingFolder);
 					folders.forEach((f) => {
 						f.ordering += 1;
-						Folder.setModel(f);
+						if(!f.data.bookmarks) f.saveModel();
 					});
 					rack.folders = folders;
+					if(rack.data.bookmarks) rack.saveModel();
 					rack.dragHover = false;
 					this.draggingFolder = null;
 					this.draggingFolderRack = null;
@@ -247,7 +258,7 @@
 					}
 					racks.forEach((r, i) => {
 						r.ordering = i;
-						Rack.setModel(r);
+						r.saveModel();
 					});
 					this.draggingRack = null;
 					rack.sortUpper = false;
@@ -339,9 +350,10 @@
 					}
 					folders.forEach((f, i) => {
 						f.ordering = i;
-						Folder.setModel(f);
+						if(!f.data.bookmarks) f.saveModel();
 					});
 					rack.folders = folders;
+					if(rack.data.bookmarks) rack.saveModel();
 					folder.sortUpper = false;
 					folder.sortLower = false;
 					this.draggingFolder = null;

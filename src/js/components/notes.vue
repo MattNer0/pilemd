@@ -1,6 +1,6 @@
 <template lang="pug">
 	.my-notes
-		.my-separator(v-for="separated in notesFiltered", v-bind:key="separated.dateStr")
+		.my-separator(v-for="separated in notesFiltered", v-bind:key="separated.dateStr", :class="{'my-bookmark-separator': bookmarksList}")
 			.my-separator-date {{ separated.dateStr }}
 			.my-notes-note(v-for="note in separated.notes",
 				track-by="uid",
@@ -12,12 +12,12 @@
 				:class="{'my-notes-note-selected': selectedNote === note}",
 				draggable="true")
 				template(v-if="bookmarksList")
-					h5.my-notes-note-title.my-bookmark-title
+					h5.my-notes-note-title(:title="note.name")
 						img.favicon(v-if="note.attributes.ICON", :src="note.attributes.ICON")
 						| {{ note.name }}
-					.my-notes-note-image(v-if="note.img")
-						img(:src="note.img")
-					.my-notes-note-body
+					.my-notes-note-image(:title="note.name")
+						img(:src="note.attributes.THUMBNAIL")
+					.my-notes-note-body(:title="note.body")
 						| {{ note.body }}
 				template(v-else)
 					h5.my-notes-note-title(v-if="note.title")
@@ -65,7 +65,8 @@
 			'draggingNote': Object,
 			'toggleFullScreen': Function,
 			'changeNote': Function,
-			'setDraggingNote': Function
+			'setDraggingNote': Function,
+			'editBookmark': Function
 		},
 		data: function() {
 			return {
@@ -103,21 +104,29 @@
 			removeNote: function(note) {
 				var self = this;
 
-				dialog.showMessageBox(remote.getCurrentWindow(), {
+				dialog_options = {
 					type: 'question',
 					buttons: ['Delete', 'Cancel'],
 					defaultId: 1,
-					cancelId: 1,
-					title: 'Remove Note',
-					message: 'Are you sure you want to remove this note?\n\nTitle: ' + note.title + '\nContent: ' + note.bodyWithoutTitle.replace('\n', ' ').slice(0, 100) + '...'
-				}, function(btn) {
+					cancelId: 1
+				};
+
+				if(this.bookmarksList){
+					dialog_options.title = 'Remove Bookmark';
+					dialog_options.message = ''
+				} else {
+					dialog_options.title = 'Remove Note';
+					dialog_options.message = 'Are you sure you want to remove this note?\n\nTitle: ' + note.title + '\nContent: ' + note.bodyWithoutTitle.replace('\n', ' ').slice(0, 100) + '...'
+				}
+
+				dialog.showMessageBox(remote.getCurrentWindow(), dialog_options, function(btn) {
 					if (btn == 0) {
-						if (note.data.folder.notes.length > 0) {
+						if (note.data && note.data.folder.notes.length > 0) {
 							var index = note.data.folder.notes.indexOf(note);
 							note.data.folder.notes.splice(index, 1);
 						}
 						var index = self.originalNotes.indexOf(note);
-						self.originalNotes.splice(index, 1);
+						if(index >= 0) self.originalNotes.splice(index, 1);
 						Note.removeModelFromStorage(note);
 						if (self.notes.length > 1) {
 							self.changeNote(Note.beforeNote(self.notes.slice(), note, self.notesDisplayOrder));
@@ -164,12 +173,20 @@
 			},
 			noteMenu: function(note) {
 				var menu = new Menu();
-				menu.append(new MenuItem({label: 'Copy to clipboard (Markdown)', click: () => {this.copyNoteBody(note)}}));
-				menu.append(new MenuItem({label: 'Copy to clipboard (HTML)', click: () => {this.copyNoteHTML(note)}}));
-				menu.append(new MenuItem({type: 'separator'}));
-				menu.append(new MenuItem({label: 'Export this note...', click: () => {this.exportNoteDiag(note)}}));
-				menu.append(new MenuItem({type: 'separator'}));
-				menu.append(new MenuItem({label: 'Delete note', click: () => {this.removeNote(note)}}));
+
+				if(this.bookmarksList){
+					menu.append(new MenuItem({label: 'Edit Bookmark', click: () => {this.editBookmark(note)}}));
+					menu.append(new MenuItem({type: 'separator'}));
+					menu.append(new MenuItem({label: 'Delete Bookmark', click: () => {this.removeNote(note)}}));
+				} else {
+					menu.append(new MenuItem({label: 'Copy to clipboard (Markdown)', click: () => {this.copyNoteBody(note)}}));
+					menu.append(new MenuItem({label: 'Copy to clipboard (HTML)', click: () => {this.copyNoteHTML(note)}}));
+					menu.append(new MenuItem({type: 'separator'}));
+					menu.append(new MenuItem({label: 'Export this note...', click: () => {this.exportNoteDiag(note)}}));
+					menu.append(new MenuItem({type: 'separator'}));
+					menu.append(new MenuItem({label: 'Delete note', click: () => {this.removeNote(note)}}));
+				}
+
 				menu.popup(remote.getCurrentWindow());
 			}
 		}

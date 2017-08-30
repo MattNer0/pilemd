@@ -354,7 +354,7 @@ new Vue({
 			racks.unshift(rack);
 			racks.forEach((r, i) => {
 				r.ordering = i;
-				models.Rack.setModel(r);
+				r.saveModel();
 			});
 			this.racks = racks;
 		},
@@ -369,7 +369,7 @@ new Vue({
 			racks.unshift(rack);
 			racks.forEach((r, i) => {
 				r.ordering = i;
-				models.Rack.setModel(r);
+				r.saveModel();
 			});
 			this.racks = racks;
 		},
@@ -398,10 +398,11 @@ new Vue({
 			folders.unshift(folder);
 			folders.forEach((f, i) => {
 				f.ordering = i;
-				models.Folder.setModel(f);
+				if(!f.data.bookmarks) f.saveModel();
 			});
 			rack.folders = folders;
-			this.folders.push(folder);
+			if(rack.data.bookmarks) rack.saveModel();
+			else this.folders.push(folder);
 		},
 		/**
 		 * Deletes a folder and its contents from the parent rack.
@@ -543,6 +544,9 @@ new Vue({
 				models.Note.setModel(note);
 			});
 			this.notes = newNotes.concat(this.notes)
+		},
+		editBookmark(note) {
+
 		},
 		/*isSearchAll() {
 			return this.selectedRackOrFolder === null;

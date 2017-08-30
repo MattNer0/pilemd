@@ -66,7 +66,7 @@ module.exports = {
 					case 'A':
 						if (result_folder.name) {
 							result_folder.notes.push({
-								attributes: tags.attributes,
+								attributes: tags.attributes || {},
 								body: tags.attributes['HREF'],
 								folderUid: result_folder.uid,
 								updatedAt: moment(tags.attributes['LAST_MODIFIED'], 'X'),

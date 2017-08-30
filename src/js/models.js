@@ -659,7 +659,15 @@ class BookmarkFolder extends Folder {
 		data.load_ordering = false;
 		super(data);
 		this._path = '';
-		this._attributes = data.attributes;
+		if (data.attributes) {
+			this._attributes = data.attributes;
+		} else {
+			this._attributes = {
+				"ADD_DATE": moment().format('X'),
+				"LAST_MODIFIED": moment().format('X')
+			};
+		}
+		
 	}
 
 	get data() {
@@ -968,6 +976,7 @@ class BookmarkRack extends Rack {
 	saveModel() {
 		var outer_folder = getBaseLibraryPath();
 		this._bookmarks.ordering = this.ordering;
+		this._bookmarks.name = this._name;
 		var string_html = bookmarksConverter.stringify(this._bookmarks);
 		
 		if(this.document_filename){
