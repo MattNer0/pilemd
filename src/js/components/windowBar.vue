@@ -3,10 +3,10 @@
 		.system-bar-spacing
 		.system-bar
 			.spacer
-				span(v-if="enabled && rack") {{ rack.data.name }}
+				span(v-if="enabled && rack") {{ rack.name }}
 				span(v-if="enabled && folder")
 					i.material-icons chevron_right
-					|  {{ folder.data.name }}
+					|  {{ folder.name }}
 				span(v-if="note && note.title")
 					i.material-icons chevron_right
 					|  {{ note.title }}

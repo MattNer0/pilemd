@@ -1,5 +1,5 @@
 <template lang="pug">
-	.noteBar(v-if="note && note.title")
+	.noteBar(v-if="isNoteSelected")
 		nav: ul
 
 			li(v-show="!isPreview"): a(@click="menu_checkMark", href="#", title="Insert Checkbox")
@@ -99,7 +99,7 @@
 
 	export default {
 		name: 'noteMenu',
-		props: ['note', 'isFullScreen', 'isPreview', 'fontsize', 'togglePreview'],
+		props: ['note', 'isFullScreen', 'isPreview', 'fontsize', 'togglePreview', 'isNoteSelected'],
 		data: function() {
 			return {
 				'fontsize_visible': false,

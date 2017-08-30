@@ -112,7 +112,7 @@ new Vue({
 					});
 				}
 			}
-			return searcher.searchNotes(this.selectedRackOrFolder, this.search, this.notes);
+			return searcher.searchNotes(this.selectedRackOrFolder, this.search, this.isNoteRackSelected ? this.notes : this.selectedRackOrFolder.notes);
 		},
 		/**
 		 * Returns currently selected folder or "undefined" if no folder is selected.
@@ -128,8 +128,12 @@ new Vue({
 		 * @return  {Boolean}  true if note is selected
 		 */
 		isNoteSelected() {
-			if(this.selectedNote.title) return true;
+			if(this.isNoteRackSelected && this.selectedNote.title) return true;
 			return false;
+		},
+		isNoteRackSelected() {
+			if(this.selectedRackOrFolder instanceof models.BookmarkFolder) return false;
+			return true;
 		}
 	},
 	created() {
@@ -263,36 +267,40 @@ new Vue({
 		changeNote(note) {
 			var self = this;
 
-			if(!note.body) note.loadBody();
-			if(note.isEncrypted){
-				var message = "Insert the secret key to Encrypt and Decrypt this note";
-				this.$refs.dialog.init('Secret Key', message, [{
-					label: 'Ok',
-					cb(data){
-						var result = note.decrypt(data.secretkey);
-						if(result.error) {
-							setTimeout(function(){
-								self.$refs.dialog.init('Error', result.error + "\nNote: " + note.path, [{
-									label: 'Ok',
-									cancel: true
-								}]);	
-							}, 100);
-						} else {
-							self.selectedNote = note;
+			if (this.isNoteRackSelected) {
+				if(!note.body) note.loadBody();
+				if(note.isEncrypted){
+					var message = "Insert the secret key to Encrypt and Decrypt this note";
+					this.$refs.dialog.init('Secret Key', message, [{
+						label: 'Ok',
+						cb(data){
+							var result = note.decrypt(data.secretkey);
+							if(result.error) {
+								setTimeout(function(){
+									self.$refs.dialog.init('Error', result.error + "\nNote: " + note.path, [{
+										label: 'Ok',
+										cancel: true
+									}]);	
+								}, 100);
+							} else {
+								self.selectedNote = note;
+							}
 						}
-					}
-				}, {
-					label: 'Cancel',
-					cancel: true
-				}], [{
-					type: 'password',
-					retValue: '',
-					label: 'Secret Key',
-					name: 'secretkey',
-					required: true
-				}]);
+					}, {
+						label: 'Cancel',
+						cancel: true
+					}], [{
+						type: 'password',
+						retValue: '',
+						label: 'Secret Key',
+						name: 'secretkey',
+						required: true
+					}]);
+				} else {
+					this.selectedNote = note;
+				}
 			} else {
-				this.selectedNote = note;
+				electron.shell.openExternal(note.body);
 			}
 		},
 		/**
@@ -716,7 +724,8 @@ new Vue({
 				return;
 			}
 
-			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + parseInt( cellsLeft[1].style.width.replace('px','') ) + 10;
+			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + 5;
+			if(this.isNoteRackSelected) widthTotalLeft += parseInt( cellsLeft[1].style.width.replace('px','') ) + 5;
 
 			if(this.isFullScreen) {
 				document.querySelector('.sidebar').style.left = "-"+widthTotalLeft+'px';
@@ -733,9 +742,11 @@ new Vue({
 		save_editor_size() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
 			this.racksWidth = cellsLeft.length > 0 ? parseInt( cellsLeft[0].style.width.replace('px','') ) : 180;
-			this.notesWidth = cellsLeft.length > 1 ? parseInt( cellsLeft[1].style.width.replace('px','') ) : 180;
 			settings.set('racksWidth', this.racksWidth);
-			settings.set('notesWidth', this.notesWidth);
+			if(this.isNoteRackSelected) {
+				this.notesWidth = cellsLeft.length > 1 ? parseInt( cellsLeft[1].style.width.replace('px','') ) : 180;
+				settings.set('notesWidth', this.notesWidth);
+			}
 		},
 		sidebarDrag() {
 			this.update_editor_size();
@@ -778,6 +789,7 @@ new Vue({
 				} else {
 					if(newData) this.folders = this.folders.concat( newData );
 				}
+				this.update_editor_size();
 			}
 			this.scrollUpScrollbarNotes();
 		}

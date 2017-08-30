@@ -11,15 +11,23 @@
 				@dragend.stop="noteDragEnd()",
 				:class="{'my-notes-note-selected': selectedNote === note}",
 				draggable="true")
-				h5.my-notes-note-title(v-if="note.title")
-					i.material-icons(v-if="note.isEncryptedNote && note.isEncrypted") lock
-					i.material-icons(v-else-if="note.isEncryptedNote && !note.isEncrypted") lock_open
-					i.material-icons(v-else) description
-					| {{ note.title }}
-				.my-notes-note-image(v-if="note.img")
-					img(:src="note.img")
-				.my-notes-note-body(v-if="!note.img && note.body.length != 0")
-					| {{ note.bodyWithoutTitle | truncate(80) }}
+				template(v-if="bookmarksList")
+					h5.my-notes-note-title
+						| {{ note.name }}
+					.my-notes-note-image(v-if="note.img")
+						img(:src="note.img")
+					.my-notes-note-body
+						| {{ note.body }}
+				template(v-else)
+					h5.my-notes-note-title(v-if="note.title")
+						i.material-icons(v-if="note.isEncryptedNote && note.isEncrypted") lock
+						i.material-icons(v-else-if="note.isEncryptedNote && !note.isEncrypted") lock_open
+						i.material-icons(v-else) description
+						| {{ note.title }}
+					.my-notes-note-image(v-if="note.img")
+						img(:src="note.img")
+					.my-notes-note-body(v-if="!note.img && note.body.length != 0")
+						| {{ note.bodyWithoutTitle | truncate(80) }}
 
 </template>
 
@@ -49,6 +57,7 @@
 	export default {
 		name: 'notes',
 		props: {
+			'bookmarksList': Boolean,
 			'notes': Array,
 			'originalNotes': Array,
 			'selectedNote': Object,

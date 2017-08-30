@@ -12,8 +12,10 @@
 			h4.rack-separator(v-if="rack.data.separator")
 			h4(v-else, @click.prevent.stop="selectRack(rack)"
 				:class="{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote() && rack.openFolders) || rack.dragHover }")
-				i.material-icons.rack-icon.closed-icon label
-				i.material-icons.rack-icon.opened-icon label_outline
+				template(v-if="rack.data.bookmarks")
+					i.material-icons.rack-icon book
+				template(v-else)
+					i.material-icons.rack-icon folder_special
 				a(v-if="editingRack != rack") {{ rack.name }}
 				input(v-if="editingRack == rack"
 					v-model="rack.name"

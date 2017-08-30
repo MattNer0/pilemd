@@ -11,9 +11,26 @@ const uid = require('./utils/uid');
 const util_file = require('./utils/file');
 const libini = require('./utils/libini');
 
+const bookmarksConverter = require('./utils/bookmarks');
+
 const BASE_LIB_PATH_KEY = 'libpath';
 
 var baseLibraryPath = '';
+
+String.prototype.formatUnicorn = String.prototype.formatUnicorn || function() {
+	'use strict';
+	var str = this.toString();
+	if (arguments.length) {
+		var t = typeof arguments[0];
+		var key;
+		var args = ('string' === t || 'number' === t) ? Array.prototype.slice.call(arguments) : arguments[0];
+
+		for (key in args) {
+			str = str.replace(new RegExp('\\{' + key + '\\}', 'gi'), args[key]);
+		}
+	}
+	return str;
+};
 
 function setBaseLibraryPath(path) {
 	baseLibraryPath = path;
@@ -563,7 +580,7 @@ class Folder extends Model {
 		}
 	}
 
-	static readFoldersByRack(rack) {		
+	static readFoldersByRack(rack) {
 		var valid_folders = [];
 		if( fs.existsSync(rack.data.path) ) {
 		
@@ -618,6 +635,38 @@ class Folder extends Model {
 			fs.rmdirSync(model.data.path);
 			model.uid = null;
 		}
+	}
+}
+
+class BookmarkFolder extends Folder {
+	constructor(data) {
+		data.load_ordering = false;
+		super(data);
+		this._path = '';
+		this._attributes = data.attributes;
+	}
+
+	get data() {
+		return _.assign(super.data, {
+			bookmarks: true,
+			attributes: this._attributes
+		});
+	}
+
+	get folderExists() {
+		return false;
+	}
+
+	readContents() {
+		return null;
+	}
+
+	static setModel(model) {
+		if (!model || !model.data.name || !model.uid) { return }
+	}
+
+	static removeModelFromStorage(model) {
+		if (!model) { return }
 	}
 }
 
@@ -722,8 +771,11 @@ class Rack extends Model {
 				}
 			}
 
-			var separators = RackSeparator.readRacks();
+			var separators = RackSeparator.readSeparators();
 			if(separators) valid_racks = valid_racks.concat(separators);
+
+			var bookmarks = BookmarkRack.readBookmarkRacks();
+			if(bookmarks) valid_racks = valid_racks.concat(bookmarks);
 		}
 
 		return valid_racks;
@@ -787,6 +839,10 @@ class RackSeparator extends Rack {
 	}
 
 	static readRacks() {
+		return this.readSeparators();
+	}
+
+	static readSeparators() {
 		var valid_racks = [];
 		if( fs.existsSync(getBaseLibraryPath()) ) {
 			var racks = libini.readKeyAsArray( getBaseLibraryPath(), 'separator');
@@ -814,12 +870,134 @@ class RackSeparator extends Rack {
 	}
 }
 
+class BookmarkRack extends Rack {
+	constructor(data) {
+		data.load_ordering = false;
+		super(data);
+		this._ext = data.extension || '.html';
+		this._contentLoaded = false;
+		this._bookmarks = {};
+		this.readContents();
+	}
+
+	get data() {
+		return _.assign(super.data, {
+			bookmarks: true
+		});
+	}
+
+	get folders() {
+		return this._bookmarks.children || [];
+	}
+
+	set folders(farray) {
+		return;
+	}
+
+	get rackExists() {
+		return false;
+	}
+
+	get title() {
+		return this._name;
+	}
+
+	get name() {
+		return this._name;
+	}
+
+	set name(newName) {
+		this._name = newName;
+	}
+
+	set path(newValue) {
+		if (newValue != this._path) {
+			try {
+				if (fs.existsSync(this._path)) fs.unlinkSync(this._path);
+			} catch (e) {}
+
+			this._path = newValue;
+		}
+	}
+
+	get path() {
+		if (this._path && fs.existsSync(this._path)) {
+			return this._path;
+		} else {
+			var new_path = path.join(getBaseLibraryPath(), this.document_filename) + this._ext;
+			return new_path;
+		}
+	}
+
+	get document_filename() {
+		return this.title ? this.title.replace(/[^\w _-]/g, '').substr(0, 40) : '';
+	}
+
+	readContents() {
+		if(!this._contentLoaded){
+			this._contentLoaded = true;
+			BookmarkRack.parseBookmarkRack(this);
+		} else {
+			return null;
+		}
+	}
+
+	static readRacks() {
+		return this.readBookmarkRacks();
+	}
+
+	static readBookmarkRacks() {
+		var valid_racks = [];
+		if( fs.existsSync(getBaseLibraryPath()) ) {
+
+			var racks = fs.readdirSync(getBaseLibraryPath());
+			for(var ri = 0; ri<racks.length; ri++){
+				var rack = racks[ri];
+				var rackPath = path.join( getBaseLibraryPath(), rack);
+				if(fs.existsSync(rackPath) && rack.charAt(0) != ".") {
+					var rackStat = fs.statSync(rackPath);
+					var rackExt = path.extname(rack);
+					if(rackStat.isFile() && rackExt == '.html' ){
+						valid_racks.push(new BookmarkRack({
+							name: rack,
+							path: rackPath,
+							extension: rackExt
+						}));
+					}
+				}
+			}
+		}
+		return valid_racks;
+	}
+
+	static parseBookmarkRack(model) {
+		if (!model || !model.uid) { return }
+		var content = fs.readFileSync(model.path).toString();
+		model._bookmarks = bookmarksConverter.parse(content, model);
+		model._name = model._bookmarks.name;
+		model.ordering = model._bookmarks.ordering || 0;
+		//console.log(bookmarksConverter.stringify(model._bookmarks));
+	}
+
+	static setModel(model) {
+		if (!model || !model.uid) { return }
+		/* load INI file and save new rack separator data */
+	}
+
+	static removeModelFromStorage(model) {
+		if (!model || !model.uid) { return }
+		/* load INI file and remove rack separator */
+	}
+}
+
 const CLASS_MAPPER = {
 	notes: Note,
 	encryptedNotes: EncryptedNote,
 	folders: Folder,
 	racks: Rack,
-	rackSeparators: RackSeparator
+	rackSeparators: RackSeparator,
+	bookmarkRacks: BookmarkRack,
+	bookmarkFolders: BookmarkFolder
 };
 
 function makeWatcher(racks, folders, notes) {
@@ -944,8 +1122,10 @@ module.exports = {
 	Note: Note,
 	EncryptedNote: EncryptedNote,
 	Folder: Folder,
+	BookmarkFolder: BookmarkFolder,
 	Rack: Rack,
 	RackSeparator: RackSeparator,
+	BookmarkRack: BookmarkRack,
 	getBaseLibraryPath: getBaseLibraryPath,
 	setBaseLibraryPath: setBaseLibraryPath,
 	doesLibraryExists: doesLibraryExists,

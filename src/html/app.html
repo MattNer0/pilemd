@@ -36,10 +36,12 @@
 				</div>
 				<handler-stack :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd"></handler-stack>
 				<!-- :style="{ width: notesWidth+'px' }" -->
-				<div class="cell-container">
+				<div class="cell-container" v-show="isNoteRackSelected">
 					<add-note v-if="selectedFolder"></add-note>
 					<div class="my-shelf-notes" ref="refNotes">
-						<notes :notes="filteredNotes"
+						<notes
+							:bookmarks-list="false"
+							:notes="filteredNotes"
 							:toggle-full-screen="toggleFullScreen"
 							:original-notes="notes"
 							:selected-note="selectedNote"
@@ -50,10 +52,11 @@
 						</notes>
 					</div>
 				</div>
-				<handler-notes :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd"></handler-notes>
+				<handler-notes :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd" v-show="isNoteRackSelected"></handler-notes>
 			</div>
 			<div class="cell-container main-cell-container" :class="[ 'font'+fontsize ]">
 				<note-menu :note="selectedNote"
+					:is-note-selected="isNoteSelected"
 					:is-full-screen="isFullScreen"
 					:is-preview="isPreview"
 					:fontsize="fontsize"
@@ -70,6 +73,19 @@
 						<div v-show="isPreview && isNoteSelected" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()">
 							<div v-html="preview">
 							</div>
+						</div>
+						<div v-show="!isNoteRackSelected">
+							<notes
+								:bookmarks-list="true"
+								:notes="filteredNotes"
+								:toggle-full-screen="toggleFullScreen"
+								:original-notes="notes"
+								:selected-note="selectedNote"
+								:selected-folder="selectedFolder"
+								:dragging-note="draggingNote"
+								:change-note="changeNote"
+								:set-dragging-note="setDraggingNote">
+							</notes>
 						</div>
 					</div>
 				</div>
