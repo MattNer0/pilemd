@@ -11,7 +11,7 @@
 				@dragend.stop="noteDragEnd()",
 				:class="{'my-notes-note-selected': selectedNote === note}",
 				draggable="true")
-				template(v-if="bookmarksList")
+				template(v-if="bookmarksList && note.attributes")
 					h5.my-notes-note-title(:title="note.name")
 						img.favicon(v-if="note.attributes.ICON", :src="note.attributes.ICON")
 						| {{ note.name }}
@@ -19,7 +19,7 @@
 						img(:src="note.attributes.THUMBNAIL")
 					.my-notes-note-body(:title="note.body")
 						| {{ note.body }}
-				template(v-else)
+				template(v-else-if="!bookmarksList")
 					h5.my-notes-note-title(v-if="note.title")
 						i.material-icons(v-if="note.isEncryptedNote && note.isEncrypted") lock
 						i.material-icons(v-else-if="note.isEncryptedNote && !note.isEncrypted") lock_open
@@ -62,6 +62,7 @@
 			'notes': Array,
 			'originalNotes': Array,
 			'selectedNote': Object,
+			'selectedRackOrFolder': Object,
 			'draggingNote': Object,
 			'toggleFullScreen': Function,
 			'changeNote': Function,
@@ -104,7 +105,7 @@
 			removeNote: function(note) {
 				var self = this;
 
-				dialog_options = {
+				var dialog_options = {
 					type: 'question',
 					buttons: ['Delete', 'Cancel'],
 					defaultId: 1,
@@ -113,10 +114,10 @@
 
 				if(this.bookmarksList){
 					dialog_options.title = 'Remove Bookmark';
-					dialog_options.message = ''
+					dialog_options.message = 'Are you sure you want to remove this bookmark?\n\nTitle: ' + note.name + '\nLink: ' + note.body;
 				} else {
 					dialog_options.title = 'Remove Note';
-					dialog_options.message = 'Are you sure you want to remove this note?\n\nTitle: ' + note.title + '\nContent: ' + note.bodyWithoutTitle.replace('\n', ' ').slice(0, 100) + '...'
+					dialog_options.message = 'Are you sure you want to remove this note?\n\nTitle: ' + note.title + '\nContent: ' + note.bodyWithoutTitle.replace('\n', ' ').slice(0, 100) + '...';
 				}
 
 				dialog.showMessageBox(remote.getCurrentWindow(), dialog_options, function(btn) {
@@ -127,11 +128,15 @@
 						}
 						var index = self.originalNotes.indexOf(note);
 						if(index >= 0) self.originalNotes.splice(index, 1);
-						Note.removeModelFromStorage(note);
-						if (self.notes.length > 1) {
-							self.changeNote(Note.beforeNote(self.notes.slice(), note, self.notesDisplayOrder));
+						if(self.selectedRackOrFolder.data.bookmarks) {
+							self.selectedRackOrFolder.removeNote(note);
 						} else {
-							self.changeNote(Note.beforeNote(self.originalNotes.slice(), note, self.notesDisplayOrder));
+							Note.removeModelFromStorage(note);
+							if (self.notes.length > 1) {
+								self.changeNote(Note.beforeNote(self.notes.slice(), note, self.notesDisplayOrder));
+							} else {
+								self.changeNote(Note.beforeNote(self.originalNotes.slice(), note, self.notesDisplayOrder));
+							}
 						}
 					}
 				});

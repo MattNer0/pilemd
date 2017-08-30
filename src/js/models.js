@@ -690,6 +690,11 @@ class BookmarkFolder extends Folder {
 		this._rack.saveModel();
 	}
 
+	removeNote(note) {
+		arr.remove(this.notes, (n) => {return n == note});
+		this._rack.saveModel();
+	}
+
 	saveModel() {
 		this._rack.saveModel();
 	}
@@ -970,6 +975,15 @@ class BookmarkRack extends Rack {
 	remove() {
 		if(fs.existsSync(this.path)) {
 			fs.unlinkSync(this.path);
+		}
+	}
+
+	removeNote(note) {
+		for(var i=0; i<this._bookmarks.children.length; i++) {
+			if (this._bookmarks.children[i].uid == note.folderUid) {
+				this._bookmarks.children[i].removeNote(note);
+				break;
+			}
 		}
 	}
 
