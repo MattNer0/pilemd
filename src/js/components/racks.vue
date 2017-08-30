@@ -236,7 +236,7 @@
 					this.draggingFolder = null;
 					this.draggingFolderRack = null;
 				} else if (this.draggingRack && this.draggingRack != rack) {
-					console.log("Dropping Rack");
+					console.log("Dropping Rack - "+this.draggingRack.name);
 					var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
 					arr.remove(racks, (r) => {return r == this.draggingRack});
 					var i = racks.indexOf(rack);
@@ -349,19 +349,20 @@
 			},
 			rackMenu: function(rack) {
 				var menu = new Menu();
-				menu.append(new MenuItem({
-					label: 'Rename Rack',
-					click: () => {
-						this.editingRack = rack
-					}
-				}));
-				
-				menu.append(new MenuItem({
-					label: 'Add Folder',
-					click: () => {
-						this.addFolder(rack)
-					}
-				}));
+				if (!rack.data.separator) {
+					menu.append(new MenuItem({
+						label: 'Rename Rack',
+						click: () => {
+							this.editingRack = rack
+						}
+					}));
+					menu.append(new MenuItem({
+						label: 'Add Folder',
+						click: () => {
+							this.addFolder(rack)
+						}
+					}));
+				}
 				
 				menu.append(new MenuItem({
 					label: 'Add Rack',
@@ -380,8 +381,13 @@
 				menu.append(new MenuItem({type: 'separator'}));
 				
 				menu.append(new MenuItem({
-					label: 'Delete Rack', click: () => {
-						if (confirm('Delete Rack "' + rack.name + '" and Folders/Notes in it?')) {
+					label: rack.data.separator ? 'Delete Separator' : 'Delete Rack',
+					click: () => {
+						if (rack.data.separator) {
+							if(confirm('Delete Rack Separator?')) {
+								this.$root.removeRack(rack);
+							}
+						} else if (confirm('Delete Rack "' + rack.name + '" and its content?')) {
 							this.$root.removeRack(rack);
 						}
 					}
@@ -404,25 +410,35 @@
 					}
 				}));
 				menu.append(new MenuItem({type: 'separator'}));
-				menu.append(new MenuItem({
-					label: 'Add Note',
-					click: () => {
-						this.changeRackOrFolder(folder);
-						this.$root.addNote();
-					}
-				}));
-				menu.append(new MenuItem({
-					label: 'Add Encrypted Note',
-					click: () => {
-						this.changeRackOrFolder(folder);
-						this.$root.addEncryptedNote();
-					}
-				}));
+				if (rack.data.bookmarks) {
+					menu.append(new MenuItem({
+						label: 'Add Bookmark',
+						click: () => {
+							this.changeRackOrFolder(folder);
+							//this.$root.addNote();
+						}
+					}));
+				} else {
+					menu.append(new MenuItem({
+						label: 'Add Note',
+						click: () => {
+							this.changeRackOrFolder(folder);
+							this.$root.addNote();
+						}
+					}));
+					menu.append(new MenuItem({
+						label: 'Add Encrypted Note',
+						click: () => {
+							this.changeRackOrFolder(folder);
+							this.$root.addEncryptedNote();
+						}
+					}));
+				}
 				menu.append(new MenuItem({type: 'separator'}));
 				menu.append(new MenuItem({
 					label: 'Delete Folder',
 					click: () => {
-						if (confirm('Delete Folder "' + folder.name + '" and Notes in it?')) {
+						if (confirm('Delete Folder "' + folder.name + '" and its content?')) {
 							this.changeRackOrFolder(rack);
 							this.deleteFolder(folder)
 						}

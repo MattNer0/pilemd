@@ -12,7 +12,8 @@
 				:class="{'my-notes-note-selected': selectedNote === note}",
 				draggable="true")
 				template(v-if="bookmarksList")
-					h5.my-notes-note-title
+					h5.my-notes-note-title.my-bookmark-title
+						img.favicon(v-if="note.attributes.ICON", :src="note.attributes.ICON")
 						| {{ note.name }}
 					.my-notes-note-image(v-if="note.img")
 						img(:src="note.img")

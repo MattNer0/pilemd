@@ -56,6 +56,22 @@ class Model {
 	update(data) {
 		this.uid = data.uid;
 	}
+
+	saveModel() {
+		return;
+	}
+
+	remove() {
+		return;
+	}
+
+	static setModel(model) {
+		model.saveModel();
+	}
+
+	static removeModelFromStorage(model) {
+		model.remove();
+	}
 };
 
 class Note extends Model {
@@ -661,12 +677,13 @@ class BookmarkFolder extends Folder {
 		return null;
 	}
 
-	static setModel(model) {
-		if (!model || !model.data.name || !model.uid) { return }
+	remove() {
+		arr.remove(this._rack.folders, (f) => {return f == this});
+		this._rack.saveModel();
 	}
 
-	static removeModelFromStorage(model) {
-		if (!model) { return }
+	saveModel() {
+		this._rack.saveModel();
 	}
 }
 
@@ -729,7 +746,15 @@ class Rack extends Model {
 				folder.remove(origNotes);
 			}
 		});
-		Rack.removeModelFromStorage(this);
+		this.removeFromStorage();
+	}
+
+	removeFromStorage() {
+		if(fs.existsSync(this._path)) {
+			if( fs.existsSync(path.join(this._path, '.rack')) ) fs.unlinkSync( path.join(this._path, '.rack') );
+			fs.rmdirSync(this._path);
+			this.uid = null;
+		}
 	}
 
 	saveOrdering() {
@@ -746,6 +771,24 @@ class Rack extends Model {
 			return null;
 		}
 	}
+
+	saveModel() {
+		var new_path = path.join( getBaseLibraryPath(), this.data.fsName );
+		if(new_path != this._path || !fs.existsSync(new_path) ) {
+			try{
+				if(this._path && fs.existsSync(this._path)) {
+					util_file.moveFolderRecursiveSync(this._path, getBaseLibraryPath(), this.data.fsName);
+				} else {
+					fs.mkdirSync(new_path);
+				}
+				this.path = new_path;
+			} catch(e){
+				return console.error(e);
+			}
+		}
+		this.saveOrdering();
+	}
+
 
 	static readRacks() {
 
@@ -780,35 +823,6 @@ class Rack extends Model {
 
 		return valid_racks;
 	}
-
-	static setModel(model) {
-		if (model && model instanceof RackSeparator ) { return RackSeparator.setModel(model); }
-		if (!model || !model.data.name) { return }
-
-		var new_path = path.join( getBaseLibraryPath(), model.data.fsName );
-		if(new_path != model.data.path || !fs.existsSync(new_path) ) {
-			try{
-				if(model.data.path && fs.existsSync(model.data.path)) {
-					util_file.moveFolderRecursiveSync(model.data.path, getBaseLibraryPath(), model.data.fsName);
-				} else {
-					fs.mkdirSync(new_path);
-				}
-				model.path = new_path;
-			} catch(e){
-				return console.error(e);
-			}
-		}
-		model.saveOrdering();
-	}
-
-	static removeModelFromStorage(model) {
-		if (!model) { return }
-		if(fs.existsSync(model.data.path)) {
-			if( fs.existsSync(path.join(model.data.path, '.rack')) ) fs.unlinkSync( path.join(model.data.path, '.rack') );
-			fs.rmdirSync(model.data.path);
-			model.uid = null;
-		}
-	}
 }
 
 class RackSeparator extends Rack {
@@ -835,7 +849,12 @@ class RackSeparator extends Rack {
 	}
 
 	remove() {
-		RackSeparator.removeModelFromStorage(this);
+		libini.removeKey(getBaseLibraryPath(), ['separator', this.uid]);
+	}
+
+	saveModel() {
+		/* load INI file and save new rack separator data */
+		libini.writeKey(getBaseLibraryPath(), ['separator', this.uid], this.ordering );
 	}
 
 	static readRacks() {
@@ -856,18 +875,6 @@ class RackSeparator extends Rack {
 		}
 		return valid_racks;
 	}
-
-	static setModel(model) {
-		if (!model || !model.uid) { return }
-		/* load INI file and save new rack separator data */
-		libini.writeKey(getBaseLibraryPath(), ['separator', model.uid], model.data.ordering );
-	}
-
-	static removeModelFromStorage(model) {
-		if (!model) { return }
-		/* load INI file and remove rack separator */
-		libini.removeKey(getBaseLibraryPath(), ['separator', model.uid]);
-	}
 }
 
 class BookmarkRack extends Rack {
@@ -882,8 +889,12 @@ class BookmarkRack extends Rack {
 
 	get data() {
 		return _.assign(super.data, {
-			bookmarks: true
+			bookmarks: true,
 		});
+	}
+
+	get extension() {
+		return this._ext;
 	}
 
 	get folders() {
@@ -891,7 +902,8 @@ class BookmarkRack extends Rack {
 	}
 
 	set folders(farray) {
-		return;
+		console.log('BookmarkRack - folders:', farray);
+		if(this._bookmarks) this._bookmarks.children = farray;
 	}
 
 	get rackExists() {
@@ -936,15 +948,67 @@ class BookmarkRack extends Rack {
 	readContents() {
 		if(!this._contentLoaded){
 			this._contentLoaded = true;
-			BookmarkRack.parseBookmarkRack(this);
+			
+			var content = fs.readFileSync(this.path).toString();
+			this._bookmarks = bookmarksConverter.parse(content, this);
+			this._name = this._bookmarks.name;
+			this.ordering = this._bookmarks.ordering || 0;
+
 		} else {
 			return null;
 		}
 	}
 
-	static readRacks() {
-		return this.readBookmarkRacks();
+	remove() {
+		if(fs.existsSync(this.path)) {
+			fs.unlinkSync(this.path);
+		}
 	}
+
+	saveModel() {
+		var outer_folder = getBaseLibraryPath();
+		this._bookmarks.ordering = this.ordering;
+		var string_html = bookmarksConverter.stringify(this._bookmarks);
+		
+		if(this.document_filename){
+			var new_path = path.join(outer_folder, this.document_filename) + this._ext;
+			if(new_path != this.path){
+				var num = 1;
+				while(num > 0){
+					try{
+						fs.statSync(new_path);
+						if( string_html != fs.readFileSync(new_path).toString() ){
+							new_path = path.join(outer_folder, this.document_filename)+num+this.extension;
+						} else {
+							new_path = null;
+							break;
+						}
+					} catch(e){
+						break; //path doesn't exist, I don't have to worry about overwriting something
+					}
+				}
+
+				if(new_path){
+					fs.writeFileSync(new_path, string_html);
+					this.path = new_path;
+				}
+			} else {
+				try{
+					//fs.accessSync(new_path, fs.constants.R_OK | fs.constants.W_OK );
+					if( string_html != fs.readFileSync(new_path).toString() ){
+						fs.writeFileSync(new_path, string_html);
+					}
+				} catch(e){
+					console.log("Couldn't save the note. Permission Error");
+					return { error: "Permission Error", path: new_path };
+				}
+			}
+		}
+	}
+
+	/*static readRacks() {
+		return this.readBookmarkRacks();
+	}*/
 
 	static readBookmarkRacks() {
 		var valid_racks = [];
@@ -968,25 +1032,6 @@ class BookmarkRack extends Rack {
 			}
 		}
 		return valid_racks;
-	}
-
-	static parseBookmarkRack(model) {
-		if (!model || !model.uid) { return }
-		var content = fs.readFileSync(model.path).toString();
-		model._bookmarks = bookmarksConverter.parse(content, model);
-		model._name = model._bookmarks.name;
-		model.ordering = model._bookmarks.ordering || 0;
-		//console.log(bookmarksConverter.stringify(model._bookmarks));
-	}
-
-	static setModel(model) {
-		if (!model || !model.uid) { return }
-		/* load INI file and save new rack separator data */
-	}
-
-	static removeModelFromStorage(model) {
-		if (!model || !model.uid) { return }
-		/* load INI file and remove rack separator */
 	}
 }
 

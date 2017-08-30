@@ -60,6 +60,12 @@
 			opacity: 0.8;
 		}
 
+		.favicon {
+			width: 1.5em;
+			height: 1.5em;
+			margin-right: 0.5em;
+		}
+
 		h5.my-notes-note-title {
 			margin: 0;
 			padding: 0;
@@ -82,6 +88,10 @@
 				top: -0.07em;
 				font-size: 160%;
 			}
+		}
+
+		h5.my-notes-note-title.my-bookmark-title{
+			padding-left: 0;
 		}
 
 		.my-notes-note-date{
