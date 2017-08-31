@@ -60,7 +60,7 @@
 			win_close: function() {
 				setTimeout(function() {
 					var win = remote.getCurrentWindow();
-					win.close();
+					win.hide();
 				}, 100);
 			},
 			win_max: function() {

@@ -2,6 +2,7 @@ const electron = require('electron');
 const fs = require('fs');
 const path = require('path');
 const app = electron.app;  // Module to control application life.
+const Tray = electron.Tray;  // Module to control tray icon.
 const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
 const Menu = electron.Menu;
 const autoUpdater = electron.autoUpdater;
@@ -126,6 +127,19 @@ function makeWindow() {
 	// and load the index.html of the app.
 	mainWindow.loadURL('file://' + __dirname + '/index.html');
 
+	var appIcon = new Tray(__dirname + '/icon.png');
+	var contextMenu = Menu.buildFromTemplate([{
+		label: 'Show App', click: function() {
+			mainWindow.show();
+		}
+	},{
+		label: 'Quit', click: function() {
+			app.isQuiting = true;
+			app.quit();
+		}
+	}]);
+	appIcon.setContextMenu(contextMenu);
+
 	// Open the DevTools.
 	//mainWindow.webContents.openDevTools();
 
@@ -135,6 +149,10 @@ function makeWindow() {
 		// in an array if your app supports multi windows, this is the time
 		// when you should delete the corresponding element.
 		mainWindow = null;
+	});
+
+	mainWindow.on('show', function() {
+		appIcon.setHighlightMode('always');
 	});
 
 	mainWindow.once('ready-to-show', () => {
