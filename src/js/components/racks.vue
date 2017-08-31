@@ -427,7 +427,7 @@
 						label: 'Add Bookmark',
 						click: () => {
 							this.changeRackOrFolder(folder);
-							//this.$root.addNote();
+							this.$root.addBookmark(folder);
 						}
 					}));
 				} else {

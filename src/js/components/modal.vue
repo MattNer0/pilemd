@@ -78,8 +78,12 @@
 				if(button.cancel) {
 					this.show = false;
 				} else {
-					for(var i = 0; i < this.prompts.length; i++) {
+					for (var i = 0; i < this.prompts.length; i++) {
 						if(this.prompts[i].required && !this.prompts[i].retValue) return false;
+					}
+					if (button.validate) {
+						var validation_failed = button.validate(this.promptsObject);
+						if(validation_failed) return false;
 					}
 					this.show = false;
 				}

@@ -5,7 +5,7 @@ function parseTag(tag) {
 		var attributes_object = {};
 
 		attributes_array.forEach(function(attr) {
-			var attr_match = /(.+?)=["'](.+?)["']/g.exec(attr);
+			var attr_match = /(.+?)=["'](.*?)["']/g.exec(attr);
 			attributes_object[attr_match[1]] = attr_match[2];
 		});
 
@@ -71,7 +71,9 @@ module.exports = {
 								folderUid: result_folder.uid,
 								updatedAt: moment(tags.attributes['LAST_MODIFIED'], 'X'),
 								createdAt: moment(tags.attributes['ADD_DATE'], 'X'),
-								name: tags.text
+								name: tags.text,
+								rack: rack,
+								folder: result_folder
 							});
 						}
 						// bookmark

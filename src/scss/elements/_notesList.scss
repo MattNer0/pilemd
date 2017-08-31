@@ -212,7 +212,7 @@
 			width: calc( 20% - 2em );
 			height: 10em;
 			display: inline-block;
-			background: $note-background-color;
+			background: $note-border-color;
 			color: $note-text-color;
 			margin: 1em;
 
@@ -240,7 +240,7 @@
 		}
 
 		.my-notes-note:hover {
-			background: $note-border-color;
+			background: $note-background-color;
 		}
 	}
 }

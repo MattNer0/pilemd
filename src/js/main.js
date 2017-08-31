@@ -545,8 +545,47 @@ new Vue({
 			});
 			this.notes = newNotes.concat(this.notes)
 		},
-		editBookmark(note) {
-
+		addBookmark(folder) {
+			var newBookmark = models.BookmarkFolder.newEmptyBookmark(folder);
+			folder.notes.unshift(newBookmark);
+			this.editBookmark(newBookmark, folder);
+		},
+		editBookmark(bookmark, folder) {
+			var self = this;
+			this.$refs.dialog.init('Bookmark', '', [{
+				label: 'Cancel',
+				cancel: true,
+				cb(data){
+					bookmark.folder.removeNote(bookmark);
+				}
+			}, {
+				label: 'Ok',
+				cb(data){
+					models.BookmarkFolder.updateNote(bookmark, data.bkname, data.bkurl);
+					bookmark.rack.saveModel();
+				},
+				validate(data){
+					var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+					var regex = new RegExp(expression);
+					if (data.bkurl.match(regex)) {
+						return false;
+					} else {
+						return 'bkurl';
+					}
+				}
+			}], [{
+				type: 'text',
+				retValue: '',
+				label: 'Name',
+				name: 'bkname',
+				required: true
+			},{
+				type: 'text',
+				retValue: '',
+				label: 'URL',
+				name: 'bkurl',
+				required: true
+			}]);
 		},
 		/*isSearchAll() {
 			return this.selectedRackOrFolder === null;

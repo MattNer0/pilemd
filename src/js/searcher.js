@@ -35,8 +35,8 @@ function searchNotes(selectedRackOrFolder, searchInput, notes) {
 		if (!searchPayload.folderUids || _.includes(searchPayload.folderUids, note.folderUid)) {
 			if (searchPayload.words.length == 0) return true;
 
-			if (!note.body) note.loadBody();
-			if (allWords(note.body.toLowerCase(), searchPayload.words)) return true;
+			if (!note.body && note.loadBody) note.loadBody();
+			if (note.body && allWords(note.body.toLowerCase(), searchPayload.words)) return true;
 		}
 		return false;
 	});

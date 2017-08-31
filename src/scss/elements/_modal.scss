@@ -45,8 +45,15 @@
 	}
 
 	.modal-field-label {
-		display: inline-block;
-		margin-right: 1em;
+		display: block;
+	}
+
+	.modal-field-label + input {
+		width: 100%;
+		border-radius: 0.4em;
+		border: 0.1em solid $resize-panel-handler;
+		outline: none;
+		padding: 0.5em;
 	}
 
 	.modal-container p {

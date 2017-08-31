@@ -698,6 +698,39 @@ class BookmarkFolder extends Folder {
 	saveModel() {
 		this._rack.saveModel();
 	}
+
+	static newEmptyBookmark(folder) {
+		var today = moment();
+		var attributes = {
+			'HREF': '',
+			'ICON': '',
+			'ICON_URI': '',
+			'LAST_MODIFIED': today.format('X'),
+			'ADD_DATE': today.format('X')
+		};
+
+		return {
+			attributes: attributes || {},
+			body: attributes['HREF'],
+			folderUid: folder.uid,
+			folder: folder,
+			rack: folder._rack,
+			updatedAt: today,
+			createdAt: today,
+			name: ''
+		}
+	}
+
+	static updateNote(bookmark, name, url) {
+		bookmark.name = name;
+		bookmark.updatedAt = moment();
+		bookmark.attributes['HREF'] = url;
+		bookmark.attributes['LAST_MODIFIED'] = bookmark.updatedAt.format('X');
+		if (bookmark.body != url) {
+			bookmark.body = url;
+			//refresh icon and screenshot
+		}
+	}
 }
 
 class Rack extends Model {
