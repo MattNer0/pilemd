@@ -35,6 +35,7 @@
 - style changes all around for the heck of it
 - choose between three different themes (original,light,dark)
 - **encrypted** notes (password protected)
+- store bookmarks .html files and display link thumbnails
 
 ## Run (development)
 
