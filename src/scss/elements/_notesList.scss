@@ -193,6 +193,21 @@
 			cursor: pointer;
 		}
 	}
+}
+
+.my-scrollbar .my-notes {
+	height: 100%;
+	min-height: 10em;
+}
+
+.cell-container > .my-notes {
+	padding: 0.2em 0 0;
+	height: 3.5em
+}
+
+.my-notes.my-bookmarks {
+	max-width: 85em;
+	margin: 0 auto;
 
 	.my-bookmark-separator {
 		width: 100%;
@@ -210,13 +225,14 @@
 
 		.my-notes-note {
 			width: calc( 20% - 2em );
-			height: 10em;
+			height: 11em;
 			display: inline-block;
 			background: $note-border-color;
 			color: $note-text-color;
 			margin: 1em;
 
 			h5.my-notes-note-title {
+				display: block;
 				padding-left: 0;
 				height: 1.4em;
 				white-space: nowrap;
@@ -225,9 +241,10 @@
 			}
 
 			.my-notes-note-image {
+				display: block;
 				margin-top: 0;
 				padding-left: 0;
-				height: 8.5em;
+				height: 9.5em;
 			}
 
 			.my-notes-note-body {
@@ -243,14 +260,4 @@
 			background: $note-background-color;
 		}
 	}
-}
-
-.my-scrollbar .my-notes {
-	height: 100%;
-	min-height: 10em;
-}
-
-.cell-container > .my-notes {
-	padding: 0.2em 0 0;
-	height: 3.5em
 }

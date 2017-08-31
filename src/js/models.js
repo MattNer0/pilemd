@@ -721,15 +721,34 @@ class BookmarkFolder extends Folder {
 		}
 	}
 
-	static updateNote(bookmark, name, url) {
+	static setBookmarkNameUrl(bookmark, name, url) {
+		if(!bookmark) return;
 		bookmark.name = name;
 		bookmark.updatedAt = moment();
 		bookmark.attributes['HREF'] = url;
 		bookmark.attributes['LAST_MODIFIED'] = bookmark.updatedAt.format('X');
-		if (bookmark.body != url) {
-			bookmark.body = url;
-			//refresh icon and screenshot
-		}
+		bookmark.body = url;
+	}
+
+	static setBookmarkIcon(bookmark, favicon_url, favicon) {
+		if(!bookmark || !favicon_url) return;
+		bookmark.attributes['ICON_URI'] = favicon_url;
+		var http = require('http');
+		http.get(favicon_url, function (res) {
+			res.setEncoding('binary');
+			var body = '';
+			res.on('data', (chunk) => {
+				body += chunk;
+			});
+			res.on('end', () => {
+				bookmark.attributes['ICON'] = "data:" + res.headers["content-type"] + ";base64," + new Buffer(body, 'binary').toString('base64');
+			});
+		});
+	}
+
+	static setBookmarkThumb(bookmark, thumbnail) {
+		if(!bookmark) return;
+		if(thumbnail) bookmark.attributes['THUMBNAIL'] = thumbnail.toDataURL({ scaleFactor: 0.5 });
 	}
 }
 

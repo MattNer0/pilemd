@@ -548,20 +548,49 @@ new Vue({
 		addBookmark(folder) {
 			var newBookmark = models.BookmarkFolder.newEmptyBookmark(folder);
 			folder.notes.unshift(newBookmark);
-			this.editBookmark(newBookmark, folder);
+			this.editBookmark(newBookmark);
 		},
-		editBookmark(bookmark, folder) {
+		editBookmark(bookmark) {
 			var self = this;
 			this.$refs.dialog.init('Bookmark', '', [{
 				label: 'Cancel',
 				cancel: true,
 				cb(data){
-					bookmark.folder.removeNote(bookmark);
+					if(bookmark.name === '' && bookmark.body === '') {
+						bookmark.folder.removeNote(bookmark);
+					}
 				}
 			}, {
 				label: 'Ok',
 				cb(data){
-					models.BookmarkFolder.updateNote(bookmark, data.bkname, data.bkurl);
+					if(bookmark.body != data.bkurl || !bookmark.attributes['THUMBNAIL']) {
+						console.log('Loading Bookmark thumbnail...', data.bkurl);
+						models.BookmarkFolder.setBookmarkNameUrl(bookmark, data.bkname, data.bkurl);
+						self.$refs.webview.src = data.bkurl;
+						var bookmarkFavicon = function(e) {
+							if(e.favicons && e.favicons.length > 0) {
+								models.BookmarkFolder.setBookmarkIcon(bookmark, e.favicons[0]);
+							}
+							self.$refs.webview.removeEventListener('page-favicon-updated', bookmarkFavicon);
+						};
+						var bookmarkLoaded = function(e) {
+							if(bookmark.name === '') {
+								models.BookmarkFolder.setBookmarkNameUrl(bookmark, self.$refs.webview.getTitle(), data.bkurl);
+							}
+							self.$refs.webview.capturePage(function(image) {
+								self.$refs.webview.src = '';
+								models.BookmarkFolder.setBookmarkThumb(bookmark, image);
+								bookmark.rack.saveModel();
+								console.log('Bookmark thumbnail was succesful!');
+							});
+							self.$refs.webview.removeEventListener('did-finish-load', bookmarkLoaded);
+						};
+
+						self.$refs.webview.addEventListener('page-favicon-updated', bookmarkFavicon);
+						self.$refs.webview.addEventListener('did-finish-load', bookmarkLoaded);
+					} else {
+						models.BookmarkFolder.setBookmarkNameUrl(bookmark, data.bkname, data.bkurl);
+					}
 					bookmark.rack.saveModel();
 				},
 				validate(data){
@@ -575,13 +604,13 @@ new Vue({
 				}
 			}], [{
 				type: 'text',
-				retValue: '',
+				retValue: bookmark.name,
 				label: 'Name',
 				name: 'bkname',
-				required: true
+				required: false
 			},{
 				type: 'text',
-				retValue: '',
+				retValue: bookmark.body,
 				label: 'URL',
 				name: 'bkurl',
 				required: true

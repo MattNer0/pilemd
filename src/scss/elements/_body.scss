@@ -77,3 +77,12 @@
 	    position: relative;
 	}
 }
+
+#bookmark-webview {
+	position: fixed;
+	bottom: -540px;
+	right: 0;
+	width: 960px;
+	height: 540px;
+	opacity: 0;
+}
