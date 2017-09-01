@@ -54,10 +54,14 @@ module.exports = {
 	},
 	pushKey(library_path, key, value, maxlength) {
 		var keyvalue = this.readKey(library_path, key);
+		value = '' + value;
 		if (!keyvalue || typeof keyvalue === 'string') keyvalue = [];
-		keyvalue.unshift(value);
-		keyvalue = keyvalue.slice(0, maxlength);
-		this.writeKey(library_path, key, keyvalue);
+		console.log(keyvalue, value);
+		if (keyvalue.indexOf(value) == -1) {
+			keyvalue.unshift(value);
+			if (maxlength) keyvalue = keyvalue.slice(0, maxlength);
+			this.writeKey(library_path, key, keyvalue);
+		}
 	},
 	removeKey(library_path, key) {
 		this.writeKey(library_path, key, undefined);

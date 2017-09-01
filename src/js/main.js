@@ -270,10 +270,12 @@ new Vue({
 		changeRackOrFolder(obj) {
 			var rf = this.selectedRackOrFolder;
 			this.selectedRackOrFolder = obj;
-			if (this.selectedRackOrFolder instanceof models.Rack) {
-				libini.pushKey(models.getBaseLibraryPath(), ['history', 'rack'], this.selectedRackOrFolder.ordering, 3 );
-			} else {
-				libini.pushKey(models.getBaseLibraryPath(), ['history', 'folder'], this.selectedRackOrFolder.ordering, 3 );
+			if(!this.selectedRackOrFolder.data.bookmarks) {
+				if (this.selectedRackOrFolder instanceof models.Rack) {
+					libini.pushKey(models.getBaseLibraryPath(), ['history', 'rack'], this.selectedRackOrFolder.ordering, 3 );
+				} else {
+					//libini.pushKey(models.getBaseLibraryPath(), ['history', 'folder'], this.selectedRackOrFolder.ordering, 3 );
+				}
 			}
 			return rf;
 		},
@@ -334,11 +336,12 @@ new Vue({
 		 * @param  {Object}  rack  rack to be opened
 		 */
 		openRack(rack) {
-			if(rack instanceof models.Folder) return;
+			if(!(rack instanceof models.Rack)) return;
 			this.readRackContent(rack);
 			rack.openFolders = true;
 		},
 		readRackContent(rack) {
+			if(!(rack instanceof models.Rack)) return;
 			var newData = rack.readContents();
 			if(newData) {
 				this.folders = this.folders.concat( newData );
