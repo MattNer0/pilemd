@@ -5,6 +5,8 @@ var settings = require('./utils/settings');
 settings.init();
 settings.loadWindowSize();
 
+var traymenu = require('./utils/traymenu');
+
 //var Vue = require('vue');
 import Vue from 'vue';
 
@@ -203,6 +205,8 @@ new Vue({
 
 		this.changeTheme(this.selectedTheme);
 
+		traymenu.init();
+
 		// Save it not to remove
 		//this.watcher = models.makeWatcher(this.racks, this.folders, this.notes);
 	},
@@ -317,6 +321,7 @@ new Vue({
 		 * @param  {Object}  rack  rack to be opened
 		 */
 		openRack(rack) {
+			if(rack instanceof models.Folder) return;
 			var newData = rack.readContents();
 			if(newData) {
 				this.folders = this.folders.concat( newData );
@@ -826,6 +831,16 @@ new Vue({
 		sidebarDragEnd() {
 			this.update_editor_size();
 			this.save_editor_size();
+		},
+		updateTrayMenu() {
+			var self = this;
+			traymenu.setRacks(this.racks, function(rack) {
+				self.openRack(rack);
+				self.changeRackOrFolder(rack);
+				//self.updateTrayMenu();
+			}, function(note) {
+				self.changeNote(note);
+			});
 		}
 	},
 	watch: {
@@ -864,6 +879,15 @@ new Vue({
 				this.update_editor_size();
 			}
 			this.scrollUpScrollbarNotes();
+		},
+		racks() {
+			this.updateTrayMenu();
+		},
+		folders() {
+			this.updateTrayMenu();
+		},
+		notes() {
+			this.updateTrayMenu();
 		}
 	}
 });

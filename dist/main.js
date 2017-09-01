@@ -15,6 +15,7 @@ const dialog = electron.dialog;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
+var appIcon = null;
 
 const APP_NAME = app.getName();
 const DARWIN_ALL_CLOSED_MENU = [
@@ -127,7 +128,7 @@ function makeWindow() {
 	// and load the index.html of the app.
 	mainWindow.loadURL('file://' + __dirname + '/index.html');
 
-	var appIcon = new Tray(__dirname + '/icon.png');
+	appIcon = new Tray(__dirname + '/icon.png');
 	var contextMenu = Menu.buildFromTemplate([{
 		label: 'Show App', click: function() {
 			mainWindow.show();
@@ -138,7 +139,17 @@ function makeWindow() {
 			app.quit();
 		}
 	}]);
+	appIcon.setToolTip(conf.title);
 	appIcon.setContextMenu(contextMenu);
+	appIcon.setHighlightMode('always');
+	appIcon.on('click', function(e) {
+		if (mainWindow.isVisible()) {
+			mainWindow.hide();
+		} else {
+			mainWindow.show();
+		}
+	});
+	global.appIcon = appIcon;
 
 	// Open the DevTools.
 	//mainWindow.webContents.openDevTools();
@@ -149,10 +160,6 @@ function makeWindow() {
 		// in an array if your app supports multi windows, this is the time
 		// when you should delete the corresponding element.
 		mainWindow = null;
-	});
-
-	mainWindow.on('show', function() {
-		appIcon.setHighlightMode('always');
 	});
 
 	mainWindow.once('ready-to-show', () => {
