@@ -26,8 +26,8 @@ module.exports = {
 			}
 		}, { type: 'separator' }].concat(menu_array, [{ type: 'separator' }, {
 			label: 'Quit', click: function() {
-				electron.app.isQuiting = true;
-				electron.app.quit();
+				electron.remote.app.isQuiting = true;
+				electron.remote.app.quit();
 			}
 		}]));
 		appIcon.setContextMenu(contextMenu);

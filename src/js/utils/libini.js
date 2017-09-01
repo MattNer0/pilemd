@@ -16,7 +16,11 @@ module.exports = {
 		}
 	},
 	readKey(library_path, key) {
-		return this.readIni(library_path)[key];
+		if (typeof key === 'string') {
+			return this.readIni(library_path)[key];
+		} else if (key.length == 2) {
+			return this.readIni(library_path)[key[0]][key[1]];
+		}
 	},
 	readKeyAsArray(library_path, key) {
 		var keyvalue = this.readKey(library_path, key);
@@ -47,6 +51,13 @@ module.exports = {
 				config[key[0]][key[1]] = value;
 		}
 		fs.writeFileSync(this.iniPath(library_path), ini.stringify(config));
+	},
+	pushKey(library_path, key, value, maxlength) {
+		var keyvalue = this.readKey(library_path, key);
+		if (!keyvalue || typeof keyvalue === 'string') keyvalue = [];
+		keyvalue.unshift(value);
+		keyvalue = keyvalue.slice(0, maxlength);
+		this.writeKey(library_path, key, keyvalue);
 	},
 	removeKey(library_path, key) {
 		this.writeKey(library_path, key, undefined);

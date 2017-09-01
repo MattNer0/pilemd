@@ -5,6 +5,7 @@ var settings = require('./utils/settings');
 settings.init();
 settings.loadWindowSize();
 
+var libini = require('./utils/libini');
 var traymenu = require('./utils/traymenu');
 
 //var Vue = require('vue');
@@ -193,7 +194,7 @@ new Vue({
 			}
 		}
 
-		this.racks = racks;
+		this.racks = arr.sortBy(racks.slice(), 'ordering', true);
 		this.folders = folders;
 		this.notes = notes;
 
@@ -204,8 +205,15 @@ new Vue({
 		}
 
 		this.changeTheme(this.selectedTheme);
-
 		traymenu.init();
+
+		var last_history = libini.readKey(models.getBaseLibraryPath(), 'history');
+		if (last_history && last_history.rack.length > 0) {
+			last_history.rack.forEach((r, i) => {
+				this.readRackContent(this.racks[r]);
+			});
+			this.updateTrayMenu();
+		}
 
 		// Save it not to remove
 		//this.watcher = models.makeWatcher(this.racks, this.folders, this.notes);
@@ -262,6 +270,11 @@ new Vue({
 		changeRackOrFolder(obj) {
 			var rf = this.selectedRackOrFolder;
 			this.selectedRackOrFolder = obj;
+			if (this.selectedRackOrFolder instanceof models.Rack) {
+				libini.pushKey(models.getBaseLibraryPath(), ['history', 'rack'], this.selectedRackOrFolder.ordering, 3 );
+			} else {
+				libini.pushKey(models.getBaseLibraryPath(), ['history', 'folder'], this.selectedRackOrFolder.ordering, 3 );
+			}
 			return rf;
 		},
 		/**
@@ -322,6 +335,10 @@ new Vue({
 		 */
 		openRack(rack) {
 			if(rack instanceof models.Folder) return;
+			this.readRackContent(rack);
+			rack.openFolders = true;
+		},
+		readRackContent(rack) {
 			var newData = rack.readContents();
 			if(newData) {
 				this.folders = this.folders.concat( newData );
@@ -333,8 +350,7 @@ new Vue({
 					}
 				}
 			}
-			rack.folders = rack.folders.sort(function(a, b) { return a.ordering - b.ordering });
-			rack.openFolders = true;
+			rack.folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
 		},
 		/**
 		 * Hides rack content (folders).
