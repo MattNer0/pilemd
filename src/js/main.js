@@ -270,10 +270,11 @@ new Vue({
 		changeRackOrFolder(obj) {
 			var rf = this.selectedRackOrFolder;
 			this.selectedRackOrFolder = obj;
-			if(!this.selectedRackOrFolder.data.bookmarks) {
+			if(this.selectedRackOrFolder && !this.selectedRackOrFolder.data.bookmarks) {
 				if (this.selectedRackOrFolder instanceof models.Rack) {
 					libini.pushKey(models.getBaseLibraryPath(), ['history', 'rack'], this.selectedRackOrFolder.ordering, 3 );
 				} else {
+					libini.pushKey(models.getBaseLibraryPath(), ['history', 'rack'], this.selectedRackOrFolder.data.rack.ordering, 3 );
 					//libini.pushKey(models.getBaseLibraryPath(), ['history', 'folder'], this.selectedRackOrFolder.ordering, 3 );
 				}
 			}
@@ -680,14 +681,21 @@ new Vue({
 		 * Displays context menu for the list of racks.
 		 */
 		shelfMenu() {
+			var self = this;
 			var menu = new Menu();
 			menu.append(new MenuItem({
 				label: 'Add Rack',
-				click() { this.addRack(); }
+				click() { self.$refs.refRacks.addRack(); }
+			}));
+			menu.append(new MenuItem({
+				label: 'Add Bookmark Rack',
+				click: () => {
+					self.$refs.refRacks.addBookmarkRack();
+				}
 			}));
 			menu.append(new MenuItem({
 				label: 'Add Rack Separator',
-				click() { this.addRackSeparator(); }
+				click() { self.addRackSeparator(); }
 			}));
 			menu.popup(remote.getCurrentWindow());
 		},

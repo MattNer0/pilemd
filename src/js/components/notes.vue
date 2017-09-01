@@ -9,7 +9,10 @@
 				@contextmenu.prevent.stop="noteMenu(note)",
 				@dragstart.stop="noteDragStart($event, note)",
 				@dragend.stop="noteDragEnd()",
-				:class="{'my-notes-note-selected': selectedNote === note}",
+				@dragover="noteDragOver($event, note)"
+				@dragleave.stop="noteDragLeave(note)"
+				@drop.stop="dropToNote($event, note)"
+				:class="{'my-notes-note-selected': selectedNote === note, 'sortUpper': note.sortUpper, 'sortLower': note.sortLower}",
 				draggable="true")
 				template(v-if="bookmarksList && note.attributes")
 					h5.my-notes-note-title(:title="note.name")
@@ -39,6 +42,9 @@
 
 	const ApplicationMenu = require('../applicationmenu').ApplicationMenu;
 	const fileUtils = require('../utils/file');
+
+	const arr = require('../utils/arr');
+	const dragging = require('../utils/dragging');
 
 	// Electron things
 	const remote = require('electron').remote;
@@ -148,6 +154,42 @@
 			},
 			noteDragEnd: function() {
 				this.setDraggingNote(null);
+			},
+			noteDragOver: function(event, note) {
+				if (this.draggingNote && this.draggingNote.folder.data.bookmarks) {
+					event.preventDefault();
+					var per = dragging.dragOverPercentageHorizontal(event.currentTarget, event.clientX);
+					if (per > 0.5) {
+						note.sortLower = true;
+						note.sortUpper = false;
+					} else {
+						note.sortLower = false;
+						note.sortUpper = true;
+					}
+				}
+			},
+			noteDragLeave: function(note) {
+				note.dragHover = false;
+				note.sortUpper = false;
+				note.sortLower = false;
+			},
+			dropToNote: function(event, note) {
+				if (this.draggingNote && this.draggingNote.folder.data.bookmarks && note.folder.data.bookmarks) {
+					var notes = this.notes.slice();
+					arr.remove(notes, (r) => {return r == this.draggingNote});
+					var i = notes.indexOf(note);
+					if (note.sortUpper) {
+						notes.splice(i, 0, this.draggingNote);
+					} else {
+						notes.splice(i+1, 0, this.draggingNote);
+					}
+					this.draggingNote.folder.notes = notes;
+					this.draggingNote.rack.saveModel();
+					this.setDraggingNote(null);
+					note.dragHover = false;
+					note.sortUpper = false;
+					note.sortLower = false;
+				}
 			},
 			// Electron methods
 			copyNoteBody: function(note) {

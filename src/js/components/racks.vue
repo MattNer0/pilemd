@@ -118,8 +118,18 @@
 				this.changeRackOrFolder(rack);
 			},
 			addRack: function() {
-				var rack = new Rack({
+				var rack = new models.Rack({
 					name: "",
+					ordering: 0
+				});
+				this.$root.addRack(rack);
+				this.editingRack = rack;
+			},
+			addBookmarkRack: function() {
+				var rack = new models.BookmarkRack({
+					name: "",
+					path: "",
+					extension: ".html",
 					ordering: 0
 				});
 				this.$root.addRack(rack);
@@ -380,6 +390,13 @@
 					label: 'Add Rack',
 					click: () => {
 						this.addRack();
+					}
+				}));
+
+				menu.append(new MenuItem({
+					label: 'Add Bookmark Rack',
+					click: () => {
+						this.addBookmarkRack();
 					}
 				}));
 

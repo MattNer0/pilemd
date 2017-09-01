@@ -10,8 +10,14 @@ module.exports = function(Vue, options) {
 	Vue.filter('dateSeparated', function(notes, property) {
 		if (notes.length == 0) {
 			return [{
-				dateStr: "No notes, let's write",
+				dateStr: 'No notes, let\'s write',
 				notes: []
+			}];
+		}
+		if (notes[0].folder && notes[0].folder.data.bookmarks) {
+			return [{
+				dateStr: '',
+				notes: notes
 			}];
 		}
 		var now = moment();

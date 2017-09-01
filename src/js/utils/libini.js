@@ -56,7 +56,6 @@ module.exports = {
 		var keyvalue = this.readKey(library_path, key);
 		value = '' + value;
 		if (!keyvalue || typeof keyvalue === 'string') keyvalue = [];
-		console.log(keyvalue, value);
 		if (keyvalue.indexOf(value) == -1) {
 			keyvalue.unshift(value);
 			if (maxlength) keyvalue = keyvalue.slice(0, maxlength);

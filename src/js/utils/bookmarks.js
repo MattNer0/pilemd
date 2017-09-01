@@ -69,11 +69,14 @@ module.exports = {
 								attributes: tags.attributes || {},
 								body: tags.attributes['HREF'],
 								folderUid: result_folder.uid,
-								updatedAt: moment(tags.attributes['LAST_MODIFIED'], 'X'),
-								createdAt: moment(tags.attributes['ADD_DATE'], 'X'),
 								name: tags.text,
 								rack: rack,
-								folder: result_folder
+								folder: result_folder,
+								dragHover: false,
+								sortUpper: false,
+								sortLower: false,
+								updatedAt: moment(tags.attributes['LAST_MODIFIED'], 'X'),
+								createdAt: moment(tags.attributes['ADD_DATE'], 'X')
 							});
 						}
 						// bookmark

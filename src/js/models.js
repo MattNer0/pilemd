@@ -108,6 +108,10 @@ class Note extends Model {
 		} else {
 			this.createdAt = moment();
 		}
+
+		this.dragHover = false;
+		this.sortUpper = false;
+		this.sortLower = false;
 	}
 
 	get data() {
@@ -144,7 +148,7 @@ class Note extends Model {
 	set path(newValue) {
 		if (newValue != this._path) {
 			try {
-				if (fs.existsSync(this._path)) fs.unlinkSync(this._path);
+				if (this._path && fs.existsSync(this._path)) fs.unlinkSync(this._path);
 			} catch (e) {}
 
 			this._path = newValue;
@@ -404,8 +408,9 @@ class Note extends Model {
 			} else {
 				try{
 					//fs.accessSync(new_path, fs.constants.R_OK | fs.constants.W_OK );
-					if( body.length > 0 && body != fs.readFileSync(new_path).toString() ){
+					if( !fs.existsSync(new_path) || body.length > 0 && body != fs.readFileSync(new_path).toString() ){
 						fs.writeFileSync(new_path, body);
+						model.path = new_path;
 					}
 				} catch(e){
 					console.log("Couldn't save the note. Permission Error");
@@ -715,9 +720,12 @@ class BookmarkFolder extends Folder {
 			folderUid: folder.uid,
 			folder: folder,
 			rack: folder._rack,
+			name: '',
+			dragHover: false,
+			sortUpper: false,
+			sortLower: false,
 			updatedAt: today,
-			createdAt: today,
-			name: ''
+			createdAt: today
 		}
 	}
 
@@ -748,7 +756,8 @@ class BookmarkFolder extends Folder {
 
 	static setBookmarkThumb(bookmark, thumbnail) {
 		if(!bookmark) return;
-		if(thumbnail) bookmark.attributes['THUMBNAIL'] = thumbnail.toDataURL({ scaleFactor: 0.5 });
+		thumbnail = thumbnail.resize({ width: 200 });
+		if(thumbnail) bookmark.attributes['THUMBNAIL'] = thumbnail.toDataURL();
 	}
 }
 
@@ -967,7 +976,6 @@ class BookmarkRack extends Rack {
 	}
 
 	set folders(farray) {
-		console.log('BookmarkRack - folders:', farray);
 		if(this._bookmarks) this._bookmarks.children = farray;
 	}
 
@@ -990,7 +998,7 @@ class BookmarkRack extends Rack {
 	set path(newValue) {
 		if (newValue != this._path) {
 			try {
-				if (fs.existsSync(this._path)) fs.unlinkSync(this._path);
+				if (this._path && fs.existsSync(this._path)) fs.unlinkSync(this._path);
 			} catch (e) {}
 
 			this._path = newValue;
@@ -1014,10 +1022,18 @@ class BookmarkRack extends Rack {
 		if(!this._contentLoaded){
 			this._contentLoaded = true;
 			
-			var content = fs.readFileSync(this.path).toString();
-			this._bookmarks = bookmarksConverter.parse(content, this);
-			this._name = this._bookmarks.name;
-			this.ordering = this._bookmarks.ordering || 0;
+			if (fs.existsSync(this.path)) {
+				var content = fs.readFileSync(this.path).toString();
+				this._bookmarks = bookmarksConverter.parse(content, this);
+				this._name = this._bookmarks.name;
+				this.ordering = this._bookmarks.ordering || 0;
+			} else {
+				this._bookmarks = {
+					title: 'Bookmarks',
+					name: '',
+					children: []
+				};
+			}
 
 		} else {
 			return null;
@@ -1070,11 +1086,12 @@ class BookmarkRack extends Rack {
 			} else {
 				try{
 					//fs.accessSync(new_path, fs.constants.R_OK | fs.constants.W_OK );
-					if( string_html != fs.readFileSync(new_path).toString() ){
+					if( !fs.existsSync(new_path) || string_html != fs.readFileSync(new_path).toString() ){
 						fs.writeFileSync(new_path, string_html);
+						this.path = new_path;
 					}
 				} catch(e){
-					console.log("Couldn't save the note. Permission Error");
+					console.log("Couldn't save the BookmarkRack.\nPermission Error\n", new_path);
 					return { error: "Permission Error", path: new_path };
 				}
 			}

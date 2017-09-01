@@ -47,7 +47,7 @@
 		transition: background 200ms ease, margin 200ms ease, height 200ms ease;
 		font-weight: normal;
 		box-sizing: border-box;
-		overflow: hidden;
+		/*overflow: hidden;*/
 
 		> div{
 			font-size: 80%;
@@ -102,6 +102,27 @@
 		.my-notes-note-body {
 			max-height: 4.2em;
 		}
+	}
+
+	.my-notes-note.sortUpper:after {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: -4px;
+		width: 2px;
+		height: 100%;
+		content: "";
+		background-color: $folder-dragdrop-separator;
+	}
+	.my-notes-note.sortLower:after {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		right: -4px;
+		width: 2px;
+		height: 100%;
+		content: "";
+		background-color: $folder-dragdrop-separator;
 	}
 
 	.my-notes-note + .my-notes-note {
