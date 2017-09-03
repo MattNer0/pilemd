@@ -57,7 +57,7 @@ document.addEventListener('drop', (e) => {
 var settings_baseLibraryPath = settings.get('baseLibraryPath');
 if(settings_baseLibraryPath) models.setBaseLibraryPath(settings_baseLibraryPath);
 
-new Vue({
+var appVue = new Vue({
 	el: '#main-editor',
 	template: require('../html/app.html'),
 	data: {
@@ -624,6 +624,9 @@ new Vue({
 					if (data.bkurl.match(regex)) {
 						return false;
 					} else {
+						/**
+						 * @todo gonna use this to highlight the wrong field in the dialog form
+						 */
 						return 'bkurl';
 					}
 				}
@@ -641,42 +644,9 @@ new Vue({
 				required: true
 			}]);
 		},
-		/*isSearchAll() {
-			return this.selectedRackOrFolder === null;
+		openImg(url) {
+			this.$refs.dialog.image(url);
 		},
-		selectAll() {
-			this.selectedRackOrFolder = null;
-		},
-		allDragOver(event) {
-			if (!this.draggingNote || this.draggingNote.folderUid == null) {
-				event.preventDefault();
-				return false
-			}
-			//event.preventDefault();
-			this.allDragHover = true;
-		},
-		allDragLeave(event) {
-			if (!this.draggingNote) {return false}
-			this.allDragHover = false;
-		},
-		dropToAll(event) {
-			if (!this.draggingNote || this.draggingNote.folderUid == null) {
-				event.preventDefault();
-				event.stopPropagation();
-				return false
-			}
-			this.allDragHover = false;
-			var note = this.draggingNote;
-			note.folderUid = null;
-			models.Note.setModel(note);
-
-			var s = this.selectedRackOrFolder;
-			this.selectedRackOrFolder = null;
-			this.draggingNote = null;
-			Vue.nextTick(() => {
-				this.selectedRackOrFolder = s;
-			});
-		},*/
 		/**
 		 * Displays context menu for the list of racks.
 		 */
@@ -918,3 +888,4 @@ new Vue({
 		}
 	}
 });
+global.appVue = appVue;

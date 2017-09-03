@@ -2,7 +2,9 @@
 	.modal-mask(v-show="show")
 		.modal-background(@click="clickout_close")
 		.modal-wrapper
-			.modal-container
+			.modal-container.modal-image(v-if="image_url")
+				div(ref="imagemodal", @click="clickout_close")
+			.modal-container(v-else)
 				h3 {{ title }}
 				p(v-html="descriptionHtml")
 				form(@submit.prevent="button_submit(buttons[0])")
@@ -19,6 +21,7 @@
 
 <script>
 
+	const Vue = require('vue');
 	import VuePassword from 'vue-password';
 
 	export default {
@@ -28,6 +31,7 @@
 				show: false,
 				title: '',
 				description: '',
+				image_url: '',
 				buttons: [],
 				prompts: [],
 				okcb: undefined
@@ -54,6 +58,7 @@
 				this.description = description;
 				this.buttons = buttons;
 				this.prompts = prompts;
+				this.image_url = '';
 				this.show = true;
 
 				setTimeout(function(){
@@ -61,15 +66,21 @@
 					if(pswd) pswd.focus();
 				}, 100);
 			},
+			image(url) {
+				this.reset_data();
+				this.image_url = url;
+				this.show = true;
+			},
 			reset_data() {
 				this.title = '';
 				this.description = '';
 				this.buttons = [];
 				this.prompts = [];
+				this.image_url = '';
 				this.show = false;
 			},
 			clickout_close() {
-				if(this.buttons.length == 1 && this.prompts.length == 0) {
+				if(this.buttons.length < 2 && this.prompts.length == 0) {
 					this.show = false;
 					this.reset_data();
 				}
@@ -90,6 +101,14 @@
 				
 				if(button.cb) button.cb(this.promptsObject);
 				this.reset_data();
+			}
+		},
+		watch: {
+			image_url() {
+				var self = this;
+				Vue.nextTick(() => {
+					if(self.$refs.imagemodal) self.$refs.imagemodal.style.backgroundImage = "url("+self.image_url+")";
+				});
 			}
 		}
 	}

@@ -43,7 +43,6 @@ function copyFolderRecursiveSync(source, target) {
 }
 
 // - move
-
 function moveFileSync(source, target) {
 
 	var targetFile = target;

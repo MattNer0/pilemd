@@ -5,7 +5,6 @@ const path = require('path');
 const models = require('./models');
 const elosenv = require('./utils/elosenv');
 
-
 function initialFolder() {
 	var p = elosenv.homePath();
 	try {
@@ -14,7 +13,6 @@ function initialFolder() {
 		fs.mkdirSync(p);
 	} catch (e) {}
 }
-
 
 function migrateFromLocalStorage() {
 	if (localStorage.getItem('migratedFromLS')) {
@@ -61,8 +59,7 @@ function makeInitialNotes(rack, folder) {
 		"* Beautiful inline code highlight\n" +
 		"* Comfy completing by syntax\n" +
 		"* Pasting images\n" +
-		"* Exporting notes\n" +
-		"* Share on [Qiita](http://qiita.com/)",
+		"* Exporting notes\n",
 		rack: rack,
 		folder: folder,
 		updated_at: moment(),

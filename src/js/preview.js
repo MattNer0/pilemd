@@ -154,6 +154,15 @@ var renderer = new marked.Renderer();
 
 renderer.listitem = renderCheckboxText;
 
+const IMGTAG_TEMP = _.template(
+	'<a href="#" onclick="appVue.openImg(\'<%- link %>\'); return false">' +
+	'<img src="<%- link %>" alt="<%- alt %>" /></a>'
+);
+
+renderer.image = function(href, title, text) {
+	return IMGTAG_TEMP({link: href, alt: title || ''});
+};
+
 marked.setOptions({
 	renderer: renderer,
 	gfm: true,
@@ -190,27 +199,14 @@ function replaceAtagToExternal(bodyHTML) {
 		});
 }
 
-const IMGTAG_TO_CONTEXTMENU_TEMP = _.template(
-	'<a href="<%- link %>" ' +
-	'onclick="require(\'electron\').shell.openExternal(\'<%- link %>\'); return false">' +
-	'<img src="<%- link %>" ' +
-	'oncontextmenu="var remote = new require(\'electron\').remote; ' +
-	'var Menu = remote.Menu;' +
-	'var MenuItem = remote.MenuItem;' +
-	'var m = new Menu();' +
-	'm.append(new MenuItem({label: \'Copy Image Link\',' +
-	'click: function() {require(\'electron\').clipboard.writeText(\'<%- link %>\')}}));' +
-	'm.popup(remote.getCurrentWindow()); return false;" alt="<%- alt %>" /></a>'
-);
-
-function replaceImgtagWithContext(bodyHTML) {
+/*function replaceImgtagWithContext(bodyHTML) {
 	return bodyHTML.replace(
-		/<img.*?src="(https?:\/\/.*?)" (alt="(.*?)"|alt)\/?>/mg,
+		/<img.*?src="(.*?)" (alt="(.*?)"|alt)\/?>/mg,
 		(match, p1, p2, p3, offset, string) => {
-			return IMGTAG_TO_CONTEXTMENU_TEMP({link: p1, alt: p4 || ''});
+			return IMGTAG_TO_CONTEXTMENU_TEMP({link: p1, alt: p3 || ''});
 		}
 	);
-}
+}*/
 
 function findLineNumber(body, element, value, encoded, start) {
 	if( !checkbox_occurrance_dictionary[encoded] ) checkbox_occurrance_dictionary[encoded] = 0;
@@ -231,9 +227,7 @@ function render(note, v) {
 	var p = replaceAtagToExternal(marked(note.bodyWithDataURL));
 	v.$nextTick(() => {
 		Array.prototype.forEach.call( document.querySelectorAll('.my-el-todo-list'), (el) => {
-			
 			findLineNumber(note.body, el, decodeURI(el.dataset.value), el.dataset.value );
-
 			el.onclick = (event) => {
 				var value = decodeURI(event.target.dataset.value);
 				var index = event.target.dataset.index;

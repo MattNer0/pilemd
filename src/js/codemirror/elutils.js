@@ -9,7 +9,6 @@ function flashSelection(cm) {
 	cm.setCursor(cm.getCursor());
 }
 
-
 /* Electron things */
 function killLine(cm) {
 	flashSelection(cm);
@@ -40,38 +39,38 @@ function cutText(cm) {
 }
 
 function pasteText(cm) {
-	if(clipboard.availableFormats().indexOf('image/png') != -1 || clipboard.availableFormats().indexOf('image/jpg') != -1){
- 		var im = clipboard.readImage();
- 		var image = Image.fromClipboard(im);
- 		cm.doc.replaceRange(
- 			IMAGE_TAG_TEMP({filename: image.name, fileurl: image.pilemdURL}),
- 			cm.doc.getCursor()
- 		);
- 	} else {
- 		var pasted = clipboard.readText();
-		if(pasted.indexOf('http') == 0) {
+	if (clipboard.availableFormats().indexOf('image/png') != -1 || clipboard.availableFormats().indexOf('image/jpg') != -1) {
+		var im = clipboard.readImage();
+		var image = Image.fromClipboard(im);
+		cm.doc.replaceRange(
+			IMAGE_TAG_TEMP({filename: image.name, fileurl: image.pilemdURL}),
+			cm.doc.getCursor()
+		);
+	} else {
+		var pasted = clipboard.readText();
+		if (pasted.indexOf('http') == 0) {
 			pasted = pasted.replace(new RegExp('(\.jpg|\.png)[?&].*$'), '$1');
 		}
-		if(isImage(pasted)){
- 			var f = {name: pasted.split('/').pop(), path: pasted};
- 			if(!uploadFile(cm, f)) cm.replaceSelection(pasted);
- 		} else {
- 			cm.replaceSelection(pasted);
- 		}
- 	}
+		if (isImage(pasted)) {
+			var f = {name: pasted.split('/').pop(), path: pasted};
+			if (!uploadFile(cm, f)) cm.replaceSelection(pasted);
+		} else {
+			cm.replaceSelection(pasted);
+		}
+	}
 }
 
-function isImage(text){
+function isImage(text) {
 	return text.split('.').pop() === 'png' || text.split('.').pop() === 'jpg';
 }
 
-function uploadFile(cm, file){
- 	try {
+function uploadFile(cm, file) {
+	try {
 		var image = Image.fromBinary(file.name, file.path);
- 	} catch (err) {
+	} catch (err) {
 		console.warn('uploadFile', err);
- 		return false;
- 	}
+		return false;
+	}
 
 	cm.doc.replaceRange(
 		IMAGE_TAG_TEMP({filename: file.name, fileurl: image.pilemdURL}),
@@ -81,7 +80,7 @@ function uploadFile(cm, file){
 }
 
 function selectAllText(cm) {
-	cm.execCommand("selectAll");
+	cm.execCommand('selectAll');
 }
 
 module.exports = {

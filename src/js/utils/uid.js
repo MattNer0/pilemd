@@ -4,17 +4,13 @@ function s4() {
 		.substring(1);
 }
 
-function guid() {
-	return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-		s4() + '-' + s4() + s4() + s4();
-}
-
-function timeUID() {
-	var d = new Date();
-	return d.valueOf() + '-' + s4() + s4();
-}
-
 module.exports = {
-	guid: guid,
-	timeUID: timeUID
+	guid() {
+		return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+			s4() + '-' + s4() + s4() + s4();
+	},
+	timeUID() {
+		var d = new Date();
+		return d.valueOf() + '-' + s4() + s4();
+	}
 };

@@ -124,8 +124,7 @@ class Note extends Model {
 			updated_at: this.updatedAt,
 			created_at: this.createdAt,
 			rack: this._rack,
-			folder: this._folder,
-			qiitaURL: this.qiitaURL
+			folder: this._folder
 		});
 	}
 
@@ -1253,7 +1252,6 @@ class Image {
 		return new this('pilemd://' + relativePath);
 	}
 }
-
 
 module.exports = {
 	Note: Note,
