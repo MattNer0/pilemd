@@ -49,6 +49,14 @@
 		box-sizing: border-box;
 		/*overflow: hidden;*/
 
+		> i.material-icons {
+			font-size: 400%;
+			width: 100%;
+			text-align: center;
+			height: 100%;
+			line-height: 2.5em;
+		}
+
 		> div{
 			font-size: 80%;
 			max-height: 9.1em;

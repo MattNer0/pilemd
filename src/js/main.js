@@ -572,7 +572,7 @@ new Vue({
 		},
 		addBookmark(folder) {
 			var newBookmark = models.BookmarkFolder.newEmptyBookmark(folder);
-			folder.notes.unshift(newBookmark);
+			folder.notes.push(newBookmark);
 			this.editBookmark(newBookmark);
 		},
 		editBookmark(bookmark) {
