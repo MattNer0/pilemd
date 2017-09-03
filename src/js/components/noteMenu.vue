@@ -10,6 +10,10 @@
 				i.material-icons code
 				|  Code block
 
+			li(v-show="!isPreview"): a(@click="menu_image", href="#", title="Insert Image from Url")
+				i.material-icons insert_photo
+				|  Image
+
 			li(v-show="!isPreview")
 				div: dropdown(:visible="table_visible", :position="position_left", v-on:clickout="table_visible = false")
 					span.link(@click="table_visible = !table_visible", title="Table")
@@ -184,6 +188,28 @@
 			menu_fontsize(size) {
 				this.$parent.fontsize = size;
 				this.fontsize_visible = false;
+			},
+			menu_image() {
+				var cm = this.codeMirror();
+				var cursor = cm.getCursor();
+
+				if(cursor.ch == 0){
+					if(cm.doc.getLine(cursor.line).length > 0){
+						cm.doc.replaceRange( "![]()\n", cursor);
+					} else {
+						cm.doc.replaceRange( "![]()", cursor);
+					}
+				} else {
+					cursor.ch = cm.doc.getLine(cursor.line).length;
+					cm.doc.replaceRange( "\n![]()", cursor);
+					cursor.line += 1;
+				}
+				
+				cm.doc.setCursor({
+					line: cursor.line,
+					ch: 4
+				});
+				cm.focus();
 			},
 			menu_codeBlock() {
 				var cm = this.codeMirror();
