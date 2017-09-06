@@ -1,5 +1,5 @@
 <template lang="pug">
-	.my-shelf-racks
+	.my-shelf-racks(:class="{'dragginRack' : draggingRack, 'draggingFolder' : draggingFolder}")
 		.my-shelf-rack(v-for="rack in racksWithFolders"
 			:class="{'sortUpper': rack.sortUpper, 'sortLower': rack.sortLower, 'openFolders' : rack.openFolders }"
 			:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
@@ -80,7 +80,8 @@
 			'setDraggingNote': Function,
 			'deleteFolder': Function,
 			'addFolderToRack': Function,
-			'addRackSeparator': Function
+			'addRackSeparator': Function,
+			'updateTrayMenu': Function
 		},
 		data: function() {
 			return {
@@ -110,12 +111,6 @@
 		methods: {
 			isDraggingNote: function() {
 				return !!this.draggingNote;
-			},
-			doneRackEdit: function(rack) {
-				if (!this.editingRack) { return }
-				rack.saveModel();
-				this.editingRack = null;
-				this.changeRackOrFolder(rack);
 			},
 			addRack: function() {
 				var rack = new models.Rack({
@@ -155,11 +150,19 @@
 				this.addFolderToRack(rack, folder);
 				this.editingFolder = folder;
 			},
+			doneRackEdit: function(rack) {
+				if (!this.editingRack) { return }
+				rack.saveModel();
+				this.editingRack = null;
+				this.changeRackOrFolder(rack);
+				this.updateTrayMenu();
+			},
 			doneFolderEdit: function(rack, folder) {
 				if (!this.editingFolder) { return }
 				folder.saveModel();
 				this.editingFolder = null;
 				this.changeRackOrFolder(folder);
+				this.updateTrayMenu();
 			},
 			isSelectedRack: function(rack) {
 				return this.selectedRackOrFolder === rack;

@@ -182,3 +182,12 @@
 	padding: 0;
     height: 0.3em;
 }
+
+.my-shelf-racks.dragginRack, .my-shelf-racks.dragginFolder {
+	.my-shelf-rack {
+		margin-top: 0;
+		margin-bottom: 0;
+		paddiing-top: 0.2em;
+		padding-bottom: 0.2em;
+	}
+}
