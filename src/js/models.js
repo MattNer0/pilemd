@@ -600,6 +600,27 @@ class Folder extends Model {
 		}
 	}
 
+	saveModel() {
+		if (!this.data.name || !this.uid) { return }
+
+		var new_path = path.join( getBaseLibraryPath(), this._rack.data.fsName, this.data.fsName );
+		if(new_path != this._path || !fs.existsSync(new_path) ) {
+			try{
+				if(this._path && fs.existsSync(this._path)) {
+					util_file.moveFolderRecursiveSync(this._path,
+						path.join( getBaseLibraryPath(), this._rack.data.fsName ),this.data.fsName);
+
+				} else {
+					fs.mkdirSync(new_path);
+				}
+				this.path = new_path;
+			} catch(e){
+				return console.error(e);
+			}
+		}
+		this.saveOrdering();
+	}
+
 	static readFoldersByRack(rack) {
 		var valid_folders = [];
 		if( fs.existsSync(rack.data.path) ) {
@@ -627,7 +648,7 @@ class Folder extends Model {
 		return valid_folders;
 	}
 
-	static setModel(model) {
+	/*static setModel(model) {
 		if (!model || !model.data.name || !model.uid) { return }
 
 		var new_path = path.join( getBaseLibraryPath(), model.data.rack.data.fsName, model.data.fsName );
@@ -646,7 +667,7 @@ class Folder extends Model {
 			}
 		}
 		model.saveOrdering();
-	}
+	}*/
 
 	static removeModelFromStorage(model) {
 		if (!model) { return }
