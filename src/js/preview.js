@@ -283,56 +283,71 @@ function render(note, v) {
 					}
 				});
 				note.body = ok;
+			};
 
-				var ul = el.parentNode;
+			/*var ul = el.parentNode;
+			if (ul.tagName == 'UL' && ul.className != 'todo-ul') {
+				ul.className = 'todo-ul';
 
-				if (ul.tagName == 'UL' && ul.className != 'todo-ul') {
-					ul.className = 'todo-ul';
-
-					var last_checkbox;
-					for (var i = ul.childNodes.length - 1; i >= 0; i--) {
-						if (ul.childNodes[i].className.indexOf('checkbox') >= 0) {
-							last_checkbox = ul.childNodes[i];
-							break;
-						}
-					}
-
-					if (last_checkbox) {
-
-						var newLi = document.createElement('li');
-						newLi.className = 'new-todo-form';
-						newLi.innerHTML = '<form><input type="text" /><button type="submit">+</button></form>';
-						ul.insertBefore(newLi, last_checkbox.nextSibling);
-
-						var newForm = newLi.querySelector('form');
-
-						newForm.addEventListener('submit', function(event) {
-							event.preventDefault();
-
-							var inputText = event.target.querySelector('input').value;
-							event.target.querySelector('input').value = '';
-							var last_checkbox = event.target.parentNode.previousSibling.querySelector('.my-el-todo-list');
-
-							if (inputText && last_checkbox) {
-								var value = decodeURI(last_checkbox.dataset.value);
-								if (value) {
-									var body = note.body;
-									note.body = body.replace(value + '\n', value + '\n' + '* [ ] ' + inputText + '\n');
-
-									var div = document.createElement('div');
-									div.innerHTML = renderCheckboxText(' [ ] ' + inputText);
-									var elements = div.childNodes;
-
-									event.target.parentNode.parentNode.insertBefore(elements[0], event.target.parentNode);
-									var this_checkbox = div.querySelector('.my-el-todo-list');
-									console.log(this_checkbox, elements);
-									findLineNumber(note.body, this_checkbox, decodeURI(this_checkbox.dataset.value), this_checkbox.dataset.value, last_checkbox.dataset.index);
-								}
-							}
-						}, false);
+				var last_checkbox;
+				for (var i = ul.childNodes.length - 1; i >= 0; i--) {
+					if (ul.childNodes[i].className.indexOf('checkbox') >= 0) {
+						last_checkbox = ul.childNodes[i];
+						break;
 					}
 				}
-			};
+
+				if (last_checkbox) {
+
+					var newLi = document.createElement('li');
+					newLi.className = 'new-todo-form';
+					newLi.innerHTML = '<form><input type="text" /><button type="submit">+</button></form>';
+					ul.insertBefore(newLi, last_checkbox.nextSibling);
+
+					var newForm = newLi.querySelector('form');
+
+					newForm.addEventListener('submit', function(event) {
+						event.preventDefault();
+
+						var inputText = event.target.querySelector('input').value;
+						event.target.querySelector('input').value = '';
+						console.log(inputText);
+
+						var j = 0;
+						var body = note.body.replace(/[\*\-]\s*(\[[x ]\].+\n)/g, function(x) {
+							if (j == ul.childNodes.length - 2) {
+								j++;
+								console.log(x);
+							} else {
+								j++;
+							}
+							return x;
+						});
+
+						/*
+						var last_checkbox = event.target.parentNode.previousSibling.querySelector('.my-el-todo-list');
+
+						if (inputText && last_checkbox) {
+							var value = decodeURI(last_checkbox.dataset.value);
+							if (value) {
+								var body = note.body;
+								note.body = body.replace(value + '\n', value + '\n' + '* [ ] ' + inputText + '\n');
+
+								var div = document.createElement('div');
+								div.innerHTML = renderCheckboxText(' [ ] ' + inputText);
+								var elements = div.childNodes;
+
+								event.target.parentNode.parentNode.insertBefore(elements[0], event.target.parentNode);
+								var this_checkbox = div.querySelector('.my-el-todo-list');
+								console.log(this_checkbox, elements);
+								findLineNumber(note.body, this_checkbox, decodeURI(this_checkbox.dataset.value), this_checkbox.dataset.value, last_checkbox.dataset.index);
+							}
+						}
+						//
+					}, false);
+				}
+			}
+			*/
 		});
 	});
 	return p;
