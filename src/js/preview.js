@@ -254,7 +254,6 @@ function render(note, v) {
 	checkbox_occurrance_dictionary = {};
 	//var p = replaceAtagToExternal(marked(note.bodyWithDataURL));
 	var p = marked(note.bodyWithDataURL);
-	console.log(p);
 	/*v.$nextTick(() => {
 		Array.prototype.forEach.call(document.querySelectorAll('.my-el-todo-list'), (el) => {
 			findLineNumber(note.body, el, decodeURI(el.dataset.value), el.dataset.value);
