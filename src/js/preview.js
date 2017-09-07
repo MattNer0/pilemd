@@ -109,7 +109,7 @@ highlightjs.registerLanguage('yaml', require('highlight.js/lib/languages/yaml'))
 
 const CHECKBOX_TEMP = _.template(
 	'<li class="checkbox <%- checked ? \'checkbox-checked\' : \'\' %>"><label>' +
-		'<span><input class="my-el-todo-list" data-value="<%- data %>" type="checkbox" <%- checked ? \'checked\' : \'\' %> /></span> <%- text %>' +
+		'<span><input class="my-el-todo-list" data-value="<%- data %>" type="checkbox" <%- checked ? \'checked\' : \'\' %> /></span> <%= text %>' +
 	'</label></li>'
 );
 
@@ -152,7 +152,8 @@ renderer.listitem = function(text) {
 
 const IMGTAG_TEMP = _.template(
 	'<a href="#" onclick="appVue.openImg(\'<%- link %>\'); return false">' +
-	'<img src="<%- link %>" alt="<%- alt %>" /></a>'
+	'<img src="<%- link %>" alt="<%- alt %>" />' +
+	'</a>'
 );
 
 renderer.image = function(href, title, text) {
@@ -173,7 +174,7 @@ renderer.heading = function(text, level) {
 		headings[duplicateIndex].count++;
 		duplicateText = escapedText + '-' + headings[duplicateIndex].count;
 	}
-	return '<h' + level + ' id="' + (duplicateText || escapedText) + '">' + text + '</h' + level + '>\n';
+	return '<h' + level + ' id="' + (duplicateText || escapedText) + '">' + text + '</h' + level + '>';
 };
 
 const ATAG_TO_EXTERNAL_TEMP = _.template(
@@ -186,12 +187,13 @@ const ATAG_TO_EXTERNAL_TEMP = _.template(
 	'var m = new Menu();' +
 	'm.append(new MenuItem({label: \'Copy Link\',' +
 	'click: function() {require(\'electron\').clipboard.writeText(\'<%- href %>\')}}));' +
-	'm.popup(remote.getCurrentWindow()); return false;"' +
-	'><%- text %></a>'
+	'm.popup(remote.getCurrentWindow()); return false;">' +
+	'<%= text %>' +
+	'</a>'
 );
 
 const ATAG_TO_INTERNAL_TEMP = _.template(
-	'<a href="<%- href %>" title="<%- title %>"><%- text %></a>'
+	'<a href="<%- href %>" title="<%- title %>"><%= text %></a>'
 );
 
 render.link = function(href, title, text) {
@@ -252,7 +254,8 @@ function render(note, v) {
 	checkbox_occurrance_dictionary = {};
 	//var p = replaceAtagToExternal(marked(note.bodyWithDataURL));
 	var p = marked(note.bodyWithDataURL);
-	v.$nextTick(() => {
+	console.log(p);
+	/*v.$nextTick(() => {
 		Array.prototype.forEach.call(document.querySelectorAll('.my-el-todo-list'), (el) => {
 			findLineNumber(note.body, el, decodeURI(el.dataset.value), el.dataset.value);
 			el.onclick = (event) => {
@@ -282,7 +285,7 @@ function render(note, v) {
 				}
 			}
 
-			/* input form to add more checkboxes */
+			// input form to add more checkboxes
 			var ul = el.parentNode.parentNode.parentNode.parentNode;
 
 			if (ul.tagName == 'UL' && ul.className != 'todo-ul') {
@@ -332,7 +335,7 @@ function render(note, v) {
 				}
 			}
 		});
-	});
+	});*/
 	return p;
 }
 
