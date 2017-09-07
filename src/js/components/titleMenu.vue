@@ -34,6 +34,8 @@
 							li: hr
 							li: a(@click.prevent="menu_devTools", href="#") Open DevTools
 							li: a(@click.prevent="menu_credits", href="#") Credits
+							li: hr
+							li: a(@click.prevent="menu_quit", href="#") Quit
 </template>
 
 <script>
@@ -98,6 +100,11 @@
 				setTimeout(function() {
 					self.changeTheme(value);
 				}, 100);
+			},
+			menu_quit() {
+				this.menu_visible = false;
+				var win = remote.getCurrentWindow();
+				win.close();
 			}
 		},
 		watch: {
