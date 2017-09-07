@@ -109,7 +109,7 @@ highlightjs.registerLanguage('yaml', require('highlight.js/lib/languages/yaml'))
 
 const CHECKBOX_TEMP = _.template(
 	'<li class="checkbox <%- checked ? \'checkbox-checked\' : \'\' %>"><label>' +
-		'<span><input class="my-el-todo-list" data-value="<%- data %>" type="checkbox" <%- checked ? \'checked\' : \'\' %> /></span> <%= text %>' +
+		'<span><input data-value="<%- data %>" type="checkbox" <%- checked ? \'checked\' : \'\' %> /></span> <%= text %>' +
 	'</label></li>'
 );
 
@@ -248,93 +248,93 @@ function findLineNumber(body, element, value, encoded, start) {
 	}
 }
 
+var forEach = function(array, callback, scope) {
+	for (var i = 0; i < array.length; i++) {
+		callback.call(scope, i, array[i]); // passes back stuff we need
+	}
+};
+
 function render(note, v) {
 	headings = [];
 	checkboxes = [];
 	checkbox_occurrance_dictionary = {};
 	//var p = replaceAtagToExternal(marked(note.bodyWithDataURL));
 	var p = marked(note.bodyWithDataURL);
-	/*v.$nextTick(() => {
-		Array.prototype.forEach.call(document.querySelectorAll('.my-el-todo-list'), (el) => {
-			findLineNumber(note.body, el, decodeURI(el.dataset.value), el.dataset.value);
-			el.onclick = (event) => {
-				var value = decodeURI(event.target.dataset.value);
-				var index = event.target.dataset.index;
-				var checkBox = value.slice(0, 3);
-				var toggled = '';
-				if (checkBox == '[ ]') {
-					toggled = '[x] ' + value.slice(4);
-				} else if (checkBox == '[x]') {
-					toggled = '[ ] ' + value.slice(4);
-				}
-				var body = note.body;
-				if (index > 0) {
+	v.$nextTick(() => {
+		//var checks = note.bodyWithDataURL.match(/[\*\-]\s*\[[x ]\]\s*(.*)/g);
+		forEach(document.querySelectorAll('li.checkbox'), function(index, el) {
+			//var line_text = el.innerText || el.textContent;
+			el.onclick = function(event) {
+				event.preventDefault();
+				var i = 0;
+				var ok = note.body.replace(/[\*\-]\s*(\[[x ]\])/g, function(x) {
+					x = x.replace(/\s/g, ' ');
+					var start = x.charAt(0);
+					if (i == index) {
+						i++;
+						if (x == start + ' [x]') {
+							return start + ' [ ]';
+						} else {
+							return start + ' [x]';
+						}
+					} else {
+						i++;
+						return x;
+					}
+				});
+				note.body = ok;
 
-					note.body = body.slice(0, index) + body.slice(index).replace(value + '\n', toggled + '\n');
+				var ul = el.parentNode;
 
-				} else {
-					note.body = body.replace(value + '\n', toggled + '\n');
-				}
-				event.target.dataset.value = encodeURI(toggled);
+				if (ul.tagName == 'UL' && ul.className != 'todo-ul') {
+					ul.className = 'todo-ul';
 
-				if (event.target.parentNode.parentNode.parentNode.className.indexOf('checkbox-checked') >= 0) {
-					event.target.parentNode.parentNode.parentNode.className = event.target.parentNode.parentNode.parentNode.className.replace('checkbox-checked', '');
-				} else {
-					event.target.parentNode.parentNode.parentNode.className += ' checkbox-checked';
-				}
-			}
+					var last_checkbox;
+					for (var i = ul.childNodes.length - 1; i >= 0; i--) {
+						if (ul.childNodes[i].className.indexOf('checkbox') >= 0) {
+							last_checkbox = ul.childNodes[i];
+							break;
+						}
+					}
 
-			// input form to add more checkboxes
-			var ul = el.parentNode.parentNode.parentNode.parentNode;
+					if (last_checkbox) {
 
-			if (ul.tagName == 'UL' && ul.className != 'todo-ul') {
-				ul.className = 'todo-ul';
+						var newLi = document.createElement('li');
+						newLi.className = 'new-todo-form';
+						newLi.innerHTML = '<form><input type="text" /><button type="submit">+</button></form>';
+						ul.insertBefore(newLi, last_checkbox.nextSibling);
 
-				var last_checkbox;
-				for (var i = ul.childNodes.length - 1; i >= 0; i--) {
-					if (ul.childNodes[i].className.indexOf('checkbox') >= 0) {
-						last_checkbox = ul.childNodes[i];
-						break;
+						var newForm = newLi.querySelector('form');
+
+						newForm.addEventListener('submit', function(event) {
+							event.preventDefault();
+
+							var inputText = event.target.querySelector('input').value;
+							event.target.querySelector('input').value = '';
+							var last_checkbox = event.target.parentNode.previousSibling.querySelector('.my-el-todo-list');
+
+							if (inputText && last_checkbox) {
+								var value = decodeURI(last_checkbox.dataset.value);
+								if (value) {
+									var body = note.body;
+									note.body = body.replace(value + '\n', value + '\n' + '* [ ] ' + inputText + '\n');
+
+									var div = document.createElement('div');
+									div.innerHTML = renderCheckboxText(' [ ] ' + inputText);
+									var elements = div.childNodes;
+
+									event.target.parentNode.parentNode.insertBefore(elements[0], event.target.parentNode);
+									var this_checkbox = div.querySelector('.my-el-todo-list');
+									console.log(this_checkbox, elements);
+									findLineNumber(note.body, this_checkbox, decodeURI(this_checkbox.dataset.value), this_checkbox.dataset.value, last_checkbox.dataset.index);
+								}
+							}
+						}, false);
 					}
 				}
-
-				if (last_checkbox) {
-
-					var newLi = document.createElement('li');
-					newLi.className = 'new-todo-form';
-					newLi.innerHTML = '<form><input type="text" /><button type="submit">+</button></form>';
-					ul.insertBefore(newLi, last_checkbox.nextSibling);
-
-					var newForm = newLi.querySelector('form');
-
-					newForm.addEventListener('submit', function(event) {
-						event.preventDefault();
-
-						var inputText = event.target.querySelector('input').value;
-						event.target.querySelector('input').value = '';
-						var last_checkbox = event.target.parentNode.previousSibling.querySelector('.my-el-todo-list');
-
-						if (inputText && last_checkbox) {
-							var value = decodeURI(last_checkbox.dataset.value);
-							if (value) {
-								var body = note.body;
-								note.body = body.replace(value + '\n', value + '\n' + '* [ ] ' + inputText + '\n');
-
-								var div = document.createElement('div');
-								div.innerHTML = renderCheckboxText(' [ ] ' + inputText);
-								var elements = div.childNodes;
-
-								event.target.parentNode.parentNode.insertBefore(elements[0], event.target.parentNode);
-								var this_checkbox = div.querySelector('.my-el-todo-list');
-								console.log(this_checkbox, elements);
-								findLineNumber(note.body, this_checkbox, decodeURI(this_checkbox.dataset.value), this_checkbox.dataset.value, last_checkbox.dataset.index);
-							}
-						}
-					}, false);
-				}
-			}
+			};
 		});
-	});*/
+	});
 	return p;
 }
 

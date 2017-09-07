@@ -145,7 +145,8 @@ var appVue = new Vue({
 		var racks = [];
 		var initial_notes = [];
 
-		this.$watch('selectedNote.body', () => {
+		/*this.$watch('selectedNote.body', () => {
+			if(this.selectedNote) this.preview = preview.render(this.selectedNote, this);
 			var result = models.Note.setModel(this.selectedNote);
 			if (result && result.error && result.path) {
 				this.$refs.dialog.init('Error', result.error + "\nNote: " + result.path, [{
@@ -153,7 +154,7 @@ var appVue = new Vue({
 					cancel: true
 				}]);
 			}
-		});
+		});*/
 
 		// Flash message
 		this.$on('flashmessage-push', function(message) {
@@ -856,6 +857,16 @@ var appVue = new Vue({
 			}
 			this.selectedRackOrFolder = this.selectedNote.data.folder;
 			this.scrollUpScrollbarNote();
+		},
+		'selectedNote.body': function() {
+			if(this.selectedNote && this.isPreview) this.preview = preview.render(this.selectedNote, this);
+			var result = models.Note.setModel(this.selectedNote);
+			if (result && result.error && result.path) {
+				this.$refs.dialog.init('Error', result.error + "\nNote: " + result.path, [{
+					label: 'Ok',
+					cancel: true
+				}]);
+			}
 		},
 		selectedRackOrFolder() {
 			if (this.selectedRackOrFolder) {
