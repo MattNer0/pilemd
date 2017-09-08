@@ -220,7 +220,15 @@ var appVue = new Vue({
 			var argv = remote.getGlobal('argv');
 			if(argv.length > 1 && path.extname(argv[1]) == '.md' && fs.existsSync(argv[1])) {
 				var note_path = argv[1];
-				console.log('opened note', note_path);
+				if (path.isAbsolute(note_path)) {
+					console.log('library', models.getBaseLibraryPath());
+					console.log('opened note', note_path);
+					if (note_path.indexOf(models.getBaseLibraryPath()) == 0) {
+						console.log('match library!');
+					}
+				} else {
+					console.log('path not absolute!');
+				}
 			}
 		}
 
