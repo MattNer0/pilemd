@@ -162,6 +162,7 @@ function makeWindow() {
 
 	global.appIcon = appIcon;
 	global.isLinux = process.platform == 'linux';
+	global.argv = process.argv;
 
 	// Open the DevTools.
 	//mainWindow.webContents.openDevTools();

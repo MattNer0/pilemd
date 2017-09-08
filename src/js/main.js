@@ -216,6 +216,14 @@ var appVue = new Vue({
 			this.updateTrayMenu();
 		}
 
+		if(remote.getGlobal('argv')) {
+			var argv = remote.getGlobal('argv');
+			if(argv.length > 1 && path.extname(argv[1]) == '.md' && fs.existsSync(argv[1])) {
+				var note_path = argv[1];
+				console.log('opened note', note_path);
+			}
+		}
+
 		// Save it not to remove
 		//this.watcher = models.makeWatcher(this.racks, this.folders, this.notes);
 	},
