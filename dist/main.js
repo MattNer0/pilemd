@@ -17,6 +17,7 @@ const dialog = electron.dialog;
 var mainWindow = null;
 var appIcon = null;
 
+/*
 const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) => {
 	// Someone tried to run a second instance, we should focus our window.
 	if (mainWindow) {
@@ -29,6 +30,7 @@ const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) 
 if (isSecondInstance) {
 	return app.quit();
 }
+*/
 
 const APP_NAME = app.getName();
 const DARWIN_ALL_CLOSED_MENU = [
