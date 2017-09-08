@@ -134,12 +134,9 @@ function makeWindow() {
 	}
 
 	mainWindow = new BrowserWindow(conf);
-
-	// Set ApplicationMenu bar
 	mainWindow.setMenu(null);
-
-	// and load the index.html of the app.
 	mainWindow.loadURL('file://' + __dirname + '/index.html');
+	mainWindow.setContentProtection(true);
 
 	appIcon = new Tray(__dirname + '/icon.png');
 	var contextMenu = Menu.buildFromTemplate([{

@@ -22,6 +22,7 @@ module.exports = {
 					mainWindow.hide();
 				} else {
 					mainWindow.show();
+					if (mainWindow.isMinimized()) mainWindow.restore();
 				}
 			}
 		}, { type: 'separator' }].concat(menu_array, [{ type: 'separator' }, {
@@ -30,7 +31,14 @@ module.exports = {
 				electron.remote.app.quit();
 			}
 		}]));
+
 		appIcon.setContextMenu(contextMenu);
+
+		if (mainWindow.isVisible()) {
+			mainWindow.setVisibleOnAllWorkspaces(false); //probably useless
+		} else {
+			mainWindow.setVisibleOnAllWorkspaces(true);
+		}
 	},
 	setRacks(racks, rackfolder_cb, note_cb) {
 		menu_array = [];
