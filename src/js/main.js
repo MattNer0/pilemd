@@ -214,15 +214,40 @@ var appVue = new Vue({
 		if(remote.getGlobal('argv')) {
 			var argv = remote.getGlobal('argv');
 			if(argv.length > 1 && path.extname(argv[1]) == '.md' && fs.existsSync(argv[1])) {
-				var note_path = argv[1];
-				if (path.isAbsolute(note_path)) {
-					console.log('library', models.getBaseLibraryPath());
-					console.log('opened note', note_path);
-					if (note_path.indexOf(models.getBaseLibraryPath()) == 0) {
-						console.log('match library!');
+				var notePath = argv[1];
+				var noteData = models.Note.isValidNotePath(notePath);
+				if (noteData) {
+					console.log('opened note', notePath);
+					if (notePath.indexOf(models.getBaseLibraryPath()) == 0) {
+						var openedRack = this.racks.find((rack) => {
+							return rack.data.path == path.join(path.dirname(notePath), '..');
+						});
+						if(openedRack) this.readRackContent(openedRack);
+						var openedNote = this.notes.find((note) => {
+							return note.data.path == notePath;
+						});
+						if(openedNote) {
+							this.changeRackOrFolder(openedNote.data.folder);
+							this.changeNote(openedNote);
+						}
+					} else {
+						if(noteData.ext == '.mdencrypted' ) {
+
+						} else {
+							var openedNote = new models.Note({
+								name: path.basename(notePath, noteData.ext),
+								body: "",
+								path: notePath,
+								extension: noteData.ext,
+								created_at: noteData.stat.birthtime,
+								updated_at: noteData.stat.mtime
+							});
+							this.notes.push(openedNote);
+							this.changeNote(openedNote);
+						}
 					}
 				} else {
-					console.log('path not absolute!');
+					console.log('path not valid!');
 				}
 			}
 		}

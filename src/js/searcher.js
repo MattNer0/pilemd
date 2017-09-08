@@ -11,7 +11,7 @@ function allWords(text, words) {
 
 module.exports = {
 	searchNotes(selectedRackOrFolder, searchInput, notes) {
-		if (selectedRackOrFolder === null) {
+		if (selectedRackOrFolder === null || selectedRackOrFolder === undefined) {
 			return [];
 		}
 		var searchPayload = this.calculateSearchMeaning(selectedRackOrFolder, searchInput);
@@ -28,7 +28,7 @@ module.exports = {
 	calculateSearchMeaning(selectedRackOrFolder, searchInput) {
 		var words = searchInput.toLowerCase().split(' ');
 		var folderUids;
-		if (selectedRackOrFolder === null) {
+		if (selectedRackOrFolder === null || selectedRackOrFolder === undefined) {
 			folderUids = null;
 		} else if (selectedRackOrFolder instanceof models.Rack) {
 			folderUids = selectedRackOrFolder.folders.map((f) => {return f.uid});

@@ -61,6 +61,10 @@ function doesLibraryExists() {
 	return fs.existsSync(getBaseLibraryPath());
 }
 
+function getValidMarkdownFormats() {
+	return [ '.md', '.markdown', '.txt', '.mdencrypted' ];
+}
+
 class Model {
 	constructor(data) {
 		this.uid = data.uid || uid.timeUID();
@@ -100,9 +104,12 @@ class Note extends Model {
 		this._name = data.name.replace(re, '');
 		this._body = data.body.replace(/    /g, '\t');
 		this._path = data.path;
-		this._rack = data.rack || data.folder.data.rack;
+		if (data.folder || data.rack) {
+			this._rack = data.rack || data.folder.data.rack;
+		} else {
+			this._rack = null;
+		}
 		this._folder = data.folder;
-
 		this.folderUid = data.folder ? data.folder.data.uid : null;
 		this.doc = null;
 
@@ -319,7 +326,12 @@ class Note extends Model {
 			body = this.encrypt();
 		}
 
-		var outer_folder = path.join( getBaseLibraryPath(), this.data.rack.data.fsName, this.data.folder.data.fsName );
+		if (this.data.rack && this.data.folder) {
+			var outer_folder = path.join( getBaseLibraryPath(), this.data.rack.data.fsName, this.data.folder.data.fsName );
+		} else {
+			var outer_folder = path.dirname(this._path);
+		}
+
 		if (this.data.document_filename) {
 			var new_path = path.join(outer_folder, this.data.document_filename) + this.data.extension;
 
@@ -387,6 +399,14 @@ class Note extends Model {
 		}
 	}
 
+	static isValidNotePath(notePath) {
+		var valid_formats = getValidMarkdownFormats();
+		var noteStat = fs.statSync(notePath);
+		var noteExt = path.extname(notePath);
+		if (noteStat.isFile() && valid_formats.indexOf(noteExt) >= 0 ) return { ext: noteExt, stat: noteStat };
+		return false;
+	}
+
 	/**
 	 * Loads every note inside a folder.
 	 *
@@ -395,35 +415,35 @@ class Note extends Model {
 	 */
 	static readNoteByFolder(folder) {
 		if(!fs.existsSync(folder.data.path)) return [];
-		var valid_formats = [ '.md', '.markdown', '.txt' ]; //list of valid file formats
-
+		
 		var valid_notes = [];
 		var notes = fs.readdirSync(folder.data.path);
 		notes.forEach((note) => {
 			var notePath = path.join( folder.data.path, note);
 			if(fs.existsSync(notePath) && note.charAt(0) != ".") {
-				var noteStat = fs.statSync(notePath);
-				var noteExt = path.extname(note);
-				if(noteStat.isFile() && valid_formats.indexOf(noteExt) >= 0 ){ //plain text markdown note
-					valid_notes.push(new Note({
-						name: note,
-						body: "",
-						path: notePath,
-						extension: noteExt,
-						folder: folder,
-						created_at: noteStat.birthtime,
-						updated_at: noteStat.mtime
-					}));
-				} else if(noteStat.isFile() && noteExt == '.mdencrypted' ){ //note encrypted
-					valid_notes.push(new EncryptedNote({
-						name: note,
-						body: "",
-						path: notePath,
-						extension: noteExt,
-						folder: folder,
-						created_at: noteStat.birthtime,
-						updated_at: noteStat.mtime
-					}));
+				var noteData = this.isValidNotePath(notePath);
+				if (noteData) {
+					if(noteData.ext == '.mdencrypted' ){ //note encrypted
+						valid_notes.push(new EncryptedNote({
+							name: note,
+							body: "",
+							path: notePath,
+							extension: noteData.ext,
+							folder: folder,
+							created_at: noteData.stat.birthtime,
+							updated_at: noteData.stat.mtime
+						}));
+					} else {
+						valid_notes.push(new Note({
+							name: note,
+							body: "",
+							path: notePath,
+							extension: noteData.ext,
+							folder: folder,
+							created_at: noteData.stat.birthtime,
+							updated_at: noteData.stat.mtime
+						}));
+					}
 				}
 			}
 		});
@@ -1271,6 +1291,7 @@ module.exports = {
 	getBaseLibraryPath: getBaseLibraryPath,
 	setBaseLibraryPath: setBaseLibraryPath,
 	doesLibraryExists: doesLibraryExists,
+	getValidMarkdownFormats: getValidMarkdownFormats,
 	makeWatcher: makeWatcher,
 	Image: Image
 };
