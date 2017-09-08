@@ -1,5 +1,6 @@
 {
 	"name": "pilemd",
+	"productName": "PileMd",
 	"version": "0.13.1",
 	"description": "",
 	"main": "./dist/main.js",
@@ -28,7 +29,7 @@
 		"babel-loader": "^5.4.0",
 		"babel-runtime": "^5.8.35",
 		"css-loader": "^0.21.0",
-		"electron-packager": "^8.7.2",
+		"electron-packager": "^9.0.1",
 		"es6-promise": "^3.1.2",
 		"file-loader": "^0.8.5",
 		"gulp": "^3.9.1",

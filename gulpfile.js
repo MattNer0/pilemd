@@ -19,7 +19,8 @@ var BASE_OPTION = {
 	//electronVersion: '1.7.5',
 	ignore: '(node_modules\/(codemirror|highlight.js|marked|vue|vue-resource)|src|icons|releases|.idea.*|README\.md|\.DS_Store|env|gulpfile\.js|webpack\.config\.js|\.gitignore|\.gjslintrc)',
 	asar: true,
-	prune: false
+	prune: false,
+	extraResource: './dist/icon.png'
 };
 
 gulp.task('electron-darwin', function(done) {

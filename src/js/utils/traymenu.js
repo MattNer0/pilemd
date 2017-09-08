@@ -1,5 +1,5 @@
 const electron = require('electron');
-var Menu = electron.remote.Menu;
+const Menu = electron.remote.Menu;
 
 var mainWindow = null;
 var appIcon = null;

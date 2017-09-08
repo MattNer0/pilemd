@@ -33,6 +33,8 @@
 								|  Dark Theme
 							li: hr
 							li: a(@click.prevent="menu_devTools", href="#") Open DevTools
+							li(v-if="isLinux"): a(@click.prevent="menu_desktopEntry", href="#") Add Desktop Entry
+							li: hr
 							li: a(@click.prevent="menu_credits", href="#") Credits
 							li: hr
 							li: a(@click.prevent="menu_quit", href="#") Quit
@@ -40,6 +42,8 @@
 
 <script>
 	const remote = require('electron').remote;
+	const fs = require('fs');
+	const path = require('path');
 
 	import myDropdown from 'vue-my-dropdown';
 
@@ -58,7 +62,8 @@
 			return {
 				'search': "",
 				'menu_visible': false,
-				'position': [ "right", "top", "right", "top" ]
+				'position': [ "right", "top", "right", "top" ],
+				'isLinux': remote.getGlobal('isLinux')
 			};
 		},
 		components: {
@@ -105,6 +110,35 @@
 				this.menu_visible = false;
 				var win = remote.getCurrentWindow();
 				win.close();
+			},
+			menu_desktopEntry() {
+				var self = this;
+				this.menu_visible = false;
+				setTimeout(function() {
+					var desktop_path = path.join(remote.app.getPath('home'), '.local', 'share', 'applications');
+					if (!fs.existsSync(desktop_path)) fs.mkdirSync(desktop_path);
+					desktop_path = path.join(desktop_path, 'pilemd.desktop');
+					if (!fs.existsSync(desktop_path)) {
+						var exe = remote.app.getPath('exe');
+						var body = "[Desktop Entry]\n" +
+									"Encoding=UTF-8\n" +
+									"Version=1.0\n" +
+									"Name=" + remote.app.getName() + "\n" +
+									"Comment=Markdown Note-taking App\n" +
+									"Exec=" + exe + " %u\n" +
+									"Icon=" + path.join(path.dirname(exe),'resources','icon.png') + "\n" +
+									"Terminal=false\n" +
+									"StartupWMClass=" + remote.app.getName() + "\n" +
+									"Type=Application\n" +
+									"MimeType=text/markdown;\n" +
+									"Categories=Office;Utility;";
+						fs.writeFileSync(desktop_path, body);
+						console.log('desktop entry created!');
+					} else {
+						// desktop exists already
+						console.log('desktop exists already');
+					}
+				}, 100);
 			}
 		},
 		watch: {

@@ -159,7 +159,9 @@ function makeWindow() {
 			mainWindow.show();
 		}
 	});
+
 	global.appIcon = appIcon;
+	global.isLinux = process.platform == 'linux';
 
 	// Open the DevTools.
 	//mainWindow.webContents.openDevTools();
