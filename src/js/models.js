@@ -17,7 +17,7 @@ const BASE_LIB_PATH_KEY = 'libpath';
 
 var baseLibraryPath = '';
 
-String.prototype.formatUnicorn = String.prototype.formatUnicorn || function() {
+String.prototype.formatUnicorn = String.prototype.formatUnicorn || () => {
 	'use strict';
 	var str = this.toString();
 	if (arguments.length) {
@@ -32,16 +32,31 @@ String.prototype.formatUnicorn = String.prototype.formatUnicorn || function() {
 	return str;
 };
 
+/**
+ * Sets the base library path.
+ *
+ * @param      {String}  path    The root directory path
+ * @return     {String}          The root directory path
+ */
 function setBaseLibraryPath(path) {
 	baseLibraryPath = path;
 	return baseLibraryPath;
-	//return localStorage.setItem(BASE_LIB_PATH_KEY, path);
 }
 
+/**
+ * Gets the base library path.
+ *
+ * @return     {String}        The base library path.
+ */
 function getBaseLibraryPath() {
 	return baseLibraryPath;
 }
 
+/**
+ * Checks if the current directory path exists.
+ *
+ * @return     {Boolean}       True if path is valid
+ */
 function doesLibraryExists() {
 	return fs.existsSync(getBaseLibraryPath());
 }
@@ -297,6 +312,52 @@ class Note extends Model {
 		}
 	}
 
+	saveModel() {
+		var body = this._body;
+		if (this.isEncryptedNote) {
+			if (this._encrypted) return { error: "Encrypted" };
+			body = this.encrypt();
+		}
+
+		var outer_folder = path.join( getBaseLibraryPath(), this.data.rack.data.fsName, this.data.folder.data.fsName );
+		if (this.data.document_filename) {
+			var new_path = path.join(outer_folder, this.data.document_filename) + this.data.extension;
+
+			if (new_path != this._path) {
+				var num = 1;
+				while (num > 0) {
+					try {
+						fs.statSync(new_path);
+						if (body && body != fs.readFileSync(new_path).toString()){
+							new_path = path.join(outer_folder, this.data.document_filename)+num+this.data.extension;
+						} else {
+							new_path = null;
+							break;
+						}
+					} catch(e) {
+						break; //path doesn't exist, I don't have to worry about overwriting something
+					}
+				}
+
+				if (new_path && body.length > 0) {
+					fs.writeFileSync(new_path, body);
+					this.path = new_path;
+				}
+			} else {
+				try {
+					//fs.accessSync(new_path, fs.constants.R_OK | fs.constants.W_OK );
+					if (!fs.existsSync(new_path) || body.length > 0 && body != fs.readFileSync(new_path).toString()){
+						fs.writeFileSync(new_path, body);
+						this.path = new_path;
+					}
+				} catch(e) {
+					console.log("Couldn't save the note. Permission Error");
+					return { error: "Permission Error", path: new_path };
+				}
+			}
+		}
+	}
+
 	static latestUpdatedNote(notes) {
 		return _.max(notes, function(n) { return n.updatedAt } );
 	}
@@ -326,97 +387,47 @@ class Note extends Model {
 		}
 	}
 
+	/**
+	 * Loads every note inside a folder.
+	 *
+	 * @param      {Object}  folder  The folder
+	 * @return     {Array}           Array of notes inside the folder
+	 */
 	static readNoteByFolder(folder) {
-		//console.log(">> Loading notes");
-
-		var valid_formats = [ '.md', '.markdown', '.txt' ];
+		if(!fs.existsSync(folder.data.path)) return [];
+		var valid_formats = [ '.md', '.markdown', '.txt' ]; //list of valid file formats
 
 		var valid_notes = [];
-		if( fs.existsSync(folder.data.path) ) {
-
-			var notes = fs.readdirSync(folder.data.path);
-			for(var ni = 0; ni<notes.length; ni++){
-				var note = notes[ni];
-				var notePath = path.join( folder.data.path, note);
-				if(fs.existsSync(notePath) && note.charAt(0) != ".") {
-					var noteStat = fs.statSync(notePath);
-					var noteExt = path.extname(note);
-					if(noteStat.isFile() && valid_formats.indexOf(noteExt) >= 0 ){
-						valid_notes.push(new Note({
-							name: note,
-							body: "",
-							path: notePath,
-							extension: noteExt,
-							folder: folder,
-							created_at: noteStat.birthtime,
-							updated_at: noteStat.mtime
-						}));
-					} else if(noteStat.isFile() && noteExt == '.mdencrypted' ){
-						valid_notes.push(new EncryptedNote({
-							name: note,
-							body: "",
-							path: notePath,
-							extension: noteExt,
-							folder: folder,
-							created_at: noteStat.birthtime,
-							updated_at: noteStat.mtime
-						}));
-					}
+		var notes = fs.readdirSync(folder.data.path);
+		notes.forEach((note) => {
+			var notePath = path.join( folder.data.path, note);
+			if(fs.existsSync(notePath) && note.charAt(0) != ".") {
+				var noteStat = fs.statSync(notePath);
+				var noteExt = path.extname(note);
+				if(noteStat.isFile() && valid_formats.indexOf(noteExt) >= 0 ){ //plain text markdown note
+					valid_notes.push(new Note({
+						name: note,
+						body: "",
+						path: notePath,
+						extension: noteExt,
+						folder: folder,
+						created_at: noteStat.birthtime,
+						updated_at: noteStat.mtime
+					}));
+				} else if(noteStat.isFile() && noteExt == '.mdencrypted' ){ //note encrypted
+					valid_notes.push(new EncryptedNote({
+						name: note,
+						body: "",
+						path: notePath,
+						extension: noteExt,
+						folder: folder,
+						created_at: noteStat.birthtime,
+						updated_at: noteStat.mtime
+					}));
 				}
 			}
-		}
-
+		});
 		return valid_notes;
-	}
-
-	static setModel(model) {
-		if(!model){
-			return { error: "No model" };
-		}
-
-		var body = model.data.body;
-		if(model.isEncryptedNote){
-			if(this._encrypted) return { error: "Encrypted" };
-			body = model.encrypt();
-		}
-
-		var outer_folder = path.join( getBaseLibraryPath(), model.data.rack.data.fsName, model.data.folder.data.fsName );
-		if(model.data.document_filename){
-			var new_path = path.join(outer_folder, model.data.document_filename) + model.data.extension;
-
-			if(new_path != model.data.path){
-				var num = 1;
-				while(num > 0){
-					try{
-						fs.statSync(new_path);
-						if( body && body != fs.readFileSync(new_path).toString() ){
-							new_path = path.join(outer_folder, model.data.document_filename)+num+model.data.extension;
-						} else {
-							new_path = null;
-							break;
-						}
-					} catch(e){
-						break; //path doesn't exist, I don't have to worry about overwriting something
-					}
-				}
-
-				if(new_path && body.length > 0){
-					fs.writeFileSync(new_path, body);
-					model.path = new_path;
-				}
-			} else {
-				try{
-					//fs.accessSync(new_path, fs.constants.R_OK | fs.constants.W_OK );
-					if( !fs.existsSync(new_path) || body.length > 0 && body != fs.readFileSync(new_path).toString() ){
-						fs.writeFileSync(new_path, body);
-						model.path = new_path;
-					}
-				} catch(e){
-					console.log("Couldn't save the note. Permission Error");
-					return { error: "Permission Error", path: new_path };
-				}
-			}
-		}
 	}
 
 	static removeModelFromStorage(model) {
@@ -647,27 +658,6 @@ class Folder extends Model {
 		}
 		return valid_folders;
 	}
-
-	/*static setModel(model) {
-		if (!model || !model.data.name || !model.uid) { return }
-
-		var new_path = path.join( getBaseLibraryPath(), model.data.rack.data.fsName, model.data.fsName );
-		if(new_path != model.data.path || !fs.existsSync(new_path) ) {
-			try{
-				if(model.data.path && fs.existsSync(model.data.path)) {
-					util_file.moveFolderRecursiveSync(model.data.path,
-						path.join( getBaseLibraryPath(), model.data.rack.data.fsName ),model.data.fsName);
-
-				} else {
-					fs.mkdirSync(new_path);
-				}
-				model.path = new_path;
-			} catch(e){
-				return console.error(e);
-			}
-		}
-		model.saveOrdering();
-	}*/
 
 	static removeModelFromStorage(model) {
 		if (!model) { return }
@@ -1117,10 +1107,6 @@ class BookmarkRack extends Rack {
 			}
 		}
 	}
-
-	/*static readRacks() {
-		return this.readBookmarkRacks();
-	}*/
 
 	static readBookmarkRacks() {
 		var valid_racks = [];

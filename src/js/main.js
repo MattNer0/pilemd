@@ -103,13 +103,14 @@ var appVue = new Vue({
 		 * Filters notes based on search terms.
 		 * It also makes sure that all the notes inside the current selected rack are loaded,
 		 * otherwise we wouldn't be able to find any results for the current search.
+		 * 
 		 * @return  {Array}  notes array
 		 */
 		filteredNotes() {
 			var self = this;
 			if(this.search && this.selectedRackOrFolder){
 				if (this.selectedRackOrFolder instanceof models.Rack) {
-					this.selectedRackOrFolder.folders.forEach(function(folder){
+					this.selectedRackOrFolder.folders.forEach((folder) => {
 						var newNotes = folder.readContents();
 						if(newNotes) self.notes = self.notes.concat(newNotes);
 					});
@@ -119,7 +120,8 @@ var appVue = new Vue({
 		},
 		/**
 		 * Returns currently selected folder or "undefined" if no folder is selected.
-		 * @return  {Object}  currently selected folder
+		 * 
+		 * @return    {Object}     Currently selected folder
 		 */
 		selectedFolder() {
 			if(this.selectedRackOrFolder instanceof models.Folder) return this.selectedRackOrFolder;
@@ -128,12 +130,18 @@ var appVue = new Vue({
 		/**
 		 * Check if the title attribute is defined to see
 		 * if the "selectedNote" is really a note object or just an empty object
-		 * @return  {Boolean}  true if note is selected
+		 * 
+		 * @return    {Boolean}    True if note is selected
 		 */
 		isNoteSelected() {
 			if(this.isNoteRackSelected && this.selectedNote.title) return true;
 			return false;
 		},
+		/**
+		 * Check if the current selected rack is a bookmark rack or not.
+		 * 
+		 * @return    {Boolean}    True if current rack doesn't hold bookmarks.
+		 */
 		isNoteRackSelected() {
 			if(this.selectedRackOrFolder instanceof models.BookmarkFolder) return false;
 			return true;
@@ -146,7 +154,7 @@ var appVue = new Vue({
 		var initial_notes = [];
 
 		// Flash message
-		this.$on('flashmessage-push', function(message) {
+		this.$on('flashmessage-push', (message) => {
 			this.messages.push(message);
 			setTimeout(() => {
 				this.messages.shift()
@@ -154,7 +162,7 @@ var appVue = new Vue({
 		});
 
 		// Modal
-		this.$on('modal-show', function(modalMessage) {
+		this.$on('modal-show', (modalMessage) => {
 			this.modalTitle = modalMessage.title;
 			this.modalDescription = modalMessage.description;
 			this.modalPrompts = modalMessage.prompts;
@@ -163,9 +171,7 @@ var appVue = new Vue({
 		});
 
 		if (!models.getBaseLibraryPath()) {
-			// Hey, this is first time.
-			// * Setting up directory
-			// * Create new notes
+			// Hey, this is the first time.
 			initialModels.initialFolder();
 		}
 
@@ -226,7 +232,7 @@ var appVue = new Vue({
 	},
 	mounted() {
 		var self = this;
-		this.$nextTick(function () {
+		this.$nextTick(() => {
 			
 			window.addEventListener('resize', (e) => {
 				e.preventDefault();
@@ -236,7 +242,7 @@ var appVue = new Vue({
 
 			this.init_sidebar_width();
 
-			setTimeout(function(){
+			setTimeout(() => {
 				self.update_editor_size();
 			}, 100);
 		});
@@ -256,7 +262,7 @@ var appVue = new Vue({
 		 * Scrolls to the top of the notes sidebar.
 		 */
 		scrollUpScrollbarNotes() {
-			this.$nextTick(function () {
+			this.$nextTick(() => {
 				this.$refs.refNotes.scrollTop = 0;
 			});
 		},
@@ -264,7 +270,7 @@ var appVue = new Vue({
 		 * Scrolls to the top of the selected note.
 		 */
 		scrollUpScrollbarNote() {
-			this.$nextTick(function () {
+			this.$nextTick(() => {
 				this.$refs.myEditor.scrollTop = 0;
 			});
 		},
@@ -302,7 +308,7 @@ var appVue = new Vue({
 						cb(data){
 							var result = note.decrypt(data.secretkey);
 							if(result.error) {
-								setTimeout(function(){
+								setTimeout(() => {
 									self.$refs.dialog.init('Error', result.error + "\nNote: " + note.path, [{
 										label: 'Ok',
 										cancel: true
@@ -521,7 +527,7 @@ var appVue = new Vue({
 			if(newNote){
 				if(currFolder.notes) currFolder.notes.unshift(newNote);
 				this.notes.unshift(newNote);
-				models.Note.setModel(newNote);
+				newNote.saveModel();
 				this.changeNote(newNote);
 				this.isPreview = false;
 
@@ -548,7 +554,7 @@ var appVue = new Vue({
 			if(newNote){
 				if(currFolder.notes) currFolder.notes.unshift(newNote);
 				this.notes.unshift(newNote);
-				models.Note.setModel(newNote);
+				newNote.saveModel();
 				this.changeNote(newNote);
 				this.isPreview = false;
 
@@ -566,53 +572,80 @@ var appVue = new Vue({
 				}]);
 			}
 		},
+		/**
+		 * add a series of notes
+		 * @param {Array}  noteTexts  array which contains the new notes
+		 */
 		addNotes(noteTexts) {
 			var uid = this.calcSaveUid();
 			var newNotes = noteTexts.map((noteText) => {
 				return new models.Note({body: noteText, folderUid: uid})
 			});
 			newNotes.forEach((note) => {
-				models.Note.setModel(note);
+				note.saveModel();
 			});
 			this.notes = newNotes.concat(this.notes)
 		},
+		/**
+		 * add a new bookmark inside a specific folder
+		 * @param {Object}  folder  selected folder
+		 */
 		addBookmark(folder) {
 			var newBookmark = models.BookmarkFolder.newEmptyBookmark(folder);
 			folder.notes.push(newBookmark);
 			this.editBookmark(newBookmark);
 		},
+		/**
+		 * edit bookmark title and url through a popup dialog
+		 * @param {Object}  bookmark  selected bookmark object
+		 */
 		editBookmark(bookmark) {
 			var self = this;
 			this.$refs.dialog.init('Bookmark', '', [{
 				label: 'Cancel',
 				cancel: true,
-				cb(data){
+				/**
+				 * function called when user click on the 'Cancel' button
+				 *
+				 * @param      {Object}            data    Form data object
+				 */
+				cb(data) {
 					if(bookmark.name === '' && bookmark.body === '') {
 						bookmark.folder.removeNote(bookmark);
 					}
 				}
 			}, {
 				label: 'Ok',
-				cb(data){
+				/**
+				 * function called when user click on the 'Ok' button
+				 *
+				 * @param      {Object}            data    Form data object
+				 */
+				cb(data) {
 					if(bookmark.body != data.bkurl || !bookmark.attributes['THUMBNAIL']) {
 						console.log('Loading Bookmark thumbnail...', data.bkurl);
 						models.BookmarkFolder.setBookmarkNameUrl(bookmark, data.bkname, data.bkurl);
 						self.$refs.webview.src = data.bkurl;
-						var bookmarkFavicon = function(e) {
+						var bookmarkFavicon = (e) => {
 							if(e.favicons && e.favicons.length > 0) {
 								models.BookmarkFolder.setBookmarkIcon(bookmark, e.favicons[0]);
 							}
 							self.$refs.webview.removeEventListener('page-favicon-updated', bookmarkFavicon);
 						};
-						var bookmarkLoaded = function(e) {
+						var bookmarkLoaded = (e) => {
 							if(bookmark.name === '') {
 								models.BookmarkFolder.setBookmarkNameUrl(bookmark, self.$refs.webview.getTitle(), data.bkurl);
 							}
-							self.$refs.webview.capturePage(function(image) {
+							self.$refs.webview.capturePage((image) => {
+								/**
+								 * callback after webview took a page screenshot
+								 * 
+								 * @param    {Object}     image     NativeImage page screenshot
+								 */
 								self.$refs.webview.src = '';
 								models.BookmarkFolder.setBookmarkThumb(bookmark, image);
-								bookmark.rack.saveModel();
 								console.log('Bookmark thumbnail was succesful!');
+								bookmark.rack.saveModel();
 							});
 							self.$refs.webview.removeEventListener('did-finish-load', bookmarkLoaded);
 						};
@@ -624,7 +657,14 @@ var appVue = new Vue({
 					}
 					bookmark.rack.saveModel();
 				},
-				validate(data){
+				/**
+				 * validate the form input data
+				 *
+				 * @param      {Object}            data    Form data object
+				 * @return     {(boolean|string)}          If false, the validation was succesful.
+				 *                                         If a string value is returned it means that's the name of the field that failed validation.
+				 */
+				validate(data) {
 					var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
 					var regex = new RegExp(expression);
 					if (data.bkurl.match(regex)) {
@@ -665,7 +705,7 @@ var appVue = new Vue({
 			}));
 			menu.append(new MenuItem({
 				label: 'Add Bookmark Rack',
-				click: () => {
+				click() {
 					self.$refs.refRacks.addBookmarkRack();
 				}
 			}));
@@ -837,11 +877,18 @@ var appVue = new Vue({
 		},
 		updateTrayMenu() {
 			var self = this;
-			traymenu.setRacks(this.racks, function(rack) {
+			traymenu.setRacks(this.racks, (rack) => {
+				/**
+				 * function called when user clicks on a rack or folder in the tray menu
+				 * @param {Object}  rack  selected rack or folder in the tray menu
+				 */
 				self.openRack(rack);
 				self.changeRackOrFolder(rack);
-				//self.updateTrayMenu();
-			}, function(note) {
+			}, (note) => {
+				/**
+				 * function called when user click on a note or bookmark in the tray menu
+				 * @param {Object}  note  selected note
+				 */
 				self.changeNote(note);
 			});
 		}
@@ -865,7 +912,7 @@ var appVue = new Vue({
 		},
 		'selectedNote.body': function() {
 			if(this.selectedNote && this.isPreview) this.preview = preview.render(this.selectedNote, this);
-			var result = models.Note.setModel(this.selectedNote);
+			var result = this.selectedNote.saveModel();
 			if (result && result.error && result.path) {
 				this.$refs.dialog.init('Error', result.error + "\nNote: " + result.path, [{
 					label: 'Ok',
@@ -883,7 +930,7 @@ var appVue = new Vue({
 						this.selectedRackOrFolder.notes = newData;
 					}
 					var filteredNotes = searcher.searchNotes(this.selectedRackOrFolder, this.search, this.notes);
-					filteredNotes.forEach(function(note){
+					filteredNotes.forEach((note) => {
 						if(!note.body) note.loadBody();
 					});
 				} else {
