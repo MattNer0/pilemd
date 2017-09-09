@@ -9,7 +9,7 @@
 			'sidebarDrag': Function,
 			'sidebarDragEnd': Function
 		},
-		data: function() {
+		data() {
 			return {
 				initialPos: {
 					x: 0,
@@ -21,16 +21,15 @@
 				dragging: false
 			};
 		},
-		mounted: function() {
-			var _this = this;
-			this.$nextTick(function() {
-				this.$parent.$el.addEventListener('dragover', function(e) {
-					_this.drag(e);
+		mounted() {
+			this.$nextTick(() => {
+				this.$parent.$el.addEventListener('dragover', (e) => {
+					this.drag(e);
 				});
 			});
 		},
 		methods: {
-			dragstart: function(e) {
+			dragstart(e) {
 				// hide the 'ghost' of the draggin element
 				e.dataTransfer.setDragImage(document.createElement('div'), 0, 0);
 				e.dataTransfer.setData('text/plain', '');
@@ -43,12 +42,12 @@
 				};
 			},
 
-			dragend: function(e) {
+			dragend(e) {
 				this.dragging = false;
 				this.sidebarDragEnd();
 			},
 
-			drag: function(e) {
+			drag(e) {
 				// prevent to emit unwanted value on dragend
 				if (!this.dragging) return;
 				if (e.screenX === 0 && e.screenY === 0) return;

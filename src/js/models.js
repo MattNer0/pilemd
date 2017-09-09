@@ -248,7 +248,7 @@ class Note extends Model {
 			if (ret) {return}
 			if (row.length > 0) {
 				ret = {
-					title: _.trimLeft(row, '# '),
+					title: _.trimStart(row, '# '),
 					body: lines.slice(0, index).concat(lines.splice(index + 1)).join('\n')
 				};
 			}
@@ -354,6 +354,9 @@ class Note extends Model {
 				if (new_path && body.length > 0) {
 					fs.writeFileSync(new_path, body);
 					this.path = new_path;
+					return { saved: true };
+				} else {
+					return { saved: false };
 				}
 			} else {
 				try {
@@ -361,6 +364,9 @@ class Note extends Model {
 					if (!fs.existsSync(new_path) || body.length > 0 && body != fs.readFileSync(new_path).toString()){
 						fs.writeFileSync(new_path, body);
 						this.path = new_path;
+						return { saved: true };
+					} else {
+						return { saved: false };
 					}
 				} catch(e) {
 					console.log("Couldn't save the note. Permission Error");

@@ -28,7 +28,8 @@ const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) 
 });
 
 if (isSecondInstance) {
-	return app.quit();
+	app.quit();
+	return;
 }
 */
 
@@ -90,7 +91,7 @@ const DARWIN_ALL_CLOSED_MENU = [
 	}
 ];
 // Quit when all windows are closed.
-app.on('window-all-closed', function() {
+app.on('window-all-closed', () => {
 	// On OS X it is common for applications and their menu bar
 	// to stay active until the user quits explicitly with Cmd + Q
 	if (process.platform != 'darwin') {
@@ -183,10 +184,11 @@ function makeWindow() {
 	});
 }
 
+/*
 function applyUpdater() {
 	var feedUrl = 'https://zwkuawed8b.execute-api.ap-northeast-1.amazonaws.com/prod?version=' + app.getVersion();
 
-	autoUpdater.on('update-downloaded', function (event, releaseNotes, releaseName, releaseDate, updateUrl, quitAndUpdate) {
+	autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName, releaseDate, updateUrl, quitAndUpdate) => {
 
 		var index = dialog.showMessageBox(mainWindow, {
 			type: 'info',
@@ -206,17 +208,20 @@ function applyUpdater() {
 	autoUpdater.setFeedURL(feedUrl);
 	autoUpdater.checkForUpdates();
 }
+*/
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
-app.on('ready', function() {
+app.on('ready', () => {
 	makeWindow();
 	//applyUpdater();
 });
 
-app.on('activate', function() {
+app.on('activate', () => {
 	if(!mainWindow){
 		makeWindow();
 		//autoUpdater.checkForUpdates();
+	} else {
+		mainWindow.show();
 	}
 });

@@ -33,7 +33,7 @@
 								|  Dark Theme
 							li: hr
 							li: a(@click.prevent="menu_devTools", href="#") Open DevTools
-							li(v-if="isLinux"): a(@click.prevent="menu_desktopEntry", href="#") Add Desktop Entry
+							li(v-if="isLinux && saveDesktop"): a(@click.prevent="menu_desktopEntry", href="#") Add Desktop Entry
 							li: hr
 							li: a(@click.prevent="menu_credits", href="#") Credits
 							li: hr
@@ -62,29 +62,33 @@
 			return {
 				'search': "",
 				'menu_visible': false,
+				'saveDesktop': true,
 				'position': [ "right", "top", "right", "top" ],
-				'isLinux': remote.getGlobal('isLinux')
+				'isLinux': remote.getGlobal('isLinux'),
+				'desktopEntryPath': path.join(remote.app.getPath('home'), '.local', 'share', 'applications', 'pilemd.desktop')
 			};
 		},
 		components: {
 			'dropdown': myDropdown
+		},
+		mounted() {
+			// check if I need to show the "Add Desktop Entry" option in the menu
+			if (fs.existsSync(this.desktopEntryPath)) this.saveDesktop = false;
 		},
 		methods: {
 			clear_search() {
 				this.search = "";
 			},
 			menu_openFolder() {
-				var self = this;
 				this.menu_visible = false;
-				setTimeout(function() {
-					self.openSync();
+				setTimeout(() => {
+					this.openSync();
 				}, 100);
 			},
 			menu_moveFolder() {
-				var self = this;
 				this.menu_visible = false;
-				setTimeout(function() {
-					self.moveSync();
+				setTimeout(() => {
+					this.moveSync();
 				}, 100);
 			},
 			menu_devTools() {
@@ -93,17 +97,15 @@
 				win.webContents.openDevTools();
 			},
 			menu_credits() {
-				var self = this;
 				this.menu_visible = false;
-				setTimeout(function() {
+				setTimeout(() => {
 					self.openCredits();
 				}, 100);
 			},
 			menu_changeTheme(value) {
-				var self = this;
 				this.menu_visible = false;
-				setTimeout(function() {
-					self.changeTheme(value);
+				setTimeout(() => {
+					this.changeTheme(value);
 				}, 100);
 			},
 			menu_quit() {
@@ -112,13 +114,9 @@
 				win.close();
 			},
 			menu_desktopEntry() {
-				var self = this;
 				this.menu_visible = false;
-				setTimeout(function() {
-					var desktop_path = path.join(remote.app.getPath('home'), '.local', 'share', 'applications');
-					if (!fs.existsSync(desktop_path)) fs.mkdirSync(desktop_path);
-					desktop_path = path.join(desktop_path, 'pilemd.desktop');
-					if (!fs.existsSync(desktop_path)) {
+				setTimeout(() => {
+					if (!fs.existsSync(this.desktopEntryPath)) {
 						var exe = remote.app.getPath('exe');
 						var body = "[Desktop Entry]\n" +
 									"Encoding=UTF-8\n" +
@@ -132,11 +130,12 @@
 									"Type=Application\n" +
 									"MimeType=text/markdown;\n" +
 									"Categories=Office;Utility;";
-						fs.writeFileSync(desktop_path, body);
+						fs.writeFileSync(this.desktopEntryPath, body);
 						console.log('desktop entry created!');
 					} else {
 						// desktop exists already
 						console.log('desktop exists already');
+						this.saveDesktop = false;
 					}
 				}, 100);
 			}

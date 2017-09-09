@@ -25,7 +25,7 @@
 		components: {
 			'dropdown': myDropdown
 		},
-		data: function() {
+		data() {
 			return {
 				'addnote_visible': false,
 				'position': [ "left", "bottom", "left", "top" ]

@@ -1,5 +1,7 @@
-var path = require('path');
-var fs = require('fs');
+const path = require('path');
+const fs = require('fs');
+
+const _ = require('lodash');
 
 var settings = require('./utils/settings');
 settings.init();
@@ -18,11 +20,11 @@ var preview = require('./preview');
 var searcher = require('./searcher');
 
 // Electron things
-var electron = require('electron');
-var remote = electron.remote;
-var Menu = remote.Menu;
-var MenuItem = remote.MenuItem;
-var dialog = remote.dialog;
+const electron = require('electron');
+const remote = electron.remote;
+const Menu = remote.Menu;
+const MenuItem = remote.MenuItem;
+const dialog = remote.dialog;
 
 var arr = require('./utils/arr');
 
@@ -82,7 +84,8 @@ var appVue = new Vue({
 		racksWidth: settings.get('racksWidth') || 180,
 		notesWidth: settings.get('notesWidth') || 180,
 		propertiesWidth: 180,
-		fontsize: settings.get('fontsize') || "15"
+		fontsize: settings.get('fontsize') || "15",
+		notesDisplayOrder: 'updatedAt',
 	},
 	components: {
 		'flashmessage': component_flashmessage,
@@ -107,16 +110,18 @@ var appVue = new Vue({
 		 * @return  {Array}  notes array
 		 */
 		filteredNotes() {
-			var self = this;
 			if(this.search && this.selectedRackOrFolder){
 				if (this.selectedRackOrFolder instanceof models.Rack) {
 					this.selectedRackOrFolder.folders.forEach((folder) => {
 						var newNotes = folder.readContents();
-						if(newNotes) self.notes = self.notes.concat(newNotes);
+						if(newNotes) this.notes = this.notes.concat(newNotes);
 					});
 				}
 			}
-			return searcher.searchNotes(this.selectedRackOrFolder, this.search, this.isNoteRackSelected ? this.notes : this.selectedRackOrFolder.notes);
+
+			var notes = this.isNoteRackSelected ? this.notes : this.selectedRackOrFolder.notes;
+			//arr.sortBy(notes, this.notesDisplayOrder, false)
+			return searcher.searchNotes(this.selectedRackOrFolder, this.search, notes);
 		},
 		/**
 		 * Returns currently selected folder or "undefined" if no folder is selected.
@@ -152,14 +157,6 @@ var appVue = new Vue({
 		var folders = [];
 		var racks = [];
 		var initial_notes = [];
-
-		// Flash message
-		this.$on('flashmessage-push', (message) => {
-			this.messages.push(message);
-			setTimeout(() => {
-				this.messages.shift()
-			}, message.period)
-		});
 
 		// Modal
 		this.$on('modal-show', (modalMessage) => {
@@ -324,13 +321,18 @@ var appVue = new Vue({
 		changeNote(note) {
 			var self = this;
 
+			if (this.isNoteSelected) {
+				//if (!this.isPreview) this.$refs.refCodeMirror.updateNoteBeforeSaving();
+				this.saveNote();
+			}
+
 			if (this.isNoteRackSelected) {
-				if(!note.body) note.loadBody();
-				if(note.isEncrypted){
+				if (!note.body) note.loadBody();
+				if (note.isEncrypted) {
 					var message = "Insert the secret key to Encrypt and Decrypt this note";
 					this.$refs.dialog.init('Secret Key', message, [{
 						label: 'Ok',
-						cb(data){
+						cb(data) {
 							var result = note.decrypt(data.secretkey);
 							if(result.error) {
 								setTimeout(() => {
@@ -612,6 +614,22 @@ var appVue = new Vue({
 			this.notes = newNotes.concat(this.notes)
 		},
 		/**
+		 * Save current selected Note.
+		 */
+		saveNote() {
+			if(this.selectedNote && this.isPreview) this.preview = preview.render(this.selectedNote, this);
+			var result = this.selectedNote.saveModel();
+			if (result && result.error && result.path) {
+				/*this.$refs.dialog.init('Error', result.error + "\nNote: " + result.path, [{
+					label: 'Ok',
+					cancel: true
+				}]);*/
+				this.sendFlashMessage(3000, 'error', result.error);
+			} else if(result && result.saved) {
+				this.sendFlashMessage(1000, 'info', 'Note saved');
+			}
+		},
+		/**
 		 * add a new bookmark inside a specific folder
 		 * @param {Object}  folder  selected folder
 		 */
@@ -858,6 +876,26 @@ var appVue = new Vue({
 			}
 		},
 		/**
+		 * Sends a Flash Message.
+		 *
+		 * @param      {Integer}    period   How long it will last (in ms)
+		 * @param      {String}     level    Flash level (info,error)
+		 * @param      {String}     text     Flash message text
+		 * @param      {String}     url      Url to open when Flash Message is clicked
+		 */
+		sendFlashMessage(period, level, text, url) {
+			var message = {
+				level: 'flashmessage-' + level,
+				text: text,
+				period: period,
+				url: url
+			};
+			this.messages.push(message);
+			setTimeout(() => {
+				this.messages.shift();
+			}, message.period);
+		},
+		/**
 		 * Calculates the sidebar width and
 		 * changes the main container margins to accomodate it.
 		 * If the application is in fullscreen mode (sidebar hidden)
@@ -900,23 +938,24 @@ var appVue = new Vue({
 			this.update_editor_size();
 			this.save_editor_size();
 		},
-		updateTrayMenu() {
-			var self = this;
-			traymenu.setRacks(this.racks, (rack) => {
-				/**
-				 * function called when user clicks on a rack or folder in the tray menu
-				 * @param {Object}  rack  selected rack or folder in the tray menu
-				 */
-				self.openRack(rack);
-				self.changeRackOrFolder(rack);
-			}, (note) => {
-				/**
-				 * function called when user click on a note or bookmark in the tray menu
-				 * @param {Object}  note  selected note
-				 */
-				self.changeNote(note);
-			});
-		}
+		updateTrayMenu: _.debounce(function () {
+				var self = this;
+				traymenu.setRacks(this.racks, (rack) => {
+					/**
+					 * function called when user clicks on a rack or folder in the tray menu
+					 * @param {Object}  rack  selected rack or folder in the tray menu
+					 */
+					self.openRack(rack);
+					self.changeRackOrFolder(rack);
+				}, (note) => {
+					/**
+					 * function called when user click on a note or bookmark in the tray menu
+					 * @param {Object}  note  selected note
+					 */
+					self.changeNote(note);
+				});
+			}, 500
+		)
 	},
 	watch: {
 		isPreview() {
@@ -936,14 +975,7 @@ var appVue = new Vue({
 			this.scrollUpScrollbarNote();
 		},
 		'selectedNote.body': function() {
-			if(this.selectedNote && this.isPreview) this.preview = preview.render(this.selectedNote, this);
-			var result = this.selectedNote.saveModel();
-			if (result && result.error && result.path) {
-				this.$refs.dialog.init('Error', result.error + "\nNote: " + result.path, [{
-					label: 'Ok',
-					cancel: true
-				}]);
-			}
+			this.saveNote();
 		},
 		selectedRackOrFolder() {
 			if (this.selectedRackOrFolder) {

@@ -59,8 +59,6 @@
 	const models = require('../models');
 	const Note = models.Note;
 
-	const NOTE_DISPLAY_ORDER_KEY = 'notes.notesDisplayOrder';
-
 	Vue.use(require('../filters/truncate'));
 	Vue.use(require('../filters/dateSplitted'));
 
@@ -68,6 +66,7 @@
 		name: 'notes',
 		props: {
 			'bookmarksList': Boolean,
+			'notesDisplayOrder': String,
 			'notes': Array,
 			'originalNotes': Array,
 			'selectedNote': Object,
@@ -78,47 +77,32 @@
 			'setDraggingNote': Function,
 			'editBookmark': Function
 		},
-		data: function() {
+		data() {
 			return {
-				notesDisplayOrder: 'updatedAt',
 				'addnote_visible': false,
 				'position': [ "left", "top", "left", "top" ]
 			};
 		},
-		mounted: function() {
-			var o = localStorage.getItem(NOTE_DISPLAY_ORDER_KEY);
-			if (!o) {
-				this.notesDisplayOrder = 'updatedAt';
-				localStorage.setItem(NOTE_DISPLAY_ORDER_KEY, this.notesDisplayOrder);
-			} else {
-				this.notesDisplayOrder = o;
-			}
-			this.$watch('notesDisplayOrder', (v) => {
-				localStorage.setItem(NOTE_DISPLAY_ORDER_KEY, v);
-			});
-		},
 		computed: {
-			notesFiltered: function() {
+			notesFiltered() {
 				var dateSeparated = Vue.filter('dateSeparated');
-				return dateSeparated(this.notes, this.notesDisplayOrder);
+				return dateSeparated(this.notes.slice(), this.notesDisplayOrder);
 			}
 		},
 		methods: {
-			selectNote: function(note) {
+			selectNote(note) {
 				this.changeNote(note);
 			},
-			selectNoteAndWide: function(note) {
+			selectNoteAndWide(note) {
 				this.changeNote(note);
 				this.toggleFullScreen();
 			},
-			addBookmark: function() {
+			addBookmark() {
 				if(this.selectedRackOrFolder instanceof models.Folder) {
 					this.$root.addBookmark(this.selectedRackOrFolder);
 				}
 			},
-			removeNote: function(note) {
-				var self = this;
-
+			removeNote(note) {
 				var dialog_options = {
 					type: 'question',
 					buttons: ['Delete', 'Cancel'],
@@ -134,37 +118,37 @@
 					dialog_options.message = 'Are you sure you want to remove this note?\n\nTitle: ' + note.title + '\nContent: ' + note.bodyWithoutTitle.replace('\n', ' ').slice(0, 100) + '...';
 				}
 
-				dialog.showMessageBox(remote.getCurrentWindow(), dialog_options, function(btn) {
+				dialog.showMessageBox(remote.getCurrentWindow(), dialog_options, (btn) => {
 					if (btn == 0) {
 						if (note.data && note.data.folder.notes.length > 0) {
 							var index = note.data.folder.notes.indexOf(note);
 							note.data.folder.notes.splice(index, 1);
 						}
-						var index = self.originalNotes.indexOf(note);
-						if(index >= 0) self.originalNotes.splice(index, 1);
-						if(self.selectedRackOrFolder.data.bookmarks) {
-							self.selectedRackOrFolder.removeNote(note);
+						var index = this.originalNotes.indexOf(note);
+						if(index >= 0) this.originalNotes.splice(index, 1);
+						if(this.selectedRackOrFolder.data.bookmarks) {
+							this.selectedRackOrFolder.removeNote(note);
 						} else {
 							Note.removeModelFromStorage(note);
-							if (self.notes.length > 1) {
-								self.changeNote(Note.beforeNote(self.notes.slice(), note, self.notesDisplayOrder));
+							if (this.notes.length > 1) {
+								this.changeNote(Note.beforeNote(this.notes.slice(), note, this.notesDisplayOrder));
 							} else {
-								self.changeNote(Note.beforeNote(self.originalNotes.slice(), note, self.notesDisplayOrder));
+								this.changeNote(Note.beforeNote(this.originalNotes.slice(), note, this.notesDisplayOrder));
 							}
 						}
 					}
 				});
 			},
 			// Dragging
-			noteDragStart: function(event, note) {
+			noteDragStart(event, note) {
 				event.dataTransfer.setDragImage(event.target, 0, 0);
 				this.setDraggingNote(note);
 			},
-			noteDragEnd: function() {
+			noteDragEnd() {
 				this.setDraggingNote(null);
 			},
-			noteDragOver: function(event, note) {
-				if (this.draggingNote && this.draggingNote.folder.data.bookmarks) {
+			noteDragOver(event, note) {
+				if (this.draggingNote && this.draggingNote.folder && this.draggingNote.folder.data.bookmarks) {
 					event.preventDefault();
 					var per = dragging.dragOverPercentageHorizontal(event.currentTarget, event.clientX);
 					if (per > 0.5) {
@@ -176,12 +160,12 @@
 					}
 				}
 			},
-			noteDragLeave: function(note) {
+			noteDragLeave(note) {
 				note.dragHover = false;
 				note.sortUpper = false;
 				note.sortLower = false;
 			},
-			dropToNote: function(event, note) {
+			dropToNote(event, note) {
 				if (this.draggingNote && this.draggingNote.folder.data.bookmarks && note.folder.data.bookmarks) {
 					var notes = this.notes.slice();
 					arr.remove(notes, (r) => {return r == this.draggingNote});
@@ -200,16 +184,16 @@
 				}
 			},
 			// Electron methods
-			copyNoteBody: function(note) {
+			copyNoteBody(note) {
 				clipboard.writeText(note.bodyWithDataURL);
 				this.$message('info', 'Copied Markdown to clipboard');
 			},
-			copyNoteHTML: function(note) {
+			copyNoteHTML(note) {
 				clipboard.writeText(marked(note.body));
 				this.$message('info', 'Copied HTML to clipboard');
 			},
 			// Electron
-			exportNoteDiag: function(note) {
+			exportNoteDiag(note) {
 				var filename = fileUtils.safeName(note.title) + '.md';
 				var notePath = dialog.showSaveDialog(remote.getCurrentWindow(), {
 					title: 'Export Note',
@@ -226,7 +210,7 @@
 				}
 				fs.closeSync(fd);
 			},
-			noteMenu: function(note) {
+			noteMenu(note) {
 				var menu = new Menu();
 
 				if(this.bookmarksList){

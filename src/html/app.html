@@ -51,7 +51,8 @@
 							:dragging-note="draggingNote"
 							:change-note="changeNote"
 							:set-dragging-note="setDraggingNote"
-							:edit-bookmark="editBookmark">
+							:edit-bookmark="editBookmark"
+							:notes-display-order="notesDisplayOrder">
 						</notes>
 					</div>
 				</div>
@@ -71,7 +72,8 @@
 							:note="selectedNote"
 							:is-full-screen="isFullScreen"
 							:is-preview="isPreview"
-							:toggle-preview="togglePreview">
+							:toggle-preview="togglePreview"
+							ref="refCodeMirror">
 						</codemirror>
 						<div v-show="isPreview && isNoteSelected" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()">
 							<div v-html="preview">
@@ -88,7 +90,8 @@
 								:dragging-note="draggingNote"
 								:change-note="changeNote"
 								:set-dragging-note="setDraggingNote"
-								:edit-bookmark="editBookmark">
+								:edit-bookmark="editBookmark"
+								:notes-display-order="notesDisplayOrder">
 							</notes>
 						</div>
 					</div>

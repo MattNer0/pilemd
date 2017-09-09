@@ -54,7 +54,6 @@
 
 	const fs = require('fs');
 	const path = require('path');
-	const Vue = require('vue');
 
 	const arr = require('../utils/arr');
 	const dragging = require('../utils/dragging');
@@ -83,7 +82,7 @@
 			'addRackSeparator': Function,
 			'updateTrayMenu': Function
 		},
-		data: function() {
+		data() {
 			return {
 				draggingRack: null,
 				draggingFolder: null,
@@ -95,24 +94,22 @@
 		},
 		directives: {
 			'focus': function(element) {
-				if (!element) {
-					return;
-				}
-				Vue.nextTick(function() {
+				if (!element) return;
+				this.$nextTick(() => {
 					element.focus();
 				});
 			}
 		},
 		computed: {
-			racksWithFolders: function() {
+			racksWithFolders() {
 				return this.racks.sort(function(a, b) { return a.ordering - b.ordering });
 			},
 		},
 		methods: {
-			isDraggingNote: function() {
+			isDraggingNote() {
 				return !!this.draggingNote;
 			},
-			addRack: function() {
+			addRack() {
 				var rack = new models.Rack({
 					name: "",
 					ordering: 0
@@ -120,7 +117,7 @@
 				this.$root.addRack(rack);
 				this.editingRack = rack;
 			},
-			addBookmarkRack: function() {
+			addBookmarkRack() {
 				var rack = new models.BookmarkRack({
 					name: "",
 					path: "",
@@ -130,7 +127,7 @@
 				this.$root.addRack(rack);
 				this.editingRack = rack;
 			},
-			addFolder: function(rack) {
+			addFolder(rack) {
 				var folder;
 				if (rack.data.bookmarks) {
 					folder = new models.BookmarkFolder({
@@ -150,24 +147,24 @@
 				this.addFolderToRack(rack, folder);
 				this.editingFolder = folder;
 			},
-			doneRackEdit: function(rack) {
+			doneRackEdit(rack) {
 				if (!this.editingRack) { return }
 				rack.saveModel();
 				this.editingRack = null;
 				this.changeRackOrFolder(rack);
 				this.updateTrayMenu();
 			},
-			doneFolderEdit: function(rack, folder) {
+			doneFolderEdit(rack, folder) {
 				if (!this.editingFolder) { return }
 				folder.saveModel();
 				this.editingFolder = null;
 				this.changeRackOrFolder(folder);
 				this.updateTrayMenu();
 			},
-			isSelectedRack: function(rack) {
+			isSelectedRack(rack) {
 				return this.selectedRackOrFolder === rack;
 			},
-			isSelectedFolder: function(folder) {
+			isSelectedFolder(folder) {
 				return this.selectedRackOrFolder === folder;
 			},
 			/*filterNotesByFolder: function(folder) {
@@ -175,12 +172,12 @@
 					return obj.isFolder(folder);
 				});
 			},*/
-			notesByFolder: function(folder) {
-				return this.notes.filter(function(obj){
+			notesByFolder(folder) {
+				return this.notes.filter((obj) => {
 					return obj.isFolder(folder);
 				});
 			},
-			selectRack: function(rack) {
+			selectRack(rack) {
 				var previousRackOrFolder = this.changeRackOrFolder(rack);
 				if(rack.openFolders && previousRackOrFolder == rack){
 					this.closeRack(rack);
@@ -188,20 +185,20 @@
 					this.openRack(rack);
 				}
 			},
-			selectFolder: function(folder) {
+			selectFolder(folder) {
 				this.changeRackOrFolder(folder);
 			},
 			// Dragging
-			rackDragStart: function(event, rack) {
+			rackDragStart(event, rack) {
 				this.closeRack(rack);
 				event.dataTransfer.setDragImage(event.target, 0, 0);
 				this.draggingRack = rack;
 			},
-			rackDragEnd: function() {
+			rackDragEnd() {
 				this.draggingRack = null;
 				this.changeRackOrFolder(null);
 			},
-			rackDragOver: function(event, rack) {
+			rackDragOver(event, rack) {
 				if (this.draggingFolder) {
 					event.preventDefault();
 					rack.dragHover = true;
@@ -223,7 +220,7 @@
 					//event.preventDefault();
 				}
 			},
-			rackDragLeave: function(rack) {
+			rackDragLeave(rack) {
 				if (this.draggingFolder && this.draggingFolderRack && !this.draggingFolderRack.uid == rack.uid) {
 					this.closeRack(rack);
 				}
@@ -236,7 +233,7 @@
 			 * @param  {Object}  event   drag event
 			 * @param  {Object}  rack    current rack
 			 */
-			dropToRack: function(event, rack) {
+			dropToRack(event, rack) {
 				if (this.draggingFolder) {
 					console.log("Dropping to rack");
 					if(!rack.openFolders) this.openRack(rack);
@@ -281,17 +278,17 @@
 					event.stopPropagation();
 				}
 			},
-			folderDragStart: function(event, rack, folder) {
+			folderDragStart(event, rack, folder) {
 				event.dataTransfer.setDragImage(event.target, 8, 0);
 				this.draggingFolder = folder;
 				this.draggingFolderRack = rack;
 			},
-			folderDragEnd: function() {
+			folderDragEnd() {
 				this.folderDragEnded(this.draggingFolderRack, this.draggingFolder)
 				this.draggingFolder = null;
 				this.draggingFolderRack = null;
 			},
-			folderDragOver: function(event, rack, folder) {
+			folderDragOver(event, rack, folder) {
 				if (this.draggingNote && this.draggingNote.folderUid != folder.uid) {
 					event.stopPropagation();
 					event.preventDefault();
@@ -313,7 +310,7 @@
 					event.preventDefault();
 				}
 			},
-			folderDragLeave: function(folder) {
+			folderDragLeave(folder) {
 				if (this.draggingNote) {
 					folder.dragHover = false;
 				} else if (this.draggingFolder) {
@@ -327,7 +324,7 @@
 			 * @param  {Object}  rack    parent rack
 			 * @param  {Object}  folder  current folder
 			 */
-			dropToFolder: function(event, rack, folder) {
+			dropToFolder(event, rack, folder) {
 				if (this.draggingNote && this.draggingNote.folderUid != folder.uid) {
 					console.log("Dropping to Folder");
 					event.stopPropagation();
@@ -342,7 +339,7 @@
 					this.setDraggingNote(null);
 					var s = this.selectedRackOrFolder;
 					this.changeRackOrFolder(null);
-					Vue.nextTick(() => {
+					this.$nextTick(() => {
 						this.changeRackOrFolder(s);
 					});
 				} else if (this.draggingFolder && this.draggingFolder != folder) {
@@ -372,7 +369,7 @@
 					this.draggingFolder = null;
 				}
 			},
-			rackMenu: function(rack) {
+			rackMenu(rack) {
 				var menu = new Menu();
 				if (!rack.data.separator) {
 					menu.append(new MenuItem({
@@ -427,7 +424,7 @@
 				
 				menu.popup(remote.getCurrentWindow());
 			},
-			folderMenu: function(rack, folder) {
+			folderMenu(rack, folder) {
 				var menu = new Menu();
 				menu.append(new MenuItem({
 					label: 'Rename Folder',

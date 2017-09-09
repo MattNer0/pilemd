@@ -104,7 +104,7 @@
 	export default {
 		name: 'noteMenu',
 		props: ['note', 'isFullScreen', 'isPreview', 'fontsize', 'togglePreview', 'isNoteSelected'],
-		data: function() {
+		data() {
 			return {
 				'fontsize_visible': false,
 				'properties_visible': false,

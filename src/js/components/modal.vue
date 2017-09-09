@@ -20,8 +20,6 @@
 </template>
 
 <script>
-
-	const Vue = require('vue');
 	import VuePassword from 'vue-password';
 
 	export default {
@@ -105,9 +103,8 @@
 		},
 		watch: {
 			image_url() {
-				var self = this;
-				Vue.nextTick(() => {
-					if(self.$refs.imagemodal) self.$refs.imagemodal.style.backgroundImage = "url("+self.image_url+")";
+				this.$nextTick(() => {
+					if(this.$refs.imagemodal) this.$refs.imagemodal.style.backgroundImage = "url("+this.image_url+")";
 				});
 			}
 		}

@@ -8,19 +8,11 @@
 </template>
 
 <script>
-	const Vue = require('vue');
-	Vue.prototype.$message = function(level, text, period, url) {
-		if (!period) {
-			period = 3000;
-		}
-		var message = {level: 'flashmessage-' + level, text: text, period: period, url: url};
-		this.$dispatch('flashmessage-push', message);
-	};
 	export default {
 		name: 'flashmessage',
 		props: ['messages'],
 		methods: {
-			openUrl: function(url) {
+			openUrl(url) {
 				require('electron').shell.openExternal('' + url + '');
 			}
 		}

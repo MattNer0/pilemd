@@ -5,7 +5,6 @@
 <script>
 	const fs = require('fs');
 	const path = require('path');
-	const Vue = require('vue');
 
 	const _ = require('lodash');
 
@@ -69,9 +68,7 @@
 	export default {
 		name: 'codemirror',
 		props: ['note', 'isFullScreen', 'isPreview', 'togglePreview'],
-		mounted: function () {
-			var self = this;
-
+		mounted() {
 			this.$nextTick(() => {
 
 				var cm = CodeMirror(this.$el, {
@@ -92,19 +89,14 @@
 				this.cm = cm;
 				this.$root.codeMirror = cm;
 
-				var updateBody = null;
-				cm.on('change', function() {
-					if(updateBody) clearTimeout(updateBody);
-					updateBody = setTimeout(function(){
-						self.note.body = cm.getValue();
-					}, 300);
-				});
+				cm.on('change', this.updateNoteBody);
+				cm.on('blur', this.updateNoteBeforeSaving);
 
 				cm.on('drop', (cm, event) => {
 					if (event.dataTransfer.files.length > 0) {
 						var p = cm.coordsChar({ top: event.y, left: event.x });
 						cm.setCursor(p);
-						self.uploadFiles(cm, event.dataTransfer.files);
+						this.uploadFiles(cm, event.dataTransfer.files);
 					} else {
 						return true;
 					}
@@ -197,19 +189,15 @@
 						value.doc = doc;
 						cm.focus();
 					}
-					Vue.nextTick(() => {
-						cm.refresh();
-					});
-					setTimeout(() => {
-						cm.refresh();
-					}, 100);
-					if(doc){
+					this.$nextTick(() => { cm.refresh(); });
+					setTimeout(() => { cm.refresh(); }, 100);
+					if (doc) {
 						if(doc.cm) doc.cm = null;
 						cm.swapDoc(doc);
 					}
 				}, { immediate: true });
 				
-				this.$watch('note.body', function(value) {
+				/*this.$watch('note.body', function(value) {
 					if (cm.doc.getValue() != value) {
 						// Note updated by outers.
 						// TODO more correct way to detect the state.
@@ -217,13 +205,12 @@
 						cm.doc.setValue(value);
 						cm.doc.setCursor(c);
 					}
-				});
+				});*/
 			});
 		},
 		methods: {
 
-			uploadFile: function() {
-				var cm = this.cm;
+			uploadFile() {
 				var notePaths = dialog.showOpenDialog({
 					title: 'Attach Image',
 					filters: [{
@@ -242,16 +229,15 @@
 					var name = path.basename(notePath);
 					return { name: name, path: notePath }
 				});
-				this.uploadFiles(cm, files);
+				this.uploadFiles(this.cm, files);
 			},
-			uploadFiles: function(cm, files) {
-				var self = this;
+			uploadFiles(cm, files) {
 				files = Array.prototype.slice.call(files, 0, 5);
 				_.forEach(files, (f) => {
 					try {
 						var image = Image.fromBinary(f.name, f.path);
 					} catch (e) {
-						self.$message('error', 'Failed to load and save image', 5000);
+						this.$message('error', 'Failed to load and save image', 5000);
 						console.log(e);
 						return
 					}
@@ -259,26 +245,35 @@
 						IMAGE_TAG_TEMP({ filename: f.name, fileurl: image.pilemdURL }),
 						cm.doc.getCursor()
 					);
-					self.$message('info', 'Saved image to ' + image.makeFilePath());
+					this.$message('info', 'Saved image to ' + image.makeFilePath());
 				});
+			},
+			updateNoteBody: _.debounce(function () {
+					this.note.body = this.cm.getValue();
+				}, 1000, {
+					leading: true,
+					trailing: true,
+					maxWait: 5000
+				}
+			),
+			updateNoteBeforeSaving() {
+				this.note.body = this.cm.getValue();
 			}
 		},
 		watch: {
 			isFullScreen() {
-				var self = this;
-				Vue.nextTick(() => {
+				this.$nextTick(() => {
 					setTimeout(() => {
-						self.cm.refresh();
-						self.cm.focus();
+						this.cm.refresh();
+						this.cm.focus();
 					}, 300);
 				});
 			},
 			isPreview() {
-				var self = this;
 				if (!this.isPreview) {
-					Vue.nextTick(() => {
-						self.cm.refresh();
-						self.cm.focus();
+					this.$nextTick(() => {
+						this.cm.refresh();
+						this.cm.focus();
 					});
 				}
 			}

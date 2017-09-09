@@ -4,40 +4,46 @@
 	align-items: flex-end;
 
 	position: absolute;
-	bottom: 8px;
-	right: 8px;
+	bottom: 0.5em;
+	right: 0.5em;
 	z-index: 100;
-	background-color: $main-background-color;
+	background: transparent;
 }
 
 .flashmessage-message {
+	border-bottom: 2px solid $ui-text-color;
 	color: $ui-text-color;
 	padding: 0.5em;
 	margin: 0.5em;
 	transition: all 0.3s ease;
 	vertical-align: middle;
 	overflow-y: hidden;
+	cursor: default;
+	opacity: 0.8;
 
 	a {
 		color: inherit;
 		background-color: transparent;
+		text-decoration: none;
 	}
 }
 
-.flashmessage-message:hover{
+.flashmessage-message:hover a{
 	color: $ui-text-color-hover;
 }
 
 .flashmessage-message-enter, .flashmessage-message-leave-active {
 	color: transparent;
-	padding: 0 8px 0 8px;
+	padding: 0 0.5em;
 	height: 0;
 }
 
 .flashmessage-info {
-	background-color: rgba(74, 122, 136, 0.5);
+	background-color: rgb(74, 122, 136);
+	color: #FFF;
 }
 
 .flashmessage-error {
-	background-color: rgba(200, 100, 100, 0.5);
+	background-color: rgb(200, 100, 100);
+	color: #FFF;
 }

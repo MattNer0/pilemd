@@ -30,10 +30,10 @@
 			'rackFolder': Object
 		},
 		computed: {
-			enabled: function() {
+			enabled() {
 				return this.rackFolder || this.note;
 			},
-			rack: function() {
+			rack() {
 				if (this.note && this.note.title) {
 					return this.note.data.rack;
 				} else if(this.rackFolder) {
@@ -45,7 +45,7 @@
 				}
 				return undefined;
 			},
-			folder: function() {
+			folder() {
 				if (this.note && this.note.title) {
 					return this.note.data.folder;
 				} else if(this.rackFolder) {
@@ -57,14 +57,14 @@
 			},
 		},
 		methods: {
-			win_close: function() {
-				setTimeout(function() {
+			win_close() {
+				setTimeout(() => {
 					var win = remote.getCurrentWindow();
 					win.hide();
 				}, 100);
 			},
-			win_max: function() {
-				setTimeout(function() {
+			win_max() {
+				setTimeout(() => {
 					var win = remote.getCurrentWindow();
 					if(win.isMaximized()){
 						win.unmaximize();
@@ -73,8 +73,8 @@
 					}
 				}, 100);
 			},
-			win_min: function() {
-				setTimeout(function() {
+			win_min() {
+				setTimeout(() => {
 					var win = remote.getCurrentWindow();
 					win.minimize();
 				}, 100);
