@@ -16,8 +16,8 @@
 					dropdown(:visible="menu_visible", :position="position", v-on:clickout="menu_visible = false")
 						i.link.material-icons(@click="menu_visible = !menu_visible") more_vert
 						.dialog(slot="dropdown"): ul
-							li: a(@click.prevent="menu_openFolder", href="#") Open Existing Sync Folder
-							li: a(@click.prevent="menu_moveFolder", href="#") Move Sync Folder
+							li: a(@click.prevent="menu_openFolder", href="#") Open Library Directory
+							li: a(@click.prevent="menu_moveFolder", href="#") Move Library Directory
 							li: hr
 							li: a(@click.prevent="menu_changeOrder('updatedAt')", href="#")
 								i.material-icons(v-if="notesDisplayOrder == 'updatedAt'") radio_button_checked

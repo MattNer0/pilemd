@@ -3,7 +3,11 @@
 		.system-bar-spacing
 		.system-bar
 			.spacer
-				span(v-if="enabled && rack") {{ rack.name }}
+				span
+					| PileMd Library
+				span(v-if="enabled && rack")
+					i.material-icons chevron_right
+					|  {{ rack.name }}
 				span(v-if="enabled && folder")
 					i.material-icons chevron_right
 					|  {{ folder.name }}
