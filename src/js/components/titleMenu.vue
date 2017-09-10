@@ -110,7 +110,7 @@
 			menu_credits() {
 				this.menu_visible = false;
 				setTimeout(() => {
-					self.openCredits();
+					this.openCredits();
 				}, 100);
 			},
 			menu_changeTheme(value) {

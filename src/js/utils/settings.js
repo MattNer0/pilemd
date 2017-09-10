@@ -4,7 +4,7 @@ const path = require('path');
 const electron = require('electron');
 const remote = electron.remote;
 
-const elosenv = require('./utils/elosenv');
+const elosenv = require('./elosenv');
 
 var settings_data = {};
 var settings_filename = 'pilemdConfig.json';
