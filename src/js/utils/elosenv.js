@@ -1,11 +1,16 @@
 const electron = require('electron');
 const remote = electron.remote;
-
-function homePath() {
-	//return remote.process.env.HOME || remote.process.env.USERPROFILE || '/';
-	return remote.app.getPath('home');
-}
+const path = require('path');
 
 module.exports = {
-	homePath: homePath
+	homePath() {
+		return remote.app.getPath('home');
+	},
+	appDataPath() {
+		return remote.app.getPath('appData');
+	}
+	workingDirectory() {
+		var exe = remote.app.getPath('exe');
+		return path.dirname(exe);
+	}
 };

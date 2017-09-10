@@ -6,11 +6,15 @@ const models = require('./models');
 const elosenv = require('./utils/elosenv');
 
 function initialFolder() {
-	var p = elosenv.homePath();
+	var p = path.join(elosenv.workingDirectory(), 'library');
+	try { fs.accessSync(p, fs.W_OK | fs.R_OK);
+	} catch (e) {
+		p = path.join(elosenv.homePath(), 'library');
+	}
+
 	try {
-		p = path.join(p, 'pmlibrary');
 		models.setBaseLibraryPath(p);
-		fs.mkdirSync(p);
+		if (!fs.existsSync(p)) fs.mkdirSync(p);
 	} catch (e) {}
 }
 

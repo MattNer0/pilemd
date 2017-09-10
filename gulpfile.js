@@ -1,9 +1,16 @@
-var gulp = require('gulp');
-var uglify = require('gulp-uglify');
-var webpack = require('webpack-stream');
-var packager = require('electron-packager');
-var _ = require('lodash');
-var fs = require('fs');
+const gulp = require('gulp');
+const uglify = require('gulp-uglify');
+const webpack = require('webpack-stream');
+const packager = require('electron-packager');
+const _ = require('lodash');
+
+const path = require('path');
+const fs = require('fs');
+
+function create_library_directory(buildPath) {
+	var appPath = path.join('.', buildPath, 'library');
+	fs.mkdirSync(appPath);
+}
 
 gulp.task('default', function() {
 	return gulp.src('src/entry.js')
@@ -24,27 +31,35 @@ var BASE_OPTION = {
 };
 
 gulp.task('electron-darwin', function(done) {
-	packager(_.defaults(_.clone(BASE_OPTION), {
+	var c = _.defaults(_.clone(BASE_OPTION), {
 		out: 'releases/darwin/',
 		platform: 'darwin',
 		icon: './icons/pilemd.icns',
 		sign: process.env['PM_OSX_SIGN'],
 		'helper-buldle-id': 'md.pile.helper',
 		'app-bundle-id': 'md.pile'
-	}), function(err) {
-		if (err) console.log(err);
+	});
+
+	packager(c).then((appPaths) => {
+		create_library_directory(appPaths[0]);
 		done();
+	}).catch((err) => {
+		console.log(err);
 	});
 });
 
 
 gulp.task('electron-linux', function(done) {
-	packager(_.defaults(_.clone(BASE_OPTION), {
+	var c = _.defaults(_.clone(BASE_OPTION), {
 		out: './releases/linux/',
 		platform: 'linux'
-	}), function(err) {
-		if (err) console.log(err);
+	});
+
+	packager(c).then((appPaths) => {
+		create_library_directory(appPaths[0]);
 		done();
+	}).catch((err) => {
+		console.log(err);
 	});
 });
 
@@ -56,8 +71,10 @@ gulp.task('electron-windows', function(done) {
 		icon: './icons/pilemd.ico'
 	});
 	// c['arch'] = 'ia32';
-	packager(c, function(err) {
-		if (err) console.log(err);
+	packager(c).then((err, appPaths) => {
+		create_library_directory(appPaths[0]);
 		done();
+	}).catch((err) => {
+		console.log(err);
 	});
 });

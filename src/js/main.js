@@ -185,6 +185,11 @@ var appVue = new Vue({
 					notes = initial_notes;
 				}
 			}
+		} else {
+			this.$refs.dialog.init('Error', 'Couldn\'t open library directory.\nPath: '+models.getBaseLibraryPath(), [{
+				label: 'Ok',
+				cancel: true
+			}]);
 		}
 
 		this.racks = arr.sortBy(racks.slice(), 'ordering', true);
