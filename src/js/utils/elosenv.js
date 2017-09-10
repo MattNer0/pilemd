@@ -8,7 +8,7 @@ module.exports = {
 	},
 	appDataPath() {
 		return remote.app.getPath('appData');
-	}
+	},
 	workingDirectory() {
 		var exe = remote.app.getPath('exe');
 		return path.dirname(exe);
