@@ -100,7 +100,6 @@ var appVue = new Vue({
 		'codemirror': component_codeMirror
 	},
 	computed: {
-		
 		/**
 		 * Filters notes based on search terms.
 		 * It also makes sure that all the notes inside the current selected rack are loaded,

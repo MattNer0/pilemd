@@ -13,24 +13,7 @@ const libini = require('./utils/libini');
 
 const bookmarksConverter = require('./utils/bookmarks');
 
-const BASE_LIB_PATH_KEY = 'libpath';
-
 var baseLibraryPath = '';
-
-String.prototype.formatUnicorn = String.prototype.formatUnicorn || () => {
-	'use strict';
-	var str = this.toString();
-	if (arguments.length) {
-		var t = typeof arguments[0];
-		var key;
-		var args = ('string' === t || 'number' === t) ? Array.prototype.slice.call(arguments) : arguments[0];
-
-		for (key in args) {
-			str = str.replace(new RegExp('\\{' + key + '\\}', 'gi'), args[key]);
-		}
-	}
-	return str;
-};
 
 /**
  * Sets the base library path.
@@ -62,7 +45,7 @@ function doesLibraryExists() {
 }
 
 function getValidMarkdownFormats() {
-	return [ '.md', '.markdown', '.txt', '.mdencrypted' ];
+	return ['.md', '.markdown', '.txt', '.mdencrypted'];
 }
 
 class Model {
@@ -170,7 +153,7 @@ class Note extends Model {
 	}
 
 	get metadataregex() {
-		return /^([a-z]+):\s+([\w\W\s]+?)\s*\n(?=(\w+:)|\n)\n*/gmiy
+		return /^([a-z]+):\s+([\w\W\s]+?)\s*\n(?=(\w+:)|\n)\n*/gmiy;
 	}
 
 	get metadata() {
@@ -443,6 +426,12 @@ class Note extends Model {
 		}
 	}
 
+	remove() {
+		if(fs.existsSync(this._path)) {
+			fs.unlinkSync(this._path);
+		}
+	}
+
 	static latestUpdatedNote(notes) {
 		return _.max(notes, function(n) { return n.updatedAt } );
 	}
@@ -517,13 +506,6 @@ class Note extends Model {
 			}
 		});
 		return valid_notes;
-	}
-
-	static removeModelFromStorage(model) {
-		if (!model) { return }
-		if(fs.existsSync(model.data.path)) {
-			fs.unlinkSync(model.data.path);
-		}
 	}
 }
 
@@ -771,7 +753,6 @@ class BookmarkFolder extends Folder {
 				"LAST_MODIFIED": moment().format('X')
 			};
 		}
-		
 	}
 
 	get data() {

@@ -49,7 +49,6 @@
 
 	// Electron things
 	const remote = require('electron').remote;
-	const shell = remote.shell;
 	const Menu = remote.Menu;
 	const MenuItem = remote.MenuItem;
 	const clipboard = require('electron').clipboard;
@@ -128,7 +127,7 @@
 						if(this.selectedRackOrFolder.data.bookmarks) {
 							this.selectedRackOrFolder.removeNote(note);
 						} else {
-							Note.removeModelFromStorage(note);
+							note.remove();
 							if (this.notes.length > 1) {
 								this.changeNote(Note.beforeNote(this.notes.slice(), note, this.notesDisplayOrder));
 							} else {
