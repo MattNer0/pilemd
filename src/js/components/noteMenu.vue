@@ -54,7 +54,10 @@
 							table
 								tr
 									td: strong Modified: 
-									td.right: span {{ note.data.updated_at.format('MMM DD, YYYY') }}
+									td.right: span {{ note.updatedAt.format('MMM DD, YYYY') }}
+								tr
+									td: strong Created: 
+									td.right: span {{ note.createdAt.format('MMM DD, YYYY') }}
 
 
 			li.right-align

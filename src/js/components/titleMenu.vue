@@ -19,6 +19,15 @@
 							li: a(@click.prevent="menu_openFolder", href="#") Open Existing Sync Folder
 							li: a(@click.prevent="menu_moveFolder", href="#") Move Sync Folder
 							li: hr
+							li: a(@click.prevent="menu_changeOrder('updatedAt')", href="#")
+								i.material-icons(v-if="notesDisplayOrder == 'updatedAt'") radio_button_checked
+								i.material-icons.faded(v-else) radio_button_unchecked
+								|  Sort by Update Date
+							li: a(@click.prevent="menu_changeOrder('createdAt')", href="#")
+								i.material-icons(v-if="notesDisplayOrder == 'createdAt'") radio_button_checked
+								i.material-icons.faded(v-else) radio_button_unchecked
+								|  Sort by Creation Date
+							li: hr
 							li: a(@click.prevent="menu_changeTheme('original')", href="#")
 								i.material-icons(v-if="selectedTheme == 'original'") radio_button_checked
 								i.material-icons.faded(v-else) radio_button_unchecked
@@ -52,11 +61,13 @@
 		props: {
 			'isFullScreen': Boolean,
 			'selectedTheme': String,
+			'notesDisplayOrder': String,
 			'toggleFullScreen': Function,
 			'openSync': Function,
 			'moveSync': Function,
 			'openCredits': Function,
-			'changeTheme': Function
+			'changeTheme': Function,
+			'changeDisplayOrder': Function
 		},
 		data: function() {
 			return {
@@ -107,6 +118,12 @@
 				setTimeout(() => {
 					this.changeTheme(value);
 				}, 100);
+			},
+			menu_changeOrder(value) {
+				this.menu_visible = false;
+				setTimeout(() => {
+					this.changeDisplayOrder(value);
+				}, 100);	
 			},
 			menu_quit() {
 				this.menu_visible = false;

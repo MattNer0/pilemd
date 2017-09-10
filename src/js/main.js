@@ -235,9 +235,7 @@ var appVue = new Vue({
 								name: path.basename(notePath, noteData.ext),
 								body: "",
 								path: notePath,
-								extension: noteData.ext,
-								created_at: noteData.stat.birthtime,
-								updated_at: noteData.stat.mtime
+								extension: noteData.ext
 							});
 							this.notes.push(openedNote);
 							this.changeNote(openedNote);
@@ -873,6 +871,12 @@ var appVue = new Vue({
 						body.classList.remove('original-theme');
 						break;
 				}
+			}
+		},
+		changeDisplayOrder(value) {
+			var allowedOrders = ['updatedAt', 'createdAt'];
+			if(allowedOrders.indexOf(value) >= 0) {
+				this.notesDisplayOrder = value;
 			}
 		},
 		/**

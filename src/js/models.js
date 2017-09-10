@@ -119,21 +119,26 @@ class Note extends Model {
 			this._loadedBody = true;
 		}
 
-		if (data.updated_at) {
-			this.updatedAt = moment(data.updated_at);
-		} else {
-			this.updatedAt = moment();
-		}
-
-		if (data.created_at) {
-			this.createdAt = moment(data.created_at);
-		} else {
-			this.createdAt = moment();
-		}
-
+		this._metadata = {};
 		this.dragHover = false;
 		this.sortUpper = false;
 		this.sortLower = false;
+	}
+
+	get updatedAt() {
+		return moment(this._metadata.updatedAt);
+	}
+
+	set updatedAt(value) {
+		this.setMetadata('updatedAt', value);
+	}
+
+	get createdAt() {
+		return moment(this._metadata.createdAt);
+	}
+
+	set createdAt(value) {
+		this.setMetadata('createdAt', value);
 	}
 
 	get data() {
@@ -143,8 +148,6 @@ class Note extends Model {
 			extension: this._ext,
 			document_filename: this.document_filename,
 			folderUid: this.folderUid,
-			updated_at: this.updatedAt,
-			created_at: this.createdAt,
 			rack: this._rack,
 			folder: this._folder
 		});
@@ -164,6 +167,23 @@ class Note extends Model {
 			wordCount: this._body.replace(/\n/g, ' ').replace(/ +/g, ' ').split(' ').length,
 			charCount: this._body.replace(/\W/g, '').length
 		};
+	}
+
+	get metadataregex() {
+		return /^([a-z]+):\s+([\w\W\s]+?)\s*\n(?=(\w+:)|\n)\n*/gmiy
+	}
+
+	get metadata() {
+		return this._metadata;
+	}
+
+	set metadata(newValue) {
+		this._metadata = newValue;
+		var str = '';
+		Object.keys(newValue).forEach((key) => {
+			str += key + ': ' + newValue[key] + '\n';
+		});
+		this._body = str + '\n' + this.bodyWithoutMetadata;
 	}
 
 	set path(newValue) {
@@ -196,9 +216,13 @@ class Note extends Model {
 
 	set body(newValue) {
 		if (newValue != this._body) {
+			this._metadata.updatedAt = moment().format('YYYY-MM-DD');
 			this._body = newValue;
-			this.updatedAt = moment();
 		}
+	}
+
+	get bodyWithoutMetadata() {
+		return this._body.replace(this.metadataregex, '');
 	}
 
 	set folder(f) {
@@ -209,66 +233,6 @@ class Note extends Model {
 			this._folder = f;
 			this.folderUid = f.uid;
 		}
-	}
-
-	isFolder(f) {
-		return this.folderUid == f.uid;
-	}
-
-	isRack(r) {
-		return this._folder.rackUid == r.uid;
-	}
-
-	loadBody() {
-		if (this._loadedBody) return;
-
-		if (fs.existsSync(this.path)) {
-			var content = fs.readFileSync(this.path).toString();
-			content = content.replace(/    /g, '\t');
-			if (content && content != this._body) {
-				this._body = content;
-			}
-			this._loadedBody = true;
-		}
-	}
-
-	update(data) {
-		super.update(data);
-
-		this._body = data.body;
-		this.folderUid = data.folderUid;
-		this.updated_at = data.updated_at;
-		this.created_at = data.created_at;
-	}
-
-	splitTitleFromBody() {
-		var ret;
-		var lines = this.body.split('\n');
-		lines.forEach((row, index) => {
-			if (ret) {return}
-			if (row.length > 0) {
-				ret = {
-					title: _.trimStart(row, '# '),
-					body: lines.slice(0, index).concat(lines.splice(index + 1)).join('\n')
-				};
-			}
-		});
-
-		if (ret) {
-			return ret;
-		}
-
-		return {
-			title: '',
-			body: this.body
-		};
-	}
-
-	cleanPreviewBody(text) {
-		text = text.replace(/^\n/, '');
-		text = text.replace(/\* \[ \]/g, '* ');
-		text = text.replace(/\* \[x\]/g, '* ');
-		return text;
 	}
 
 	get bodyWithoutTitle() {
@@ -301,6 +265,14 @@ class Note extends Model {
 		);
 	}
 
+	get bodyWithMetadata() {
+		var str = '';
+		Object.keys(this._metadata).forEach((key) => {
+			str += key + ': ' + this._metadata[key] + '\n';
+		});
+		return str + '\n' + this._body;
+	}
+
 	get img() {
 		var matched = /(https?|pilemd):\/\/[-a-zA-Z0-9@:%_\+.~#?&//=]+?\.(png|jpeg|jpg|gif)/.exec(this.body);
 		if (!matched) {
@@ -319,8 +291,103 @@ class Note extends Model {
 		}
 	}
 
+	setMetadata(key, value) {
+		console.log(key, value);
+		this._metadata[key] = value;
+	}
+
+	isFolder(f) {
+		return this.folderUid == f.uid;
+	}
+
+	isRack(r) {
+		return this._folder.rackUid == r.uid;
+	}
+
+	loadBody() {
+		if (this._loadedBody) return;
+
+		if (fs.existsSync(this.path)) {
+			var content = fs.readFileSync(this.path).toString();
+			content = content.replace(/    /g, '\t');
+			if (content && content != this._body) {
+				this._body = content;
+
+				if (!this.isEncryptedNote) {
+					var re = this.metadataregex;
+					var metadata = {};
+					var m;
+
+					var first_meta = this._body.match(re);
+					if (first_meta && this._body.indexOf(first_meta[0]) == 0) {
+						do {
+							m = re.exec(this._body);
+							if (m) {
+								metadata[m[1]] = m[2].replace(/\s+/g,' ');
+							}
+						} while (m);
+						
+						this._metadata = metadata;
+						if(!this._metadata.createdAt) {
+							this.initializeCreationDate();
+						}
+						this._body = this.bodyWithoutMetadata;
+					}
+				}
+			}
+			this._loadedBody = true;
+		}
+	}
+
+	initializeCreationDate() {
+		var noteData = Note.isValidNotePath(this._path);
+		if (noteData) {
+			if(!this._metadata.createdAt)
+				this._metadata.createdAt = moment(noteData.stat.birthtime).format('YYYY-MM-DD');
+			if(!this._metadata.updatedAt)
+				this._metadata.createdAt = moment(noteData.stat.mtime).format('YYYY-MM-DD');
+		}
+	}
+
+	update(data) {
+		super.update(data);
+
+		this._body = data.body;
+		this.folderUid = data.folderUid;
+	}
+
+	splitTitleFromBody() {
+		var ret;
+		var lines = this.bodyWithoutMetadata.split('\n');
+		lines.forEach((row, index) => {
+			if (ret) {return}
+			if (row.length > 0) {
+				ret = {
+					title: _.trimStart(row, '# '),
+					meta: this.metadata,
+					body: lines.slice(0, index).concat(lines.splice(index + 1)).join('\n')
+				};
+			}
+		});
+
+		if (ret) return ret;
+
+		return {
+			title: '',
+			meta: this.metadata,
+			body: this.body
+		};
+	}
+
+	cleanPreviewBody(text) {
+		text = text.replace(/^\n/, '');
+		text = text.replace(/\* \[ \]/g, '* ');
+		text = text.replace(/\* \[x\]/g, '* ');
+		return text;
+	}
+
 	saveModel() {
-		var body = this._body;
+		var body = this.bodyWithMetadata;
 		if (this.isEncryptedNote) {
 			if (this._encrypted) return { error: "Encrypted" };
 			body = this.encrypt();
@@ -435,9 +502,7 @@ class Note extends Model {
 							body: "",
 							path: notePath,
 							extension: noteData.ext,
-							folder: folder,
-							created_at: noteData.stat.birthtime,
-							updated_at: noteData.stat.mtime
+							folder: folder
 						}));
 					} else {
 						valid_notes.push(new Note({
@@ -445,9 +510,7 @@ class Note extends Model {
 							body: "",
 							path: notePath,
 							extension: noteData.ext,
-							folder: folder,
-							created_at: noteData.stat.birthtime,
-							updated_at: noteData.stat.mtime
+							folder: folder
 						}));
 					}
 				}
