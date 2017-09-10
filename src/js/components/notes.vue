@@ -42,7 +42,6 @@
 	const fs = require('fs');
 	const Vue = require('vue');
 
-	const ApplicationMenu = require('../applicationmenu').ApplicationMenu;
 	const fileUtils = require('../utils/file');
 
 	const arr = require('../utils/arr');

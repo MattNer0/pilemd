@@ -13,7 +13,6 @@ var traymenu = require('./utils/traymenu');
 //var Vue = require('vue');
 import Vue from 'vue';
 
-//var ApplicationMenu = require('./applicationmenu').ApplicationMenu;
 var models = require('./models');
 var initialModels = require('./initialModels');
 var preview = require('./preview');
@@ -373,16 +372,20 @@ var appVue = new Vue({
 			this.draggingNote = note;
 		},
 		/**
-		 * Event called when user selects a new Rack.
-		 * Loads folders inside the specified Rack and orders them.
-		 * The folders are then displayed in the sidebar
-		 * @param  {Object}  rack  rack to be opened
+		 * Event called when user selects a new Rack from the sidebar.
+		 * 
+		 * @param  {Object}  rack    The rack
 		 */
 		openRack(rack) {
 			if(!(rack instanceof models.Rack)) return;
 			this.readRackContent(rack);
 			rack.openFolders = true;
 		},
+		/**
+		 * Reads folders and notes inside the Rack.
+		 *
+		 * @param  {Object}  rack    The rack
+		 */
 		readRackContent(rack) {
 			if(!(rack instanceof models.Rack)) return;
 			var newData = rack.readContents();
@@ -400,7 +403,8 @@ var appVue = new Vue({
 		},
 		/**
 		 * Hides rack content (folders).
-		 * @param  {Object}  rack  rack to be closed
+		 * 
+		 * @param  {Object}  rack    The rack
 		 */
 		closerack(rack) {
 			/*if(this.selectedNote && this.selectedNote.data && this.selectedNote.isRack(rack)){
@@ -414,7 +418,8 @@ var appVue = new Vue({
 		/**
 		 * Adds a new rack to the working directory.
 		 * The new rack is placed on top of the list.
-		 * @param {Object}  rack  new rack
+		 * 
+		 * @param  {Object}  rack    The new rack
 		 */
 		addRack(rack) {
 			var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
@@ -441,8 +446,9 @@ var appVue = new Vue({
 			this.racks = racks;
 		},
 		/**
-		 * Removes one Rack and its contents from the current working directory.
-		 * @param  {Object}  rack  rack to be removed
+		 * Removes the Rack (and its contents) from the current working directory.
+		 * 
+		 * @param  {Object}  rack    The rack
 		 */
 		removeRack(rack) {
 			rack.remove(this.notes, this.folders);
@@ -456,8 +462,9 @@ var appVue = new Vue({
 		/**
 		 * Inserts a new Folder inside the selected Rack.
 		 * The new Folder is placed on top of the list.
-		 * @param {Object}  rack    current rack
-		 * @param {Object}  folder  new folder
+		 * 
+		 * @param  {Object}  rack    The rack
+		 * @param  {Object}  folder  The folder
 		 */
 		addFolderToRack(rack, folder) {
 			this.openRack(rack);
@@ -473,7 +480,8 @@ var appVue = new Vue({
 		},
 		/**
 		 * Deletes a folder and its contents from the parent rack.
-		 * @param  {Object}  folder  folder to be removed
+		 * 
+		 * @param  {Object}  folder  The folder
 		 */
 		deleteFolder(folder) {
 			folder.remove(this.notes);
@@ -489,8 +497,9 @@ var appVue = new Vue({
 		},
 		/**
 		 * Event called after folder was dragged into a rack.
-		 * @param  {Object}  rack    rack folder dragged into
-		 * @param  {Object}  folder  dragged folder
+		 * 
+		 * @param  {Object}  rack    The rack
+		 * @param  {Object}  folder  The folder
 		 */
 		folderDragEnded(rack, folder) {
 			if(!rack) return;
@@ -530,7 +539,8 @@ var appVue = new Vue({
 		 * Finds the currently selected folder.
 		 * If a rack object is selected instead of a folder object,
 		 * then it will get the first folder inside the rack.
-		 * @return  {Object}  folder object if one is selected, "null" otherwise
+		 * 
+		 * @return  {Object}  Folder object if one is selected, "null" otherwise
 		 */
 		getCurrentFolder() {
 			if (this.selectedRackOrFolder == null){
@@ -603,8 +613,9 @@ var appVue = new Vue({
 			}
 		},
 		/**
-		 * add a series of notes
-		 * @param {Array}  noteTexts  array which contains the new notes
+		 * Add a list of notes to the library.
+		 * 
+		 * @param {Array}  noteTexts  Array which contains the new notes
 		 */
 		addNotes(noteTexts) {
 			var uid = this.calcSaveUid();
@@ -623,10 +634,6 @@ var appVue = new Vue({
 			if(this.selectedNote && this.isPreview) this.preview = preview.render(this.selectedNote, this);
 			var result = this.selectedNote.saveModel();
 			if (result && result.error && result.path) {
-				/*this.$refs.dialog.init('Error', result.error + "\nNote: " + result.path, [{
-					label: 'Ok',
-					cancel: true
-				}]);*/
 				this.sendFlashMessage(3000, 'error', result.error);
 			} else if(result && result.saved) {
 				this.sendFlashMessage(1000, 'info', 'Note saved');
@@ -634,7 +641,8 @@ var appVue = new Vue({
 		},
 		/**
 		 * add a new bookmark inside a specific folder
-		 * @param {Object}  folder  selected folder
+		 * 
+		 * @param {Object}  folder  The folder
 		 */
 		addBookmark(folder) {
 			var newBookmark = models.BookmarkFolder.newEmptyBookmark(folder);
@@ -642,8 +650,9 @@ var appVue = new Vue({
 			this.editBookmark(newBookmark);
 		},
 		/**
-		 * edit bookmark title and url through a popup dialog
-		 * @param {Object}  bookmark  selected bookmark object
+		 * Edit bookmark title and url through a popup dialog
+		 * 
+		 * @param {Object}  bookmark  The bookmark
 		 */
 		editBookmark(bookmark) {
 			var self = this;
@@ -736,6 +745,11 @@ var appVue = new Vue({
 				required: true
 			}]);
 		},
+		/**
+		 * Displays an image with the popup dialog.
+		 *
+		 * @param      {String}  url     The image url
+		 */
 		openImg(url) {
 			this.$refs.dialog.image(url);
 		},
@@ -853,7 +867,8 @@ var appVue = new Vue({
 		},
 		/**
 		 * Change the application theme.
-		 * @param  {String}  value  theme name
+		 * 
+		 * @param  {String}  value  The theme name
 		 */
 		changeTheme(value) {
 			var allowedThemes = ['original', 'light', 'dark'];
@@ -878,6 +893,11 @@ var appVue = new Vue({
 				}
 			}
 		},
+		/**
+		 * Change how notes are sorted in the sidebar
+		 *
+		 * @param      {String}  value   The sort by field
+		 */
 		changeDisplayOrder(value) {
 			var allowedOrders = ['updatedAt', 'createdAt'];
 			if(allowedOrders.indexOf(value) >= 0) {
@@ -947,6 +967,9 @@ var appVue = new Vue({
 			this.update_editor_size();
 			this.save_editor_size();
 		},
+		/**
+		 * Update the context menu in the system tray icon.
+		 */
 		updateTrayMenu: _.debounce(function () {
 				var self = this;
 				traymenu.setRacks(this.racks, (rack) => {

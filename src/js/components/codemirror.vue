@@ -9,7 +9,6 @@
 	const _ = require('lodash');
 
 	const Image = require('../models').Image;
-	const ApplicationMenu = require('../applicationmenu').ApplicationMenu;
 
 	const electron = require('electron');
 	const remote = electron.remote;
@@ -17,7 +16,6 @@
 	const MenuItem = remote.MenuItem;
 	const shell = electron.shell;
 	const dialog = remote.dialog;
-	const applicationmenu = require('../applicationmenu');
 
 	const clipboard = electron.clipboard;
 	const elutils = require('../codemirror/elutils');

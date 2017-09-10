@@ -20,7 +20,7 @@ highlightjs.registerLanguage('asciidoc', require('highlight.js/lib/languages/asc
 highlightjs.registerLanguage('autohotkey', require('highlight.js/lib/languages/autohotkey'));
 highlightjs.registerLanguage('bash', require('highlight.js/lib/languages/bash'));
 highlightjs.registerLanguage('basic', require('highlight.js/lib/languages/basic'));
-highlightjs.registerLanguage('brainfuck', require('highlight.js/lib/languages/brainfuck'));
+//highlightjs.registerLanguage('brainfuck', require('highlight.js/lib/languages/brainfuck'));
 highlightjs.registerLanguage('clojure', require('highlight.js/lib/languages/clojure'));
 highlightjs.registerLanguage('clojure-repl', require('highlight.js/lib/languages/clojure-repl'));
 highlightjs.registerLanguage('cmake', require('highlight.js/lib/languages/cmake'));
@@ -85,7 +85,7 @@ highlightjs.registerLanguage('scala', require('highlight.js/lib/languages/scala'
 highlightjs.registerLanguage('scheme', require('highlight.js/lib/languages/scheme'));
 highlightjs.registerLanguage('scilab', require('highlight.js/lib/languages/scilab'));
 highlightjs.registerLanguage('scss', require('highlight.js/lib/languages/scss'));
-highlightjs.registerLanguage('smalltalk', require('highlight.js/lib/languages/smalltalk'));
+//highlightjs.registerLanguage('smalltalk', require('highlight.js/lib/languages/smalltalk'));
 highlightjs.registerLanguage('sml', require('highlight.js/lib/languages/sml'));
 highlightjs.registerLanguage('sqf', require('highlight.js/lib/languages/sqf'));
 highlightjs.registerLanguage('sql', require('highlight.js/lib/languages/sql'));
@@ -226,14 +226,6 @@ marked.setOptions({
 	}
 });
 
-/*function replaceAtagToExternal(bodyHTML) {
-	return bodyHTML.replace(
-		/<a.*?href="(https?:\/\/.*?)".*?>(.*?)<\/a>/mg,
-		(match, p1, p2, offset, string) => {
-			return ATAG_TO_EXTERNAL_TEMP({link: p1, text: p2});
-		});
-}*/
-
 function findLineNumber(body, element, value, encoded, start) {
 	if (!checkbox_occurrance_dictionary[encoded]) checkbox_occurrance_dictionary[encoded] = 0;
 	if (start) checkbox_occurrance_dictionary[encoded] = start;
@@ -258,12 +250,9 @@ function render(note, v) {
 	headings = [];
 	checkboxes = [];
 	checkbox_occurrance_dictionary = {};
-	//var p = replaceAtagToExternal(marked(note.bodyWithDataURL));
 	var p = marked(note.bodyWithDataURL);
 	v.$nextTick(() => {
-		//var checks = note.bodyWithDataURL.match(/[\*\-]\s*\[[x ]\]\s*(.*)/g);
 		forEach(document.querySelectorAll('li.checkbox'), function(index, el) {
-			//var line_text = el.innerText || el.textContent;
 			el.onclick = function(event) {
 				event.preventDefault();
 				var i = 0;
@@ -284,70 +273,6 @@ function render(note, v) {
 				});
 				note.body = ok;
 			};
-
-			/*var ul = el.parentNode;
-			if (ul.tagName == 'UL' && ul.className != 'todo-ul') {
-				ul.className = 'todo-ul';
-
-				var last_checkbox;
-				for (var i = ul.childNodes.length - 1; i >= 0; i--) {
-					if (ul.childNodes[i].className.indexOf('checkbox') >= 0) {
-						last_checkbox = ul.childNodes[i];
-						break;
-					}
-				}
-
-				if (last_checkbox) {
-
-					var newLi = document.createElement('li');
-					newLi.className = 'new-todo-form';
-					newLi.innerHTML = '<form><input type="text" /><button type="submit">+</button></form>';
-					ul.insertBefore(newLi, last_checkbox.nextSibling);
-
-					var newForm = newLi.querySelector('form');
-
-					newForm.addEventListener('submit', function(event) {
-						event.preventDefault();
-
-						var inputText = event.target.querySelector('input').value;
-						event.target.querySelector('input').value = '';
-						console.log(inputText);
-
-						var j = 0;
-						var body = note.body.replace(/[\*\-]\s*(\[[x ]\].+\n)/g, function(x) {
-							if (j == ul.childNodes.length - 2) {
-								j++;
-								console.log(x);
-							} else {
-								j++;
-							}
-							return x;
-						});
-
-						/*
-						var last_checkbox = event.target.parentNode.previousSibling.querySelector('.my-el-todo-list');
-
-						if (inputText && last_checkbox) {
-							var value = decodeURI(last_checkbox.dataset.value);
-							if (value) {
-								var body = note.body;
-								note.body = body.replace(value + '\n', value + '\n' + '* [ ] ' + inputText + '\n');
-
-								var div = document.createElement('div');
-								div.innerHTML = renderCheckboxText(' [ ] ' + inputText);
-								var elements = div.childNodes;
-
-								event.target.parentNode.parentNode.insertBefore(elements[0], event.target.parentNode);
-								var this_checkbox = div.querySelector('.my-el-todo-list');
-								console.log(this_checkbox, elements);
-								findLineNumber(note.body, this_checkbox, decodeURI(this_checkbox.dataset.value), this_checkbox.dataset.value, last_checkbox.dataset.index);
-							}
-						}
-						//
-					}, false);
-				}
-			}
-			*/
 		});
 	});
 	return p;

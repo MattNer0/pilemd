@@ -14,7 +14,8 @@ var webpackPlugins = [
 		'fs',
 		'chokidar',
 		'datauri'
-	])
+	]),
+	new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
 ];
 
 if (isProduction) {

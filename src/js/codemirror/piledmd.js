@@ -1,24 +1,24 @@
 (function(CodeMirror) {
 	'use strict';
 
-	CodeMirror.defineMode('piledmd', function(config, modeConfig) {
+	CodeMirror.defineMode('piledmd', (config, modeConfig) => {
 
 		var piledmdOverlay = {
-			startState: function() {
+			startState() {
 				return {
 					code: false,
 					codeBlock: false,
 					ateSpace: false
 				};
 			},
-			copyState: function(s) {
+			copyState(s) {
 				return {
 					code: s.code,
 					codeBlock: s.codeBlock,
 					ateSpace: s.ateSpace
 				};
 			},
-			token: function(stream, state) {
+			token(stream, state) {
 				stream.next();
 				return null;
 			},
