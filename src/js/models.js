@@ -326,13 +326,10 @@ class Note extends Model {
 	initializeCreationDate() {
 		var noteData = Note.isValidNotePath(this._path);
 		if (noteData) {
-			console.log('valid note');
 			if(!this._metadata.createdAt)
 				this._metadata.createdAt = moment(noteData.stat.birthtime).format('YYYY-MM-DD');
 			if(!this._metadata.updatedAt)
 				this._metadata.updatedAt = moment(noteData.stat.mtime).format('YYYY-MM-DD');
-		} else {
-			console.log('not valid note path');
 		}
 	}
 

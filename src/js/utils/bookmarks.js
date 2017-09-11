@@ -1,4 +1,4 @@
-String.prototype.formatUnicorn = String.prototype.formatUnicorn || () => {
+String.prototype.formatUnicorn = String.prototype.formatUnicorn || function() {
 	'use strict';
 	var str = this.toString();
 	if (arguments.length) {

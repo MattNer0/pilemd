@@ -27,6 +27,10 @@
 								i.material-icons(v-if="notesDisplayOrder == 'createdAt'") radio_button_checked
 								i.material-icons.faded(v-else) radio_button_unchecked
 								|  Sort by Creation Date
+							li: a(@click.prevent="menu_changeOrder('title')", href="#")
+								i.material-icons(v-if="notesDisplayOrder == 'title'") radio_button_checked
+								i.material-icons.faded(v-else) radio_button_unchecked
+								|  Sort by Title
 							li: hr
 							li: a(@click.prevent="menu_changeTheme('original')", href="#")
 								i.material-icons(v-if="selectedTheme == 'original'") radio_button_checked
@@ -123,7 +127,7 @@
 				this.menu_visible = false;
 				setTimeout(() => {
 					this.changeDisplayOrder(value);
-				}, 100);	
+				}, 100);
 			},
 			menu_quit() {
 				this.menu_visible = false;

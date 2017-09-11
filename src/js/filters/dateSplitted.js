@@ -20,6 +20,12 @@ module.exports = function(Vue, options) {
 				notes: notes
 			}];
 		}
+		if (property == 'title') {
+			return [{
+				dateStr: '',
+				notes: arr.sortBy(notes.slice(), property, true)
+			}];
+		}
 		var now = moment();
 		var sorted = arr.sortBy(notes.slice(), property);
 		function getDateDiff(to, from) {

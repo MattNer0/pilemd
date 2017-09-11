@@ -169,11 +169,6 @@
 			isSelectedFolder(folder) {
 				return this.selectedRackOrFolder === folder;
 			},
-			/*filterNotesByFolder: function(folder) {
-				return this.filteredNotes.filter(function(obj){
-					return obj.isFolder(folder);
-				});
-			},*/
 			notesByFolder(folder) {
 				return this.notes.filter((obj) => {
 					return obj.isFolder(folder);
@@ -237,7 +232,7 @@
 			 */
 			dropToRack(event, rack) {
 				if (this.draggingFolder) {
-					console.log("Dropping to rack");
+					console.log('Dropping to rack');
 					if(!rack.openFolders) this.openRack(rack);
 					var draggingFolder = this.draggingFolder;
 					// Drop Folder to Rack
@@ -259,7 +254,7 @@
 					this.draggingFolder = null;
 					this.draggingFolderRack = null;
 				} else if (this.draggingRack && this.draggingRack != rack) {
-					console.log("Dropping Rack - "+this.draggingRack.name);
+					console.log('Dropping Rack');
 					var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
 					arr.remove(racks, (r) => {return r == this.draggingRack});
 					var i = racks.indexOf(rack);
@@ -328,7 +323,7 @@
 			 */
 			dropToFolder(event, rack, folder) {
 				if (this.draggingNote && this.draggingNote.folderUid != folder.uid) {
-					console.log("Dropping to Folder");
+					console.log('Dropping to Folder');
 					event.stopPropagation();
 					// Dropping note to folder
 					folder.dragHover = false;
@@ -345,7 +340,7 @@
 						this.changeRackOrFolder(s);
 					});
 				} else if (this.draggingFolder && this.draggingFolder != folder) {
-					console.log("Dropping Folder");
+					console.log('Dropping Folder');
 					event.stopPropagation();
 					var draggingFolder = this.draggingFolder;
 					var folders = arr.sortBy(rack.folders.slice(), 'ordering', true);

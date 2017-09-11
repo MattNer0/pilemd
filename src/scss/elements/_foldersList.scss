@@ -42,17 +42,6 @@
 		font-weight: bold;
 	}
 
-	/*h5 > span{
-		box-sizing: border-box;
-		border: 1px solid #FFF;
-		border-radius: 100%;
-		line-height: 1.25em;
-		height: 1.2em;
-		width: 1.2em;
-		text-align: center;
-		vertical-align: top;
-	}*/
-
 	.rack-icon{
 		font-size: 100%;
 		margin-right: 0.1em;
@@ -63,7 +52,7 @@
 
 }
 
-.my-shelf-folder-badge{
+.my-shelf-folder-badge {
 	display: inline-block;
 	font-size: 80%;
 	vertical-align: middle;
@@ -90,14 +79,6 @@
 .my-shelf-folder > .my-notes > .my-notes-note.my-notes-note-selected{
 	display: block;
 }
-
-/*.my-shelf-rack > h4 > i.closed-icon, .my-shelf-rack.openFolders > h4 > i.opened-icon{
-	display: inline-block;
-}
-
-.my-shelf-rack > h4 > i.opened-icon, .my-shelf-rack.openFolders > h4 > i.closed-icon{
-	display: none;
-}*/
 
 .my-shelf-folder {
 	position: relative;
@@ -139,14 +120,14 @@
 }
 
 .my-shelf-folder h5:hover, .my-shelf-rack h4:hover {
-	background-color: $ui-text-background-hover !important;
+	background-color: $ui-text-background-hover;
 	color: $ui-text-color-hover;
 	cursor: pointer;
 }
 
 .my-shelf-rack .my-shelf-folder.isShelfSelected h5,
 .my-shelf-rack h4.isShelfSelected {
-	background-color: $ui-text-background-selected !important;
+	background-color: $ui-text-background-selected;
 	color: $ui-text-color-selected;
 	cursor: pointer;
 }
@@ -180,7 +161,7 @@
 	background: $resize-panel-handler;
 	cursor: move;
 	padding: 0;
-    height: 0.3em;
+    height: 4px;
 }
 
 .my-shelf-racks.dragginRack, .my-shelf-racks.dragginFolder {
