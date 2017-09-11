@@ -52,6 +52,8 @@
 	const Menu = remote.Menu;
 	const MenuItem = remote.MenuItem;
 
+	const Vue = require('vue');
+
 	const fs = require('fs');
 	const path = require('path');
 
@@ -93,9 +95,9 @@
 			};
 		},
 		directives: {
-			'focus': function(element) {
+			focus(element) {
 				if (!element) return;
-				this.$nextTick(() => {
+				Vue.nextTick(() => {
 					element.focus();
 				});
 			}
