@@ -47,6 +47,12 @@ codemirror {
 	span.cm-error {
 	}
 
+	span.cm-m-markdown.cm-piled-hr {
+		display: block;
+		background-color: #f3f3f3;
+		line-height: 0.8em;
+	}
+
 	.cm-piled-em {font-style: italic;}
 	.cm-piled-strikethrough {text-decoration: line-through;}
 

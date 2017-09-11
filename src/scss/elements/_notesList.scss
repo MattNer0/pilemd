@@ -133,10 +133,6 @@
 		background-color: $folder-dragdrop-separator;
 	}
 
-	.my-notes-note + .my-notes-note {
-		border-top: 1px solid $note-separator-line;
-	}
-
 	.my-notes-note.my-notes-note-selected.inFolderNote:after {
 		background-color: rgba(0, 0, 0, 0.1);
 	}
