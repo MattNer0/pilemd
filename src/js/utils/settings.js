@@ -40,7 +40,6 @@ module.exports = {
 			win.maximize();
 		} else if (settings_data['screen_width'] && settings_data['screen_height']) {
 			win.setSize(settings_data['screen_width'] , settings_data['screen_height']);
-			win.center();
 		}
 	},
 

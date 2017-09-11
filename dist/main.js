@@ -111,16 +111,31 @@ function makeWindow() {
 		settings_data = {};
 	}
 
+	var WINDOW_WIDTH = settings_data['screen_width'] || 1024;
+	var WINDOW_HEIGHT = settings_data['screen_height'] || 768;
+	var WINDOW_CENTER = true;
+	var WINDOW_X = undefined;
+	var WINDOW_Y = undefined;
+
+	if (process.platform == 'linux') {
+		let bounds = electron.screen.getPrimaryDisplay().bounds;
+		WINDOW_X = bounds.x + ((bounds.width - WINDOW_WIDTH) / 2);
+		WINDOW_Y = bounds.y + ((bounds.height - WINDOW_HEIGHT) / 2);
+		WINDOW_CENTER = false;
+	}
+
 	// Create the browser window.
 	var conf = {
-		width: settings_data['screen_width'] || 1024,
-		height: settings_data['screen_height'] || 768,
+		width: WINDOW_WIDTH,
+		height: WINDOW_HEIGHT,
+		x: WINDOW_X,
+		y: WINDOW_Y,
 		minWidth: 270,
 		minHeight: 437,
-		center: true,
+		center: WINDOW_CENTER,
 		title: 'PileMd',
 		backgroundColor: '#36393e',
-		show: true,
+		show: false,
 		darkTheme: true,
 		tabbingIdentifier: 'pilemd',
 		titleBarStyle: 'hidden',
