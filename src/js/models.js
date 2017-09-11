@@ -199,13 +199,14 @@ class Note extends Model {
 
 	set body(newValue) {
 		if (newValue != this._body) {
+			if(!this._metadata.createdAt) this._metadata.createdAt = moment().format('YYYY-MM-DD');
 			this._metadata.updatedAt = moment().format('YYYY-MM-DD');
 			this._body = newValue;
 		}
 	}
 
 	get bodyWithoutMetadata() {
-		return this._body.replace(this.metadataregex, '');
+		return this._body.replace(this.metadataregex, '').replace(/^\n+/, '');
 	}
 
 	set folder(f) {
@@ -275,7 +276,6 @@ class Note extends Model {
 	}
 
 	setMetadata(key, value) {
-		console.log(key, value);
 		this._metadata[key] = value;
 	}
 
@@ -311,10 +311,11 @@ class Note extends Model {
 						} while (m);
 						
 						this._metadata = metadata;
-						if(!this._metadata.createdAt) {
-							this.initializeCreationDate();
-						}
 						this._body = this.bodyWithoutMetadata;
+					}
+
+					if(!this._metadata.createdAt) {
+						this.initializeCreationDate();
 					}
 				}
 			}
@@ -325,10 +326,13 @@ class Note extends Model {
 	initializeCreationDate() {
 		var noteData = Note.isValidNotePath(this._path);
 		if (noteData) {
+			console.log('valid note');
 			if(!this._metadata.createdAt)
 				this._metadata.createdAt = moment(noteData.stat.birthtime).format('YYYY-MM-DD');
 			if(!this._metadata.updatedAt)
-				this._metadata.createdAt = moment(noteData.stat.mtime).format('YYYY-MM-DD');
+				this._metadata.updatedAt = moment(noteData.stat.mtime).format('YYYY-MM-DD');
+		} else {
+			console.log('not valid note path');
 		}
 	}
 
