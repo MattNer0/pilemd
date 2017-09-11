@@ -196,7 +196,7 @@ const ATAG_TO_INTERNAL_TEMP = _.template(
 	'<a href="<%- href %>" title="<%- title %>"><%= text %></a>'
 );
 
-render.link = function(href, title, text) {
+renderer.link = function(href, title, text) {
 	if (href.indexOf('http') == 0) {
 		return ATAG_TO_EXTERNAL_TEMP({
 			href: href,
@@ -255,6 +255,7 @@ function render(note, v) {
 		forEach(document.querySelectorAll('li.checkbox'), function(index, el) {
 			el.onclick = function(event) {
 				event.preventDefault();
+				if (event.target.tagName == 'A') return;
 				var i = 0;
 				var ok = note.body.replace(/[\*\-]\s*(\[[x ]\])/g, function(x) {
 					x = x.replace(/\s/g, ' ');
