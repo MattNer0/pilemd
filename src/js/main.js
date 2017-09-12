@@ -898,7 +898,7 @@ var appVue = new Vue({
 		 * @param      {String}  value   The sort by field
 		 */
 		changeDisplayOrder(value) {
-			var allowedOrders = ['updatedAt', 'createdAt'];
+			var allowedOrders = ['updatedAt', 'createdAt', 'title'];
 			if(allowedOrders.indexOf(value) >= 0) {
 				this.notesDisplayOrder = value;
 			}
@@ -935,8 +935,8 @@ var appVue = new Vue({
 				return;
 			}
 
-			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + 5;
-			if(this.isNoteRackSelected) widthTotalLeft += parseInt( cellsLeft[1].style.width.replace('px','') ) + 5;
+			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + 4;
+			if(this.isNoteRackSelected) widthTotalLeft += parseInt( cellsLeft[1].style.width.replace('px','') ) + 4;
 
 			if(this.isFullScreen) {
 				document.querySelector('.sidebar').style.left = "-"+widthTotalLeft+'px';
