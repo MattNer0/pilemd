@@ -58,7 +58,7 @@ function pasteText(cm) {
 			var c = cm.getCursor();
 			var thisLine = cm.getLine(c.line);
 			if (isCheckbox(thisLine)) {
-				cm.replaceSelection(pasted.replace('* [ ] ', ''));
+				cm.replaceSelection(pasted.replace(/^\* \[[x ]\] /g, ''));
 			} else {
 				cm.replaceSelection(pasted);
 			}
@@ -73,7 +73,7 @@ function isImage(text) {
 }
 
 function isCheckbox(text) {
-	return text.indexOf('* [ ] ') == 0;
+	return text.match(/^\* \[[x ]\] .*/g);
 }
 
 function uploadFile(cm, file) {
