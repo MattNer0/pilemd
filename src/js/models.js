@@ -199,8 +199,8 @@ class Note extends Model {
 
 	set body(newValue) {
 		if (newValue != this._body) {
-			if(!this._metadata.createdAt) this._metadata.createdAt = moment().format('YYYY-MM-DD');
-			this._metadata.updatedAt = moment().format('YYYY-MM-DD');
+			if(!this._metadata.createdAt) this._metadata.createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
+			this._metadata.updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');
 			this._body = newValue;
 		}
 	}
@@ -306,10 +306,14 @@ class Note extends Model {
 						do {
 							m = re.exec(this._body);
 							if (m) {
-								metadata[m[1]] = m[2].replace(/\s+/g,' ');
+								m[2] = m[2].replace(/\s+/g,' ');
+								if (m[1] === 'updatedAt' || m[1] === 'createdAt') {
+									metadata[m[1]] = moment(m[2]).format('YYYY-MM-DD HH:mm:ss');
+								} else {
+									metadata[m[1]] = m[2];
+								}
 							}
 						} while (m);
-						
 						this._metadata = metadata;
 						this._body = this.bodyWithoutMetadata;
 					}
@@ -328,9 +332,9 @@ class Note extends Model {
 		if (noteData) {
 			console.log('valid note');
 			if(!this._metadata.createdAt)
-				this._metadata.createdAt = moment(noteData.stat.birthtime).format('YYYY-MM-DD');
+				this._metadata.createdAt = moment(noteData.stat.birthtime).format('YYYY-MM-DD HH:mm:ss');
 			if(!this._metadata.updatedAt)
-				this._metadata.updatedAt = moment(noteData.stat.mtime).format('YYYY-MM-DD');
+				this._metadata.updatedAt = moment(noteData.stat.mtime).format('YYYY-MM-DD HH:mm:ss');
 		} else {
 			console.log('not valid note path');
 		}
