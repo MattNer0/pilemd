@@ -32,18 +32,18 @@
 								i.material-icons.faded(v-else) radio_button_unchecked
 								|  Sort by Title
 							li: hr
-							li: a(@click.prevent="menu_changeTheme('original')", href="#")
-								i.material-icons(v-if="selectedTheme == 'original'") radio_button_checked
-								i.material-icons.faded(v-else) radio_button_unchecked
-								|  Original Theme
-							li: a(@click.prevent="menu_changeTheme('light')", href="#")
-								i.material-icons(v-if="selectedTheme == 'light'") radio_button_checked
-								i.material-icons.faded(v-else) radio_button_unchecked
-								|  Light Theme
 							li: a(@click.prevent="menu_changeTheme('dark')", href="#")
 								i.material-icons(v-if="selectedTheme == 'dark'") radio_button_checked
 								i.material-icons.faded(v-else) radio_button_unchecked
 								|  Dark Theme
+							li: a(@click.prevent="menu_changeTheme('light')", href="#")
+								i.material-icons(v-if="selectedTheme == 'light'") radio_button_checked
+								i.material-icons.faded(v-else) radio_button_unchecked
+								|  Light Theme
+							li: a(@click.prevent="menu_changeTheme('original')", href="#")
+								i.material-icons(v-if="selectedTheme == 'original'") radio_button_checked
+								i.material-icons.faded(v-else) radio_button_unchecked
+								|  PileMd Theme
 							li: hr
 							li: a(@click.prevent="menu_devTools", href="#") Open DevTools
 							li(v-if="isLinux && saveDesktop"): a(@click.prevent="menu_desktopEntry", href="#") Add Desktop Entry

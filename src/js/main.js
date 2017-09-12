@@ -64,7 +64,7 @@ var appVue = new Vue({
 	data: {
 		isFullScreen: false,
 		isPreview: settings.get('vue_isPreview') || false,
-		selectedTheme: settings.get('theme') || 'original',
+		selectedTheme: settings.get('theme') || 'dark',
 		preview: "",
 		racks: [],
 		folders: [],
