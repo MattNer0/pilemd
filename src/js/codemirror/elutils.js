@@ -54,6 +54,14 @@ function pasteText(cm) {
 		if (isImage(pasted)) {
 			var f = {name: pasted.split('/').pop(), path: pasted};
 			if (!uploadFile(cm, f)) cm.replaceSelection(pasted);
+		} else if (isCheckbox(pasted)) {
+			var c = cm.getCursor();
+			var thisLine = cm.getLine(c.line);
+			if (isCheckbox(thisLine)) {
+				cm.replaceSelection(pasted.replace('* [ ] ', ''));
+			} else {
+				cm.replaceSelection(pasted);
+			}
 		} else {
 			cm.replaceSelection(pasted);
 		}
@@ -62,6 +70,10 @@ function pasteText(cm) {
 
 function isImage(text) {
 	return text.split('.').pop() === 'png' || text.split('.').pop() === 'jpg';
+}
+
+function isCheckbox(text) {
+	return text.indexOf('* [ ] ') == 0;
 }
 
 function uploadFile(cm, file) {
