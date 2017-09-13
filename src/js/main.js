@@ -677,35 +677,8 @@ var appVue = new Vue({
 				 */
 				cb(data) {
 					if(bookmark.body != data.bkurl || !bookmark.attributes['THUMBNAIL']) {
-						console.log('Loading Bookmark thumbnail...', data.bkurl);
 						models.BookmarkFolder.setBookmarkNameUrl(bookmark, data.bkname, data.bkurl);
-						self.$refs.webview.src = data.bkurl;
-						var bookmarkFavicon = (e) => {
-							if(e.favicons && e.favicons.length > 0) {
-								models.BookmarkFolder.setBookmarkIcon(bookmark, e.favicons[0]);
-							}
-							self.$refs.webview.removeEventListener('page-favicon-updated', bookmarkFavicon);
-						};
-						var bookmarkLoaded = (e) => {
-							if(bookmark.name === '') {
-								models.BookmarkFolder.setBookmarkNameUrl(bookmark, self.$refs.webview.getTitle(), data.bkurl);
-							}
-							self.$refs.webview.capturePage((image) => {
-								/**
-								 * callback after webview took a page screenshot
-								 * 
-								 * @param    {Object}     image     NativeImage page screenshot
-								 */
-								self.$refs.webview.src = '';
-								models.BookmarkFolder.setBookmarkThumb(bookmark, image);
-								console.log('Bookmark thumbnail was succesful!');
-								bookmark.rack.saveModel();
-							});
-							self.$refs.webview.removeEventListener('did-finish-load', bookmarkLoaded);
-						};
-
-						self.$refs.webview.addEventListener('page-favicon-updated', bookmarkFavicon);
-						self.$refs.webview.addEventListener('did-finish-load', bookmarkLoaded);
+						self.refreshBookmarkThumb(bookmark);
 					} else {
 						models.BookmarkFolder.setBookmarkNameUrl(bookmark, data.bkname, data.bkurl);
 					}
@@ -743,6 +716,37 @@ var appVue = new Vue({
 				name: 'bkurl',
 				required: true
 			}]);
+		},
+		refreshBookmarkThumb(bookmark) {
+			var self = this;
+			console.log('Loading Bookmark thumbnail...', bookmark.body);
+			this.$refs.webview.src = bookmark.body;
+			var bookmarkFavicon = (e) => {
+				if(e.favicons && e.favicons.length > 0) {
+					models.BookmarkFolder.setBookmarkIcon(bookmark, e.favicons[0]);
+				}
+				self.$refs.webview.removeEventListener('page-favicon-updated', bookmarkFavicon);
+			};
+			var bookmarkLoaded = (e) => {
+				if(bookmark.name === '') {
+					models.BookmarkFolder.setBookmarkNameUrl(bookmark, self.$refs.webview.getTitle(), bookmark.body);
+				}
+				self.$refs.webview.capturePage((image) => {
+					/**
+					 * callback after webview took a page screenshot
+					 * 
+					 * @param    {Object}     image     NativeImage page screenshot
+					 */
+					self.$refs.webview.src = '';
+					models.BookmarkFolder.setBookmarkThumb(bookmark, image);
+					console.log('Bookmark thumbnail was succesful!');
+					bookmark.rack.saveModel();
+				});
+				self.$refs.webview.removeEventListener('did-finish-load', bookmarkLoaded);
+			};
+
+			this.$refs.webview.addEventListener('page-favicon-updated', bookmarkFavicon);
+			this.$refs.webview.addEventListener('did-finish-load', bookmarkLoaded);
 		},
 		/**
 		 * Displays an image with the popup dialog.

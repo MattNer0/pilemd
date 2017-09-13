@@ -73,7 +73,8 @@
 			'toggleFullScreen': Function,
 			'changeNote': Function,
 			'setDraggingNote': Function,
-			'editBookmark': Function
+			'editBookmark': Function,
+			'refreshBookmarkThumb': Function
 		},
 		data() {
 			return {
@@ -211,7 +212,7 @@
 			noteMenu(note) {
 				var menu = new Menu();
 
-				if(this.bookmarksList){
+				if (this.bookmarksList && this.editBookmark) {
 					menu.append(new MenuItem({label: 'Edit Bookmark', click: () => {this.editBookmark(note)}}));
 					menu.append(new MenuItem({type: 'separator'}));
 					menu.append(new MenuItem({label: 'Delete Bookmark', click: () => {this.removeNote(note)}}));

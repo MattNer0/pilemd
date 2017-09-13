@@ -43,7 +43,7 @@
 				<div class="cell-container" v-show="isNoteRackSelected">
 					<add-note v-if="selectedFolder"></add-note>
 					<div class="my-shelf-notes" ref="refNotes">
-						<notes
+						<notes v-if="isNoteRackSelected"
 							:bookmarks-list="false"
 							:notes="filteredNotes"
 							:toggle-full-screen="toggleFullScreen"
@@ -53,7 +53,6 @@
 							:dragging-note="draggingNote"
 							:change-note="changeNote"
 							:set-dragging-note="setDraggingNote"
-							:edit-bookmark="editBookmark"
 							:notes-display-order="notesDisplayOrder">
 						</notes>
 					</div>
@@ -82,7 +81,7 @@
 							</div>
 						</div>
 						<div v-show="!isNoteRackSelected">
-							<notes
+							<notes v-if="!isNoteRackSelected"
 								:bookmarks-list="true"
 								:notes="filteredNotes"
 								:toggle-full-screen="toggleFullScreen"
@@ -93,7 +92,8 @@
 								:change-note="changeNote"
 								:set-dragging-note="setDraggingNote"
 								:edit-bookmark="editBookmark"
-								:notes-display-order="notesDisplayOrder">
+								:notes-display-order="notesDisplayOrder"
+								:refresh-bookmark-thumb="refreshBookmarkThumb">
 							</notes>
 						</div>
 					</div>
