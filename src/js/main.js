@@ -717,6 +717,11 @@ var appVue = new Vue({
 				required: true
 			}]);
 		},
+		/**
+		 * Refresh bookmark thumbnail image and icon
+		 * 
+		 * @param {Object}  bookmark  The bookmark
+		 */
 		refreshBookmarkThumb(bookmark) {
 			var self = this;
 			console.log('Loading Bookmark thumbnail...', bookmark.body);
