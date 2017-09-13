@@ -28,11 +28,13 @@ module.exports = function(Vue, options) {
 		}
 		var now = moment();
 		var sorted = arr.sortBy(notes.slice(), property);
+
 		function getDateDiff(to, from) {
 			var t = moment([to.year(), to.month(), to.date()]);
 			var f = moment([from.year(), from.month(), from.date()]);
 			return t.diff(f, 'days');
 		}
+
 		function getDateStr(d) {
 			var diff = getDateDiff(now, d);
 			if (diff == 0) {
@@ -45,6 +47,7 @@ module.exports = function(Vue, options) {
 				return d.format('ddd, MMM DD');
 			}
 		}
+
 		var ret = [];
 		var lastDate = null;
 		sorted.forEach((note) => {
