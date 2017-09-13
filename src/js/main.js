@@ -692,7 +692,7 @@ var appVue = new Vue({
 				 *                                         If a string value is returned it means that's the name of the field that failed validation.
 				 */
 				validate(data) {
-					var expression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+					var expression = /[-a-zA-Z0-9@:%_\+.~#?&=]{2,256}(\.[a-z]{2,4}|:\d+)\b(\/[-a-zA-Z0-9@:%_\+.~#?&\/=]*)?/gi;
 					var regex = new RegExp(expression);
 					if (data.bkurl.match(regex)) {
 						return false;
