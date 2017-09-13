@@ -8,7 +8,8 @@ const highlightjs = require('highlight.js/lib/highlight');
 
 const Image = require('./models').Image;
 
-var checkbox_occurrance_dictionary = {};
+var checkboxes = [];
+var headings = [];
 
 highlightjs.registerLanguage('accesslog', require('highlight.js/lib/languages/accesslog'));
 highlightjs.registerLanguage('actionscript', require('highlight.js/lib/languages/actionscript'));
@@ -113,9 +114,33 @@ const CHECKBOX_TEMP = _.template(
 	'</label></li>'
 );
 
+const IMGTAG_TEMP = _.template(
+	'<a href="#" onclick="appVue.openImg(\'<%- link %>\'); return false">' +
+	'<img src="<%- link %>" alt="<%- alt %>" />' +
+	'</a>'
+);
+
+const ATAG_TO_EXTERNAL_TEMP = _.template(
+	'<a href="<%- href %>" title="<%- title %>" ' +
+	'onclick="require(\'electron\').shell.openExternal(\'<%- href %>\'); ' +
+	'return false;"' +
+	'oncontextmenu="var remote = new require(\'electron\').remote; ' +
+	'var Menu = remote.Menu;' +
+	'var MenuItem = remote.MenuItem;' +
+	'var m = new Menu();' +
+	'm.append(new MenuItem({label: \'Copy Link\',' +
+	'click: function() {require(\'electron\').clipboard.writeText(\'<%- href %>\')}}));' +
+	'm.popup(remote.getCurrentWindow()); return false;">' +
+	'<%= text %>' +
+	'</a>'
+);
+
+const ATAG_TO_INTERNAL_TEMP = _.template(
+	'<a href="<%- href %>" title="<%- title %>"><%= text %></a>'
+);
+
 var renderer = new marked.Renderer();
 
-var checkboxes = [];
 renderer.listitem = function(text) {
 	if (/^<p>\s*\[[x ]\]\s*/.test(text)) {
 		text = text.replace(/<[\/]{0,1}p>/g, '');
@@ -147,20 +172,10 @@ renderer.listitem = function(text) {
 	}
 };
 
-// Settings for Markdown
-// Injecting GFM task lists
-
-const IMGTAG_TEMP = _.template(
-	'<a href="#" onclick="appVue.openImg(\'<%- link %>\'); return false">' +
-	'<img src="<%- link %>" alt="<%- alt %>" />' +
-	'</a>'
-);
-
 renderer.image = function(href, title, text) {
 	return IMGTAG_TEMP({link: href, alt: title || ''});
 };
 
-var headings = [];
 renderer.heading = function(text, level) {
 	var escapedText = text.toLowerCase().replace(/[^\w]+/g, '-');
 	var duplicateIndex = headings.map(function(h) { return h.text }).indexOf(escapedText);
@@ -176,25 +191,6 @@ renderer.heading = function(text, level) {
 	}
 	return '<h' + level + ' id="' + (duplicateText || escapedText) + '">' + text + '</h' + level + '>';
 };
-
-const ATAG_TO_EXTERNAL_TEMP = _.template(
-	'<a href="<%- href %>" title="<%- title %>" ' +
-	'onclick="require(\'electron\').shell.openExternal(\'<%- href %>\'); ' +
-	'return false;"' +
-	'oncontextmenu="var remote = new require(\'electron\').remote; ' +
-	'var Menu = remote.Menu;' +
-	'var MenuItem = remote.MenuItem;' +
-	'var m = new Menu();' +
-	'm.append(new MenuItem({label: \'Copy Link\',' +
-	'click: function() {require(\'electron\').clipboard.writeText(\'<%- href %>\')}}));' +
-	'm.popup(remote.getCurrentWindow()); return false;">' +
-	'<%= text %>' +
-	'</a>'
-);
-
-const ATAG_TO_INTERNAL_TEMP = _.template(
-	'<a href="<%- href %>" title="<%- title %>"><%= text %></a>'
-);
 
 renderer.link = function(href, title, text) {
 	if (href.indexOf('http') == 0) {
@@ -221,64 +217,47 @@ marked.setOptions({
 	sanitize: true,
 	smartLists: true,
 	smartypants: false,
-	highlight: function(code) {
+	highlight(code) {
 		return '<div class="hljs">' + highlightjs.highlightAuto(code).value + '</div>';
 	}
 });
 
-function findLineNumber(body, element, value, encoded, start) {
-	if (!checkbox_occurrance_dictionary[encoded]) checkbox_occurrance_dictionary[encoded] = 0;
-	if (start) checkbox_occurrance_dictionary[encoded] = start;
-
-	var pos = body.indexOf(value, checkbox_occurrance_dictionary[encoded]);
-
-	if (pos >= 0) {
-		element.dataset.index = pos;
-		checkbox_occurrance_dictionary[encoded] = pos + value.length;
-	} else {
-		console.log('not found?', value);
-	}
-}
-
 var forEach = function(array, callback, scope) {
 	for (var i = 0; i < array.length; i++) {
-		callback.call(scope, i, array[i]); // passes back stuff we need
+		callback.call(scope, i, array[i]);
 	}
 };
 
-function render(note, v) {
-	headings = [];
-	checkboxes = [];
-	checkbox_occurrance_dictionary = {};
-	var p = marked(note.bodyWithDataURL);
-	v.$nextTick(() => {
-		forEach(document.querySelectorAll('li.checkbox'), function(index, el) {
-			el.onclick = function(event) {
-				event.preventDefault();
-				if (event.target.tagName == 'A') return;
-				var i = 0;
-				var ok = note.body.replace(/[\*\-]\s*(\[[x ]\])/g, function(x) {
-					x = x.replace(/\s/g, ' ');
-					var start = x.charAt(0);
-					if (i == index) {
-						i++;
-						if (x == start + ' [x]') {
-							return start + ' [ ]';
-						} else {
-							return start + ' [x]';
-						}
-					} else {
-						i++;
-						return x;
-					}
-				});
-				note.body = ok;
-			};
-		});
-	});
-	return p;
-}
-
 module.exports = {
-	render: render
+	render(note, v) {
+		headings = [];
+		checkboxes = [];
+		var p = marked(note.bodyWithDataURL);
+		v.$nextTick(() => {
+			forEach(document.querySelectorAll('li.checkbox'), (index, el) => {
+				el.onclick = function(event) {
+					event.preventDefault();
+					if (event.target.tagName == 'A') return;
+					var i = 0;
+					var ok = note.body.replace(/[\*\-]\s*(\[[x ]\])/g, function(x) {
+						x = x.replace(/\s/g, ' ');
+						var start = x.charAt(0);
+						if (i == index) {
+							i++;
+							if (x == start + ' [x]') {
+								return start + ' [ ]';
+							} else {
+								return start + ' [x]';
+							}
+						} else {
+							i++;
+							return x;
+						}
+					});
+					note.body = ok;
+				};
+			});
+		});
+		return p;
+	}
 };
