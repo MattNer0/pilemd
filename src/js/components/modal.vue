@@ -13,7 +13,6 @@
 							span.modal-field-label {{ field.label }}
 							input(v-if="field.type == 'text'", type="text", v-model="field.retValue", :name="field.name")
 							vue-password(v-else-if="field.type == 'password'", v-model="field.retValue", classes="input", :name="field.label")
-							//-input(, type="password", v-model="field.retValue")
 					.modal-buttons
 						template(v-for="button in buttons")
 							button.modal-button(@click.prevent="button_submit(button)", type="button") {{ button.label }}
