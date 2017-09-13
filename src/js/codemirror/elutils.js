@@ -9,7 +9,6 @@ function flashSelection(cm) {
 	cm.setCursor(cm.getCursor());
 }
 
-/* Electron things */
 function killLine(cm) {
 	flashSelection(cm);
 	var c = cm.getCursor();
@@ -23,6 +22,11 @@ function killLine(cm) {
 	}
 }
 
+/**
+ * Copies the current selected text into clipboard.
+ *
+ * @param  {Object}  cm  The CodeMirror instance
+ */
 function copyText(cm) {
 	var text = cm.getSelection();
 	if (text.length > 0) {
@@ -30,6 +34,11 @@ function copyText(cm) {
 	}
 }
 
+/**
+ * Cuts the current selected text into clipboard.
+ *
+ * @param  {Object}  cm  The CodeMirror instance
+ */
 function cutText(cm) {
 	var text = cm.getSelection();
 	if (text.length > 0) {
@@ -38,6 +47,11 @@ function cutText(cm) {
 	}
 }
 
+/**
+ * Handles pasting text into the editor
+ *
+ * @param  {Object}  cm  The CodeMirror instance
+ */
 function pasteText(cm) {
 	if (clipboard.availableFormats().indexOf('image/png') != -1 || clipboard.availableFormats().indexOf('image/jpg') != -1) {
 		var im = clipboard.readImage();
@@ -68,14 +82,34 @@ function pasteText(cm) {
 	}
 }
 
+/**
+ * Check if the string contains an image url.
+ * Only cares about '.png' and '.jpg' extensions
+ *
+ * @param   {String}   text  The string
+ * @return  {Boolean}        True if string contains image
+ */
 function isImage(text) {
 	return text.split('.').pop() === 'png' || text.split('.').pop() === 'jpg';
 }
 
+/**
+ * Check if the string contains a markdown checkbox
+ *
+ * @param   {String}   text  The string
+ * @return  {Boolean}        True if string contains checkbox
+ */
 function isCheckbox(text) {
 	return text.match(/^\* \[[x ]\] .*/g);
 }
 
+/**
+ * Upload image file into library directory.
+ *
+ * @param   {Object}   cm    The CodeMirror instance
+ * @param   {Object}   file  The file to upload
+ * @return  {Boolean}        True if file was uploaded correctly, False otherwise
+ */
 function uploadFile(cm, file) {
 	try {
 		var image = Image.fromBinary(file.name, file.path);
@@ -91,6 +125,11 @@ function uploadFile(cm, file) {
 	return true;
 }
 
+/**
+ * Select all text in the editor.
+ *
+ * @param  {Object}  cm  The CodeMirror instance
+ */
 function selectAllText(cm) {
 	cm.execCommand('selectAll');
 }
