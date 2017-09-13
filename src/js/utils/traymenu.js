@@ -42,12 +42,28 @@ module.exports = {
 	},
 	setRacks(racks, rackfolder_cb, note_cb) {
 		menu_array = [];
+		var submenu_element = [];
+		var group_num = 0;
 		for (var i = 0; i < racks.length; i++) {
 			if (racks[i].data.separator) {
-				menu_array.push({ type: 'separator' });
+				group_num += 1;
+				menu_array.push({
+					label: 'Rack Group ' + group_num,
+					submenu: submenu_element.slice()
+				});
+				submenu_element = [];
 			} else {
-				menu_array.push(this.oneRackMenuItem(racks[i], rackfolder_cb, note_cb));
+				submenu_element.push(this.oneRackMenuItem(racks[i], rackfolder_cb, note_cb));
 			}
+		}
+		if (submenu_element && group_num == 0) {
+			menu_array = submenu_element;
+		} else if (submenu_element) {
+			group_num += 1;
+			menu_array.push({
+				label: 'Rack Group ' + group_num,
+				submenu: submenu_element.slice()
+			});
 		}
 		if (appIcon) this.refreshTrayMenu();
 	},
