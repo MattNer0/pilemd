@@ -74,7 +74,8 @@
 			'changeNote': Function,
 			'setDraggingNote': Function,
 			'editBookmark': Function,
-			'refreshBookmarkThumb': Function
+			'refreshBookmarkThumb': Function,
+			'getBookmarkMetaImage': Function
 		},
 		data() {
 			return {
@@ -215,6 +216,8 @@
 				if (this.bookmarksList && this.editBookmark) {
 					menu.append(new MenuItem({label: 'Edit Bookmark', click: () => {this.editBookmark(note)}}));
 					menu.append(new MenuItem({label: 'Refresh Thumbnail', click: () => {this.refreshBookmarkThumb(note)}}));
+					menu.append(new MenuItem({label: 'Use Shortcut Icon', click: () => {this.getBookmarkMetaImage(note)}}));
+					
 					menu.append(new MenuItem({type: 'separator'}));
 					menu.append(new MenuItem({label: 'Delete Bookmark', click: () => {this.removeNote(note)}}));
 				} else {

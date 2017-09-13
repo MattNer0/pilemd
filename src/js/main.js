@@ -753,6 +753,27 @@ var appVue = new Vue({
 			this.$refs.webview.addEventListener('page-favicon-updated', bookmarkFavicon);
 			this.$refs.webview.addEventListener('did-finish-load', bookmarkLoaded);
 		},
+		getBookmarkMetaImage(bookmark) {
+			var self = this;
+			console.log('Loading Bookmark page...', bookmark.body);
+			this.$refs.webview.src = bookmark.body;
+			var bookmarkLoaded = (e) => {
+				self.$refs.webview.getWebContents().executeJavaScript("document.querySelector('body').innerHTML", (result) => {
+					var shortcut = result.match(/rel=['"`]shortcut icon['"`][^<>]+?href=['"`](http.+?)['"`]/gi);
+					var og_image = result.match(/property=['"`]og:image['"`][^<>]+?content=['"`](http.+?)['"`]/gi)
+									|| result.match(/content=['"`](http.+?)['"`][^<>]+?property=['"`]og:image['"`]/gi)
+					var user_profile = result.match(/https?:\/\/[a-z0-9.\-]+?\/user-profile\/img[^.<>]+\.(jpg|png)/gi);
+					
+					if(user_profile) console.log(user_profile[0]);
+					else if(shortcut) console.log(shortcut[1]);
+					else if(og_image) console.log(og_image[0]);
+
+					self.$refs.webview.src = '';
+				});
+				self.$refs.webview.removeEventListener('did-finish-load', bookmarkLoaded);
+			};
+			this.$refs.webview.addEventListener('did-finish-load', bookmarkLoaded);
+		},
 		/**
 		 * Displays an image with the popup dialog.
 		 *
