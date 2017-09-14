@@ -1,3 +1,5 @@
+const uid = require('./uid');
+
 String.prototype.formatUnicorn = String.prototype.formatUnicorn || function() {
 	'use strict';
 	var str = this.toString();
@@ -81,6 +83,7 @@ module.exports = {
 					case 'A':
 						if (result_folder.name) {
 							result_folder.notes.push({
+								uid: uid.timeUID(),
 								attributes: tags.attributes || {},
 								body: tags.attributes['HREF'],
 								folderUid: result_folder.uid,

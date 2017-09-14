@@ -20,6 +20,8 @@
 						| {{ note.name }}
 					.my-notes-note-image(:title="note.name")
 						img(:src="note.attributes.THUMBNAIL")
+						.loading-bookmark(v-show="note.uid == loadingUid")
+							i.material-icons cached
 					.my-notes-note-body(:title="note.body")
 						| {{ note.body }}
 				template(v-else-if="!bookmarksList")
@@ -70,6 +72,7 @@
 			'selectedNote': Object,
 			'selectedRackOrFolder': Object,
 			'draggingNote': Object,
+			'loadingUid': String,
 			'toggleFullScreen': Function,
 			'changeNote': Function,
 			'setDraggingNote': Function,
@@ -188,6 +191,10 @@
 				clipboard.writeText(note.bodyWithDataURL);
 				this.$message('info', 'Copied Markdown to clipboard');
 			},
+			copyBookmarkUrl(bookmark) {
+				clipboard.writeText(note.body);
+				this.$message('info', 'Copied Url to clipboard');
+			},
 			copyNoteHTML(note) {
 				clipboard.writeText(marked(note.body));
 				this.$message('info', 'Copied HTML to clipboard');
@@ -214,10 +221,12 @@
 				var menu = new Menu();
 
 				if (this.bookmarksList && this.editBookmark) {
+					menu.append(new MenuItem({label: 'Open Url', click: () => {this.selectNote(note)}}));
+					menu.append(new MenuItem({label: 'Copy to clipboard', click: () => {this.copyBookmarkUrl(note)}}));
+					menu.append(new MenuItem({type: 'separator'}));
 					menu.append(new MenuItem({label: 'Edit Bookmark', click: () => {this.editBookmark(note)}}));
 					menu.append(new MenuItem({label: 'Refresh Thumbnail', click: () => {this.refreshBookmarkThumb(note)}}));
 					menu.append(new MenuItem({label: 'Use Shortcut Icon', click: () => {this.getBookmarkMetaImage(note)}}));
-					
 					menu.append(new MenuItem({type: 'separator'}));
 					menu.append(new MenuItem({label: 'Delete Bookmark', click: () => {this.removeNote(note)}}));
 				} else {

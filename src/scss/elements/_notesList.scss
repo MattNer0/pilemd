@@ -250,7 +250,7 @@
 
 		.my-notes-note {
 			width: calc( 20% - 2em );
-			height: 11em;
+			height: 14em;
 			display: inline-block;
 			background: $note-border-color;
 			color: $note-text-color;
@@ -269,7 +269,29 @@
 				display: block;
 				margin-top: 0;
 				padding-left: 0;
-				height: 9.5em;
+				height: 13em;
+				max-height: 13em;
+				position: relative;
+
+				@keyframes spin { 100% { transform:rotate(-360deg); } }
+
+				.loading-bookmark {
+					position: absolute;
+					width: 100%;
+					top: 0;
+					bottom: 0;
+					left: 0;
+					right: 0;
+					background-color: rgba(0,0,0,0.5);
+					color: #FFF;
+					text-align: center;
+					padding: 3em 0;
+
+					i {
+						font-size: 500%;
+						animation:spin 4s linear infinite;
+					}
+				}
 			}
 
 			.my-notes-note-body {
@@ -283,6 +305,10 @@
 
 		.my-notes-note:hover {
 			background: $note-background-color;
+
+			.my-notes-note-image img {
+				opacity: 1.0;
+			}
 		}
 	}
 }

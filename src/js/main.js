@@ -72,6 +72,7 @@ var appVue = new Vue({
 		selectedRackOrFolder: null,
 		search: "",
 		selectedNote: {},
+		loadingUid: "",
 		draggingNote: null,
 		allDragHover: false,
 		messages: [],
@@ -725,6 +726,7 @@ var appVue = new Vue({
 		refreshBookmarkThumb(bookmark) {
 			var self = this;
 			console.log('Loading Bookmark thumbnail...', bookmark.body);
+			this.loadingUid = bookmark.uid;
 			this.$refs.webview.src = bookmark.body;
 			var bookmarkFavicon = (e) => {
 				self.$refs.webview.removeEventListener('page-favicon-updated', bookmarkFavicon);
@@ -747,6 +749,7 @@ var appVue = new Vue({
 					self.$refs.webview.src = '';
 					models.BookmarkFolder.setBookmarkThumb(bookmark, img);
 					bookmark.rack.saveModel();
+					self.loadingUid = '';
 				});
 			};
 
@@ -761,6 +764,7 @@ var appVue = new Vue({
 		getBookmarkMetaImage(bookmark) {
 			var self = this;
 			console.log('Loading Bookmark page...', bookmark.body);
+			this.loadingUid = bookmark.uid;
 			this.$refs.webview.src = bookmark.body;
 			var bookmarkLoaded = (e) => {
 				self.$refs.webview.removeEventListener('did-finish-load', bookmarkLoaded);
@@ -777,18 +781,22 @@ var appVue = new Vue({
 					} else {
 						console.log('No Bookmark meta image found!');
 						self.$refs.webview.src = '';
+						self.loadingUid = '';
 					}
 				});
 			};
 			var imageLoaded = (e) => {
 				self.$refs.webview.removeEventListener('did-finish-load', imageLoaded);
-				self.$refs.webview.getWebContents().insertCSS('img { width: 100% !important; }');
-				self.$refs.webview.capturePage((img) => {
-					console.log('Bookmark meta image was succesful!');
-					self.$refs.webview.src = '';
-					bookmark.attributes['THUMBNAIL'] = img.toDataURL();
-					bookmark.rack.saveModel();
-				});
+				self.$refs.webview.getWebContents().insertCSS('img { width: 100% !important; height: auto; }');
+				setTimeout( () => {
+					self.$refs.webview.capturePage((img) => {
+						console.log('Bookmark meta image was succesful!');
+						self.$refs.webview.src = '';
+						models.BookmarkFolder.setBookmarkThumb(bookmark, img);
+						bookmark.rack.saveModel();
+						self.loadingUid = '';
+					});
+				}, 1000);
 			};
 			this.$refs.webview.addEventListener('did-finish-load', bookmarkLoaded);
 		},
