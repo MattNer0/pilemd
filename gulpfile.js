@@ -1,6 +1,4 @@
 const gulp = require('gulp');
-const uglify = require('gulp-uglify');
-const webpack = require('webpack-stream');
 const packager = require('electron-packager');
 const _ = require('lodash');
 
@@ -12,18 +10,11 @@ function create_library_directory(buildPath) {
 	fs.mkdirSync(appPath);
 }
 
-gulp.task('default', function() {
-	return gulp.src('src/entry.js')
-		.pipe(webpack(require('./webpack.config.js')))
-		.pipe(uglify())
-		.pipe(gulp.dest('dist/js/'));
-});
-
 var BASE_OPTION = {
 	dir: '.',
 	overwrite: true,
 	arch: 'x64',
-	//electronVersion: '1.7.5',
+	//electronVersion: '1.7.6',
 	ignore: '(node_modules\/(codemirror|highlight.js|marked|vue|vue-resource)|src|icons|releases|.idea.*|README\.md|\.DS_Store|env|gulpfile\.js|webpack\.config\.js|\.gitignore|\.gjslintrc)',
 	asar: true,
 	prune: false,
