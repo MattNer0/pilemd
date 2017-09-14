@@ -192,7 +192,7 @@
 				this.$message('info', 'Copied Markdown to clipboard');
 			},
 			copyBookmarkUrl(bookmark) {
-				clipboard.writeText(note.body);
+				clipboard.writeText(bookmark.body);
 				this.$message('info', 'Copied Url to clipboard');
 			},
 			copyNoteHTML(note) {
@@ -221,12 +221,30 @@
 				var menu = new Menu();
 
 				if (this.bookmarksList && this.editBookmark) {
-					menu.append(new MenuItem({label: 'Open Url', click: () => {this.selectNote(note)}}));
-					menu.append(new MenuItem({label: 'Copy to clipboard', click: () => {this.copyBookmarkUrl(note)}}));
+					menu.append(new MenuItem({
+						label: 'Open Url',
+						click: () => {this.selectNote(note)}
+					}));
+					menu.append(new MenuItem({
+						label: 'Copy to clipboard',
+						click: () => {this.copyBookmarkUrl(note)}
+					}));
 					menu.append(new MenuItem({type: 'separator'}));
-					menu.append(new MenuItem({label: 'Edit Bookmark', click: () => {this.editBookmark(note)}}));
-					menu.append(new MenuItem({label: 'Refresh Thumbnail', click: () => {this.refreshBookmarkThumb(note)}}));
-					menu.append(new MenuItem({label: 'Use Shortcut Icon', click: () => {this.getBookmarkMetaImage(note)}}));
+					menu.append(new MenuItem({
+						label: 'Edit Bookmark',
+						click: () => {this.editBookmark(note)},
+						enabled: this.loadingUid === ''
+					}));
+					menu.append(new MenuItem({
+						label: 'Refresh Thumbnail',
+						click: () => {this.refreshBookmarkThumb(note)},
+						enabled: this.loadingUid === ''
+					}));
+					menu.append(new MenuItem({
+						label: 'Use Shortcut Icon',
+						click: () => {this.getBookmarkMetaImage(note)},
+						enabled: this.loadingUid === ''
+					}));
 					menu.append(new MenuItem({type: 'separator'}));
 					menu.append(new MenuItem({label: 'Delete Bookmark', click: () => {this.removeNote(note)}}));
 				} else {

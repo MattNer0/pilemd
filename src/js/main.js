@@ -746,15 +746,22 @@ var appVue = new Vue({
 					 * @param    {Object}     img     NativeImage page screenshot
 					 */
 					console.log('Bookmark thumbnail was succesful!');
+					self.sendFlashMessage(2000, 'info', 'Thumbnail saved');
 					self.$refs.webview.src = '';
 					models.BookmarkFolder.setBookmarkThumb(bookmark, img);
 					bookmark.rack.saveModel();
 					self.loadingUid = '';
 				});
 			};
+			var bookmarkFailed = (e) => {
+				self.$refs.webview.removeEventListener('did-fail-load', bookmarkFailed);
+				self.loadingUid = '';
+				this.sendFlashMessage(3000, 'error', 'Load Failed');
+			};
 
 			this.$refs.webview.addEventListener('page-favicon-updated', bookmarkFavicon);
 			this.$refs.webview.addEventListener('did-finish-load', bookmarkLoaded);
+			this.$refs.webview.addEventListener('did-fail-load', bookmarkFailed);
 		},
 		/**
 		 * Refresh bookmark thumbnail using some metadata content (og:image, "shortcut icon" and "user-profile" img)
@@ -768,14 +775,19 @@ var appVue = new Vue({
 			this.$refs.webview.src = bookmark.body;
 			var bookmarkLoaded = (e) => {
 				self.$refs.webview.removeEventListener('did-finish-load', bookmarkLoaded);
-				self.$refs.webview.getWebContents().executeJavaScript("document.querySelector('body').innerHTML", (result) => {
-					var shortcut = result.match(/rel=['"`]shortcut icon['"`][^<>]+?href=['"`](http.+?)['"`]/gi);
-					var og_image = result.match(/property=['"`]og:image['"`][^<>]+?content=['"`](http.+?)['"`]/gi)
-									|| result.match(/content=['"`](http.+?)['"`][^<>]+?property=['"`]og:image['"`]/gi)
-					var user_profile = result.match(/https?:\/\/[a-z0-9.\-]+?\/user-profile\/img[^.<>]+\.(jpg|png)/gi);
-
+				self.$refs.webview.getWebContents().executeJavaScript("document.querySelector('head').innerHTML + document.querySelector('body').innerHTML", (result) => {
+					var shortcut = /rel=['"`]shortcut icon['"`][^<>]+?href=['"`](http.+?)['"`]/gi.exec(result)
+									|| /<img[^>]+?src=['"`](http.+?profile[\-_]images.+?)['"`]/gi.exec(result);
+					var og_image = /property=['"`]og:image['"`][^<>]+?content=['"`](http.+?)['"`]/gi.exec(result)
+									|| /content=['"`](http.+?)['"`][^<>]+?property=['"`]og:image['"`]/gi.exec(result);
+					var user_profile = result.match(/https?:\/\/[a-z0-9.\-]+?\/user-profile\/img[^.<>]+\.(jpg|png|gif)/gi);
+					
 					if (user_profile || shortcut || og_image) {
-						var image_url = user_profile ? user_profile[0] : shortcut[1] ? shortcut : og_image[1];
+						var image_url;
+						if (user_profile) image_url = user_profile[0];
+						else if(shortcut) image_url = shortcut[1];
+						else if(og_image) image_url = og_image[1];
+
 						self.$refs.webview.src = image_url;
 						self.$refs.webview.addEventListener('did-finish-load', imageLoaded);
 					} else {
@@ -791,6 +803,7 @@ var appVue = new Vue({
 				setTimeout( () => {
 					self.$refs.webview.capturePage((img) => {
 						console.log('Bookmark meta image was succesful!');
+						self.sendFlashMessage(2000, 'info', 'Thumbnail saved');
 						self.$refs.webview.src = '';
 						models.BookmarkFolder.setBookmarkThumb(bookmark, img);
 						bookmark.rack.saveModel();
@@ -798,7 +811,14 @@ var appVue = new Vue({
 					});
 				}, 1000);
 			};
+			var bookmarkFailed = (e) => {
+				self.$refs.webview.removeEventListener('did-fail-load', bookmarkFailed);
+				self.loadingUid = '';
+				this.sendFlashMessage(3000, 'error', 'Load Failed');
+			};
+
 			this.$refs.webview.addEventListener('did-finish-load', bookmarkLoaded);
+			this.$refs.webview.addEventListener('did-fail-load', bookmarkFailed);
 		},
 		/**
 		 * Displays an image with the popup dialog.

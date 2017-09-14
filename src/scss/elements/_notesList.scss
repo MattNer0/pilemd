@@ -250,7 +250,7 @@
 
 		.my-notes-note {
 			width: calc( 20% - 2em );
-			height: 14em;
+			height: 15em;
 			display: inline-block;
 			background: $note-border-color;
 			color: $note-text-color;
@@ -269,8 +269,8 @@
 				display: block;
 				margin-top: 0;
 				padding-left: 0;
-				height: 13em;
-				max-height: 13em;
+				height: 14em;
+				max-height: 14em;
 				position: relative;
 
 				@keyframes spin { 100% { transform:rotate(-360deg); } }
@@ -285,7 +285,7 @@
 					background-color: rgba(0,0,0,0.5);
 					color: #FFF;
 					text-align: center;
-					padding: 3em 0;
+					padding: 3.5em 0;
 
 					i {
 						font-size: 500%;
