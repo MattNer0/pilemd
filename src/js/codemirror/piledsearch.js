@@ -130,6 +130,16 @@
 	var queryDialog =
 		'<input type="text" placeholder="Search... /regexp/" class="CodeMirror-search-field"/>';
 
+	function setSearch(cm, query) {
+		var state = getSearchState(cm);
+		startSearch(cm, state, query);
+	}
+
+	function undoSearch(cm) {
+		var state = getSearchState(cm);
+		cm.removeOverlay(state.overlay, queryCaseInsensitive(state.query));
+	}
+
 	function startSearch(cm, state, query) {
 		state.queryText = query;
 		state.query = parseQuery(query);
@@ -267,6 +277,8 @@
 	CodeMirror.commands.find = function(cm) {clearSearch(cm); doSearch(cm);};
 	CodeMirror.commands.findPersistent = function(cm) {clearSearch(cm); doSearch(cm, false, true);};
 	CodeMirror.commands.findNext = doSearch;
+	CodeMirror.commands.setSearch = setSearch;
+	CodeMirror.commands.undoSearch = undoSearch;
 	CodeMirror.commands.findPrev = function(cm) {doSearch(cm, true);};
 	CodeMirror.commands.clearSearch = clearSearch;
 	CodeMirror.commands.replace = replace;

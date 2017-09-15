@@ -153,27 +153,23 @@ codemirror {
 
 .CodeMirror-dialog.CodeMirror-dialog-bottom {
 	position: absolute;
+	left: 0;
 	top: 0;
-	background-color: #444444;
-	color: #F1F1F1;
+	background: $title-bar-background;
 	width: 100%;
-	margin-left: -4vw;
-	margin-right: -4vw;
-	border-bottom: solid 1px #333333;
-	padding: 0.6em;
-	z-index: 5;
-}
+	padding: 0.4em;
+	line-height:1.5em;
+	z-index: 6;
 
-.CodeMirror-search-field {
-	border-radius: 4px;
-	width: 220px;
-}
-
-.CodeMirror-dialog button {
-	background-color: #fafafa;
-	border: solid 1px #eaeaea;
-	margin-right: 4px;
-}
-.CodeMirror-dialog button:hover {
-	background-color: #eeeeee;
+	.CodeMirror-search-field {
+		border: none;
+		outline: none;
+		padding: 0.4em;
+		width: 100%;
+		display: block;
+		float: left;
+	}
+	button {
+		display: none;
+	}
 }

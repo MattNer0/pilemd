@@ -74,6 +74,7 @@
 							:is-full-screen="isFullScreen"
 							:is-preview="isPreview"
 							:toggle-preview="togglePreview"
+							:search="search"
 							ref="refCodeMirror">
 						</codemirror>
 						<div v-show="isPreview && isNoteSelected" class="my-editor-preview" @contextmenu.prevent.stop="previewMenu()">

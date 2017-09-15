@@ -31,7 +31,7 @@
 	const CodeMirror = require('codemirror');
 
 	require('codemirror/addon/search/searchcursor');
-	//require('../codemirror/piledsearch');
+	require('../codemirror/piledsearch');
 	require('codemirror/addon/edit/closebrackets');
 	require('codemirror/addon/mode/overlay');
 	require('../codemirror/placeholder');
@@ -65,7 +65,7 @@
 
 	export default {
 		name: 'codemirror',
-		props: ['note', 'isFullScreen', 'isPreview', 'togglePreview'],
+		props: ['note', 'isFullScreen', 'isPreview', 'togglePreview', 'search'],
 		mounted() {
 			this.$nextTick(() => {
 
@@ -256,6 +256,19 @@
 			),
 			updateNoteBeforeSaving() {
 				this.note.body = this.cm.getValue();
+			},
+			runSearch() {
+				if(this.note && this.search && this.search.length > 1) {
+					this.$nextTick(() => {
+						console.log('cursor search');
+						CodeMirror.commands.setSearch(this.cm, this.search);
+						/*var cursor = this.cm.getSearchCursor(this.search);
+						console.log(cursor.findNext());
+						this.cm.setSelection(cursor.from(), cursor.to());*/
+					});
+				} else {
+					CodeMirror.commands.undoSearch(this.cm);
+				}
 			}
 		},
 		watch: {
@@ -274,6 +287,12 @@
 						this.cm.focus();
 					});
 				}
+			},
+			note() {
+				this.runSearch();
+			},
+			search() {
+				this.runSearch();
 			}
 		}
 	}
