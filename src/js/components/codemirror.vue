@@ -65,7 +65,13 @@
 
 	export default {
 		name: 'codemirror',
-		props: ['note', 'isFullScreen', 'isPreview', 'togglePreview', 'search'],
+		props: {
+			'note': Object,
+			'isFullScreen': Boolean,
+			'isPreview': Boolean,
+			'togglePreview': Function,
+			'search': String
+		},
 		mounted() {
 			this.$nextTick(() => {
 
@@ -262,9 +268,6 @@
 					this.$nextTick(() => {
 						console.log('cursor search');
 						CodeMirror.commands.setSearch(this.cm, this.search);
-						/*var cursor = this.cm.getSearchCursor(this.search);
-						console.log(cursor.findNext());
-						this.cm.setSelection(cursor.from(), cursor.to());*/
 					});
 				} else {
 					CodeMirror.commands.undoSearch(this.cm);
