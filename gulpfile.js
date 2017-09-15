@@ -62,7 +62,7 @@ gulp.task('electron-windows', function(done) {
 		icon: './icons/pilemd.ico'
 	});
 	// c['arch'] = 'ia32';
-	packager(c).then((err, appPaths) => {
+	packager(c).then((appPaths) => {
 		create_library_directory(appPaths[0]);
 		done();
 	}).catch((err) => {
