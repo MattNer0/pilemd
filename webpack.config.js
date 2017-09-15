@@ -12,7 +12,6 @@ var webpackPlugins = [
 	new webpack.ExternalsPlugin('commonjs', [
 		'electron',
 		'fs',
-		'chokidar',
 		'datauri'
 	]),
 	new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)

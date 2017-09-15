@@ -250,9 +250,6 @@ var appVue = new Vue({
 				}
 			}
 		}
-
-		// Save it not to remove
-		//this.watcher = models.makeWatcher(this.racks, this.folders, this.notes);
 	},
 	mounted() {
 		var self = this;

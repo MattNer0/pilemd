@@ -15,9 +15,9 @@ var BASE_OPTION = {
 	overwrite: true,
 	arch: 'x64',
 	//electronVersion: '1.7.6',
-	ignore: '(node_modules\/(codemirror|highlight.js|marked|vue|vue-resource)|src|icons|releases|.idea.*|README\.md|\.DS_Store|env|gulpfile\.js|webpack\.config\.js|\.gitignore|\.gjslintrc)',
+	ignore: '(icons|releases|.idea.*|README\.md|\.DS_Store|env|gulpfile\.js|webpack\.config\.js|\.gitignore|\.gjslintrc)',
 	asar: true,
-	prune: false,
+	prune: true,
 	extraResource: './dist/icon.png'
 };
 

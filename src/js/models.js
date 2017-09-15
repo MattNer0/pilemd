@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const chokidar = require('chokidar');
 
 const _ = require('lodash');
 const moment = require('moment');
@@ -1218,42 +1217,6 @@ const CLASS_MAPPER = {
 	bookmarkFolders: BookmarkFolder
 };
 
-function makeWatcher(racks, folders, notes) {
-	var arrayMapper = {
-		racks: racks,
-		folders: folders,
-		notes: notes
-	};
-	var watcher = chokidar.watch([], {
-		depth: 1,
-		ignoreInitial: true
-	});
-	watcher.on('add', (path) => {
-		var d = readDataFile(path);
-		if (!d) {return}
-		if (!arrayMapper[d.dataType].find(uidFinder(d.uid))) {
-			arrayMapper[d.dataType].push(new CLASS_MAPPER[d.dataType](d.data));
-		}
-	});
-	watcher.on('change', (path) => {
-		var d = readDataFile(path);
-		if (!d) {return}
-		var target = arrayMapper[d.dataType].find(uidFinder(d.uid));
-		if (target) {
-			target.update(d.data);
-		}
-	});
-	/*
-	watcher.on('unlink', (path) => {
-		var d = detectPath(path);
-		if (!d) {return}
-		arr.remove(arrayMapper[d.dataType], uidFinder(d.uid));
-	});
-	*/
-	watcher.add(getBaseLibraryPath());
-	return watcher;
-}
-
 class Image {
 
 	constructor (pilemdURL, name) {
@@ -1347,6 +1310,5 @@ module.exports = {
 	setBaseLibraryPath: setBaseLibraryPath,
 	doesLibraryExists: doesLibraryExists,
 	getValidMarkdownFormats: getValidMarkdownFormats,
-	makeWatcher: makeWatcher,
 	Image: Image
 };

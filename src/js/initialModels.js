@@ -97,7 +97,6 @@ function initialSetup(racks) {
 	return makeInitialNotes(initialData.rack1, initialData.folder1);
 }
 
-
 module.exports = {
 	initialFolder: initialFolder,
 	makeInitialNotes: makeInitialNotes,
