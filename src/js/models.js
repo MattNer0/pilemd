@@ -799,6 +799,7 @@ class BookmarkFolder extends Folder {
 		};
 
 		return {
+			uid: uid.timeUID(),
 			attributes: attributes || {},
 			body: attributes['HREF'],
 			folderUid: folder.uid,

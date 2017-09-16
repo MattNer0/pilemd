@@ -266,7 +266,6 @@
 			runSearch() {
 				if(this.note && this.search && this.search.length > 1) {
 					this.$nextTick(() => {
-						console.log('cursor search');
 						CodeMirror.commands.setSearch(this.cm, this.search);
 					});
 				} else {
