@@ -2,7 +2,6 @@ const path = require('path');
 const fs = require('fs');
 
 const _ = require('lodash');
-const toMarkdown = require('to-markdown');
 
 var settings = require('./utils/settings');
 settings.init();
@@ -10,6 +9,7 @@ settings.loadWindowSize();
 
 const libini = require('./utils/libini');
 const traymenu = require('./utils/traymenu');
+const htmlToMarkdown = require('./utils/htmlToMarkdown');
 
 //var Vue = require('vue');
 import Vue from 'vue';
@@ -658,31 +658,12 @@ var appVue = new Vue({
 								"document.querySelector('body').innerHTML"
 				];
 				self.$refs.webview.getWebContents().executeJavaScript(elements.join(' : '), (result) => {
-					var new_markdown = toMarkdown(result, { gfm: true, converters: [{
-							filter: ['span', 'article'],
-							replacement: function(content) {
-								return content;
-							}
-						},{
-							filter: 'div',
-							replacement: function(content) {
-								return "\n"+content+"\n";
-							}
-						},{
-							filter: ['script', 'noscript', 'form', 'nav'],
-							replacement: function(content) {
-								return '';
-							}
-						}]
-					});
-					new_markdown = new_markdown.replace(/\n+/gi,'\n');
-					new_markdown = new_markdown.replace(/(\!\[\]\(.+?\))(\s*\1+)/gi,'$1');
-					new_markdown = new_markdown.replace(/(\[\!\[.*?\].+?\]\(.+?\))/gi,'\n$1\n');
-					new_markdown = new_markdown.replace(/\]\(\/\//gi,'](http://');
+					var new_markdown = htmlToMarkdown.convert(result, self.$refs.webview.src);
 					if (new_markdown) {
-						new_markdown = "[Source]("+self.$refs.webview.src+")\n\n"+new_markdown;
 						var new_note = self.addNote();
 						new_note.body = new_markdown;
+					} else {
+						self.sendFlashMessage(5000, 'error', 'Conversion Failed');
 					}
 					self.$refs.webview.style.height = '';
 					self.$refs.webview.src = '';
