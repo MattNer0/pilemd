@@ -2,13 +2,14 @@ const path = require('path');
 const fs = require('fs');
 
 const _ = require('lodash');
+const toMarkdown = require('to-markdown');
 
 var settings = require('./utils/settings');
 settings.init();
 settings.loadWindowSize();
 
-var libini = require('./utils/libini');
-var traymenu = require('./utils/traymenu');
+const libini = require('./utils/libini');
+const traymenu = require('./utils/traymenu');
 
 //var Vue = require('vue');
 import Vue from 'vue';
@@ -325,6 +326,11 @@ var appVue = new Vue({
 				this.saveNote();
 			}
 
+			if(note === null) {
+				this.selectedNote = {};
+				return;
+			}
+
 			if (this.isNoteRackSelected) {
 				if (!note.body) note.loadBody();
 				if (note.isEncrypted) {
@@ -581,6 +587,7 @@ var appVue = new Vue({
 					label: 'Ok'
 				}]);
 			}
+			return newNote;
 		},
 		/**
 		 * Add new encrypted note to the current selected Folder
@@ -628,13 +635,103 @@ var appVue = new Vue({
 		 * Save current selected Note.
 		 */
 		saveNote() {
-			if(this.selectedNote && this.isPreview) this.preview = preview.render(this.selectedNote, this);
-			var result = this.selectedNote.saveModel();
+			var result;
+			if (this.selectedNote && this.isPreview) this.preview = preview.render(this.selectedNote, this);
+			if (this.selectedNote.saveModel) {
+				result = this.selectedNote.saveModel();
+			}
 			if (result && result.error && result.path) {
-				this.sendFlashMessage(3000, 'error', result.error);
+				this.sendFlashMessage(5000, 'error', result.error);
 			} else if(result && result.saved) {
 				this.sendFlashMessage(1000, 'info', 'Note saved');
 			}
+		},
+		addNoteFromUrl() {
+			var self = this;
+
+			var pageLoaded = (e) => {
+				self.$refs.webview.removeEventListener('did-finish-load', pageLoaded);
+				var elements = ["document.querySelector('article') ? document.querySelector('article').innerHTML",
+								"document.querySelector('#article_item') ? document.querySelector('#article_item').innerHTML",
+								"document.querySelector('*[role=\"article\"]') ? document.querySelector('*[role=\"article\"]').innerHTML",
+								"document.querySelector('.post-container') ? document.querySelector('.post-container').innerHTML",
+								"document.querySelector('body').innerHTML"
+				];
+				self.$refs.webview.getWebContents().executeJavaScript(elements.join(' : '), (result) => {
+					var new_markdown = toMarkdown(result, { gfm: true, converters: [{
+							filter: ['span', 'article'],
+							replacement: function(content) {
+								return content;
+							}
+						},{
+							filter: 'div',
+							replacement: function(content) {
+								return "\n"+content+"\n";
+							}
+						},{
+							filter: ['script', 'noscript', 'form', 'nav'],
+							replacement: function(content) {
+								return '';
+							}
+						}]
+					});
+					new_markdown = new_markdown.replace(/\n+/gi,'\n');
+					new_markdown = new_markdown.replace(/(\!\[\]\(.+?\))(\s*\1+)/gi,'$1');
+					new_markdown = new_markdown.replace(/(\[\!\[.*?\].+?\]\(.+?\))/gi,'\n$1\n');
+					new_markdown = new_markdown.replace(/\]\(\/\//gi,'](http://');
+					if (new_markdown) {
+						new_markdown = "[Source]("+self.$refs.webview.src+")\n\n"+new_markdown;
+						var new_note = self.addNote();
+						new_note.body = new_markdown;
+					}
+					self.$refs.webview.style.height = '';
+					self.$refs.webview.src = '';
+				});
+			};
+			var pageFailed = (e) => {
+				self.$refs.webview.removeEventListener('did-fail-load', pageFailed);
+				self.$refs.webview.style.height = '';
+				self.$refs.webview.src = '';
+				self.sendFlashMessage(5000, 'error', 'Load Failed');
+			};
+
+			this.$refs.dialog.init('Note', '', [{
+				label: 'Cancel',
+				cancel: true,
+			}, {
+				label: 'Ok',
+				cb(data) {
+					self.$refs.webview.src = data.pageurl;
+					self.$refs.webview.style.height = '10000px';
+					self.$refs.webview.addEventListener('did-finish-load', pageLoaded);
+					self.$refs.webview.addEventListener('did-fail-load', pageFailed);
+				},
+				/**
+				 * validate the form input data
+				 *
+				 * @param      {Object}            data    Form data object
+				 * @return     {(boolean|string)}          If false, the validation was succesful.
+				 *                                         If a string value is returned it means that's the name of the field that failed validation.
+				 */
+				validate(data) {
+					var expression = /[-a-zA-Z0-9@:%_\+.~#?&=]{2,256}(\.[a-z]{2,4}|:\d+)\b(\/[-a-zA-Z0-9@:%_\+.~#?&\/=]*)?/gi;
+					var regex = new RegExp(expression);
+					if (data.pageurl.match(regex)) {
+						return false;
+					} else {
+						/**
+						 * @todo gonna use this to highlight the wrong field in the dialog form
+						 */
+						return 'pageurl';
+					}
+				}
+			}], [{
+				type: 'text',
+				retValue: '',
+				label: 'URL',
+				name: 'pageurl',
+				required: true
+			}]);
 		},
 		/**
 		 * add a new bookmark inside a specific folder
@@ -724,6 +821,7 @@ var appVue = new Vue({
 			var self = this;
 			console.log('Loading Bookmark thumbnail...', bookmark.body);
 			this.loadingUid = bookmark.uid;
+			self.$refs.webview.style.height = '';
 			this.$refs.webview.src = bookmark.body;
 			var bookmarkFavicon = (e) => {
 				self.$refs.webview.removeEventListener('page-favicon-updated', bookmarkFavicon);
@@ -743,7 +841,7 @@ var appVue = new Vue({
 					 * @param    {Object}     img     NativeImage page screenshot
 					 */
 					console.log('Bookmark thumbnail was succesful!');
-					self.sendFlashMessage(2000, 'info', 'Thumbnail saved');
+					self.sendFlashMessage(3000, 'info', 'Thumbnail saved');
 					self.$refs.webview.src = '';
 					models.BookmarkFolder.setBookmarkThumb(bookmark, img);
 					bookmark.rack.saveModel();
@@ -753,7 +851,7 @@ var appVue = new Vue({
 			var bookmarkFailed = (e) => {
 				self.$refs.webview.removeEventListener('did-fail-load', bookmarkFailed);
 				self.loadingUid = '';
-				this.sendFlashMessage(3000, 'error', 'Load Failed');
+				self.sendFlashMessage(5000, 'error', 'Load Failed');
 			};
 
 			this.$refs.webview.addEventListener('page-favicon-updated', bookmarkFavicon);
@@ -769,6 +867,7 @@ var appVue = new Vue({
 			var self = this;
 			console.log('Loading Bookmark page...', bookmark.body);
 			this.loadingUid = bookmark.uid;
+			self.$refs.webview.style.height = '';
 			this.$refs.webview.src = bookmark.body;
 			var bookmarkLoaded = (e) => {
 				self.$refs.webview.removeEventListener('did-finish-load', bookmarkLoaded);
@@ -1072,10 +1171,12 @@ var appVue = new Vue({
 			settings.set('fontsize', this.fontsize);
 		},
 		selectedNote() {
-			if(this.isPreview) {
-				this.preview = preview.render(this.selectedNote, this);
+			if (this.selectedNote.data) {
+				if(this.isPreview) {
+					this.preview = preview.render(this.selectedNote, this);
+				}
+				this.selectedRackOrFolder = this.selectedNote.data.folder;
 			}
-			this.selectedRackOrFolder = this.selectedNote.data.folder;
 			this.scrollUpScrollbarNote();
 		},
 		'selectedNote.body': function() {

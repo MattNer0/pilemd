@@ -12,6 +12,9 @@
 						li: a(@click.prevent="$root.addNote()", href="#")
 							i.material-icons note_add
 							|  New Simple Note
+						li: a(@click.prevent="$root.addNoteFromUrl()", href="#")
+							i.material-icons note_add
+							|  Add Note from Url
 						li: a(@click.prevent="$root.addEncryptedNote()", href="#")
 							i.material-icons note_add
 							|  New Encrypted Note
