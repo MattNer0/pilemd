@@ -133,12 +133,15 @@
 							this.selectedRackOrFolder.removeNote(note);
 						} else {
 							note.remove();
-							if (this.notes.length > 1) {
+							if(note.data.folder.notes.length == 0) {
+								this.changeNote(null);
+							} else if (this.notes.length > 1) {
 								this.changeNote(Note.beforeNote(this.notes.slice(), note, this.notesDisplayOrder));
 							} else {
 								this.changeNote(Note.beforeNote(this.originalNotes.slice(), note, this.notesDisplayOrder));
 							}
 						}
+						console.log('note removed');
 					}
 				});
 			},

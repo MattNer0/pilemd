@@ -101,6 +101,7 @@ class Note extends Model {
 			this._loadedBody = true;
 		}
 
+		this._removed = false;
 		this._metadata = {};
 		this.dragHover = false;
 		this.sortUpper = false;
@@ -374,6 +375,8 @@ class Note extends Model {
 	}
 
 	saveModel() {
+		if(this._removed) return;
+
 		var body = this.bodyWithMetadata;
 		if (this.isEncryptedNote) {
 			if (this._encrypted) return { error: "Encrypted" };
@@ -434,6 +437,7 @@ class Note extends Model {
 		if(fs.existsSync(this._path)) {
 			fs.unlinkSync(this._path);
 		}
+		this._removed = true;
 	}
 
 	static latestUpdatedNote(notes) {
