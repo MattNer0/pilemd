@@ -156,6 +156,7 @@
 						menu.append(new MenuItem({ type: 'separator' }));
 						if (isLinkState(token.type)) {
 							var s = cm.getRange({ line: c.line, ch: token.start }, { line: c.line, ch: token.state.overlayPos || token.end });
+							s = s.replace(/\)$/, '');
 							menu.append(new MenuItem({
 								label: 'Copy Link',
 								click: () => { clipboard.writeText(s) }

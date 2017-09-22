@@ -651,14 +651,8 @@ var appVue = new Vue({
 
 			var pageLoaded = (e) => {
 				self.$refs.webview.removeEventListener('did-finish-load', pageLoaded);
-				var elements = ["document.querySelector('article') ? document.querySelector('article').innerHTML",
-								"document.querySelector('#article_item') ? document.querySelector('#article_item').innerHTML",
-								"document.querySelector('*[role=\"article\"]') ? document.querySelector('*[role=\"article\"]').innerHTML",
-								"document.querySelector('.post-container') ? document.querySelector('.post-container').innerHTML",
-								"document.querySelector('body').innerHTML"
-				];
-				self.$refs.webview.getWebContents().executeJavaScript(elements.join(' : '), (result) => {
-					var new_markdown = htmlToMarkdown.convert(result, self.$refs.webview.src);
+				self.$refs.webview.getWebContents().executeJavaScript(htmlToMarkdown.parseScript(), (result) => {
+					var new_markdown = htmlToMarkdown.convert(result, self.$refs.webview.src, self.$refs.webview.getTitle());
 					if (new_markdown) {
 						var new_note = self.addNote();
 						new_note.body = new_markdown;
