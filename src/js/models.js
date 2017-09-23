@@ -162,11 +162,15 @@ class Note extends Model {
 		return this._metadata;
 	}
 
+	get metadataKeys() {
+		return Object.keys(this._metadata);
+	}
+
 	set metadata(newValue) {
 		this._metadata = newValue;
 		var str = '';
 		Object.keys(newValue).forEach((key) => {
-			str += key + ': ' + newValue[key] + '\n';
+			if (newValue[key]) str += key + ': ' + newValue[key] + '\n';
 		});
 		this._body = str + '\n' + this.bodyWithoutMetadata;
 	}
@@ -201,7 +205,7 @@ class Note extends Model {
 
 	set body(newValue) {
 		if (newValue != this._body) {
-			if(!this._metadata.createdAt) this._metadata.createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
+			if (!this._metadata.createdAt) this._metadata.createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
 			this._metadata.updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');
 			this._body = newValue;
 		}
@@ -254,7 +258,7 @@ class Note extends Model {
 	get bodyWithMetadata() {
 		var str = '';
 		Object.keys(this._metadata).forEach((key) => {
-			str += key + ': ' + this._metadata[key] + '\n';
+			if (this._metadata[key]) str += key + ': ' + this._metadata[key] + '\n';
 		});
 		return str + '\n' + this._body;
 	}
@@ -278,7 +282,7 @@ class Note extends Model {
 	}
 
 	setMetadata(key, value) {
-		this._metadata[key] = value;
+		if (key) this._metadata[key] = value;
 	}
 
 	isFolder(f) {

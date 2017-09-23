@@ -58,6 +58,24 @@
 								tr
 									td: strong Created: 
 									td.right: span {{ note.createdAt.format('MMM DD, YYYY') }}
+							hr
+							form.new-metadata-form(@submit="newMetadata")
+								table(@click.prevent.stop="")
+									tr(v-for="metakey in note.metadataKeys" v-if="metakey != 'createdAt' && metakey != 'updatedAt' && note.metadata[metakey]")
+										td: strong {{ metakey }}
+										td.right: span {{ note.metadata[metakey] }}
+									tr
+										td: strong
+											select(name="metakey", required, ref="keyinput")
+												option(value="") ---
+												option Author
+												option Copyright
+												option Language
+												option Subtitle
+												option Title
+												option Web
+										td.right: span
+											input(type="text", name="metavalue", ref="valueinput")
 
 
 			li.right-align
@@ -106,7 +124,15 @@
 
 	export default {
 		name: 'noteMenu',
-		props: ['note', 'isFullScreen', 'isPreview', 'fontsize', 'togglePreview', 'isNoteSelected'],
+		props: {
+			'note': Object,
+			'isFullScreen': Boolean,
+			'isPreview': Boolean,
+			'fontsize': Number,
+			'togglePreview': Function,
+			'isNoteSelected': Boolean,
+			'sendFlashMessage': Function
+		},
 		data() {
 			return {
 				'fontsize_visible': false,
@@ -258,6 +284,16 @@
 					ch: cursor.ch+5
 				});
 				cm.focus();
+			},
+			newMetadata(e) {
+				e.preventDefault();
+				this.properties_visible = false;
+				this.note.setMetadata(this.$refs.keyinput.value, this.$refs.valueinput.value);
+				this.note.saveModel();
+				this.sendFlashMessage(2000, 'info', 'New metadata added');
+				this.$refs.valueinput.value = '';
+				this.$refs.keyinput.value = '';
+				this.properties_visible = true;
 			}
 		}
 	}
