@@ -185,6 +185,11 @@ function makeWindow() {
 	// Open the DevTools.
 	//mainWindow.webContents.openDevTools();
 
+	mainWindow.webContents.on('will-navigate', (e, url) => {
+		e.preventDefault();
+		electron.shell.openExternal(url);
+	});
+
 	// Emitted when the window is closed.
 	mainWindow.on('closed', () => {
 		// Dereference the window object, usually you would store windows

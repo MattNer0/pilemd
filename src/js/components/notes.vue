@@ -50,10 +50,10 @@
 	const dragging = require('../utils/dragging');
 
 	// Electron things
-	const remote = require('electron').remote;
+	const electron = require('electron');
+	const remote = electron.remote;
 	const Menu = remote.Menu;
 	const MenuItem = remote.MenuItem;
-	const clipboard = require('electron').clipboard;
 	const dialog = remote.dialog;
 
 	const models = require('../models');
@@ -191,15 +191,15 @@
 			},
 			// Electron methods
 			copyNoteBody(note) {
-				clipboard.writeText(note.bodyWithDataURL);
+				electron.clipboard.writeText(note.bodyWithDataURL);
 				this.$message('info', 'Copied Markdown to clipboard');
 			},
 			copyBookmarkUrl(bookmark) {
-				clipboard.writeText(bookmark.body);
+				electron.clipboard.writeText(bookmark.body);
 				this.$message('info', 'Copied Url to clipboard');
 			},
 			copyNoteHTML(note) {
-				clipboard.writeText(marked(note.body));
+				electron.clipboard.writeText(marked(note.body));
 				this.$message('info', 'Copied HTML to clipboard');
 			},
 			// Electron
@@ -253,6 +253,13 @@
 				} else {
 					menu.append(new MenuItem({label: 'Copy to clipboard (Markdown)', click: () => {this.copyNoteBody(note)}}));
 					menu.append(new MenuItem({label: 'Copy to clipboard (HTML)', click: () => {this.copyNoteHTML(note)}}));
+					menu.append(new MenuItem({type: 'separator'}));
+					menu.append(new MenuItem({
+						label: 'Show this note in folder',
+						click: () => {
+							electron.shell.showItemInFolder(note.data.path);
+						}
+					}));
 					menu.append(new MenuItem({type: 'separator'}));
 					menu.append(new MenuItem({label: 'Export this note...', click: () => {this.exportNoteDiag(note)}}));
 					menu.append(new MenuItem({type: 'separator'}));

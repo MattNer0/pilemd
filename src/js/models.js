@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const electron = require('electron');
+
 const _ = require('lodash');
 const moment = require('moment');
 const Datauri = require('datauri');
@@ -435,7 +437,8 @@ class Note extends Model {
 
 	remove() {
 		if(fs.existsSync(this._path)) {
-			fs.unlinkSync(this._path);
+			var trashy = electron.shell.moveItemToTrash(this._path);
+			if(!trashy) fs.unlinkSync(this._path);
 		}
 		this._removed = true;
 	}
