@@ -1,37 +1,28 @@
 const electron = require('electron');
 const fs = require('fs');
 const path = require('path');
-const app = electron.app;  // Module to control application life.
-const Tray = electron.Tray;  // Module to control tray icon.
-const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
+const app = electron.app;
+const Tray = electron.Tray;
+const BrowserWindow = electron.BrowserWindow;
 const Menu = electron.Menu;
 const autoUpdater = electron.autoUpdater;
 const dialog = electron.dialog;
 
-
-// Report crashes to our server.
-// electron.crashReporter.start();
-
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
 var mainWindow = null;
 var appIcon = null;
 
-/*
-const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) => {
+var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
 	// Someone tried to run a second instance, we should focus our window.
 	if (mainWindow) {
 		if (mainWindow.isMinimized()) mainWindow.restore();
-		if (!mainWindow.isVisible()) mainWindow.show();
 		mainWindow.focus();
 	}
 });
 
-if (isSecondInstance) {
+if (shouldQuit) {
 	app.quit();
 	return;
 }
-*/
 
 const APP_NAME = app.getName();
 const DARWIN_ALL_CLOSED_MENU = [
