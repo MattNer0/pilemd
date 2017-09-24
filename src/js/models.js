@@ -852,7 +852,7 @@ class BookmarkFolder extends Folder {
 
 	static setBookmarkThumb(bookmark, thumbnail) {
 		if(!bookmark) return;
-		thumbnail = thumbnail.resize({ width: 200 });
+		thumbnail = thumbnail.resize({ width: 150 });
 		if(thumbnail) bookmark.attributes['THUMBNAIL'] = thumbnail.toDataURL();
 	}
 }
