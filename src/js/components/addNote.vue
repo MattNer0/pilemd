@@ -2,11 +2,11 @@
 	.my-notes
 		.my-separator
 			.my-notes-note.new-note
-				h5.my-notes-note-title(@click.prevent="$root.addNote()")
+				h5.my-notes-note-title(@click.prevent="newNote")
 					i.material-icons add_circle_outline
 					|  New Note
-					i.material-icons.right-icon(@click.prevent.stop="addnote_visible = !addnote_visible") more_horiz
-				dropdown(:visible="addnote_visible", :position="position", v-on:clickout="addnote_visible = false")
+					i.material-icons.right-icon(@click.prevent.stop="addnote_visible = !addnote_visible", v-if="notesList") more_horiz
+				dropdown(:visible="addnote_visible", :position="position", v-on:clickout="addnote_visible = false", v-if="notesList")
 					.link
 					.dialog(slot="dropdown"): ul
 						li: a(@click.prevent="$root.addNote()", href="#")
@@ -25,6 +25,9 @@
 
 	export default {
 		name: 'addNote',
+		props: {
+			'notesList': Boolean,
+		},
 		components: {
 			'dropdown': myDropdown
 		},
@@ -33,6 +36,15 @@
 				'addnote_visible': false,
 				'position': [ "left", "bottom", "left", "top" ]
 			};
+		},
+		methods: {
+			newNote() {
+				if (this.notesList) {
+					return this.$root.addNote();
+				} else {
+					return this.$root.addBookmark();
+				}
+			}
 		}
 	}
 </script>

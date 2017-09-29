@@ -1,5 +1,6 @@
 .CodeMirror,
-.my-editor-preview {
+.my-editor-preview,
+.my-browser {
 	margin: 0 auto;
 	padding: 3.4em 6em;
 	border-left: 0.1em solid $note-border-color;
@@ -67,3 +68,4 @@ form.new-metadata-form {
 @import 'codeMirror';
 @import 'codePreview';
 @import 'codeFontSize';
+@import 'browser';

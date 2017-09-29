@@ -34,7 +34,7 @@
 						img(:src="note.img")
 					.my-notes-note-body(v-if="!note.img && note.body.length != 0")
 						| {{ note.bodyWithoutTitle | truncate(80) }}
-			.my-notes-note(v-if="bookmarksList", @click="addBookmark", style="opacity:0.3;")
+			//-.my-notes-note(v-if="bookmarksList", @click="addBookmark", style="opacity:0.3;")
 				i.material-icons add
 
 </template>
@@ -95,6 +95,9 @@
 		methods: {
 			selectNote(note) {
 				this.changeNote(note);
+			},
+			openExternalUrl(bookmark) {
+				electron.shell.openExternal(bookmark.body);
 			},
 			selectNoteAndWide(note) {
 				this.changeNote(note);
@@ -227,6 +230,10 @@
 					menu.append(new MenuItem({
 						label: 'Open Url',
 						click: () => {this.selectNote(note)}
+					}));
+					menu.append(new MenuItem({
+						label: 'Open Url External',
+						click: () => {this.openExternalUrl(note)}
 					}));
 					menu.append(new MenuItem({
 						label: 'Copy to clipboard',

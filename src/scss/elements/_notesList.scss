@@ -249,12 +249,6 @@
 		}
 
 		.my-notes-note {
-			width: calc( 20% - 2em );
-			height: 15em;
-			display: inline-block;
-			background: $note-border-color;
-			color: $note-text-color;
-			margin: 1em;
 
 			h5.my-notes-note-title {
 				display: block;
@@ -304,7 +298,6 @@
 		}
 
 		.my-notes-note:hover {
-			background: $note-background-color;
 
 			.my-notes-note-image img {
 				opacity: 1.0;

@@ -1,5 +1,5 @@
 <main id="main-editor">
-	<window-bar :note="selectedNote" :rack-folder="selectedRackOrFolder"></window-bar>
+	<window-bar :note="selectedNote" :bookmark="selectedBookmark" :rack-folder="selectedRackOrFolder"></window-bar>
 	<title-menu
 		:toggle-full-screen="toggleFullScreen"
 		:open-sync="openSync"
@@ -39,12 +39,11 @@
 					</div>
 				</div>
 				<handler-stack :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd"></handler-stack>
-				<!-- :style="{ width: notesWidth+'px' }" -->
-				<div class="cell-container" v-show="isNoteRackSelected">
-					<add-note v-if="selectedFolder"></add-note>
+				<div class="cell-container">
+					<add-note v-if="selectedFolder" :notes-list="isNoteRackSelected"></add-note>
 					<div class="my-shelf-notes" ref="refNotes">
-						<notes v-if="isNoteRackSelected"
-							:bookmarks-list="false"
+						<notes
+							:bookmarks-list="!isNoteRackSelected"
 							:notes="filteredNotes"
 							:toggle-full-screen="toggleFullScreen"
 							:original-notes="notes"
@@ -53,11 +52,14 @@
 							:dragging-note="draggingNote"
 							:change-note="changeNote"
 							:set-dragging-note="setDraggingNote"
-							:notes-display-order="notesDisplayOrder">
+							:notes-display-order="notesDisplayOrder"
+							:refresh-bookmark-thumb="refreshBookmarkThumb"
+							:get-bookmark-meta-image="getBookmarkMetaImage"
+							:loading-uid="loadingUid">
 						</notes>
 					</div>
 				</div>
-				<handler-notes :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd" v-show="isNoteRackSelected"></handler-notes>
+				<handler-notes :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd"></handler-notes>
 			</div>
 			<div class="cell-container main-cell-container" :class="[ 'font'+fontsize ]">
 				<note-menu :note="selectedNote"
@@ -68,7 +70,7 @@
 					:send-flash-message="sendFlashMessage"
 					:toggle-preview="togglePreview">
 				</note-menu>
-				<div class="my-editor" ref="myEditor">
+				<div class="my-editor" :class="{ 'browser-open': selectedBookmark.name }" ref="myEditor">
 					<div>
 						<codemirror v-show="!isPreview && isNoteSelected"
 							:note="selectedNote"
@@ -82,31 +84,14 @@
 							<div v-html="preview">
 							</div>
 						</div>
-						<div v-show="!isNoteRackSelected">
-							<notes v-if="!isNoteRackSelected"
-								:bookmarks-list="true"
-								:notes="filteredNotes"
-								:toggle-full-screen="toggleFullScreen"
-								:original-notes="notes"
-								:selected-note="selectedNote"
-								:selected-rack-or-folder="selectedRackOrFolder"
-								:dragging-note="draggingNote"
-								:change-note="changeNote"
-								:set-dragging-note="setDraggingNote"
-								:edit-bookmark="editBookmark"
-								:notes-display-order="notesDisplayOrder"
-								:refresh-bookmark-thumb="refreshBookmarkThumb"
-								:get-bookmark-meta-image="getBookmarkMetaImage"
-								:loading-uid="loadingUid">
-							</notes>
+						<div class="my-internal-browser" v-show="selectedBookmark.name">
+							<browser
+								:bookmark="selectedBookmark"
+								ref="refBrowser">
+							</browser>
 						</div>
 					</div>
 				</div>
-				<!--vue-scrollbar classes="my-scrollbar" ref="MainScrollbar">
-					<div class="scroll-me">
-						
-					</div>
-				</vue-scrollbar-->
 				<flashmessage :messages="messages"></flashmessage>
 			</div>
 		</div>

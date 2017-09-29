@@ -14,6 +14,9 @@
 				span(v-if="note && note.title")
 					i.material-icons chevron_right
 					|  {{ note.title }}
+				span(v-if="bookmark && bookmark.name")
+					i.material-icons chevron_right
+					|  {{ bookmark.name }}
 			.system-icon.minimize(@click="win_min")
 				i.material-icons remove
 			.system-icon(@click="win_max")
@@ -31,6 +34,7 @@
 		name: 'windowBar',
 		props: {
 			'note': Object,
+			'bookmark': Object,
 			'rackFolder': Object
 		},
 		computed: {
@@ -40,6 +44,8 @@
 			rack() {
 				if (this.note && this.note.title) {
 					return this.note.data.rack;
+				} else if (this.bookmark && this.bookmark.name) {
+					return this.bookmark.rack;
 				} else if(this.rackFolder) {
 					if (this.rackFolder instanceof models.Folder) {
 						return this.rackFolder.data.rack;
@@ -52,6 +58,8 @@
 			folder() {
 				if (this.note && this.note.title) {
 					return this.note.data.folder;
+				} else if (this.bookmark && this.bookmark.name) {
+					return this.bookmark.folder;
 				} else if(this.rackFolder) {
 					if (this.rackFolder instanceof models.Folder) {
 						return this.rackFolder;

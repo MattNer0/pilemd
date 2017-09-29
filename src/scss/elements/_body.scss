@@ -38,6 +38,11 @@
 			margin-left: 1em;
 			margin-right: 1em;
 		}
+
+		.browser-open.my-editor > div {
+			margin-left: 0;
+			margin-right: 0;
+		}
 	}
 
 	.sidebar {
@@ -75,6 +80,10 @@
 	    margin: 0 auto;
 	    overflow-y: scroll;
 	    position: relative;
+	}
+
+	.browser-open {
+		overflow: hidden;
 	}
 }
 

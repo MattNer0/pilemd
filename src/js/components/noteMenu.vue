@@ -128,7 +128,7 @@
 			'note': Object,
 			'isFullScreen': Boolean,
 			'isPreview': Boolean,
-			'fontsize': Number,
+			'fontsize': String,
 			'togglePreview': Function,
 			'isNoteSelected': Boolean,
 			'sendFlashMessage': Function

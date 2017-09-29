@@ -40,6 +40,7 @@ import component_noteMenu from './components/noteMenu.vue';
 import component_handlerStack from './components/handlerStack.vue';
 import component_handlerNotes from './components/handlerNotes.vue';
 import component_codeMirror from './components/codemirror.vue';
+import component_browser from './components/browser.vue';
 
 // Loading CSSs
 require('../scss/pilemd-light.scss');
@@ -73,6 +74,7 @@ var appVue = new Vue({
 		selectedRackOrFolder: null,
 		search: "",
 		selectedNote: {},
+		selectedBookmark: {},
 		loadingUid: "",
 		draggingNote: null,
 		allDragHover: false,
@@ -99,7 +101,8 @@ var appVue = new Vue({
 		'noteMenu': component_noteMenu,
 		'handlerStack': component_handlerStack,
 		'handlerNotes': component_handlerNotes,
-		'codemirror': component_codeMirror
+		'codemirror': component_codeMirror,
+		'browser': component_browser
 	},
 	computed: {
 		/**
@@ -274,10 +277,10 @@ var appVue = new Vue({
 		 * Initialize the width of the left sidebar elements.
 		 */
 		init_sidebar_width() {
-			var handlerStack = document.getElementById('handlerStack')
+			var handlerStack = document.getElementById('handlerStack');
 			if(handlerStack) handlerStack.previousElementSibling.style.width = this.racksWidth+"px";
 
-			var handlerNotes = document.getElementById('handlerNotes')
+			var handlerNotes = document.getElementById('handlerNotes');
 			if(handlerNotes) handlerNotes.previousElementSibling.style.width = this.notesWidth+"px";
 		},
 		/**
@@ -332,6 +335,7 @@ var appVue = new Vue({
 			}
 
 			if (this.isNoteRackSelected) {
+				this.selectedBookmark = {};
 				if (!note.body) note.loadBody();
 				if (note.isEncrypted) {
 					var message = "Insert the secret key to Encrypt and Decrypt this note";
@@ -364,7 +368,9 @@ var appVue = new Vue({
 					this.selectedNote = note;
 				}
 			} else {
-				electron.shell.openExternal(note.body);
+				this.selectedNote = {};
+				this.selectedBookmark = note;
+				this.$refs.refBrowser.newBookmarLoaded(note);
 			}
 		},
 		/**
@@ -824,9 +830,11 @@ var appVue = new Vue({
 				});
 			};
 			var bookmarkFailed = (e) => {
-				self.$refs.webview.removeEventListener('did-fail-load', bookmarkFailed);
-				self.loadingUid = '';
-				self.sendFlashMessage(5000, 'error', 'Load Failed');
+				if (e.isMainFrame) {
+					self.$refs.webview.removeEventListener('did-fail-load', bookmarkFailed);
+					self.loadingUid = '';
+					self.sendFlashMessage(5000, 'error', 'Load Failed');
+				}
 			};
 
 			this.$refs.webview.addEventListener('page-favicon-updated', bookmarkFavicon);
@@ -883,9 +891,11 @@ var appVue = new Vue({
 				}, 1000);
 			};
 			var bookmarkFailed = (e) => {
-				self.$refs.webview.removeEventListener('did-fail-load', bookmarkFailed);
-				self.loadingUid = '';
-				this.sendFlashMessage(3000, 'error', 'Load Failed');
+				if (e.isMainFrame) {
+					self.$refs.webview.removeEventListener('did-fail-load', bookmarkFailed);
+					self.loadingUid = '';
+					this.sendFlashMessage(3000, 'error', 'Load Failed');
+				}
 			};
 
 			this.$refs.webview.addEventListener('did-finish-load', bookmarkLoaded);
@@ -1083,16 +1093,22 @@ var appVue = new Vue({
 			}
 
 			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + 4;
-			if(this.isNoteRackSelected) widthTotalLeft += parseInt( cellsLeft[1].style.width.replace('px','') ) + 4;
+			widthTotalLeft += parseInt( cellsLeft[1].style.width.replace('px','') ) + 4;
 
 			if(this.isFullScreen) {
 				document.querySelector('.sidebar').style.left = "-"+widthTotalLeft+'px';
+				document.querySelector('.main-cell-container .my-browser').style.width = '100vw';
 				widthTotalLeft = 0;
 			} else {
 				document.querySelector('.sidebar').style.left = "";
+				setTimeout(() => {
+					document.querySelector('.main-cell-container .my-browser').style.width = 'calc( 100vw - '+widthTotalLeft+'px )';
+				}, 300);
 			}
 
-			document.querySelector('.main-cell-container').style.marginLeft = widthTotalLeft+'px';
+			setTimeout(() => {
+				document.querySelector('.main-cell-container').style.marginLeft = widthTotalLeft+'px';
+			}, 5);
 		},
 		/**
 		 * Saves the sidebar width (both racks and notes lists).
@@ -1101,10 +1117,8 @@ var appVue = new Vue({
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
 			this.racksWidth = cellsLeft.length > 0 ? parseInt( cellsLeft[0].style.width.replace('px','') ) : 180;
 			settings.set('racksWidth', this.racksWidth);
-			if(this.isNoteRackSelected) {
-				this.notesWidth = cellsLeft.length > 1 ? parseInt( cellsLeft[1].style.width.replace('px','') ) : 180;
-				settings.set('notesWidth', this.notesWidth);
-			}
+			this.notesWidth = cellsLeft.length > 1 ? parseInt( cellsLeft[1].style.width.replace('px','') ) : 180;
+			settings.set('notesWidth', this.notesWidth);
 		},
 		sidebarDrag() {
 			this.update_editor_size();

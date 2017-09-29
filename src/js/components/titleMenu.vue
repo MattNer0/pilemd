@@ -3,7 +3,7 @@
 		nav#cssmenu
 			ul
 				li
-					a(@click="toggleFullScreen", href="#"): span
+					a(@click.prevent="toggleFullScreen", href="#"): span
 						i.material-icons(v-if="isFullScreen") fullscreen_exit
 						i.material-icons(v-else) fullscreen
 						|  Sidebar
