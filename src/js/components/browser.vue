@@ -23,7 +23,7 @@
 							img(:src="favicon", v-else)
 						input(v-model="currentUrl", type="text")
 
-		webview(ref="browserview", id="browserview",
+		webview(ref="browserview", id="browserview", src="about:blank",
 			v-on:page-favicon-updated="pageFaviconUpdated",
 			v-on:did-finish-load="didFinishLoad",
 			v-on:did-fail-load="didFailLoad",
@@ -50,7 +50,7 @@
 		data() {
 			return {
 				'initialized': false,
-				'currentUrl' : '',
+				'currentUrl' : 'about:blank',
 				'favicon': '',
 				'loading': false
 			};
@@ -65,15 +65,18 @@
 			backToBookmark(bookmark) {
 				bookmark = bookmark && bookmark.body ? bookmark : this.bookmark;
 
-				if(bookmark.body && bookmark.body.indexOf('http') == 0) {
-					if (this.$refs.browserview.src == bookmark.body) {
-						this.refreshPage();
-					} else {
-						this.$refs.browserview.src = bookmark.body;
-					}
+				//console.log('currentUrl', this.currentUrl);
+				//console.log('bookmark', bookmark.body);
+
+				if(bookmark && bookmark.body && bookmark.body.indexOf('http') == 0) {
+					this.$refs.browserview.src = bookmark.body;
+					this.$refs.browserview.loadURL(bookmark.body);
+					this.currentUrl = bookmark.body;
 					if (bookmark.attributes) this.favicon = bookmark.attributes.ICON;
 				} else {
 					this.$refs.browserview.src = 'about:blank';
+					this.$refs.browserview.loadURL('about:blank');
+					this.currentUrl = 'about:blank';
 				}
 			},
 			refreshPage(e) {
