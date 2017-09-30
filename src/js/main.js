@@ -87,7 +87,7 @@ var appVue = new Vue({
 		racksWidth: settings.get('racksWidth') || 180,
 		notesWidth: settings.get('notesWidth') || 180,
 		propertiesWidth: 180,
-		fontsize: settings.get('fontsize') || "15",
+		fontsize: parseInt(settings.get('fontsize')) || 15,
 		notesDisplayOrder: 'updatedAt',
 	},
 	components: {
@@ -370,7 +370,7 @@ var appVue = new Vue({
 			} else {
 				this.selectedNote = {};
 				this.selectedBookmark = note;
-				this.$refs.refBrowser.newBookmarLoaded(note);
+				//this.$refs.refBrowser.newBookmarLoaded(note);
 			}
 		},
 		/**

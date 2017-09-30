@@ -40,7 +40,10 @@
 				</div>
 				<handler-stack :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd"></handler-stack>
 				<div class="cell-container">
-					<add-note v-if="selectedFolder" :notes-list="isNoteRackSelected"></add-note>
+					<add-note v-if="selectedFolder"
+						:notes-list="isNoteRackSelected"
+						:selected-rack-or-folder="selectedRackOrFolder">
+					</add-note>
 					<div class="my-shelf-notes" ref="refNotes">
 						<notes
 							:bookmarks-list="!isNoteRackSelected"
@@ -55,6 +58,7 @@
 							:notes-display-order="notesDisplayOrder"
 							:refresh-bookmark-thumb="refreshBookmarkThumb"
 							:get-bookmark-meta-image="getBookmarkMetaImage"
+							:edit-bookmark="editBookmark"
 							:loading-uid="loadingUid">
 						</notes>
 					</div>

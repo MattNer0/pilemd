@@ -159,7 +159,7 @@
 			noteDragOver(event, note) {
 				if (this.draggingNote && this.draggingNote.folder && this.draggingNote.folder.data.bookmarks) {
 					event.preventDefault();
-					var per = dragging.dragOverPercentageHorizontal(event.currentTarget, event.clientX);
+					var per = dragging.dragOverPercentage(event.currentTarget, event.clientY);
 					if (per > 0.5) {
 						note.sortLower = true;
 						note.sortUpper = false;
@@ -226,7 +226,7 @@
 			noteMenu(note) {
 				var menu = new Menu();
 
-				if (this.bookmarksList && this.editBookmark) {
+				if (this.bookmarksList) {
 					menu.append(new MenuItem({
 						label: 'Open Url',
 						click: () => {this.selectNote(note)}

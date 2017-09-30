@@ -11,7 +11,7 @@
 					.modal-prompts
 						.modal-field(v-for="field in prompts")
 							span.modal-field-label {{ field.label }}
-							input(v-if="field.type == 'text'", type="text", v-model="field.retValue", :name="field.name")
+							input(v-if="field.type == 'text'", type="text", v-model="field.retValue", :name="field.name", v-on:contextmenu="contextMenu")
 							vue-password(v-else-if="field.type == 'password'", v-model="field.retValue", classes="input", :name="field.label")
 					.modal-buttons
 						template(v-for="button in buttons")
@@ -20,6 +20,9 @@
 
 <script>
 	import VuePassword from 'vue-password';
+
+	const electron = require('electron');
+	const remote = electron.remote;
 
 	export default {
 		name: 'modal',
@@ -98,6 +101,32 @@
 				
 				if(button.cb) button.cb(this.promptsObject);
 				this.reset_data();
+			},
+			contextMenu() {
+				var inputMenu = remote.Menu.buildFromTemplate([{
+					label: 'Undo',
+					role: 'undo',
+				}, {
+					label: 'Redo',
+					role: 'redo',
+				}, {
+					type: 'separator',
+				}, {
+					label: 'Cut',
+					role: 'cut',
+				}, {
+					label: 'Copy',
+					role: 'copy',
+				}, {
+					label: 'Paste',
+					role: 'paste',
+				}, {
+					type: 'separator',
+				}, {
+					label: 'Select all',
+					role: 'selectall',
+				}]);
+				inputMenu.popup(remote.getCurrentWindow());
 			}
 		},
 		watch: {

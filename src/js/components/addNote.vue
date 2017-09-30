@@ -26,7 +26,8 @@
 	export default {
 		name: 'addNote',
 		props: {
-			'notesList': Boolean,
+			'selectedRackOrFolder': Object,
+			'notesList': Boolean
 		},
 		components: {
 			'dropdown': myDropdown
@@ -42,7 +43,7 @@
 				if (this.notesList) {
 					return this.$root.addNote();
 				} else {
-					return this.$root.addBookmark();
+					return this.$root.addBookmark(this.selectedRackOrFolder);
 				}
 			}
 		}

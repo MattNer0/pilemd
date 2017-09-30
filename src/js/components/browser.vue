@@ -29,11 +29,15 @@
 			v-on:did-fail-load="didFailLoad",
 			v-on:did-start-loading="didStartLoading",
 			v-on:did-stop-loading="didStopLoading",
-			v-on:load-commit="loadCommit")
+			v-on:load-commit="loadCommit",
+			v-on:dom-ready="domReady")
 </template>
 
 <script>
 	import myDropdown from 'vue-my-dropdown';
+
+	const electron = require('electron');
+	const {remote, ipcRenderer} = electron;
 
 	export default {
 		name: 'browser',
@@ -45,6 +49,7 @@
 		},
 		data() {
 			return {
+				'initialized': false,
 				'currentUrl' : '',
 				'favicon': '',
 				'loading': false
@@ -105,6 +110,70 @@
 			},
 			newBookmarLoaded(bookmark) {
 				this.backToBookmark(bookmark);
+			},
+			domReady(e) {
+				if(!this.initialized) {
+					this.initialized = true;
+					this.$refs.browserview.getWebContents().on('context-menu', this.contextMenu);
+				}
+			},
+			contextMenu(e, props) {
+				var win = remote.getCurrentWindow();
+
+				if (props.isEditable) {
+					var menuTemplate = [{
+						label: 'Undo',
+						role: 'undo',
+					}, {
+						label: 'Redo',
+						role: 'redo',
+					}, {
+						type: 'separator',
+					}, {
+						label: 'Cut',
+						role: 'cut',
+					}, {
+						label: 'Copy',
+						role: 'copy',
+					}, {
+						label: 'Paste',
+						role: 'paste',
+					}, {
+						type: 'separator',
+					}, {
+						label: 'Select all',
+						role: 'selectall',
+					}];
+				} else if (props.selectionText && props.selectionText.trim() !== '') {
+					var menuTemplate = [{
+						label: 'Copy',
+						role: 'copy',
+					}, {
+						type: 'separator',
+					}, {
+						label: 'Select all',
+						role: 'selectall',
+					}];
+				} else if (props.mediaType == 'image') {
+					var menuTemplate = [{
+						label: 'Save Image',
+						click() {
+							ipcRenderer.send('download-btn', { url: props.srcURL });
+						}
+					}, {
+						type: 'separator',
+					}, {
+						label: 'Save Image As',
+						click() {
+							ipcRenderer.send('download-btn', { url: props.srcURL, options: { saveAs: true } });
+						}
+					}];
+				}
+
+				if (menuTemplate) {
+					var contextMenuElectron = remote.Menu.buildFromTemplate(menuTemplate);
+					contextMenuElectron.popup(win);
+				}
 			}
 		},
 		watch: {

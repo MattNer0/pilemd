@@ -1,12 +1,9 @@
 const electron = require('electron');
 const fs = require('fs');
 const path = require('path');
-const app = electron.app;
-const Tray = electron.Tray;
-const BrowserWindow = electron.BrowserWindow;
-const Menu = electron.Menu;
-const autoUpdater = electron.autoUpdater;
-const dialog = electron.dialog;
+const {app, Tray, BrowserWindow, Menu, autoUpdater, dialog, ipcMain} = electron;
+
+const {download} = require('electron-dl');
 
 var mainWindow = null;
 var appIcon = null;
@@ -194,6 +191,12 @@ function makeWindow() {
 		mainWindow.focus();
 	});
 }
+
+ipcMain.on('download-btn', (e, args) => {
+	download(BrowserWindow.getFocusedWindow(), args.url, args.options).then((dl) => {
+		console.log('Saved to '+ dl.getSavePath());
+	}).catch(console.error);
+});
 
 /*
 function applyUpdater() {
