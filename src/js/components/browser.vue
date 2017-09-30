@@ -65,9 +65,6 @@
 			backToBookmark(bookmark) {
 				bookmark = bookmark && bookmark.body ? bookmark : this.bookmark;
 
-				//console.log('currentUrl', this.currentUrl);
-				//console.log('bookmark', bookmark.body);
-
 				if(bookmark && bookmark.body && bookmark.body.indexOf('http') == 0) {
 					this.$refs.browserview.src = bookmark.body;
 					this.$refs.browserview.loadURL(bookmark.body);
@@ -77,6 +74,7 @@
 					this.$refs.browserview.src = 'about:blank';
 					this.$refs.browserview.loadURL('about:blank');
 					this.currentUrl = 'about:blank';
+					this.refreshPage();
 				}
 			},
 			refreshPage(e) {
