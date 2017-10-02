@@ -77,7 +77,8 @@ nav > ul {
 	}
 
 	li:hover > a,
-	li:hover > div {
+	li:hover > div,
+	li.has-sub:hover {
 		background-color: $ui-text-background-hover !important;
 		color: $ui-text-color-hover;
 		cursor: pointer;
@@ -96,15 +97,13 @@ nav > ul {
 	}
 
 	li.has-sub {
+		-webkit-user-select: none;
 
 		.link.material-icons {
-			-webkit-user-select: none;
-
 			display: inline-block;
 			color: $ui-text-color;
 			padding: 0.1em 0.3em 0.1em;
 			font-size: 200%;
-			cursor: pointer;
 		}
 
 		> span:hover .link.material-icons {
@@ -114,6 +113,13 @@ nav > ul {
 		> span, > span > span {
 			display: block;
 			height: 100%;
+		}
+
+		span.sub-text {
+			display: inline-block;
+			padding: 0.34em 1.0em 0.2em 0.5em;
+			line-height: 1.8em;
+			vertical-align: bottom;
 		}
 	}
 

@@ -19,19 +19,6 @@
 							li: a(@click.prevent="menu_openFolder", href="#") Open Library Directory
 							li: a(@click.prevent="menu_moveFolder", href="#") Move Library Directory
 							li: hr
-							li: a(@click.prevent="menu_changeOrder('updatedAt')", href="#")
-								i.material-icons(v-if="notesDisplayOrder == 'updatedAt'") radio_button_checked
-								i.material-icons.faded(v-else) radio_button_unchecked
-								|  Sort by Update Date
-							li: a(@click.prevent="menu_changeOrder('createdAt')", href="#")
-								i.material-icons(v-if="notesDisplayOrder == 'createdAt'") radio_button_checked
-								i.material-icons.faded(v-else) radio_button_unchecked
-								|  Sort by Creation Date
-							li: a(@click.prevent="menu_changeOrder('title')", href="#")
-								i.material-icons(v-if="notesDisplayOrder == 'title'") radio_button_checked
-								i.material-icons.faded(v-else) radio_button_unchecked
-								|  Sort by Title
-							li: hr
 							li: a(@click.prevent="menu_changeTheme('dark')", href="#")
 								i.material-icons(v-if="selectedTheme == 'dark'") radio_button_checked
 								i.material-icons.faded(v-else) radio_button_unchecked
@@ -51,6 +38,30 @@
 							li: a(@click.prevent="menu_credits", href="#") Credits
 							li: hr
 							li: a(@click.prevent="menu_quit", href="#") Quit
+
+				li.has-sub.right-align
+					dropdown(:visible="order_visible", :position="position", v-on:clickout="order_visible = false")
+						span.link(@click="order_visible = !order_visible")
+							i.material-icons swap_vert
+							span.sub-text(v-if="notesDisplayOrder == 'updatedAt'")
+								| Sort by Update Date
+							span.sub-text(v-if="notesDisplayOrder == 'createdAt'")
+								| Sort by Creation Date
+							span.sub-text(v-if="notesDisplayOrder == 'title'")
+								| Sort by Title
+						.dialog(slot="dropdown"): ul
+							li: a(@click.prevent="menu_changeOrder('updatedAt')", href="#")
+								i.material-icons(v-if="notesDisplayOrder == 'updatedAt'") radio_button_checked
+								i.material-icons.faded(v-else) radio_button_unchecked
+								|  Sort by Update Date
+							li: a(@click.prevent="menu_changeOrder('createdAt')", href="#")
+								i.material-icons(v-if="notesDisplayOrder == 'createdAt'") radio_button_checked
+								i.material-icons.faded(v-else) radio_button_unchecked
+								|  Sort by Creation Date
+							li: a(@click.prevent="menu_changeOrder('title')", href="#")
+								i.material-icons(v-if="notesDisplayOrder == 'title'") radio_button_checked
+								i.material-icons.faded(v-else) radio_button_unchecked
+								|  Sort by Title
 </template>
 
 <script>
@@ -77,6 +88,7 @@
 			return {
 				'search': "",
 				'menu_visible': false,
+				'order_visible': false,
 				'saveDesktop': true,
 				'position': [ "right", "top", "right", "top" ],
 				'isLinux': remote.getGlobal('isLinux'),
@@ -124,7 +136,7 @@
 				}, 100);
 			},
 			menu_changeOrder(value) {
-				this.menu_visible = false;
+				this.order_visible = false;
 				setTimeout(() => {
 					this.changeDisplayOrder(value);
 				}, 100);
