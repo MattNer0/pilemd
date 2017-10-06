@@ -1,12 +1,11 @@
 const uid = require('./uid');
 
 String.prototype.formatUnicorn = String.prototype.formatUnicorn || function() {
-	'use strict';
 	var str = this.toString();
 	if (arguments.length) {
 		var t = typeof arguments[0];
 		var key;
-		var args = ('string' === t || 'number' === t) ? Array.prototype.slice.call(arguments) : arguments[0];
+		var args = (t === 'string' || t === 'number') ? Array.prototype.slice.call(arguments) : arguments[0];
 
 		for (key in args) {
 			str = str.replace(new RegExp('\\{' + key + '\\}', 'gi'), args[key]);
@@ -15,14 +14,19 @@ String.prototype.formatUnicorn = String.prototype.formatUnicorn || function() {
 	return str;
 };
 
+/**
+ * @function parseTag
+ * @param  {String} tag {description}
+ * @return {Object} {description}
+ */
 function parseTag(tag) {
-	var match = /<(.+?)>([^<>]*)<\/(.+?)>/g.exec(tag);
+	var match = (/<(.+?)>([^<>]*)<\/(.+?)>/g).exec(tag);
 	if (match) {
 		var attributes_array = match[1].split(' ').slice(1);
 		var attributes_object = {};
 
 		attributes_array.forEach(function(attr) {
-			var attr_match = /(.+?)=["'](.*?)["']/g.exec(attr);
+			var attr_match = (/(.+?)=["'](.*?)["']/g).exec(attr);
 			attributes_object[attr_match[1]] = attr_match[2];
 		});
 
@@ -32,11 +36,8 @@ function parseTag(tag) {
 			text: match[2],
 			attributes: attributes_object
 		};
-	} else {
-		return {
-			tag: tag
-		};
 	}
+	return { tag: tag };
 }
 
 module.exports = {
@@ -55,7 +56,7 @@ module.exports = {
 		var folder_index = 0;
 
 		var lines_array = file_content.split('\n');
-		lines_array.forEach(function(row, index) {
+		lines_array.forEach(function(row) {
 			row = row.trim();
 			if (/^<dd>/i.test(row)) {
 				// row

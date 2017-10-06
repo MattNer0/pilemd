@@ -2,30 +2,48 @@ const electron = require('electron');
 const clipboard = electron.clipboard;
 const _ = require('lodash');
 const Image = require('../models').Image;
-const IMAGE_TAG_TEMP = _.template('![<%- filename %>](<%- fileurl %>)\n');
+const temp_IMAGE_TAG = _.template('![<%- filename %>](<%- fileurl %>)\n');
 
+/**
+ * @function flashSelection
+ * @param  {Object} cm CodeMirror Instance
+ * @return {type} {description}
+ */
 function flashSelection(cm) {
 	cm.setExtending(false);
 	cm.setCursor(cm.getCursor());
 }
 
+/**
+ * @function killLine
+ * @param  {Object} cm CodeMirror Instance
+ * @return {type} {description}
+ */
 function killLine(cm) {
 	flashSelection(cm);
 	var c = cm.getCursor();
-	var thisLine = cm.getRange(c, {line: c.line + 1, ch: 0});
+	var thisLine = cm.getRange(c, {
+		line: c.line + 1,
+		ch: 0
+	});
 	if (thisLine == '\n') {
 		clipboard.writeText('\n');
-		cm.replaceRange('', c, {line: c.line + 1, ch: 0});
+		cm.replaceRange('', c, {
+			line: c.line + 1,
+			ch: 0
+		});
 	} else {
-		clipboard.writeText(cm.getRange(c, {line: c.line}));
-		cm.replaceRange('', c, {line: c.line});
+		clipboard.writeText(cm.getRange(c, { line: c.line }));
+		cm.replaceRange('', c, { line: c.line });
 	}
 }
 
 /**
+ * @function copyText
+ * @param  {Object} cm CodeMirror instance
+ * @return {type} {description}
+ * 
  * Copies the current selected text into clipboard.
- *
- * @param  {Object}  cm  The CodeMirror instance
  */
 function copyText(cm) {
 	var text = cm.getSelection();
@@ -35,9 +53,11 @@ function copyText(cm) {
 }
 
 /**
+ * @function cutText
+ * @param  {Object} cm CodeMirror instance
+ * @return {type} {description}
+ * 
  * Cuts the current selected text into clipboard.
- *
- * @param  {Object}  cm  The CodeMirror instance
  */
 function cutText(cm) {
 	var text = cm.getSelection();
@@ -48,25 +68,83 @@ function cutText(cm) {
 }
 
 /**
+ * @function isImage
+ * @param  {String} text {description}
+ * @return {Boolean} {description}
+ * 
+ * check if the string contains an image url.
+ * only cares about '.png' and '.jpg' extensions
+ */
+function isImage(text) {
+	return text.split('.').pop() === 'png' || text.split('.').pop() === 'jpg';
+}
+
+/**
+ * @function isCheckbox
+ * @param  {String} text {description}
+ * @return {type} {description}
+ * 
+ * Check if the string contains a markdown checkbox
+ */
+function isCheckbox(text) {
+	return text.match(/^\* \[[x ]\] .*/g);
+}
+
+/**
+ * @function uploadFile
+ * @param   {Object}   cm    The CodeMirror instance
+ * @param   {Object}   file  The file to upload
+ * @return  {Boolean}        True if file was uploaded correctly, False otherwise
+ * 
+ * upload image file into library directory.
+ */
+function uploadFile(cm, file) {
+	var image;
+	try {
+		image = Image.fromBinary(file.name, file.path);
+	} catch (err) {
+		console.warn('uploadFile', err);
+		return false;
+	}
+
+	cm.doc.replaceRange(
+		temp_IMAGE_TAG({
+			filename: file.name,
+			fileurl: image.pilemdURL
+		}),
+		cm.doc.getCursor()
+	);
+	return true;
+}
+
+/**
+ * @function pasteText
+ * @param  {Object} cm CodeMirror instance
+ * @return {type} {description}
+ * 
  * Handles pasting text into the editor
- *
- * @param  {Object}  cm  The CodeMirror instance
  */
 function pasteText(cm) {
 	if (clipboard.availableFormats().indexOf('image/png') != -1 || clipboard.availableFormats().indexOf('image/jpg') != -1) {
 		var im = clipboard.readImage();
 		var image = Image.fromClipboard(im);
 		cm.doc.replaceRange(
-			IMAGE_TAG_TEMP({filename: image.name, fileurl: image.pilemdURL}),
+			temp_IMAGE_TAG({
+				filename: image.name,
+				fileurl: image.pilemdURL
+			}),
 			cm.doc.getCursor()
 		);
 	} else {
 		var pasted = clipboard.readText();
 		if (pasted.indexOf('http') == 0) {
-			pasted = pasted.replace(new RegExp('(\.jpg|\.png)[?&].*$'), '$1');
+			pasted = pasted.replace(new RegExp('(.jpg|.png)[?&].*$'), '$1');
 		}
 		if (isImage(pasted)) {
-			var f = {name: pasted.split('/').pop(), path: pasted};
+			var f = {
+				name: pasted.split('/').pop(),
+				path: pasted
+			};
 			if (!uploadFile(cm, f)) cm.replaceSelection(pasted);
 		} else if (isCheckbox(pasted)) {
 			var c = cm.getCursor();
@@ -83,52 +161,11 @@ function pasteText(cm) {
 }
 
 /**
- * Check if the string contains an image url.
- * Only cares about '.png' and '.jpg' extensions
- *
- * @param   {String}   text  The string
- * @return  {Boolean}        True if string contains image
- */
-function isImage(text) {
-	return text.split('.').pop() === 'png' || text.split('.').pop() === 'jpg';
-}
-
-/**
- * Check if the string contains a markdown checkbox
- *
- * @param   {String}   text  The string
- * @return  {Boolean}        True if string contains checkbox
- */
-function isCheckbox(text) {
-	return text.match(/^\* \[[x ]\] .*/g);
-}
-
-/**
- * Upload image file into library directory.
- *
- * @param   {Object}   cm    The CodeMirror instance
- * @param   {Object}   file  The file to upload
- * @return  {Boolean}        True if file was uploaded correctly, False otherwise
- */
-function uploadFile(cm, file) {
-	try {
-		var image = Image.fromBinary(file.name, file.path);
-	} catch (err) {
-		console.warn('uploadFile', err);
-		return false;
-	}
-
-	cm.doc.replaceRange(
-		IMAGE_TAG_TEMP({filename: file.name, fileurl: image.pilemdURL}),
-		cm.doc.getCursor()
-	);
-	return true;
-}
-
-/**
- * Select all text in the editor.
- *
- * @param  {Object}  cm  The CodeMirror instance
+ * @function selectAllText
+ * @param  {Object} cm CodeMirror instance
+ * @return {type} {description}
+ * 
+ * select all text in the editor.
  */
 function selectAllText(cm) {
 	cm.execCommand('selectAll');

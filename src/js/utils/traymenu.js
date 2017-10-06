@@ -80,7 +80,7 @@ module.exports = {
 		return {
 			label: rack.name,
 			submenu: folder_array.length > 0 ? folder_array : undefined,
-			click: function(item, w, e) {
+			click: function() {
 				if (rackfolder_cb) rackfolder_cb(rack);
 			}
 		};
@@ -100,7 +100,7 @@ module.exports = {
 		return {
 			label: folder.name,
 			submenu: note_array.length > 0 ? note_array : undefined,
-			click: function(item, w, e) {
+			click: function() {
 				if (rackfolder_cb) rackfolder_cb(folder);
 			}
 		};
@@ -108,7 +108,7 @@ module.exports = {
 	oneBookmarkMenuItem(bookmark) {
 		return {
 			label: bookmark.name,
-			click: function(item, w, e) {
+			click: function() {
 				electron.shell.openExternal(bookmark.body);
 			}
 		};
@@ -116,7 +116,7 @@ module.exports = {
 	oneNoteMenuItem(note, note_cb) {
 		return {
 			label: note.title,
-			click: function(item, w, e) {
+			click: function() {
 				if (!mainWindow.isVisible()) mainWindow.show();
 				if (note_cb) note_cb(note);
 			}

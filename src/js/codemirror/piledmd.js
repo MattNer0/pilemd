@@ -1,29 +1,6 @@
 (function(CodeMirror) {
-	'use strict';
 
 	CodeMirror.defineMode('piledmd', (config, modeConfig) => {
-
-		var piledmdOverlay = {
-			startState() {
-				return {
-					code: false,
-					codeBlock: false,
-					ateSpace: false
-				};
-			},
-			copyState(s) {
-				return {
-					code: s.code,
-					codeBlock: s.codeBlock,
-					ateSpace: s.ateSpace
-				};
-			},
-			token(stream, state) {
-				stream.next();
-				return null;
-			},
-			closeBrackets: {triples: '`'}
-		};
 
 		var markdownConfig = {
 			underscoresBreakWords: false,
@@ -51,6 +28,7 @@
 				strikethrough: 'piled-strikethrough'
 			}
 		};
+
 		for (var attr in modeConfig) {
 			markdownConfig[attr] = modeConfig[attr];
 		}
@@ -60,5 +38,4 @@
 	}, 'gfm');
 
 	CodeMirror.defineMIME('text/x-piledmd', 'piledmd');
-})(require('codemirror'), require('codemirror/addon/mode/overlay'), require('codemirror/mode/markdown/markdown')
-);
+})(require('codemirror'), require('codemirror/addon/mode/overlay'), require('codemirror/mode/markdown/markdown'));
