@@ -4,8 +4,7 @@
 	},
 	"exclude": [
 		"node_modules",
-		"logs",
-		"invoice",
-		"osra"
+		"icons",
+		"releases"
 	]
 }
