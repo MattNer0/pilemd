@@ -16,7 +16,6 @@
 	}
 
 	ul {
-
 		li {
 			line-height: 1.4em;
 		}
@@ -51,22 +50,6 @@
 				margin: 0;
 				display: block;
 			}
-
-			/*input[type=checkbox]:checked{
-				opacity: 1;
-			}
-
-			input[type=checkbox]:checked:before {
-				background-color: #ffffff;
-				box-shadow: 0 0 0 1px #5aa0a5;
-			}
-
-			input[type=checkbox]:before,
-			input[type=checkbox]:after {
-				content: "";
-				position: absolute;
-			}
-			*/
 
 			input[type=checkbox]:before {
 				content: "";
@@ -109,14 +92,14 @@
 
 		li.new-todo-form{
 			padding: 0.45em 0 0.4em 0.5em;
-		    position: relative;
-		    margin-left: -1em;
-		    margin-bottom: 0.5em;
-		    list-style: none;
+			position: relative;
+			margin-left: -1em;
+			margin-bottom: 0.5em;
+			list-style: none;
 			width: 80%;
-		    max-width: 25em;
-		    border-radius: 2px;
-		    background-color: #F6F6F6;
+			max-width: 25em;
+			border-radius: 2px;
+			background-color: #F6F6F6;
 			transition: background-color 200ms ease;
 			opacity: 0.6;
 

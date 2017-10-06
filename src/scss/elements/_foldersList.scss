@@ -142,6 +142,7 @@
 	content: "";
 	background-color: $folder-dragdrop-separator;
 }
+
 .my-shelf-rack.sortLower:after,
 .my-shelf-folder.sortLower:after {
 	position: absolute;
@@ -161,7 +162,7 @@
 	background: $resize-panel-handler;
 	cursor: move;
 	padding: 0;
-    height: 4px;
+	height: 4px;
 }
 
 .my-shelf-racks.dragginRack, .my-shelf-racks.dragginFolder {

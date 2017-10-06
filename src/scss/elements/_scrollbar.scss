@@ -3,6 +3,7 @@
 	width: 0.5em;
 	height: 0.5em;
 }
+
 ::-webkit-scrollbar-thumb {
 	background-color: $scrollbar-thumb;
 	background-clip: padding-box;
@@ -11,17 +12,20 @@
 	border: 1px solid $scrollbar-thumb-border;
 	border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover{
 	background-color: $scrollbar-thumb;
 }
+
 ::-webkit-scrollbar-button {
 	height: 0;
 	width: 0;
 }
+
 ::-webkit-scrollbar-track {
 	background: transparent;
-	/*background-color: $scrollbar-track-background;*/
 }
+
 ::-webkit-scrollbar-corner {
 	background: transparent;
 }

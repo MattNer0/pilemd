@@ -91,7 +91,6 @@
 			}
 
 			li:hover {
-
 				> a, > div {
 					background: $note-background-color !important;
 					color: $note-text-color;
@@ -101,8 +100,8 @@
 
 		ul:after {
 			clear: both;
-		    content: "";
-		    display: block;
+			content: "";
+			display: block;
 		}
 	}
 }

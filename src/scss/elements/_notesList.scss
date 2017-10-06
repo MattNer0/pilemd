@@ -47,7 +47,6 @@
 		transition: background 200ms ease, margin 200ms ease, height 200ms ease;
 		font-weight: normal;
 		box-sizing: border-box;
-		/*overflow: hidden;*/
 
 		> i.material-icons {
 			font-size: 400%;
@@ -122,6 +121,7 @@
 		content: "";
 		background-color: $folder-dragdrop-separator;
 	}
+
 	.my-notes-note.sortLower:after {
 		position: absolute;
 		bottom: -4px;
@@ -249,7 +249,6 @@
 		}
 
 		.my-notes-note {
-
 			h5.my-notes-note-title {
 				display: block;
 				padding-left: 0;
@@ -267,7 +266,7 @@
 				max-height: 14em;
 				position: relative;
 
-				@keyframes spin { 100% { transform:rotate(-360deg); } }
+				@keyframes spin { 100% { transform: rotate(-360deg); } }
 
 				.loading-bookmark {
 					position: absolute;
@@ -283,7 +282,7 @@
 
 					i {
 						font-size: 500%;
-						animation:spin 4s linear infinite;
+						animation: spin 4s linear infinite;
 					}
 				}
 			}
@@ -298,7 +297,6 @@
 		}
 
 		.my-notes-note:hover {
-
 			.my-notes-note-image img {
 				opacity: 1.0;
 			}

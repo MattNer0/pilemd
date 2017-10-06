@@ -13,7 +13,7 @@
 		outline: none;
 	}
 
-	@keyframes spin { 100% { transform:rotate(-360deg); } }
+	@keyframes spin { 100% { transform: rotate(-360deg); } }
 
 	.browser-bar {
 		height: $title-bar-height;
@@ -40,7 +40,7 @@
 			i {
 				font-size: 1.5em;
 				vertical-align: middle;
-				animation:spin 4s linear infinite;
+				animation: spin 4s linear infinite;
 			}
 
 			img {
@@ -52,7 +52,7 @@
 
 	nav ul {
 		background-color: #000;
-		-webkit-font-smoothing:antialiased;
+		-webkit-font-smoothing: antialiased;
 		list-style: none;
 		margin: 0;
 		padding: 0;

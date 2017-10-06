@@ -54,7 +54,10 @@ codemirror {
 	}
 
 	.cm-piled-em {font-style: italic;}
-	.cm-piled-strikethrough {text-decoration: line-through;}
+	
+	.cm-piled-strikethrough {
+		text-decoration: line-through;
+	}
 
 	pre.CodeMirror-placeholder {
 		color: rgba(153, 153, 153, 0.8);
@@ -65,11 +68,13 @@ codemirror {
 	span.cm-piled-list3 {
 		color: #333;
 	}
+
 	span.cm-piled-formatting-list-ul,
 	span.cm-piled-formatting-list-ol {
 		font-weight: bold;
 		color: #777 !important;
 	}
+
 	span.cm-piled-formatting-task {
 		font-weight: 600;
 		font-family: monospace;
@@ -146,7 +151,9 @@ codemirror {
 }
 
 .CodeMirror-focused .CodeMirror-selected { background: #add5ff; }
+
 .CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: #add5ff; }
+
 .CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: #add5ff; }
 
 /* Search dialog */
@@ -158,7 +165,7 @@ codemirror {
 	background: $title-bar-background;
 	width: 100%;
 	padding: 0.4em;
-	line-height:1.5em;
+	line-height: 1.5em;
 	z-index: 6;
 
 	.CodeMirror-search-field {
@@ -169,6 +176,7 @@ codemirror {
 		display: block;
 		float: left;
 	}
+
 	button {
 		display: none;
 	}
