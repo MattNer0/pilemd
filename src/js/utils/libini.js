@@ -11,9 +11,8 @@ module.exports = {
 	readIni(library_path) {
 		if (fs.existsSync(this.iniPath(library_path))) {
 			return ini.parse(fs.readFileSync(this.iniPath(library_path), 'utf-8'));
-		} else {
-			return {};
 		}
+		return {};
 	},
 	readKey(library_path, key) {
 		if (typeof key === 'string') {
@@ -39,22 +38,24 @@ module.exports = {
 	writeKey(library_path, key, value) {
 		var config = this.readIni(library_path);
 		if (typeof key === 'string') {
-			if (value === undefined)
+			if (value === undefined) {
 				delete config[key];
-			else
+			} else {
 				config[key] = value;
+			}
 		} else if (key.length == 2) {
 			if (!config[key[0]]) config[key[0]] = {};
-			if (value === undefined)
+			if (value === undefined) {
 				delete config[key[0]][key[1]];
-			else
+			} else {
 				config[key[0]][key[1]] = value;
+			}
 		}
 		fs.writeFileSync(this.iniPath(library_path), ini.stringify(config));
 	},
 	pushKey(library_path, key, value, maxlength) {
 		var keyvalue = this.readKey(library_path, key);
-		value = '' + value;
+		value = String(value);
 		if (!keyvalue || typeof keyvalue === 'string') keyvalue = [];
 		if (keyvalue.indexOf(value) == -1) {
 			keyvalue.unshift(value);

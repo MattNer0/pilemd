@@ -1,94 +1,25 @@
 const electron = require('electron');
 const fs = require('fs');
 const path = require('path');
-const {app, Tray, BrowserWindow, Menu, autoUpdater, dialog, ipcMain} = electron;
+const { app, Tray, BrowserWindow, Menu, ipcMain } = electron;
 
-const {download} = require('electron-dl');
+const { download } = require('electron-dl');
 
 var mainWindow = null;
 var appIcon = null;
 
 var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
-	// Someone tried to run a second instance, we should focus our window.
+	// someone tried to run a second instance, we should focus our window.
 	if (mainWindow) {
 		if (mainWindow.isMinimized()) mainWindow.restore();
 		mainWindow.focus();
 	}
 });
 
-if (shouldQuit) {
-	app.quit();
-	return;
-}
-
-const APP_NAME = app.getName();
-const DARWIN_ALL_CLOSED_MENU = [
-	{
-		label: APP_NAME,
-		submenu: [
-			{
-				label: 'About ' + APP_NAME,
-				role: 'about'
-			},
-			{
-				type: 'separator'
-			},
-			{
-				label: 'Services',
-				role: 'services',
-				submenu: []
-			},
-			{
-				type: 'separator'
-			},
-			{
-				label: 'Hide ' + APP_NAME,
-				accelerator: 'Command+H',
-				role: 'hide'
-			},
-			{
-				label: 'Hide Others',
-				accelerator: 'Command+Shift+H',
-				role: 'hideothers'
-			},
-			{
-				label: 'Show All',
-				role: 'unhide'
-			},
-
-			{
-				type: 'separator'
-			},
-			{
-				label: 'Quit ' + APP_NAME,
-				accelerator: 'Command+Q',
-				click: function() {
-					app.quit();
-				}
-			}
-		]
-	},
-	{
-		label: 'File',
-		submenu: [
-			{
-				label: 'New ' + APP_NAME + ' Window',
-				click: makeWindow
-			}
-		]
-	}
-];
-// Quit when all windows are closed.
-app.on('window-all-closed', () => {
-	// On OS X it is common for applications and their menu bar
-	// to stay active until the user quits explicitly with Cmd + Q
-	if (process.platform != 'darwin') {
-		app.quit();
-	} else {
-		Menu.setApplicationMenu(Menu.buildFromTemplate(DARWIN_ALL_CLOSED_MENU));
-	}
-});
-
+/**
+ * @function makeWindow
+ * @return {Void} Function doesn't return anything
+ */
 function makeWindow() {
 
 	var settings_path = path.join(electron.app.getPath('appData'), 'pilemdConfig.json');
@@ -102,8 +33,8 @@ function makeWindow() {
 	var WINDOW_WIDTH = settings_data['screen_width'] || 1024;
 	var WINDOW_HEIGHT = settings_data['screen_height'] || 768;
 	var WINDOW_CENTER = true;
-	var WINDOW_X = undefined;
-	var WINDOW_Y = undefined;
+	var WINDOW_X;
+	var WINDOW_Y;
 
 	if (process.platform == 'linux') {
 		let bounds = electron.screen.getPrimaryDisplay().bounds;
@@ -112,7 +43,7 @@ function makeWindow() {
 		WINDOW_CENTER = false;
 	}
 
-	// Create the browser window.
+	// create the browser window.
 	var conf = {
 		width: WINDOW_WIDTH,
 		height: WINDOW_HEIGHT,
@@ -146,11 +77,13 @@ function makeWindow() {
 
 	appIcon = new Tray(__dirname + '/icon.png');
 	var contextMenu = Menu.buildFromTemplate([{
-		label: 'Show App', click: function() {
+		label: 'Show App',
+		click: function() {
 			mainWindow.show();
 		}
 	},{
-		label: 'Quit', click: function() {
+		label: 'Quit',
+		click: function() {
 			app.isQuiting = true;
 			app.quit();
 		}
@@ -158,7 +91,7 @@ function makeWindow() {
 	appIcon.setToolTip(conf.title);
 	appIcon.setContextMenu(contextMenu);
 	appIcon.setHighlightMode('always');
-	appIcon.on('click', function(e) {
+	appIcon.on('click', function() {
 		if (mainWindow.isVisible()) {
 			mainWindow.hide();
 		} else {
@@ -170,17 +103,17 @@ function makeWindow() {
 	global.isLinux = process.platform == 'linux';
 	global.argv = process.argv;
 
-	// Open the DevTools.
-	//mainWindow.webContents.openDevTools();
+	// open the DevTools.
+	// mainWindow.webContents.openDevTools();
 
 	mainWindow.webContents.on('will-navigate', (e, url) => {
 		e.preventDefault();
 		electron.shell.openExternal(url);
 	});
 
-	// Emitted when the window is closed.
+	// emitted when the window is closed.
 	mainWindow.on('closed', () => {
-		// Dereference the window object, usually you would store windows
+		// dereference the window object, usually you would store windows
 		// in an array if your app supports multi windows, this is the time
 		// when you should delete the corresponding element.
 		mainWindow = null;
@@ -192,50 +125,89 @@ function makeWindow() {
 	});
 }
 
-ipcMain.on('download-btn', (e, args) => {
-	download(BrowserWindow.getFocusedWindow(), args.url, args.options).then((dl) => {
-		console.log('Saved to '+ dl.getSavePath());
-	}).catch(console.error);
-});
+if (shouldQuit) {
+	app.quit();
+} else {
 
-/*
-function applyUpdater() {
-	var feedUrl = 'https://zwkuawed8b.execute-api.ap-northeast-1.amazonaws.com/prod?version=' + app.getVersion();
-
-	autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName, releaseDate, updateUrl, quitAndUpdate) => {
-
-		var index = dialog.showMessageBox(mainWindow, {
-			type: 'info',
-			buttons: ['Restart', 'Later'],
-			title: "PileMd",
-			message: 'The new version has been downloaded. Please restart the application to apply the updates.',
-			detail: releaseName + "\n\n" + releaseNotes
-		});
-
-		if (index === 1) {
-			return;
+	const APP_NAME = app.getName();
+	const DARWIN_ALL_CLOSED_MENU = [
+		{
+			label: APP_NAME,
+			submenu: [
+				{
+					label: 'About ' + APP_NAME,
+					role: 'about'
+				},
+				{ type: 'separator' },
+				{
+					label: 'Services',
+					role: 'services',
+					submenu: []
+				},
+				{ type: 'separator' },
+				{
+					label: 'Hide ' + APP_NAME,
+					accelerator: 'Command+H',
+					role: 'hide'
+				},
+				{
+					label: 'Hide Others',
+					accelerator: 'Command+Shift+H',
+					role: 'hideothers'
+				},
+				{
+					label: 'Show All',
+					role: 'unhide'
+				},
+				{ type: 'separator' },
+				{
+					label: 'Quit ' + APP_NAME,
+					accelerator: 'Command+Q',
+					click: function() {
+						app.quit();
+					}
+				}
+			]
+		},
+		{
+			label: 'File',
+			submenu: [
+				{
+					label: 'New ' + APP_NAME + ' Window',
+					click: makeWindow
+				}
+			]
 		}
+	];
 
-		quitAndUpdate();
+	// quit when all windows are closed.
+	app.on('window-all-closed', () => {
+		// on OS X it is common for applications and their menu bar
+		// to stay active until the user quits explicitly with Cmd + Q
+		if (process.platform != 'darwin') {
+			app.quit();
+		} else {
+			Menu.setApplicationMenu(Menu.buildFromTemplate(DARWIN_ALL_CLOSED_MENU));
+		}
 	});
-	autoUpdater.on("error", (error) => {});
-	autoUpdater.setFeedURL(feedUrl);
-	autoUpdater.checkForUpdates();
-}
-*/
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-app.on('ready', () => {
-	makeWindow();
-	//applyUpdater();
-});
+	ipcMain.on('download-btn', (e, args) => {
+		download(BrowserWindow.getFocusedWindow(), args.url, args.options).then((dl) => {
+			console.log('Saved to '+ dl.getSavePath());
+		}).catch(console.error);
+	});
 
-app.on('activate', () => {
-	if(!mainWindow){
+	// this method will be called when Electron has finished
+	// initialization and is ready to create browser windows.
+	app.on('ready', () => {
 		makeWindow();
-		//autoUpdater.checkForUpdates();
-	} else {
-		mainWindow.show();
-	}
-});
+	});
+
+	app.on('activate', () => {
+		if(!mainWindow){
+			makeWindow();
+		} else {
+			mainWindow.show();
+		}
+	});
+}

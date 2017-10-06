@@ -34,8 +34,6 @@
 						img(:src="note.img")
 					.my-notes-note-body(v-if="!note.img && note.body.length != 0")
 						| {{ note.bodyWithoutTitle | truncate(80) }}
-			//-.my-notes-note(v-if="bookmarksList", @click="addBookmark", style="opacity:0.3;")
-				i.material-icons add
 
 </template>
 

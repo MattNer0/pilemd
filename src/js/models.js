@@ -7,6 +7,8 @@ const _ = require('lodash');
 const moment = require('moment');
 const Datauri = require('datauri');
 
+const encrypt = require('encryptjs');
+
 const arr = require('./utils/arr');
 const uid = require('./utils/uid');
 const util_file = require('./utils/file');
@@ -17,10 +19,10 @@ const bookmarksConverter = require('./utils/bookmarks');
 var baseLibraryPath = '';
 
 /**
- * Sets the base library path.
+ * sets the base library path.
  *
- * @param      {String}  path    The root directory path
- * @return     {String}          The root directory path
+ * @param  {String}  path  The root directory path
+ * @return  {String}  The root directory path
  */
 function setBaseLibraryPath(path) {
 	baseLibraryPath = path;
@@ -28,23 +30,27 @@ function setBaseLibraryPath(path) {
 }
 
 /**
- * Gets the base library path.
+ * gets the base library path.
  *
- * @return     {String}        The base library path.
+ * @return  {String}  The base library path.
  */
 function getBaseLibraryPath() {
 	return baseLibraryPath;
 }
 
 /**
- * Checks if the current directory path exists.
+ * checks if the current directory path exists.
  *
- * @return     {Boolean}       True if path is valid
+ * @return  {Boolean}  True if path is valid
  */
 function doesLibraryExists() {
 	return fs.existsSync(getBaseLibraryPath());
 }
 
+/**
+ * @function getValidMarkdownFormats
+ * @return {Array} Array of valid formats
+ */
 function getValidMarkdownFormats() {
 	return ['.md', '.markdown', '.txt', '.mdencrypted'];
 }
@@ -54,18 +60,12 @@ class Model {
 		this.uid = data.uid || uid.timeUID();
 	}
 
-	get data() { return { uid: this.uid } }
+	get data() {
+		return { uid: this.uid };
+	}
 
 	update(data) {
 		this.uid = data.uid;
-	}
-
-	saveModel() {
-		return;
-	}
-
-	remove() {
-		return;
 	}
 
 	static setModel(model) {
@@ -75,7 +75,100 @@ class Model {
 	static removeModelFromStorage(model) {
 		model.remove();
 	}
-};
+}
+
+class Image {
+
+		constructor (pilemdURL, name) {
+			if (!pilemdURL.startsWith('pilemd://.images/')) {
+				throw "Incorrect Image URL";
+			}
+			this.pilemdURL = pilemdURL;
+			this.name = name;
+		}
+
+		makeFilePath() {
+			var p = this.pilemdURL.slice(9);
+			var basePath = getBaseLibraryPath();
+			if (!basePath || basePath.length == 0) throw "Invalid Base Path";
+			//var relativePath = path.join('images', this.name);
+			return path.join(getBaseLibraryPath(), p);
+			//return new this('pilemd://' + relativePath, this.name);
+		}
+
+		convertDataURL() {
+			return Datauri.sync(this.makeFilePath());
+		}
+
+		static appendSuffix(filePath) {
+			var c = 'abcdefghijklmnopqrstuvwxyz';
+			var r = '';
+			for (var i = 0; i < 8; i++) {
+				r += c[Math.floor(Math.random() * c.length)];
+			}
+			var e = path.extname(filePath);
+			if (e.length > 0) {
+				return filePath.slice(0, -e.length) + '_' + r + e;
+			}
+			return filePath + '_' + r;
+		}
+
+		static fromClipboard(im) {
+			//create a name based on current date and save it.
+			var d = new Date();
+			var name = d.getFullYear().toString() + (d.getMonth()+1).toString() +
+				d.getDate().toString() + '_' + d.getHours().toString() +
+				d.getMinutes().toString() + d.getSeconds().toString() + ".png";
+
+			var dirPath = path.join(getBaseLibraryPath(), '.images');
+			try {
+				fs.mkdirSync(dirPath);
+			} catch (e) {
+				// can't make dir
+			}
+			var savePath = path.join(dirPath, name);
+			// check exists or not.
+			try {
+				var fd = fs.openSync(savePath, 'r');
+				if (fd) {
+					fs.close(fd);
+				}
+				name = this.appendSuffix(name);
+				savePath = path.join(dirPath, name);
+			} catch(e) {
+				// if not exists
+			}
+			fs.writeFileSync(savePath, im.toPNG());
+			var relativePath = path.join('.images', name);
+			console.log(name);
+			return new this('pilemd://' + relativePath, name);
+		}
+
+		static fromBinary(name, frompath) {
+			// try creating images dir.
+			var dirPath = path.join(getBaseLibraryPath(), '.images');
+			try {
+				fs.mkdirSync(dirPath);
+			} catch (e) {
+				// can't make dir
+			}
+			var savePath = path.join(dirPath, name);
+			// check exists or not.
+			try {
+				var fd = fs.openSync(savePath, 'r');
+				if (fd) {
+					fs.close(fd);
+				}
+				name = this.appendSuffix(name);
+				savePath = path.join(dirPath, name);
+			} catch(e) {
+				// if not exists
+			}
+			fs.writeFileSync(savePath, fs.readFileSync(frompath));
+			var relativePath = path.join('.images', name);
+			return new this('pilemd://' + relativePath);
+		}
+	}
 
 class Note extends Model {
 	constructor(data) {
@@ -86,7 +179,7 @@ class Note extends Model {
 		var re = new RegExp('\\' + this._ext + '$');
 
 		this._name = data.name.replace(re, '');
-		this._body = data.body.replace(/    /g, '\t');
+		this._body = data.body.replace(/ {4}/g, '\t');
 		this._path = data.path;
 		if (data.folder || data.rack) {
 			this._rack = data.rack || data.folder.data.rack;
@@ -179,7 +272,9 @@ class Note extends Model {
 		if (newValue != this._path) {
 			try {
 				if (this._path && fs.existsSync(this._path)) fs.unlinkSync(this._path);
-			} catch (e) {}
+			} catch (e) {
+				// unlink failed
+			}
 
 			this._path = newValue;
 		}
@@ -188,11 +283,15 @@ class Note extends Model {
 	get path() {
 		if (this._path && fs.existsSync(this._path)) {
 			return this._path;
-		} else {
-			var new_path = path.join(getBaseLibraryPath(), this._rack.data.fsName, this._folder.data.fsName, this.document_filename) + this._ext;
-			console.log(new_path);
-			return new_path;
 		}
+		var new_path = path.join(
+			getBaseLibraryPath(),
+			this._rack.data.fsName,
+			this._folder.data.fsName,
+			this.document_filename
+		) + this._ext;
+		console.log(new_path);
+		return new_path;
 	}
 
 	get document_filename() {
@@ -216,7 +315,9 @@ class Note extends Model {
 	}
 
 	set folder(f) {
-		if (!f) { return; }
+		if (!f) {
+			return;
+		}
 
 		if (f.folderExists) {
 			this._rack = f.data.rack;
@@ -228,29 +329,29 @@ class Note extends Model {
 	get bodyWithoutTitle() {
 		if (this.body) {
 			return this.cleanPreviewBody(this.splitTitleFromBody().body);
-		} else {
-			return '';
 		}
+		return '';
 	}
 
 	get title() {
 		if (this.body) {
 			return this.splitTitleFromBody().title || this._name;
-		} else {
-			return this._name;
 		}
+		return this._name;
 	}
 
 	get bodyWithDataURL() {
 		return this.body.replace(
-			/!\[(.*?)]\((pilemd:\/\/.*?)\)/mg, (match, p1, p2, offset, string) => {
+			/!\[(.*?)]\((pilemd:\/\/.*?)\)/mg,
+			(match, p1, p2) => {
+				var dataURL;
 				try {
-					var dataURL = new Image(p2, path.basename(p2)).convertDataURL();
+					dataURL = new Image(p2, path.basename(p2)).convertDataURL();
 				} catch (e) {
-					console.log(e);
+					console.warn(e);
 					return match;
 				}
-				return '![' + p1 + ']' + '(' + dataURL + ')';
+				return '![' + p1 + '](' + dataURL + ')';
 			}
 		);
 	}
@@ -264,21 +365,19 @@ class Note extends Model {
 	}
 
 	get img() {
-		var matched = /(https?|pilemd):\/\/[-a-zA-Z0-9@:%_\+.~#?&//=]+?\.(png|jpeg|jpg|gif)/.exec(this.body);
+		var matched = (/(https?|pilemd):\/\/[-a-zA-Z0-9@:%_\+.~#?&//=]+?\.(png|jpeg|jpg|gif)/).exec(this.body);
 		if (!matched) {
-			return null
-		} else {
-			if (matched[1] == 'http' || matched[1] == 'https') {
-				return matched[0]
-			} else {
-				try {
-					var dataUrl = new Image(matched[0]).convertDataURL()
-				} catch (e) {
-					return null
-				}
-				return dataUrl
-			}
+			return null;
+		} else if (matched[1] == 'http' || matched[1] == 'https') {
+			return matched[0];
 		}
+		var dataUrl;
+		try {
+			dataUrl = new Image(matched[0]).convertDataURL();
+		} catch (e) {
+			dataUrl = null;
+		}
+		return dataUrl;
 	}
 
 	setMetadata(key, value) {
@@ -298,7 +397,7 @@ class Note extends Model {
 
 		if (fs.existsSync(this.path)) {
 			var content = fs.readFileSync(this.path).toString();
-			content = content.replace(/    /g, '\t');
+			content = content.replace(/ {4}/g, '\t');
 			if (content && content != this._body) {
 				this._body = content;
 
@@ -336,10 +435,12 @@ class Note extends Model {
 	initializeCreationDate() {
 		var noteData = Note.isValidNotePath(this._path);
 		if (noteData) {
-			if(!this._metadata.createdAt)
+			if(!this._metadata.createdAt) {
 				this._metadata.createdAt = moment(noteData.stat.birthtime).format('YYYY-MM-DD HH:mm:ss');
-			if(!this._metadata.updatedAt)
+			}
+			if(!this._metadata.updatedAt) {
 				this._metadata.updatedAt = moment(noteData.stat.mtime).format('YYYY-MM-DD HH:mm:ss');
+			}
 		}
 	}
 
@@ -354,7 +455,9 @@ class Note extends Model {
 		var ret;
 		var lines = this.bodyWithoutMetadata.split('\n');
 		lines.forEach((row, index) => {
-			if (ret) {return}
+			if (ret) {
+				return;
+			}
 			if (row.length > 0) {
 				ret = {
 					title: _.trimStart(row, '# '),
@@ -389,10 +492,11 @@ class Note extends Model {
 			body = this.encrypt();
 		}
 
+		var outer_folder;
 		if (this.data.rack && this.data.folder) {
-			var outer_folder = path.join( getBaseLibraryPath(), this.data.rack.data.fsName, this.data.folder.data.fsName );
+			outer_folder = path.join( getBaseLibraryPath(), this.data.rack.data.fsName, this.data.folder.data.fsName );
 		} else {
-			var outer_folder = path.dirname(this._path);
+			outer_folder = path.dirname(this._path);
 		}
 
 		if (this.data.document_filename) {
@@ -403,14 +507,17 @@ class Note extends Model {
 				while (num > 0) {
 					try {
 						fs.statSync(new_path);
-						if (body && body != fs.readFileSync(new_path).toString()){
+						if (body && body != fs.readFileSync(new_path).toString()) {
 							new_path = path.join(outer_folder, this.data.document_filename)+num+this.data.extension;
 						} else {
 							new_path = null;
 							break;
 						}
+						num++;
 					} catch(e) {
-						break; //path doesn't exist, I don't have to worry about overwriting something
+						// path doesn't exist, I don't have to worry about overwriting something
+						num = -1;
+						break;
 					}
 				}
 
@@ -418,23 +525,24 @@ class Note extends Model {
 					fs.writeFileSync(new_path, body);
 					this.path = new_path;
 					return { saved: true };
-				} else {
-					return { saved: false };
 				}
-			} else {
-				try {
-					//fs.accessSync(new_path, fs.constants.R_OK | fs.constants.W_OK );
-					if (!fs.existsSync(new_path) || body.length > 0 && body != fs.readFileSync(new_path).toString()){
-						fs.writeFileSync(new_path, body);
-						this.path = new_path;
-						return { saved: true };
-					} else {
-						return { saved: false };
-					}
-				} catch(e) {
-					console.log("Couldn't save the note. Permission Error");
-					return { error: "Permission Error", path: new_path };
+				return { saved: false };
+			}
+
+			try {
+				//fs.accessSync(new_path, fs.constants.R_OK | fs.constants.W_OK );
+				if (!fs.existsSync(new_path) || body.length > 0 && body != fs.readFileSync(new_path).toString()){
+					fs.writeFileSync(new_path, body);
+					this.path = new_path;
+					return { saved: true };
 				}
+				return { saved: false };
+			} catch(e) {
+				console.log("Couldn't save the note. Permission Error");
+				return {
+					error: "Permission Error",
+					path: new_path
+				};
 			}
 		}
 	}
@@ -448,18 +556,19 @@ class Note extends Model {
 	}
 
 	static latestUpdatedNote(notes) {
-		return _.max(notes, function(n) { return n.updatedAt } );
+		return _.max(notes, function(n) {
+			return n.updatedAt;
+		});
 	}
 
 	static beforeNote(notes, note, property) {
 		var sorted = arr.sortBy(notes, property);
 		var before = sorted[sorted.indexOf(note)+1];
 		if (!before) {
-			// The note was latest one;
+			// the note was latest one;
 			return sorted.slice(-2)[0];
-		} else {
-			return before;
 		}
+		return before;
 	}
 
 	static newEmptyNote(folder) {
@@ -471,28 +580,32 @@ class Note extends Model {
 				folder: folder,
 				folderUid: folder.uid
 			});
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	static isValidNotePath(notePath) {
 		var valid_formats = getValidMarkdownFormats();
 		var noteStat = fs.statSync(notePath);
 		var noteExt = path.extname(notePath);
-		if (noteStat.isFile() && valid_formats.indexOf(noteExt) >= 0 ) return { ext: noteExt, stat: noteStat };
+		if (noteStat.isFile() && valid_formats.indexOf(noteExt) >= 0 ) {
+			return {
+				ext: noteExt,
+				stat: noteStat
+			};
+		}
 		return false;
 	}
 
 	/**
-	 * Loads every note inside a folder.
+	 * loads every note inside a folder.
 	 *
 	 * @param      {Object}  folder  The folder
 	 * @return     {Array}           Array of notes inside the folder
 	 */
 	static readNoteByFolder(folder) {
 		if(!fs.existsSync(folder.data.path)) return [];
-		
+
 		var valid_notes = [];
 		var notes = fs.readdirSync(folder.data.path);
 		notes.forEach((note) => {
@@ -500,7 +613,8 @@ class Note extends Model {
 			if(fs.existsSync(notePath) && note.charAt(0) != ".") {
 				var noteData = this.isValidNotePath(notePath);
 				if (noteData) {
-					if(noteData.ext == '.mdencrypted' ){ //note encrypted
+					//note encrypted
+					if(noteData.ext == '.mdencrypted' ) {
 						valid_notes.push(new EncryptedNote({
 							name: note,
 							body: "",
@@ -523,8 +637,6 @@ class Note extends Model {
 		return valid_notes;
 	}
 }
-
-var encrypt = require('encryptjs');
 
 class EncryptedNote extends Note {
 	constructor(data) {
@@ -583,9 +695,8 @@ class EncryptedNote extends Note {
 			if(secretkey) this._secretkey = secretkey;
 			var encrypt_body = encrypt.encrypt(this.verifyString+this._body, this._secretkey, 256);
 			return encrypt_body;
-		} else {
-			return '';
 		}
+		return '';
 	}
 
 	static newEmptyNote(folder) {
@@ -597,9 +708,8 @@ class EncryptedNote extends Note {
 				folder: folder,
 				folderUid: folder.uid
 			});
-		} else {
-			return false;
 		}
+		return false;
 	}
 }
 
@@ -614,7 +724,7 @@ class Folder extends Model {
 			this.ordering = parseInt( fs.readFileSync( path.join(data.path, '.folder') ).toString() );
 		}
 
-		if(this.ordering === false || this.ordering === NaN){
+		if(this.ordering === false || isNaN(this.ordering)){
 			this.ordering = data.ordering || 0;
 		}
 
@@ -660,7 +770,9 @@ class Folder extends Model {
 	}
 
 	set rack(r) {
-		if (!r) { return; }
+		if (!r) {
+			return;
+		}
 
 		if (r.rackExists) {
 			this._rack = r;
@@ -692,20 +804,24 @@ class Folder extends Model {
 		if(!this._contentLoaded){
 			this._contentLoaded = true;
 			return Note.readNoteByFolder(this);
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	saveModel() {
-		if (!this.data.name || !this.uid) { return }
+		if (!this.data.name || !this.uid) {
+			return;
+		}
 
 		var new_path = path.join( getBaseLibraryPath(), this._rack.data.fsName, this.data.fsName );
 		if(new_path != this._path || !fs.existsSync(new_path) ) {
 			try{
 				if(this._path && fs.existsSync(this._path)) {
-					util_file.moveFolderRecursiveSync(this._path,
-						path.join( getBaseLibraryPath(), this._rack.data.fsName ),this.data.fsName);
+					util_file.moveFolderRecursiveSync(
+						this._path,
+						path.join(getBaseLibraryPath(), this._rack.data.fsName),
+						this.data.fsName
+					);
 
 				} else {
 					fs.mkdirSync(new_path);
@@ -721,13 +837,13 @@ class Folder extends Model {
 	static readFoldersByRack(rack) {
 		var valid_folders = [];
 		if( fs.existsSync(rack.data.path) ) {
-		
+
 			var folders = fs.readdirSync(rack.data.path);
 			for(var fi = 0; fi<folders.length; fi++){
-				
+
 				var folder = folders[fi];
 				var folderPath = path.join(rack.data.path, folder);
-				
+
 				if(fs.existsSync(folderPath) && folder.charAt(0) != ".") {
 					var folderStat = fs.statSync(folderPath);
 					if(folderStat.isDirectory()){
@@ -746,7 +862,9 @@ class Folder extends Model {
 	}
 
 	static removeModelFromStorage(model) {
-		if (!model) { return }
+		if (!model) {
+			return;
+		}
 		if(fs.existsSync(model.data.path)) {
 			if( fs.existsSync(path.join(model.data.path, '.folder')) ) fs.unlinkSync( path.join(model.data.path, '.folder') );
 			fs.rmdirSync(model.data.path);
@@ -786,12 +904,16 @@ class BookmarkFolder extends Folder {
 	}
 
 	remove() {
-		arr.remove(this._rack.folders, (f) => {return f == this});
+		arr.remove(this._rack.folders, (f) => {
+			return f == this;
+		});
 		this._rack.saveModel();
 	}
 
 	removeNote(note) {
-		arr.remove(this.notes, (n) => {return n == note});
+		arr.remove(this.notes, (n) => {
+			return n == note;
+		});
 		this._rack.saveModel();
 	}
 
@@ -822,7 +944,7 @@ class BookmarkFolder extends Folder {
 			sortLower: false,
 			updatedAt: today,
 			createdAt: today
-		}
+		};
 	}
 
 	static setBookmarkNameUrl(bookmark, name, url) {
@@ -870,7 +992,7 @@ class Rack extends Model {
 			this.ordering = parseInt( fs.readFileSync( path.join(data.path, '.rack') ).toString() );
 		}
 
-		if(this.ordering === false || this.ordering === NaN){
+		if(this.ordering === false || isNaN(this.ordering)){
 			this.ordering = data.ordering || 0;
 		}
 
@@ -937,9 +1059,8 @@ class Rack extends Model {
 			this._contentLoaded = true;
 			this.folders = Folder.readFoldersByRack(this);
 			return this.folders;
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	saveModel() {
@@ -964,13 +1085,13 @@ class Rack extends Model {
 
 		var valid_racks = [];
 		if( fs.existsSync(getBaseLibraryPath()) ) {
-			
+
 			var racks = fs.readdirSync(getBaseLibraryPath());
 			for(var ri = 0; ri<racks.length; ri++){
-				
+
 				var rack = racks[ri];
 				var rackPath = path.join( getBaseLibraryPath(), rack);
-				
+
 				if(fs.existsSync(rackPath) && rack.charAt(0) != ".") {
 					var rackStat = fs.statSync(rackPath);
 					if(rackStat.isDirectory()){
@@ -1005,9 +1126,7 @@ class RackSeparator extends Rack {
 	}
 
 	get data() {
-		return _.assign(super.data, {
-			separator: true
-		});
+		return _.assign(super.data, { separator: true });
 	}
 
 	get rackExists() {
@@ -1058,9 +1177,7 @@ class BookmarkRack extends Rack {
 	}
 
 	get data() {
-		return _.assign(super.data, {
-			bookmarks: true,
-		});
+		return _.assign(super.data, { bookmarks: true });
 	}
 
 	get extension() {
@@ -1095,7 +1212,9 @@ class BookmarkRack extends Rack {
 		if (newValue != this._path) {
 			try {
 				if (this._path && fs.existsSync(this._path)) fs.unlinkSync(this._path);
-			} catch (e) {}
+			} catch (e) {
+				console.warn(e);
+			}
 
 			this._path = newValue;
 		}
@@ -1104,10 +1223,9 @@ class BookmarkRack extends Rack {
 	get path() {
 		if (this._path && fs.existsSync(this._path)) {
 			return this._path;
-		} else {
-			var new_path = path.join(getBaseLibraryPath(), this.document_filename) + this._ext;
-			return new_path;
 		}
+		var new_path = path.join(getBaseLibraryPath(), this.document_filename) + this._ext;
+		return new_path;
 	}
 
 	get document_filename() {
@@ -1117,7 +1235,7 @@ class BookmarkRack extends Rack {
 	readContents() {
 		if(!this._contentLoaded){
 			this._contentLoaded = true;
-			
+
 			if (fs.existsSync(this.path)) {
 				var content = fs.readFileSync(this.path).toString();
 				this._bookmarks = bookmarksConverter.parse(content, this);
@@ -1156,7 +1274,7 @@ class BookmarkRack extends Rack {
 		this._bookmarks.ordering = this.ordering;
 		this._bookmarks.name = this._name;
 		var string_html = bookmarksConverter.stringify(this._bookmarks);
-		
+
 		if(this.document_filename){
 			var new_path = path.join(outer_folder, this.document_filename) + this._ext;
 			if(new_path != this.path){
@@ -1170,8 +1288,11 @@ class BookmarkRack extends Rack {
 							new_path = null;
 							break;
 						}
-					} catch(e){
-						break; //path doesn't exist, I don't have to worry about overwriting something
+						num++;
+					} catch(e) {
+						//path doesn't exist, I don't have to worry about overwriting something
+						num = -1;
+						break;
 					}
 				}
 
@@ -1188,7 +1309,10 @@ class BookmarkRack extends Rack {
 					}
 				} catch(e){
 					console.log("Couldn't save the BookmarkRack.\nPermission Error\n", new_path);
-					return { error: "Permission Error", path: new_path };
+					return {
+						error: "Permission Error",
+						path: new_path
+					};
 				}
 			}
 		}
@@ -1216,97 +1340,6 @@ class BookmarkRack extends Rack {
 			}
 		}
 		return valid_racks;
-	}
-}
-
-const CLASS_MAPPER = {
-	notes: Note,
-	encryptedNotes: EncryptedNote,
-	folders: Folder,
-	racks: Rack,
-	rackSeparators: RackSeparator,
-	bookmarkRacks: BookmarkRack,
-	bookmarkFolders: BookmarkFolder
-};
-
-class Image {
-
-	constructor (pilemdURL, name) {
-		if (!pilemdURL.startsWith('pilemd://.images/')) {
-			throw "Incorrect Image URL"
-		}
-		this.pilemdURL = pilemdURL
-		this.name = name
-	}
-
-	makeFilePath() {
-		var p = this.pilemdURL.slice(9);
-		var basePath = getBaseLibraryPath();
-		if (!basePath || basePath.length == 0) throw "Invalid Base Path";
-		//var relativePath = path.join('images', this.name);
-		return path.join(getBaseLibraryPath(), p)
-		//return new this('pilemd://' + relativePath, this.name);
-	}
-
-	convertDataURL() {
-		return Datauri.sync(this.makeFilePath());
-	}
-
-	static appendSuffix(filePath) {
-		var c = 'abcdefghijklmnopqrstuvwxyz';
-		var r = '';
-		for (var i = 0; i < 8; i++) {
-			r += c[Math.floor(Math.random() * c.length)];
-		}
-		var e = path.extname(filePath);
-		if (e.length > 0) {
-			return filePath.slice(0, -e.length) + '_' + r + e
-		} else {
-			return filePath + '_' + r
-		}
-	}
-
-	static fromClipboard(im){
-		//create a name based on current date and save it.
-		var d = new Date();
-		var name = d.getFullYear().toString() + (d.getMonth()+1).toString()
-			+ d.getDate().toString() + '_' + d.getHours().toString()
-			+d.getMinutes().toString() + d.getSeconds().toString() + ".png";
-	
-		var dirPath = path.join(getBaseLibraryPath(), '.images');
-		try {
-			fs.mkdirSync(dirPath)
-		} catch (e) {}
-		var savePath = path.join(dirPath, name);
-		// Check exists or not.
-		try {
-			var fd = fs.openSync(savePath, 'r');
-			if (fd) {fs.close(fd)}
-			name = this.appendSuffix(name);
-			savePath = path.join(dirPath, name);
-		} catch(e) {}  // If not exists
-		fs.writeFileSync(savePath, im.toPNG());
-		var relativePath = path.join('.images', name);
-		console.log(name);
-		return new this('pilemd://' + relativePath, name);
-	}
-
-	static fromBinary(name, frompath) {
-		// Try creating images dir.
-		var dirPath = path.join(getBaseLibraryPath(), '.images');
-		try {fs.mkdirSync(dirPath)} catch (e) {}
-
-		var savePath = path.join(dirPath, name);
-		// Check exists or not.
-		try {
-			var fd = fs.openSync(savePath, 'r');
-			if (fd) {fs.close(fd)}
-			name = this.appendSuffix(name);
-			savePath = path.join(dirPath, name);
-		} catch(e) {}  // If not exists
-		fs.writeFileSync(savePath, fs.readFileSync(frompath));
-		var relativePath = path.join('.images', name);
-		return new this('pilemd://' + relativePath);
 	}
 }
 

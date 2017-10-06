@@ -19,7 +19,7 @@ var initialModels = require('./initialModels');
 var preview = require('./preview');
 var searcher = require('./searcher');
 
-// Electron things
+// electron things
 const electron = require('electron');
 const remote = electron.remote;
 const Menu = remote.Menu;
@@ -28,27 +28,27 @@ const dialog = remote.dialog;
 
 var arr = require('./utils/arr');
 
-// Vue.js plugins
-import component_flashmessage from './components/flashmessage.vue';
-import component_racks from './components/racks.vue';
-import component_notes from './components/notes.vue';
-import component_modal from './components/modal.vue';
+// vue.js plugins
 import component_addNote from './components/addNote.vue';
-import component_windowBar from './components/windowBar.vue';
-import component_titleMenu from './components/titleMenu.vue';
-import component_noteMenu from './components/noteMenu.vue';
-import component_handlerStack from './components/handlerStack.vue';
-import component_handlerNotes from './components/handlerNotes.vue';
-import component_codeMirror from './components/codemirror.vue';
 import component_browser from './components/browser.vue';
+import component_codeMirror from './components/codemirror.vue';
+import component_flashmessage from './components/flashmessage.vue';
+import component_handlerNotes from './components/handlerNotes.vue';
+import component_handlerStack from './components/handlerStack.vue';
+import component_modal from './components/modal.vue';
+import component_noteMenu from './components/noteMenu.vue';
+import component_notes from './components/notes.vue';
+import component_racks from './components/racks.vue';
+import component_titleMenu from './components/titleMenu.vue';
+import component_windowBar from './components/windowBar.vue';
 
-// Loading CSSs
+// loading CSSs
 require('../scss/pilemd-light.scss');
 require('../scss/pilemd-original.scss');
 require('../scss/pilemd.scss');
 
-// Not to accept image dropping and so on.
-// Electron will be show local images without this.
+// not to accept image dropping and so on.
+// electron will be show local images without this.
 document.addEventListener('dragover', (e) => {
 	e.preventDefault();
 });
@@ -106,10 +106,11 @@ var appVue = new Vue({
 	},
 	computed: {
 		/**
-		 * Filters notes based on search terms.
+		 * filters notes based on search terms.
 		 * It also makes sure that all the notes inside the current selected rack are loaded,
 		 * otherwise we wouldn't be able to find any results for the current search.
 		 * 
+		 * @function filteredNotes
 		 * @return  {Array}  notes array
 		 */
 		filteredNotes() {
@@ -127,8 +128,9 @@ var appVue = new Vue({
 			return searcher.searchNotes(this.selectedRackOrFolder, this.search, notes);
 		},
 		/**
-		 * Returns currently selected folder or "undefined" if no folder is selected.
+		 * returns currently selected folder or "undefined" if no folder is selected.
 		 * 
+		 * @function selectedFolder
 		 * @return    {Object}     Currently selected folder
 		 */
 		selectedFolder() {
@@ -136,7 +138,7 @@ var appVue = new Vue({
 			return undefined;
 		},
 		/**
-		 * Check if the title attribute is defined to see
+		 * check if the title attribute is defined to see
 		 * if the "selectedNote" is really a note object or just an empty object
 		 * 
 		 * @return    {Boolean}    True if note is selected
@@ -146,7 +148,7 @@ var appVue = new Vue({
 			return false;
 		},
 		/**
-		 * Check if the current selected rack is a bookmark rack or not.
+		 * check if the current selected rack is a bookmark rack or not.
 		 * 
 		 * @return    {Boolean}    True if current rack doesn't hold bookmarks.
 		 */
@@ -161,7 +163,7 @@ var appVue = new Vue({
 		var racks = [];
 		var initial_notes = [];
 
-		// Modal
+		// modal
 		this.$on('modal-show', (modalMessage) => {
 			this.modalTitle = modalMessage.title;
 			this.modalDescription = modalMessage.description;
@@ -171,12 +173,12 @@ var appVue = new Vue({
 		});
 
 		if (!models.getBaseLibraryPath()) {
-			// Hey, this is the first time.
+			// hey, this is the first time.
 			initialModels.initialFolder();
 		}
 
 		if( models.doesLibraryExists() ){
-			// Library folder exists, let's read what's inside
+			// library folder exists, let's read what's inside
 
 			racks = models.Rack.readRacks();
 			if( racks.length == 0 ){
@@ -221,6 +223,7 @@ var appVue = new Vue({
 			if(argv.length > 1 && path.extname(argv[1]) == '.md' && fs.existsSync(argv[1])) {
 				var notePath = argv[1];
 				var noteData = models.Note.isValidNotePath(notePath);
+				var openedNote;
 				if (noteData) {
 					console.log('opened note', notePath);
 					if (notePath.indexOf(models.getBaseLibraryPath()) == 0) {
@@ -228,26 +231,24 @@ var appVue = new Vue({
 							return rack.data.path == path.join(path.dirname(notePath), '..');
 						});
 						if(openedRack) this.readRackContent(openedRack);
-						var openedNote = this.notes.find((note) => {
+						openedNote = this.notes.find((note) => {
 							return note.data.path == notePath;
 						});
 						if(openedNote) {
 							this.changeRackOrFolder(openedNote.data.folder);
 							this.changeNote(openedNote);
 						}
+					} else if(noteData.ext == '.mdencrypted' ) {
+						// encripted note
 					} else {
-						if(noteData.ext == '.mdencrypted' ) {
-
-						} else {
-							var openedNote = new models.Note({
-								name: path.basename(notePath, noteData.ext),
-								body: "",
-								path: notePath,
-								extension: noteData.ext
-							});
-							this.notes.push(openedNote);
-							this.changeNote(openedNote);
-						}
+						openedNote = new models.Note({
+							name: path.basename(notePath, noteData.ext),
+							body: "",
+							path: notePath,
+							extension: noteData.ext
+						});
+						this.notes.push(openedNote);
+						this.changeNote(openedNote);
 					}
 				} else {
 					console.log('path not valid!');
@@ -258,7 +259,7 @@ var appVue = new Vue({
 	mounted() {
 		var self = this;
 		this.$nextTick(() => {
-			
+
 			window.addEventListener('resize', (e) => {
 				e.preventDefault();
 				settings.saveWindowSize();
@@ -274,7 +275,10 @@ var appVue = new Vue({
 	},
 	methods: {
 		/**
-		 * Initialize the width of the left sidebar elements.
+		 * initialize the width of the left sidebar elements.
+		 * 
+		 * @function init_sidebar_width
+		 * @return {Void} Function doesn't return anything
 		 */
 		init_sidebar_width() {
 			var handlerStack = document.getElementById('handlerStack');
@@ -284,7 +288,10 @@ var appVue = new Vue({
 			if(handlerNotes) handlerNotes.previousElementSibling.style.width = this.notesWidth+"px";
 		},
 		/**
-		 * Scrolls to the top of the notes sidebar.
+		 * scrolls to the top of the notes sidebar.
+		 * 
+		 * @function scrollUpScrollbarNotes
+		 * @return {Void} Function doesn't return anything
 		 */
 		scrollUpScrollbarNotes() {
 			this.$nextTick(() => {
@@ -292,7 +299,9 @@ var appVue = new Vue({
 			});
 		},
 		/**
-		 * Scrolls to the top of the selected note.
+		 * scrolls to the top of the selected note.
+		 * @function scrollUpScrollbarNote
+		 * @return {Void} Function doesn't return anything
 		 */
 		scrollUpScrollbarNote() {
 			this.$nextTick(() => {
@@ -300,7 +309,8 @@ var appVue = new Vue({
 			});
 		},
 		/**
-		 * Event called when rack or folder is selected.
+		 * event called when rack or folder is selected.
+		 * @function changeRackOrFolder
 		 * @param  {Object}  obj  selected rack or folder
 		 * @return {Object}       previous rack or folder selected
 		 */
@@ -318,8 +328,9 @@ var appVue = new Vue({
 			return rf;
 		},
 		/**
-		 * Event called when a note is selected.
+		 * event called when a note is selected.
 		 * @param  {Object}  note  selected note
+		 * @return {Void} Function doesn't return anything
 		 */
 		changeNote(note) {
 			var self = this;
@@ -348,7 +359,7 @@ var appVue = new Vue({
 									self.$refs.dialog.init('Error', result.error + "\nNote: " + note.path, [{
 										label: 'Ok',
 										cancel: true
-									}]);	
+									}]);
 								}, 100);
 							} else {
 								self.selectedNote = note;
@@ -374,16 +385,21 @@ var appVue = new Vue({
 			}
 		},
 		/**
-		 * Event called when a note is dragged.
+		 * event called when a note is dragged.
+		 * 
+		 * @function setDraggingNote
 		 * @param  {Object}  note  Note being dragged
+		 * @return {Void} Function doesn't return anything
 		 */
 		setDraggingNote(note) {
 			this.draggingNote = note;
 		},
 		/**
-		 * Event called when user selects a new Rack from the sidebar.
+		 * event called when user selects a new Rack from the sidebar.
 		 * 
+		 * @function openRack
 		 * @param  {Object}  rack    The rack
+		 * @return {Void} Function doesn't return anything
 		 */
 		openRack(rack) {
 			if(!(rack instanceof models.Rack)) return;
@@ -391,16 +407,18 @@ var appVue = new Vue({
 			rack.openFolders = true;
 		},
 		/**
-		 * Reads folders and notes inside the Rack.
+		 * reads folders and notes inside the Rack.
 		 *
+		 * @function readRackContent
 		 * @param  {Object}  rack    The rack
+		 * @return {Void} Function doesn't return anything
 		 */
 		readRackContent(rack) {
 			if(!(rack instanceof models.Rack)) return;
 			var newData = rack.readContents();
 			if(newData) {
 				this.folders = this.folders.concat( newData );
-				for(var i=0;i<newData.length;i++){
+				for(var i=0; i<newData.length; i++){
 					var newNotes = newData[i].readContents();
 					if(newNotes) {
 						this.notes = this.notes.concat( newNotes );
@@ -411,9 +429,11 @@ var appVue = new Vue({
 			rack.folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
 		},
 		/**
-		 * Hides rack content (folders).
+		 * hides rack content (folders).
 		 * 
+		 * @function closerack
 		 * @param  {Object}  rack    The rack
+		 * @return {Void} Function doesn't return anything
 		 */
 		closerack(rack) {
 			/*if(this.selectedNote && this.selectedNote.data && this.selectedNote.isRack(rack)){
@@ -425,10 +445,12 @@ var appVue = new Vue({
 			}
 		},
 		/**
-		 * Adds a new rack to the working directory.
+		 * adds a new rack to the working directory.
 		 * The new rack is placed on top of the list.
 		 * 
+		 * @function addRack
 		 * @param  {Object}  rack    The new rack
+		 * @return {Void} Function doesn't return anything
 		 */
 		addRack(rack) {
 			var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
@@ -440,40 +462,50 @@ var appVue = new Vue({
 			this.racks = racks;
 		},
 		/**
-		 * Adds a new rack separator to the working directory.
+		 * adds a new rack separator to the working directory.
 		 * The new rack is placed on top of the list.
+		 * 
+		 * @function addRackSeparator
+		 * @return {RackSeparator} New rack separator
 		 */
 		addRackSeparator() {
 
-			var rack = new models.RackSeparator();
+			var rack_separator = new models.RackSeparator();
 			var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
-			racks.unshift(rack);
+			racks.unshift(rack_separator);
 			racks.forEach((r, i) => {
 				r.ordering = i;
 				r.saveModel();
 			});
 			this.racks = racks;
+
+			return rack_separator;
 		},
 		/**
-		 * Removes the Rack (and its contents) from the current working directory.
+		 * removes the Rack (and its contents) from the current working directory.
 		 * 
 		 * @param  {Object}  rack    The rack
+		 * @return {Void} Function doesn't return anything
 		 */
 		removeRack(rack) {
 			rack.remove(this.notes, this.folders);
-			arr.remove(this.racks, (r) => {return r == rack});
+			arr.remove(this.racks, (r) => {
+				return r == rack;
+			});
 			this.selectedRackOrFolder = null;
-			// We need to close the current selected note if it was from the removed rack.
+			// we need to close the current selected note if it was from the removed rack.
 			if(this.isNoteSelected && this.selectedNote.data.rack == rack) {
 				this.selectedNote = {};
 			}
 		},
 		/**
-		 * Inserts a new Folder inside the selected Rack.
+		 * inserts a new Folder inside the selected Rack.
 		 * The new Folder is placed on top of the list.
 		 * 
+		 * @function addFolderToRack
 		 * @param  {Object}  rack    The rack
 		 * @param  {Object}  folder  The folder
+		 * @return {Void} Function doesn't return anything
 		 */
 		addFolderToRack(rack, folder) {
 			this.openRack(rack);
@@ -488,34 +520,43 @@ var appVue = new Vue({
 			else this.folders.push(folder);
 		},
 		/**
-		 * Deletes a folder and its contents from the parent rack.
+		 * deletes a folder and its contents from the parent rack.
 		 * 
+		 * @function deleteFolder
 		 * @param  {Object}  folder  The folder
+		 * @return {Void} Function doesn't return anything
 		 */
 		deleteFolder(folder) {
 			folder.remove(this.notes);
-			
-			arr.remove(this.folders, (f) => {return f == folder});
-			arr.remove(folder.data.rack.folders, (f) => {return f == folder});
+
+			arr.remove(this.folders, (f) => {
+				return f == folder;
+			});
+			arr.remove(folder.data.rack.folders, (f) => {
+				return f == folder;
+			});
 
 			this.selectedRackOrFolder = null;
-			// We need to close the current selected note if it was from the removed folder.
+			// we need to close the current selected note if it was from the removed folder.
 			if(this.isNoteSelected && this.selectedNote.data.folder == folder) {
 				this.selectedNote = {};
 			}
 		},
 		/**
-		 * Event called after folder was dragged into a rack.
+		 * event called after folder was dragged into a rack.
 		 * 
 		 * @param  {Object}  rack    The rack
 		 * @param  {Object}  folder  The folder
+		 * @return {Void} Function doesn't return anything
 		 */
 		folderDragEnded(rack, folder) {
 			if(!rack) return;
 			rack.folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
 		},
 		/**
-		 * Toggles left sidebar.
+		 * toggles left sidebar.
+		 * 
+		 * @return {Void} Function doesn't return anything
 		 */
 		toggleFullScreen() {
 			this.isFullScreen = !this.isFullScreen;
@@ -523,7 +564,9 @@ var appVue = new Vue({
 			this.update_editor_size();
 		},
 		/**
-		 * Toggles markdown note preview.
+		 * toggles markdown note preview.
+		 * 
+		 * @return {Void} Function doesn't return anything
 		 */
 		togglePreview() {
 			this.isPreview = !this.isPreview;
@@ -535,40 +578,38 @@ var appVue = new Vue({
 				var f = this.selectedRackOrFolder.folders;
 				if (!f || f.length == 0) {
 					return null;
-				} else {
-					return f[0].uid
 				}
+				return f[0].uid;
 			} else if (this.selectedRackOrFolder instanceof models.Folder) {
 				return this.selectedRackOrFolder.uid;
-			} else {
-				return null;
 			}
+			return null;
 		},
 		/**
-		 * Finds the currently selected folder.
-		 * If a rack object is selected instead of a folder object,
+		 * finds the currently selected folder.
+		 * if a rack object is selected instead of a folder object,
 		 * then it will get the first folder inside the rack.
 		 * 
 		 * @return  {Object}  Folder object if one is selected, "null" otherwise
 		 */
 		getCurrentFolder() {
-			if (this.selectedRackOrFolder == null){
+			if (this.selectedRackOrFolder === null){
 				return null;
 			} else if (this.selectedRackOrFolder instanceof models.Rack) {
 				var f = this.selectedRackOrFolder.folders;
 				if (!f || f.length == 0) {
 					return null;
-				} else {
-					return f[0];
 				}
+				return f[0];
 			} else if (this.selectedRackOrFolder instanceof models.Folder) {
 				return this.selectedRackOrFolder;
-			} else {
-				return null;
 			}
+			return null;
 		},
 		/**
-		 * Add new note to the current selected Folder
+		 * add new note to the current selected Folder
+		 * 
+		 * @return  {Note}  New Note object
 		 */
 		addNote() {
 			var currFolder = this.getCurrentFolder();
@@ -584,19 +625,20 @@ var appVue = new Vue({
 					this.search = '';
 				}
 			} else {
+				var message;
 				if(this.racks.length > 0){
-					var message = 'You must select Rack and Folder first!';
+					message = 'You must select Rack and Folder first!';
 				} else {
-					var message = 'You must create a Folder first!';
+					message = 'You must create a Folder first!';
 				}
-				this.$refs.dialog.init('Error', message, [{
-					label: 'Ok'
-				}]);
+				this.$refs.dialog.init('Error', message, [{ label: 'Ok' }]);
 			}
 			return newNote;
 		},
 		/**
-		 * Add new encrypted note to the current selected Folder
+		 * add new encrypted note to the current selected Folder
+		 * 
+		 * @return {Void} Function doesn't return anything
 		 */
 		addEncryptedNote() {
 			var currFolder = this.getCurrentFolder();
@@ -612,33 +654,38 @@ var appVue = new Vue({
 					this.search = '';
 				}
 			} else {
+				var message;
 				if(this.racks.length > 0){
-					var message = 'You must select Rack and Folder first!';
+					message = 'You must select Rack and Folder first!';
 				} else {
-					var message = 'You must create a Folder first!';
+					message = 'You must create a Folder first!';
 				}
-				this.$refs.dialog.init('Error', message, [{
-					label: 'Ok'
-				}]);
+				this.$refs.dialog.init('Error', message, [{ label: 'Ok' }]);
 			}
 		},
 		/**
-		 * Add a list of notes to the library.
+		 * add a list of notes to the library.
 		 * 
 		 * @param {Array}  noteTexts  Array which contains the new notes
+		 * @return {Void} Function doesn't return anything
 		 */
 		addNotes(noteTexts) {
 			var uid = this.calcSaveUid();
 			var newNotes = noteTexts.map((noteText) => {
-				return new models.Note({body: noteText, folderUid: uid})
+				return new models.Note({
+					body: noteText,
+					folderUid: uid
+				});
 			});
 			newNotes.forEach((note) => {
 				note.saveModel();
 			});
-			this.notes = newNotes.concat(this.notes)
+			this.notes = newNotes.concat(this.notes);
 		},
 		/**
-		 * Save current selected Note.
+		 * save current selected Note.
+		 * 
+		 * @return {Void} Function doesn't return anything
 		 */
 		saveNote() {
 			var result;
@@ -655,7 +702,7 @@ var appVue = new Vue({
 		addNoteFromUrl() {
 			var self = this;
 
-			var pageLoaded = (e) => {
+			var pageLoaded = () => {
 				self.$refs.webview.removeEventListener('did-finish-load', pageLoaded);
 				self.$refs.webview.getWebContents().executeJavaScript(htmlToMarkdown.parseScript(), (result) => {
 					var new_markdown = htmlToMarkdown.convert(result, self.$refs.webview.src, self.$refs.webview.getTitle());
@@ -669,7 +716,7 @@ var appVue = new Vue({
 					self.$refs.webview.src = '';
 				});
 			};
-			var pageFailed = (e) => {
+			var pageFailed = () => {
 				self.$refs.webview.removeEventListener('did-fail-load', pageFailed);
 				self.$refs.webview.style.height = '';
 				self.$refs.webview.src = '';
@@ -695,16 +742,15 @@ var appVue = new Vue({
 				 *                                         If a string value is returned it means that's the name of the field that failed validation.
 				 */
 				validate(data) {
-					var expression = /[-a-zA-Z0-9@:%_\+.~#?&=]{2,256}(\.[a-z]{2,4}|:\d+)\b(\/[-a-zA-Z0-9@:%_\+.~#?&\/=]*)?/gi;
+					var expression = /[-a-zA-Z0-9@:%_+.~#?&=]{2,256}(\.[a-z]{2,4}|:\d+)\b(\/[-a-zA-Z0-9@:%_+.~#?&/=]*)?/gi;
 					var regex = new RegExp(expression);
 					if (data.pageurl.match(regex)) {
 						return false;
-					} else {
-						/**
-						 * @todo gonna use this to highlight the wrong field in the dialog form
-						 */
-						return 'pageurl';
 					}
+					/*
+					 * @todo gonna use this to highlight the wrong field in the dialog form
+					 */
+					return 'pageurl';
 				}
 			}], [{
 				type: 'text',
@@ -718,6 +764,7 @@ var appVue = new Vue({
 		 * add a new bookmark inside a specific folder
 		 * 
 		 * @param {Object}  folder  The folder
+		 * @return {Void} Function doesn't return anything
 		 */
 		addBookmark(folder) {
 			var newBookmark = models.BookmarkFolder.newEmptyBookmark(folder);
@@ -725,9 +772,10 @@ var appVue = new Vue({
 			this.editBookmark(newBookmark);
 		},
 		/**
-		 * Edit bookmark title and url through a popup dialog
+		 * edit bookmark title and url through a popup dialog
 		 * 
 		 * @param {Object}  bookmark  The bookmark
+		 * @return {Void} Function doesn't return anything
 		 */
 		editBookmark(bookmark) {
 			var self = this;
@@ -737,9 +785,9 @@ var appVue = new Vue({
 				/**
 				 * function called when user click on the 'Cancel' button
 				 *
-				 * @param      {Object}            data    Form data object
+				 * @return {Void} Function doesn't return anything
 				 */
-				cb(data) {
+				cb() {
 					if(bookmark.name === '' && bookmark.body === '') {
 						bookmark.folder.removeNote(bookmark);
 					}
@@ -749,7 +797,8 @@ var appVue = new Vue({
 				/**
 				 * function called when user click on the 'Ok' button
 				 *
-				 * @param      {Object}            data    Form data object
+				 * @param  {Object}  data  Form data object
+				 * @return {Void} Function doesn't return anything
 				 */
 				cb(data) {
 					if(bookmark.body != data.bkurl || !bookmark.attributes['THUMBNAIL']) {
@@ -768,16 +817,15 @@ var appVue = new Vue({
 				 *                                         If a string value is returned it means that's the name of the field that failed validation.
 				 */
 				validate(data) {
-					var expression = /[-a-zA-Z0-9@:%_\+.~#?&=]{2,256}(\.[a-z]{2,4}|:\d+)\b(\/[-a-zA-Z0-9@:%_\+.~#?&\/=]*)?/gi;
+					var expression = /[-a-zA-Z0-9@:%_+.~#?&=]{2,256}(\.[a-z]{2,4}|:\d+)\b(\/[-a-zA-Z0-9@:%_+.~#?&/=]*)?/gi;
 					var regex = new RegExp(expression);
 					if (data.bkurl.match(regex)) {
 						return false;
-					} else {
-						/**
-						 * @todo gonna use this to highlight the wrong field in the dialog form
-						 */
-						return 'bkurl';
 					}
+					/*
+					 * @todo gonna use this to highlight the wrong field in the dialog form
+					 */
+					return 'bkurl';
 				}
 			}], [{
 				type: 'text',
@@ -794,9 +842,11 @@ var appVue = new Vue({
 			}]);
 		},
 		/**
-		 * Refresh bookmark thumbnail image and icon
+		 * refresh bookmark thumbnail image and icon
 		 * 
+		 * @function refreshBookmarkThumb
 		 * @param {Object}  bookmark  The bookmark
+		 * @return {Void} Function doesn't return anything
 		 */
 		refreshBookmarkThumb(bookmark) {
 			var self = this;
@@ -810,7 +860,7 @@ var appVue = new Vue({
 					models.BookmarkFolder.setBookmarkIcon(bookmark, e.favicons[0]);
 				}
 			};
-			var bookmarkLoaded = (e) => {
+			var bookmarkLoaded = () => {
 				self.$refs.webview.removeEventListener('did-finish-load', bookmarkLoaded);
 				if(bookmark.name === '') {
 					models.BookmarkFolder.setBookmarkNameUrl(bookmark, self.$refs.webview.getTitle(), bookmark.body);
@@ -842,9 +892,11 @@ var appVue = new Vue({
 			this.$refs.webview.addEventListener('did-fail-load', bookmarkFailed);
 		},
 		/**
-		 * Refresh bookmark thumbnail using some metadata content (og:image, "shortcut icon" and "user-profile" img)
+		 * refresh bookmark thumbnail using some metadata content
+		 * (og:image, "shortcut icon" and "user-profile" img)
 		 * 
 		 * @param {Object}  bookmark  The bookmark
+		 * @return {Void} Function doesn't return anything
 		 */
 		getBookmarkMetaImage(bookmark) {
 			var self = this;
@@ -852,15 +904,29 @@ var appVue = new Vue({
 			this.loadingUid = bookmark.uid;
 			self.$refs.webview.style.height = '';
 			this.$refs.webview.src = bookmark.body;
-			var bookmarkLoaded = (e) => {
+			var imageLoaded = () => {
+				self.$refs.webview.removeEventListener('did-finish-load', imageLoaded);
+				self.$refs.webview.getWebContents().insertCSS('img { width: 100% !important; height: auto; }');
+				setTimeout( () => {
+					self.$refs.webview.capturePage((img) => {
+						console.log('Bookmark meta image was succesful!');
+						self.sendFlashMessage(2000, 'info', 'Thumbnail saved');
+						self.$refs.webview.src = '';
+						models.BookmarkFolder.setBookmarkThumb(bookmark, img);
+						bookmark.rack.saveModel();
+						self.loadingUid = '';
+					});
+				}, 1000);
+			};
+			var bookmarkLoaded = () => {
 				self.$refs.webview.removeEventListener('did-finish-load', bookmarkLoaded);
 				self.$refs.webview.getWebContents().executeJavaScript("document.querySelector('head').innerHTML + document.querySelector('body').innerHTML", (result) => {
-					var shortcut = /rel=['"`]shortcut icon['"`][^<>]+?href=['"`](http.+?)['"`]/gi.exec(result)
-									|| /<img[^>]+?src=['"`](http.+?profile[\-_]images.+?)['"`]/gi.exec(result);
-					var og_image = /property=['"`]og:image['"`][^<>]+?content=['"`](http.+?)['"`]/gi.exec(result)
-									|| /content=['"`](http.+?)['"`][^<>]+?property=['"`]og:image['"`]/gi.exec(result);
-					var user_profile = result.match(/https?:\/\/[a-z0-9.\-]+?\/user-profile\/img[^.<>]+\.(jpg|png|gif)/gi);
-					
+					var shortcut = (/rel=['"`]shortcut icon['"`][^<>]+?href=['"`](http.+?)['"`]/gi).exec(result) ||
+									(/<img[^>]+?src=['"`](http.+?profile[-_]images.+?)['"`]/gi).exec(result);
+					var og_image = (/property=['"`]og:image['"`][^<>]+?content=['"`](http.+?)['"`]/gi).exec(result) ||
+									(/content=['"`](http.+?)['"`][^<>]+?property=['"`]og:image['"`]/gi).exec(result);
+					var user_profile = result.match(/https?:\/\/[a-z0-9.-]+?\/user-profile\/img[^.<>]+\.(jpg|png|gif)/gi);
+
 					if (user_profile || shortcut || og_image) {
 						var image_url;
 						if (user_profile) image_url = user_profile[0];
@@ -876,20 +942,6 @@ var appVue = new Vue({
 					}
 				});
 			};
-			var imageLoaded = (e) => {
-				self.$refs.webview.removeEventListener('did-finish-load', imageLoaded);
-				self.$refs.webview.getWebContents().insertCSS('img { width: 100% !important; height: auto; }');
-				setTimeout( () => {
-					self.$refs.webview.capturePage((img) => {
-						console.log('Bookmark meta image was succesful!');
-						self.sendFlashMessage(2000, 'info', 'Thumbnail saved');
-						self.$refs.webview.src = '';
-						models.BookmarkFolder.setBookmarkThumb(bookmark, img);
-						bookmark.rack.saveModel();
-						self.loadingUid = '';
-					});
-				}, 1000);
-			};
 			var bookmarkFailed = (e) => {
 				if (e.isMainFrame) {
 					self.$refs.webview.removeEventListener('did-fail-load', bookmarkFailed);
@@ -902,15 +954,18 @@ var appVue = new Vue({
 			this.$refs.webview.addEventListener('did-fail-load', bookmarkFailed);
 		},
 		/**
-		 * Displays an image with the popup dialog.
+		 * displays an image with the popup dialog.
 		 *
-		 * @param      {String}  url     The image url
+		 * @param  {String}  url  The image url
+		 * @return {Void} Function doesn't return anything
 		 */
 		openImg(url) {
 			this.$refs.dialog.image(url);
 		},
 		/**
-		 * Displays context menu for the list of racks.
+		 * displays context menu for the list of racks.
+		 * 
+		 * @return {Void} Function doesn't return anything
 		 */
 		shelfMenu() {
 			var self = this;
@@ -932,7 +987,8 @@ var appVue = new Vue({
 			menu.popup(remote.getCurrentWindow());
 		},
 		/**
-		 * Displays context menu on the selected note in preview mode.
+		 * displays context menu on the selected note in preview mode.
+		 * @return {Void} Function doesn't return anything
 		 */
 		previewMenu() {
 			var clipboard = electron.clipboard;
@@ -967,11 +1023,14 @@ var appVue = new Vue({
 		importNotes() {
 			var notePaths = dialog.showOpenDialog(remote.getCurrentWindow(), {
 				title: 'Import Note',
-				filters: [{name: 'Markdown', extensions: ['md', 'markdown', 'txt']}],
+				filters: [{
+					name: 'Markdown',
+					extensions: ['md', 'markdown', 'txt']
+				}],
 				properties: ['openFile', 'multiSelections']
 			});
 			if (!notePaths || notePaths.length == 0) {
-				return
+				return;
 			}
 			var noteBodies = notePaths.map((notePath) => {
 				return fs.readFileSync(notePath, 'utf8');
@@ -980,15 +1039,22 @@ var appVue = new Vue({
 		},
 		moveSync() {
 			var currentPath = models.getBaseLibraryPath();
-			if (!currentPath) {this.$message('error', 'Current Syncing Dir Not found', 5000)}
+			if (!currentPath) {
+				this.$message('error', 'Current Syncing Dir Not found', 5000);
+			}
 			var newPath = dialog.showSaveDialog(remote.getCurrentWindow(), {
 				title: 'Move Sync Folder',
 				defaultPath: path.join(currentPath, 'pmlibrary')
 			});
-			if (!newPath) {return}
+			if (!newPath) {
+				return;
+			}
 			fs.mkdir(newPath, (err) => {
-				if (err) {this.$message('error', 'Folder Already Existed', 5000); return}
-				// Copy files
+				if (err) {
+					this.$message('error', 'Folder Already Existed', 5000);
+					return;
+				}
+				// copy files
 				models.copyData(currentPath, newPath);
 				models.setBaseLibraryPath(newPath);
 				remote.getCurrentWindow().reload();
@@ -1001,7 +1067,9 @@ var appVue = new Vue({
 				defaultPath: currentPath || '/',
 				properties: ['openDirectory', 'createDirectory']
 			});
-			if (!newPaths) {return}
+			if (!newPaths) {
+				return;
+			}
 			var newPath = newPaths[0];
 
 			models.setBaseLibraryPath(newPath);
@@ -1009,7 +1077,9 @@ var appVue = new Vue({
 			remote.getCurrentWindow().reload();
 		},
 		/**
-		 * Shows the Credits dialog window.
+		 * shows the Credits dialog window.
+		 * 
+		 * @return {Void} Function doesn't return anything
 		 */
 		openCredits() {
 			var message = "PileMd was originally created by Hiroki KIYOHARA.\n"+
@@ -1022,9 +1092,10 @@ var appVue = new Vue({
 			}]);
 		},
 		/**
-		 * Change the application theme.
+		 * change the application theme.
 		 * 
 		 * @param  {String}  value  The theme name
+		 * @return {Void} Function doesn't return anything
 		 */
 		changeTheme(value) {
 			var allowedThemes = ['original', 'light', 'dark'];
@@ -1046,13 +1117,16 @@ var appVue = new Vue({
 						body.classList.remove('light-theme');
 						body.classList.remove('original-theme');
 						break;
+					default:
+						break;
 				}
 			}
 		},
 		/**
-		 * Change how notes are sorted in the sidebar
+		 * change how notes are sorted in the sidebar
 		 *
-		 * @param      {String}  value   The sort by field
+		 * @param  {String}  value   The sort by field
+		 * @return {Void} Function doesn't return anything
 		 */
 		changeDisplayOrder(value) {
 			var allowedOrders = ['updatedAt', 'createdAt', 'title'];
@@ -1061,12 +1135,13 @@ var appVue = new Vue({
 			}
 		},
 		/**
-		 * Sends a Flash Message.
+		 * sends a Flash Message.
 		 *
-		 * @param      {Integer}    period   How long it will last (in ms)
-		 * @param      {String}     level    Flash level (info,error)
-		 * @param      {String}     text     Flash message text
-		 * @param      {String}     url      Url to open when Flash Message is clicked
+		 * @param    {Integer}    period   How long it will last (in ms)
+		 * @param    {String}     level    Flash level (info,error)
+		 * @param    {String}     text     Flash message text
+		 * @param    {String}     url      Url to open when Flash Message is clicked
+		 * @return {Void} Function doesn't return anything
 		 */
 		sendFlashMessage(period, level, text, url) {
 			var message = {
@@ -1081,10 +1156,12 @@ var appVue = new Vue({
 			}, message.period);
 		},
 		/**
-		 * Calculates the sidebar width and
+		 * calculates the sidebar width and
 		 * changes the main container margins to accomodate it.
 		 * If the application is in fullscreen mode (sidebar hidden)
 		 * then the sidebar is moved outside of the visible workspace.
+		 * 
+		 * @return {Void} Function doesn't return anything
 		 */
 		update_editor_size() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
@@ -1111,7 +1188,9 @@ var appVue = new Vue({
 			}, 5);
 		},
 		/**
-		 * Saves the sidebar width (both racks and notes lists).
+		 * saves the sidebar width (both racks and notes lists).
+		 * 
+		 * @return {Void} Function doesn't return anything
 		 */
 		save_editor_size() {
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
@@ -1128,7 +1207,8 @@ var appVue = new Vue({
 			this.save_editor_size();
 		},
 		/**
-		 * Update the context menu in the system tray icon.
+		 * update the context menu in the system tray icon.
+		 * @return {Void} Function doesn't return anything
 		 */
 		updateTrayMenu: _.debounce(function () {
 				var self = this;
@@ -1146,8 +1226,7 @@ var appVue = new Vue({
 					 */
 					self.changeNote(note);
 				});
-			}, 500
-		)
+			}, 500)
 	},
 	watch: {
 		isPreview() {
@@ -1184,8 +1263,8 @@ var appVue = new Vue({
 					filteredNotes.forEach((note) => {
 						if(!note.body) note.loadBody();
 					});
-				} else {
-					if(newData) this.folders = this.folders.concat( newData );
+				} else if(newData) {
+					this.folders = this.folders.concat(newData);
 				}
 				this.update_editor_size();
 			}

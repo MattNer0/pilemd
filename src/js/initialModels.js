@@ -4,9 +4,14 @@ const path = require('path');
 const models = require('./models');
 const elosenv = require('./utils/elosenv');
 
+/**
+ * @function initialFolder
+ * @return {Void} Function doesn't return anything
+ */
 function initialFolder() {
 	var p = path.join(elosenv.workingDirectory(), 'library');
-	try { fs.accessSync(p, fs.W_OK | fs.R_OK);
+	try {
+		fs.accessSync(p, fs.W_OK | fs.R_OK);
 	} catch (e) {
 		p = path.join(elosenv.homePath(), 'library');
 	}
@@ -14,9 +19,17 @@ function initialFolder() {
 	try {
 		models.setBaseLibraryPath(p);
 		if (!fs.existsSync(p)) fs.mkdirSync(p);
-	} catch (e) {}
+	} catch (e) {
+		console.warn(e);
+	}
 }
 
+/**
+ * @function makeInitialNotes
+ * @param  {Object} rack   Initial rack
+ * @param  {Object} folder Initial Folder
+ * @return {Array} Array with the new Note
+ */
 function makeInitialNotes(rack, folder) {
 
 	var note = new models.Note({
@@ -41,24 +54,11 @@ function makeInitialNotes(rack, folder) {
 	return [note];
 }
 
-function makeInitialRacks() {
-
-	var rack1 = new models.Rack({
-		name: 'Work',
-		ordering: 0,
-		load_ordering: false
-	});
-
-	models.Rack.setModel(rack1);
-	var folders = makeInitialFolders(rack1);
-
-	return {
-		rack1: rack1,
-		folder1: folders[0],
-		folder2: folders[1]
-	};
-}
-
+/**
+ * @function makeInitialFolders
+ * @param  {Object} rack1 {description}
+ * @return {Array} Array of folders
+ */
 function makeInitialFolders(rack1) {
 	var folder1 = new models.Folder({
 		name: 'Todo',
@@ -80,6 +80,33 @@ function makeInitialFolders(rack1) {
 	return [folder1, folder2];
 }
 
+/**
+ * @function makeInitialRacks
+ * @return {Object} {description}
+ */
+function makeInitialRacks() {
+
+	var rack1 = new models.Rack({
+		name: 'Work',
+		ordering: 0,
+		load_ordering: false
+	});
+
+	models.Rack.setModel(rack1);
+	var folders = makeInitialFolders(rack1);
+
+	return {
+		rack1: rack1,
+		folder1: folders[0],
+		folder2: folders[1]
+	};
+}
+
+/**
+ * @function initialSetup
+ * @param  {Array} racks Array of the initial racks
+ * @return {Array} Note Array
+ */
 function initialSetup(racks) {
 	var initialData;
 	if (racks.length == 0) {

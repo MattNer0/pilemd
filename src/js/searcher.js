@@ -1,12 +1,20 @@
 const _ = require('lodash');
 const models = require('./models');
 
+/**
+ * @function allWords
+ * @param  {String} text  {description}
+ * @param  {Array} words {description}
+ * @return {Boolean} {description}
+ */
 function allWords(text, words) {
-	/**
+	/*
 	 * allWords("Hello Goodbye", ["ell", "oo"]) => true
 	 * allWords("Hi Goodbye", ["ell", "oo"]) => false
 	 */
-	return _.every(_.map(words, (word) => { return _.includes(text, word) }));
+	return _.every(_.map(words, (word) => {
+		return _.includes(text, word);
+	}));
 }
 
 module.exports = {

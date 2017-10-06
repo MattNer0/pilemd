@@ -2,10 +2,11 @@ var fs = require('fs');
 var path = require('path');
 
 /**
- * Copy source file into the target directory.
+ * copy source file into the target directory.
  *
- * @param      {String}   source  The source
- * @param      {String}   target  The target
+ * @param  {String}   source  The source
+ * @param  {String}   target  The target
+ * @return {Void} Function doesn't return anything
  */
 function copyFileSync(source, target) {
 	var targetFile = target;
@@ -20,10 +21,11 @@ function copyFileSync(source, target) {
 }
 
 /**
- * Move source file into the target directory.
+ * move source file into the target directory.
  *
- * @param      {String}   source  The source
- * @param      {String}   target  The target
+ * @param  {String}   source  The source
+ * @param  {String}   target  The target
+ * @return {Void} Function doesn't return anything
  */
 function moveFileSync(source, target) {
 	var targetFile = target;
@@ -39,7 +41,7 @@ function moveFileSync(source, target) {
 
 module.exports = {
 	safeName(name) {
-		return name.replace(/[\/\\¥]/g, '-');
+		return name.replace(/[/\\¥]/g, '-');
 	},
 	copyFolderRecursiveSync(source, target) {
 		var files = [];

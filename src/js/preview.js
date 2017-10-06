@@ -1,5 +1,5 @@
-/**
- * Module to render HTML for preview
+/*
+ * module to render HTML for preview
  */
 
 const marked = require('marked');
@@ -108,20 +108,15 @@ highlightjs.registerLanguage('xl', require('highlight.js/lib/languages/xl'));
 highlightjs.registerLanguage('xquery', require('highlight.js/lib/languages/xquery'));
 highlightjs.registerLanguage('yaml', require('highlight.js/lib/languages/yaml'));
 
-const CHECKBOX_TEMP = _.template(
-	'<li class="checkbox <%- checked ? \'checkbox-checked\' : \'\' %>"><label>' +
-		'<span><input data-value="<%- data %>" type="checkbox" <%- checked ? \'checked\' : \'\' %> /></span> <%= text %>' +
-	'</label></li>'
-);
+const temp_CHECKBOX = _.template('<li class="checkbox <%- checked ? \'checkbox-checked\' : \'\' %>"><label>' +
+	'<span><input data-value="<%- data %>" type="checkbox" <%- checked ? \'checked\' : \'\' %> /></span> <%= text %>' +
+	'</label></li>');
 
-const IMGTAG_TEMP = _.template(
-	'<a href="#" onclick="appVue.openImg(\'<%- link %>\'); return false">' +
+const temp_IMGTAG = _.template('<a href="#" onclick="appVue.openImg(\'<%- link %>\'); return false">' +
 	'<img src="<%- link %>" alt="<%- alt %>" />' +
-	'</a>'
-);
+	'</a>');
 
-const ATAG_TO_EXTERNAL_TEMP = _.template(
-	'<a href="<%- href %>" title="<%- title %>" ' +
+const temp_ATAG_TO_EXTERNAL = _.template('<a href="<%- href %>" title="<%- title %>" ' +
 	'onclick="require(\'electron\').shell.openExternal(\'<%- href %>\'); ' +
 	'return false;"' +
 	'oncontextmenu="var remote = new require(\'electron\').remote; ' +
@@ -132,18 +127,15 @@ const ATAG_TO_EXTERNAL_TEMP = _.template(
 	'click: function() {require(\'electron\').clipboard.writeText(\'<%- href %>\')}}));' +
 	'm.popup(remote.getCurrentWindow()); return false;">' +
 	'<%= text %>' +
-	'</a>'
-);
+	'</a>');
 
-const ATAG_TO_INTERNAL_TEMP = _.template(
-	'<a href="<%- href %>" title="<%- title %>"><%= text %></a>'
-);
+const temp_ATAG_TO_INTERNAL = _.template('<a href="<%- href %>" title="<%- title %>"><%= text %></a>');
 
 var renderer = new marked.Renderer();
 
 renderer.listitem = function(text) {
 	if (/^<p>\s*\[[x ]\]\s*/.test(text)) {
-		text = text.replace(/<[\/]{0,1}p>/g, '');
+		text = text.replace(/<[/]{0,1}p>/g, '');
 	}
 
 	if (/^\s*\[[x ]\]\s*/.test(text)) {
@@ -151,39 +143,46 @@ renderer.listitem = function(text) {
 		var clean_text = text.replace(/^\s*\[ \]\s*/, '').replace(/^\s*\[x\]\s*/, '');
 
 		var escapedText = clean_text.toLowerCase().replace(/[^\w]+/g, '-');
-		var duplicateIndex = checkboxes.map(function(h) { return h.text }).indexOf(escapedText);
+		var duplicateIndex = checkboxes.map(function(h) {
+			return h.text;
+		}).indexOf(escapedText);
 		var duplicateText;
 		if (duplicateIndex === -1) {
 			checkboxes.push({
-			  text: escapedText,
-			  count: 0
+				text: escapedText,
+				count: 0
 			});
 		} else {
 			checkboxes[duplicateIndex].count++;
 			duplicateText = escapedText + '-' + checkboxes[duplicateIndex].count;
 		}
-		return CHECKBOX_TEMP({
+		return temp_CHECKBOX({
 			checked: (/^\s*\[x\]\s*/.test(text)),
 			data: (duplicateText || escapedText),
 			text: clean_text
 		});
-	} else {
-		return '<li>' + text + '</li>';
 	}
+	return '<li>' + text + '</li>';
 };
 
-renderer.image = function(href, title, text) {
-	return IMGTAG_TEMP({link: href, alt: title || ''});
+renderer.image = function(href, title) {
+	// next parameter: text
+	return temp_IMGTAG({
+		link: href,
+		alt: title || ''
+	});
 };
 
 renderer.heading = function(text, level) {
 	var escapedText = text.toLowerCase().replace(/[^\w]+/g, '-');
-	var duplicateIndex = headings.map(function(h) { return h.text }).indexOf(escapedText);
+	var duplicateIndex = headings.map(function(h) {
+		return h.text;
+	}).indexOf(escapedText);
 	var duplicateText;
 	if (duplicateIndex === -1) {
 		headings.push({
-		  text: escapedText,
-		  count: 0
+			text: escapedText,
+			count: 0
 		});
 	} else {
 		headings[duplicateIndex].count++;
@@ -194,18 +193,17 @@ renderer.heading = function(text, level) {
 
 renderer.link = function(href, title, text) {
 	if (href.indexOf('http') == 0) {
-		return ATAG_TO_EXTERNAL_TEMP({
-			href: href,
-			title: title,
-			text: text
-		});
-	} else {
-		return ATAG_TO_INTERNAL_TEMP({
+		return temp_ATAG_TO_EXTERNAL({
 			href: href,
 			title: title,
 			text: text
 		});
 	}
+	return temp_ATAG_TO_INTERNAL({
+		href: href,
+		title: title,
+		text: text
+	});
 };
 
 marked.setOptions({
@@ -239,20 +237,18 @@ module.exports = {
 					event.preventDefault();
 					if (event.target.tagName == 'A') return;
 					var i = 0;
-					var ok = note.body.replace(/[\*\-]\s*(\[[x ]\])/g, function(x) {
+					var ok = note.body.replace(/[*-]\s*(\[[x ]\])/g, function(x) {
 						x = x.replace(/\s/g, ' ');
 						var start = x.charAt(0);
 						if (i == index) {
 							i++;
 							if (x == start + ' [x]') {
 								return start + ' [ ]';
-							} else {
-								return start + ' [x]';
 							}
-						} else {
-							i++;
-							return x;
+							return start + ' [x]';
 						}
+						i++;
+						return x;
 					});
 					note.body = ok;
 				};

@@ -58,8 +58,8 @@ module.exports = {
 		lines_array.forEach(function(row, index) {
 			row = row.trim();
 			if (/^<dd>/i.test(row)) {
-
-			} else if (row && !/^<!.+>/.test(row) && !/^<meta.+>/i.test(row)) {
+				// row
+			} else if (row && !(/^<!.+>/).test(row) && !(/^<meta.+>/i).test(row)) {
 				row = row.replace(/^<DT>/, '');
 				row = row.replace(/<p>/, '');
 
@@ -105,6 +105,8 @@ module.exports = {
 							folder_index += 1;
 							result_folder = {};
 						}
+						break;
+					default:
 						break;
 				}
 			}

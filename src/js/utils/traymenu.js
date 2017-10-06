@@ -26,7 +26,8 @@ module.exports = {
 				}
 			}
 		}, { type: 'separator' }].concat(menu_array, [{ type: 'separator' }, {
-			label: 'Quit', click: function() {
+			label: 'Quit',
+			click: function() {
 				electron.remote.app.isQuiting = true;
 				electron.remote.app.quit();
 			}
@@ -35,7 +36,8 @@ module.exports = {
 		appIcon.setContextMenu(contextMenu);
 
 		if (mainWindow.isVisible()) {
-			mainWindow.setVisibleOnAllWorkspaces(false); //probably useless
+			//probably useless
+			mainWindow.setVisibleOnAllWorkspaces(false);
 		} else {
 			mainWindow.setVisibleOnAllWorkspaces(true);
 		}
@@ -68,7 +70,6 @@ module.exports = {
 		if (appIcon) this.refreshTrayMenu();
 	},
 	oneRackMenuItem(rack, rackfolder_cb, note_cb) {
-		var self = this;
 		var folder_array = [];
 		if (rack.folders) {
 			for (var i = 0; i < rack.folders.length; i++) {
@@ -85,7 +86,6 @@ module.exports = {
 		};
 	},
 	oneFolderMenuItem(folder, rackfolder_cb, note_cb) {
-		var self = this;
 		var note_array = [];
 		if (folder.notes) {
 			for (var i = 0; i < folder.notes.length; i++) {
