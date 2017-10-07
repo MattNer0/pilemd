@@ -49,8 +49,11 @@
 
 <script>
 	const remote = require('electron').remote;
+	const { Menu, MenuItem } = remote;
+	/*
 	const Menu = remote.Menu;
 	const MenuItem = remote.MenuItem;
+	*/
 
 	const Vue = require('vue');
 
@@ -61,9 +64,13 @@
 	const dragging = require('../utils/dragging');
 
 	const models = require('../models');
+	const { Rack, Folder, Note } = models;
+
+	/*
 	const Rack = models.Rack;
 	const Folder = models.Folder;
 	const Note = models.Note;
+	*/
 
 	export default {
 		name: 'racks',

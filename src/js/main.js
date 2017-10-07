@@ -22,9 +22,13 @@ var searcher = require('./searcher');
 // electron things
 const electron = require('electron');
 const remote = electron.remote;
+const { Menu, MenuItem, dialog } = remote;
+
+/*
 const Menu = remote.Menu;
 const MenuItem = remote.MenuItem;
 const dialog = remote.dialog;
+*/
 
 var arr = require('./utils/arr');
 

@@ -22,6 +22,11 @@
 							i.material-icons(v-if="loading") cached
 							img(:src="favicon", v-else)
 						input(v-model="currentUrl", type="text")
+				li.center
+					a(@click.prevent="pageMuted(false)", href="#", v-if="isMuted"): span
+						i.material-icons volume_off
+					a(@click.prevent="pageMuted(true)", href="#", v-else): span
+						i.material-icons volume_up
 
 		webview(ref="browserview", id="browserview", src="about:blank",
 			v-on:page-favicon-updated="pageFaviconUpdated",
@@ -37,12 +42,13 @@
 	import myDropdown from 'vue-my-dropdown';
 
 	const electron = require('electron');
-	const {remote, ipcRenderer} = electron;
+	const { remote, ipcRenderer, clipboard } = electron;
 
 	export default {
 		name: 'browser',
 		props: {
 			'bookmark': Object,
+			'sendFlashMessage': Function
 		},
 		components: {
 			'dropdown': myDropdown
@@ -52,7 +58,9 @@
 				'initialized': false,
 				'currentUrl' : 'about:blank',
 				'favicon': '',
-				'loading': false
+				'loading': false,
+				'isMuted': false,
+				'webOptions': {}
 			};
 		},
 		methods: {
@@ -83,6 +91,11 @@
 			stopRefreshPage(e) {
 				this.$refs.browserview.stop();
 			},
+			pageMuted(muted) {
+				console.log(muted);
+				this.isMuted = muted;
+				this.$refs.browserview.setAudioMuted(muted);
+			},
 			pageFaviconUpdated(e) {
 				if(e.favicons && e.favicons.length > 0) {
 					this.favicon = e.favicons[0];
@@ -90,6 +103,7 @@
 			},
 			didFinishLoad(e) {
 				this.loading = false;
+				this.webOptions = {};
 				this.currentUrl = this.$refs.browserview.getURL();
 			},
 			didFailLoad(e) {
@@ -119,6 +133,7 @@
 				}
 			},
 			contextMenu(e, props) {
+				var self = this;
 				var win = remote.getCurrentWindow();
 
 				if (props.isEditable) {
@@ -162,13 +177,83 @@
 							ipcRenderer.send('download-btn', { url: props.srcURL });
 						}
 					}, {
-						type: 'separator',
+						type: 'separator'
 					}, {
 						label: 'Save Image As',
 						click() {
 							ipcRenderer.send('download-btn', { url: props.srcURL, options: { saveAs: true } });
 						}
 					}];
+				} else if (props.linkURL) {
+					var menuTemplate = [{
+						label: 'Open Url',
+						click() {
+							self.backToBookmark({ body: props.linkURL });
+						}
+					}, {
+						type: 'separator'
+					}, {
+						label: 'Copy Link Address',
+						click() {
+							clipboard.writeText(props.linkURL);
+							self.sendFlashMessage(2000, 'info', 'Url Copied to Clipboard');
+						}
+					}];
+				} else {
+					var menuTemplate = [{
+						label: 'Back',
+						enabled: self.$refs.browserview.canGoBack(),
+						click() {
+							self.navigateBack();
+						}
+					}, {
+						label: 'Forward',
+						enabled: self.$refs.browserview.canGoForward(),
+						click() {
+							self.navigateForward();
+						}
+					}, {
+						label: 'Reload',
+						click() {
+							self.refreshPage();
+						}
+					}, {
+						type: 'separator'
+					}, {
+						label: 'Clear History',
+						click() {
+							self.$refs.browserview.clearHistory();
+						}
+					}];
+
+					if (self.$refs.browserview.isDevToolsOpened()) {
+						menuTemplate.push({
+							label: 'Close Dev Tools',
+							click() {
+								self.$refs.browserview.closeDevTools();
+							}
+						})
+					} else {
+						menuTemplate.push({
+							label: 'Open Dev Tools',
+							click() {
+								self.$refs.browserview.openDevTools();
+							}
+						})
+					}
+
+					if (self.currentUrl.indexOf('https://twitter.com/') == 0 && !self.webOptions['twitter'] ) {
+						menuTemplate.unshift({ type: 'separator' });
+						menuTemplate.unshift({
+							label: 'Show Hidden Content',
+							click() {
+								self.webOptions['twitter'] = true;
+								self.$refs.browserview.insertCSS(
+									'.Tombstone + .u-hidden{display:inherit !important;} .Tombstone{display:none !important;}'
+								);
+							}
+						});
+					}
 				}
 
 				if (menuTemplate) {

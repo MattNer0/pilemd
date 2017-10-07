@@ -11,18 +11,25 @@
 	const Image = require('../models').Image;
 
 	const electron = require('electron');
-	const remote = electron.remote;
+	const { remote, shell, clipboard } = electron;
+	const { Menu, MenuItem, dialog } = remote;
+
+	/*
 	const Menu = remote.Menu;
 	const MenuItem = remote.MenuItem;
 	const shell = electron.shell;
 	const dialog = remote.dialog;
-
 	const clipboard = electron.clipboard;
-	const elutils = require('../codemirror/elutils');
+	*/
+
+	const { copyText, cutText, pasteText, selectAllText } = require('../codemirror/elutils');
+
+	/*
 	const copyText = elutils.copyText;
 	const cutText = elutils.cutText;
 	const pasteText = elutils.pasteText;
 	const selectAllText = elutils.selectAllText;
+	*/
 
 	const IMAGE_TAG_TEMP = _.template('![<%- filename %>](<%- fileurl %>)\n');
 
@@ -201,16 +208,6 @@
 						cm.swapDoc(doc);
 					}
 				}, { immediate: true });
-				
-				/*this.$watch('note.body', function(value) {
-					if (cm.doc.getValue() != value) {
-						// Note updated by outers.
-						// TODO more correct way to detect the state.
-						var c = cm.doc.getCursor();
-						cm.doc.setValue(value);
-						cm.doc.setCursor(c);
-					}
-				});*/
 			});
 		},
 		methods: {

@@ -50,9 +50,13 @@
 	// Electron things
 	const electron = require('electron');
 	const remote = electron.remote;
+	const { Menu, MenuItem, dialog } = remote;
+	
+	/*
 	const Menu = remote.Menu;
 	const MenuItem = remote.MenuItem;
 	const dialog = remote.dialog;
+	*/
 
 	const models = require('../models');
 	const Note = models.Note;
