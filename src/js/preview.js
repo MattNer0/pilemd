@@ -6,10 +6,9 @@ const marked = require('marked');
 const _ = require('lodash');
 const highlightjs = require('highlight.js/lib/highlight');
 
-const Image = require('./models').Image;
-
 var checkboxes = [];
 var headings = [];
+var headings_id = [];
 
 highlightjs.registerLanguage('accesslog', require('highlight.js/lib/languages/accesslog'));
 highlightjs.registerLanguage('actionscript', require('highlight.js/lib/languages/actionscript'));
@@ -188,7 +187,12 @@ renderer.heading = function(text, level) {
 		headings[duplicateIndex].count++;
 		duplicateText = escapedText + '-' + headings[duplicateIndex].count;
 	}
-	return '<h' + level + ' id="' + (duplicateText || escapedText) + '">' + text + '</h' + level + '>';
+	headings_id.push({
+		id: 'h_' + (duplicateText || escapedText),
+		text: text,
+		level: level
+	});
+	return '<h' + level + ' id="h_' + (duplicateText || escapedText) + '">' + text + '</h' + level + '>';
 };
 
 renderer.link = function(href, title, text) {
@@ -227,9 +231,16 @@ var forEach = function(array, callback, scope) {
 };
 
 module.exports = {
+	/**
+	 * @function render
+	 * @param {Object} note Selected note
+	 * @param {Object} v Vue Instance
+	 * @return {String} Html version of note content
+	 */
 	render(note, v) {
 		headings = [];
 		checkboxes = [];
+		headings_id = [];
 		var p = marked(note.bodyWithDataURL);
 		v.$nextTick(() => {
 			forEach(document.querySelectorAll('li.checkbox'), (index, el) => {
@@ -255,5 +266,8 @@ module.exports = {
 			});
 		});
 		return p;
+	},
+	getHeadings() {
+		return headings_id;
 	}
 };

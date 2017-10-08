@@ -24,12 +24,6 @@ const electron = require('electron');
 const remote = electron.remote;
 const { Menu, MenuItem, dialog } = remote;
 
-/*
-const Menu = remote.Menu;
-const MenuItem = remote.MenuItem;
-const dialog = remote.dialog;
-*/
-
 var arr = require('./utils/arr');
 
 // vue.js plugins
@@ -83,6 +77,7 @@ var appVue = new Vue({
 		draggingNote: null,
 		allDragHover: false,
 		messages: [],
+		noteHeadings: [],
 		modalShow: false,
 		modalTitle: 'title',
 		modalDescription: 'description',
@@ -216,7 +211,7 @@ var appVue = new Vue({
 
 		var last_history = libini.readKey(models.getBaseLibraryPath(), 'history');
 		if (last_history && last_history.rack.length > 0) {
-			last_history.rack.forEach((r, i) => {
+			last_history.rack.forEach((r) => {
 				this.readRackContent(this.racks[r]);
 			});
 			this.updateTrayMenu();
@@ -228,32 +223,29 @@ var appVue = new Vue({
 				var notePath = argv[1];
 				var noteData = models.Note.isValidNotePath(notePath);
 				var openedNote;
-				if (noteData) {
-					console.log('opened note', notePath);
-					if (notePath.indexOf(models.getBaseLibraryPath()) == 0) {
-						var openedRack = this.racks.find((rack) => {
-							return rack.data.path == path.join(path.dirname(notePath), '..');
-						});
-						if(openedRack) this.readRackContent(openedRack);
-						openedNote = this.notes.find((note) => {
-							return note.data.path == notePath;
-						});
-						if(openedNote) {
-							this.changeRackOrFolder(openedNote.data.folder);
-							this.changeNote(openedNote);
-						}
-					} else if(noteData.ext == '.mdencrypted' ) {
-						// encripted note
-					} else {
-						openedNote = new models.Note({
-							name: path.basename(notePath, noteData.ext),
-							body: "",
-							path: notePath,
-							extension: noteData.ext
-						});
-						this.notes.push(openedNote);
+				if (noteData && notePath.indexOf(models.getBaseLibraryPath()) == 0) {
+					var openedRack = this.racks.find((rack) => {
+						return rack.data.path == path.join(path.dirname(notePath), '..');
+					});
+					if (openedRack) this.readRackContent(openedRack);
+					openedNote = this.notes.find((note) => {
+						return note.data.path == notePath;
+					});
+					if (openedNote) {
+						this.changeRackOrFolder(openedNote.data.folder);
 						this.changeNote(openedNote);
 					}
+				} else if(noteData && noteData.ext == '.mdencrypted' ) {
+					// encripted note
+				} else if(noteData) {
+					openedNote = new models.Note({
+						name: path.basename(notePath, noteData.ext),
+						body: "",
+						path: notePath,
+						extension: noteData.ext
+					});
+					this.notes.push(openedNote);
+					this.changeNote(openedNote);
 				} else {
 					console.log('path not valid!');
 				}
@@ -553,7 +545,7 @@ var appVue = new Vue({
 		 * @param  {Object}  folder  The folder
 		 * @return {Void} Function doesn't return anything
 		 */
-		folderDragEnded(rack, folder) {
+		folderDragEnded(rack) {
 			if(!rack) return;
 			rack.folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
 		},
@@ -1210,46 +1202,49 @@ var appVue = new Vue({
 			this.update_editor_size();
 			this.save_editor_size();
 		},
+		updatePreview() {
+			if(this.isPreview && this.selectedNote.data) {
+				this.preview = preview.render(this.selectedNote, this);
+				this.noteHeadings = preview.getHeadings();
+			}
+		},
 		/**
 		 * update the context menu in the system tray icon.
 		 * @return {Void} Function doesn't return anything
 		 */
 		updateTrayMenu: _.debounce(function () {
-				var self = this;
-				traymenu.setRacks(this.racks, (rack) => {
-					/**
-					 * function called when user clicks on a rack or folder in the tray menu
-					 * @param {Object}  rack  selected rack or folder in the tray menu
-					 */
-					self.openRack(rack);
-					self.changeRackOrFolder(rack);
-				}, (note) => {
-					/**
-					 * function called when user click on a note or bookmark in the tray menu
-					 * @param {Object}  note  selected note
-					 */
-					self.changeNote(note);
-				});
-			}, 500)
+			var self = this;
+			traymenu.setRacks(this.racks, (rack) => {
+				/**
+				 * function called when user clicks on a rack or folder in the tray menu
+				 * @param {Object}  rack  selected rack or folder in the tray menu
+				 */
+				self.openRack(rack);
+				self.changeRackOrFolder(rack);
+			}, (note) => {
+				/**
+				 * function called when user click on a note or bookmark in the tray menu
+				 * @param {Object}  note  selected note
+				 */
+				self.changeNote(note);
+			});
+		}, 500)
 	},
 	watch: {
 		isPreview() {
-			if(this.selectedNote.data){
-				this.preview = preview.render(this.selectedNote, this);
-			}
+			this.updatePreview();
 			this.scrollUpScrollbarNote();
 		},
 		fontsize() {
 			settings.set('fontsize', this.fontsize);
 		},
 		selectedNote() {
+			this.noteHeadings = [];
+			this.updatePreview();
 			if (this.selectedNote.data) {
-				if(this.isPreview) {
-					this.preview = preview.render(this.selectedNote, this);
-				}
 				this.selectedRackOrFolder = this.selectedNote.data.folder;
+				this.scrollUpScrollbarNote();
 			}
-			this.scrollUpScrollbarNote();
 		},
 		'selectedNote.body': function() {
 			this.saveNote();

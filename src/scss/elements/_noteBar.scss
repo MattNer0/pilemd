@@ -10,13 +10,45 @@
 		opacity: 0.4;
 	}
 
-	.properties-dialog, .table-dialog {
+	.properties-dialog, .table-dialog, .headings-dialog {
 		background: $note-background-color;
 		padding: 0.3em;
 		border-radius: 0.3em;
 		border: 1px solid $note-bar-text-color;
 		cursor: default;
+	}
 
+	.headings-dialog {
+		a {
+			display: block;
+			color: $note-bar-text-color;
+			cursor: pointer;
+		}
+
+		a:hover {
+			color: $note-text-color;
+		}
+
+		a.h {
+			padding-left: 1.4em;
+			max-width: 27em;
+			border-bottom: 1px solid #eaeaea;
+		}
+
+		a.h:last-child {
+			border-bottom: none;
+		}
+
+		a.hlvl2 {
+			padding-left: 0.7em;
+		}
+
+		a.hlvl1 {
+			padding-left: 0;
+		}
+	}
+
+	.properties-dialog, .table-dialog {
 		table {
 			width: 100%;
 			min-width: 14em;

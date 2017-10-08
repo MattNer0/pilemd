@@ -42,7 +42,7 @@
 				li.has-sub.right-align
 					dropdown(:visible="order_visible", :position="position", v-on:clickout="order_visible = false")
 						span.link(@click="order_visible = !order_visible")
-							i.material-icons swap_vert
+							i.material-icons sort
 							span.sub-text(v-if="notesDisplayOrder == 'updatedAt'")
 								| Sort by Update Date
 							span.sub-text(v-if="notesDisplayOrder == 'createdAt'")

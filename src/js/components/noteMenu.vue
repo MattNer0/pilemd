@@ -28,6 +28,15 @@
 							span(v-else)
 								| Select the Table Size
 
+			li(v-show="isPreview && noteHeadings && noteHeadings.length > 1")
+				div: dropdown(:visible="headings_visible", :position="position_left", v-on:clickout="headings_visible = false")
+					span.link(@click="headings_visible = !headings_visible", title="Headings")
+						i.material-icons list
+						|  Outline
+					.dialog(slot="dropdown")
+						.headings-dialog(@click="close_headings")
+							a.h(v-for="head in noteHeadings", @click.prevent="jumpTo(head.id)", :class="'hlvl'+head.level", v-html="head.text")
+
 			li.right-align: a(@click="togglePreview", href="#", title="Preview")
 				template(v-if="isPreview")
 					i.material-icons visibility_off
@@ -129,6 +138,7 @@
 			'isFullScreen': Boolean,
 			'isPreview': Boolean,
 			'fontsize': Number,
+			'noteHeadings': Array,
 			'togglePreview': Function,
 			'isNoteSelected': Boolean,
 			'sendFlashMessage': Function
@@ -137,6 +147,7 @@
 			return {
 				'fontsize_visible': false,
 				'properties_visible': false,
+				'headings_visible': false,
 				'table_visible': false,
 				'table_max_row': 10,
 				'table_max_column': 10,
@@ -159,6 +170,9 @@
 			close_table() {
 				this.table_visible = false;
 				this.tableClean();
+			},
+			close_headings() {
+				this.headings_visible = false;
 			},
 			tableClean() {
 				for (var i=0;i<this.table_max_row;i++) {
@@ -294,6 +308,12 @@
 				this.$refs.valueinput.value = '';
 				this.$refs.keyinput.value = '';
 				this.properties_visible = true;
+			},
+			jumpTo(anchor) {
+				var editor = document.querySelector('.my-editor');
+				var pos = document.querySelector('.my-editor #'+anchor);
+
+				editor.scrollTop = Math.max(0, pos.offsetTop - pos.clientHeight - 10);
 			}
 		}
 	}
