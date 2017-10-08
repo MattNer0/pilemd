@@ -14,22 +14,7 @@
 	const { remote, shell, clipboard } = electron;
 	const { Menu, MenuItem, dialog } = remote;
 
-	/*
-	const Menu = remote.Menu;
-	const MenuItem = remote.MenuItem;
-	const shell = electron.shell;
-	const dialog = remote.dialog;
-	const clipboard = electron.clipboard;
-	*/
-
 	const { copyText, cutText, pasteText, selectAllText } = require('../codemirror/elutils');
-
-	/*
-	const copyText = elutils.copyText;
-	const cutText = elutils.cutText;
-	const pasteText = elutils.pasteText;
-	const selectAllText = elutils.selectAllText;
-	*/
 
 	const IMAGE_TAG_TEMP = _.template('![<%- filename %>](<%- fileurl %>)\n');
 
