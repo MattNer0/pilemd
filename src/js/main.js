@@ -11,7 +11,6 @@ const libini = require('./utils/libini');
 const traymenu = require('./utils/traymenu');
 const htmlToMarkdown = require('./utils/htmlToMarkdown');
 
-//var Vue = require('vue');
 import Vue from 'vue';
 
 var models = require('./models');
@@ -69,6 +68,7 @@ var appVue = new Vue({
 		racks: [],
 		folders: [],
 		notes: [],
+		bookmarksDomains: [],
 		selectedRackOrFolder: null,
 		search: "",
 		selectedNote: {},
@@ -199,6 +199,16 @@ var appVue = new Vue({
 		this.racks = arr.sortBy(racks.slice(), 'ordering', true);
 		this.folders = folders;
 		this.notes = notes;
+
+		if(this.racks && this.racks.length > 0) {
+			var domain_array = [];
+			for( var i=0; i < this.racks.length; i++) {
+				if(this.racks[i] instanceof models.BookmarkRack) {
+					domain_array = domain_array.concat(this.racks[i].domains());
+				}
+			}
+			this.bookmarksDomains = _.uniq(domain_array);
+		}
 
 		if(initial_notes.length > 0){
 			initial_notes[0].data.rack.openFolders = true;
@@ -799,6 +809,7 @@ var appVue = new Vue({
 				cb(data) {
 					if(bookmark.body != data.bkurl || !bookmark.attributes['THUMBNAIL']) {
 						models.BookmarkFolder.setBookmarkNameUrl(bookmark, data.bkname, data.bkurl);
+						this.bookmarksDomains.push(models.BookmarkFolder.getDomain({ body: data.bkurl }));
 						self.refreshBookmarkThumb(bookmark);
 					} else {
 						models.BookmarkFolder.setBookmarkNameUrl(bookmark, data.bkname, data.bkurl);

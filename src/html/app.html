@@ -92,6 +92,7 @@
 						<div class="my-internal-browser" v-show="selectedBookmark.name">
 							<browser
 								:bookmark="selectedBookmark"
+								:bookmarks-domains="bookmarksDomains"
 								:send-flash-message="sendFlashMessage"
 								ref="refBrowser">
 							</browser>

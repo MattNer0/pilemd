@@ -921,6 +921,21 @@ class BookmarkFolder extends Folder {
 		this._rack.saveModel();
 	}
 
+	domains() {
+		if(this.notes) {
+			var d_array = [];
+			for( var i = 0; i < this.notes.length; i++) {
+				d_array.push(BookmarkFolder.getDomain(this.notes[i]));
+			}
+			return d_array;
+		}
+		return [];
+	}
+
+	static getDomain(bookmark) {
+		return bookmark.body.replace(/https?:\/\/([^./]*\.)?([^/./]+\.[^/./]+)(\/.*)?/,'$2');
+	}
+
 	static newEmptyBookmark(folder) {
 		var today = moment();
 		var attributes = {
@@ -956,7 +971,7 @@ class BookmarkFolder extends Folder {
 		bookmark.body = url;
 	}
 
-	static setBookmarkIcon(bookmark, favicon_url, favicon) {
+	static setBookmarkIcon(bookmark, favicon_url) {
 		if(!bookmark || !favicon_url) return;
 		bookmark.attributes['ICON_URI'] = favicon_url;
 		var http = require('http');
@@ -1208,6 +1223,17 @@ class BookmarkRack extends Rack {
 		this._name = newName;
 	}
 
+	domains() {
+		if(this.folders) {
+			var d_array = [];
+			for(var i=0; i< this.folders.length; i++) {
+				d_array = d_array.concat(this.folders[i].domains());
+			}
+			return d_array;
+		}
+		return [];
+	}
+
 	set path(newValue) {
 		if (newValue != this._path) {
 			try {
@@ -1275,14 +1301,14 @@ class BookmarkRack extends Rack {
 		this._bookmarks.name = this._name;
 		var string_html = bookmarksConverter.stringify(this._bookmarks);
 
-		if(this.document_filename){
+		if(this.document_filename) {
 			var new_path = path.join(outer_folder, this.document_filename) + this._ext;
-			if(new_path != this.path){
+			if(new_path != this.path) {
 				var num = 1;
-				while(num > 0){
-					try{
+				while(num > 0) {
+					try {
 						fs.statSync(new_path);
-						if( string_html != fs.readFileSync(new_path).toString() ){
+						if (string_html != fs.readFileSync(new_path).toString()) {
 							new_path = path.join(outer_folder, this.document_filename)+num+this.extension;
 						} else {
 							new_path = null;

@@ -44,10 +44,13 @@
 	const electron = require('electron');
 	const { remote, ipcRenderer, clipboard } = electron;
 
+	const models = require('../models');
+
 	export default {
 		name: 'browser',
 		props: {
 			'bookmark': Object,
+			'bookmarksDomains': Array,
 			'sendFlashMessage': Function
 		},
 		components: {
@@ -119,6 +122,7 @@
 				this.currentUrl = this.$refs.browserview.getURL();
 			},
 			loadCommit(e) {
+				this.clearCookies();
 				if (e.isMainFrame) {
 					this.currentUrl = e.url;
 				}
@@ -131,6 +135,57 @@
 					this.initialized = true;
 					this.$refs.browserview.getWebContents().on('context-menu', this.contextMenu);
 				}
+			},
+			clearCookies() {
+				// clear third party cookies
+				var self = this;
+				var win = remote.getCurrentWindow();
+
+				function remove(cookie) {
+					var url = "http" + (cookie.secure ? "s" : "") + "://" + cookie.domain + cookie.path;
+					var dom = models.BookmarkFolder.getDomain({ body: url});
+					if(self.bookmarksDomains.indexOf(dom) >= 0) return;
+					webc.cookies.remove(
+						url,
+						cookie.name,
+						function(err) {
+							if(err) console.warn(err);
+							//console.log('cookie delete', dom, cookie.name);
+						}
+					);
+				}
+
+				var webc = win.webContents.session;
+				webc.cookies.get({}, function(err, cookies) {
+					if(err) console.error(err);
+					for (var i = 0; i < cookies.length; i++) {
+						remove(cookies[i]);
+					}
+				});
+			},
+			clearAllCookies() {
+				var self = this;
+				var win = remote.getCurrentWindow();
+
+				function remove(cookie) {
+					var url = "http" + (cookie.secure ? "s" : "") + "://" + cookie.domain + cookie.path;
+					webc.cookies.remove(
+						url,
+						cookie.name,
+						function(err) {
+							if(err) console.warn(err);
+							console.log('cookie delete', dom, cookie.name);
+						}
+					);
+				}
+
+				var webc = win.webContents.session;
+				webc.cookies.get({}, function(err, cookies) {
+					if(err) console.error(err);
+					for (var i = 0; i < cookies.length; i++) {
+						remove(cookies[i]);
+					}
+				});
 			},
 			contextMenu(e, props) {
 				var self = this;
@@ -223,6 +278,11 @@
 						label: 'Clear History',
 						click() {
 							self.$refs.browserview.clearHistory();
+						}
+					}, {
+						label: 'Clear All Cookies',
+						click() {
+							self.clearAllCookies();
 						}
 					}];
 
