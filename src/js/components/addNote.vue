@@ -4,7 +4,10 @@
 			.my-notes-note.new-note
 				h5.my-notes-note-title(@click.prevent="newNote")
 					i.material-icons add_circle_outline
-					|  New Note
+					template(v-if="notesList")
+						|  New Note
+					template(v-else)
+						|  New Bookmark
 					i.material-icons.right-icon(@click.prevent.stop="addnote_visible = !addnote_visible", v-if="notesList") more_horiz
 				dropdown(:visible="addnote_visible", :position="position", v-on:clickout="addnote_visible = false", v-if="notesList")
 					.link
