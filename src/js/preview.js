@@ -108,7 +108,7 @@ highlightjs.registerLanguage('xquery', require('highlight.js/lib/languages/xquer
 highlightjs.registerLanguage('yaml', require('highlight.js/lib/languages/yaml'));
 
 const temp_CHECKBOX = _.template('<li class="checkbox <%- checked ? \'checkbox-checked\' : \'\' %>"><label>' +
-	'<span><input data-value="<%- data %>" type="checkbox" <%- checked ? \'checked\' : \'\' %> /></span> <%= text %>' +
+	'<span><input data-value="<%- data %>" type="checkbox" <%- checked ? \'checked\' : \'\' %> /><span></span></span> <%= text %>' +
 	'</label></li>');
 
 const temp_IMGTAG = _.template('<a href="#" onclick="appVue.openImg(\'<%- link %>\'); return false">' +
