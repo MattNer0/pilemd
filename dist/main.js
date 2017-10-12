@@ -8,6 +8,12 @@ const { download } = require('electron-dl');
 var mainWindow = null;
 var appIcon = null;
 
+// support for portable mode
+app.setPath('userData',
+  fs.existsSync(path.join(path.dirname(process.execPath),
+  '.portable')) == true ?  path.join(path.dirname(process.execPath),
+  'userdata') : app.getPath("userData") );
+
 var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
 	// someone tried to run a second instance, we should focus our window.
 	if (mainWindow) {
