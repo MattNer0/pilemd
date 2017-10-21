@@ -47,7 +47,6 @@ const LIST_REGEXPS = [
 	}
 ];
 
-
 const BLOCK_REGEXPS = [
 	(l) => {
 		var m = QUOTE_REGEXP.exec(l);
@@ -57,7 +56,7 @@ const BLOCK_REGEXPS = [
 		return {
 			spaces: '',
 			syntax: m[1],
-			text: m[2]
+			text  : m[2]
 		};
 	},
 	(l) => {
@@ -68,7 +67,7 @@ const BLOCK_REGEXPS = [
 		return {
 			spaces: '',
 			syntax: m[1],
-			text: m[2]
+			text  : m[2]
 		};
 	}
 ];
@@ -172,23 +171,23 @@ function enterHandler(before, after) {
 
 	var keymapOverray = {
 		'Ctrl-Right': CodeMirror.keyMap.emacs['Alt-F'],
-		'Ctrl-Left': CodeMirror.keyMap.emacs['Alt-B'],
-		"End": "goLineEnd",
-		"Home": "goLineStart",
-		'Ctrl-C': copyText,
-		'Alt-W': copyText,
-		'Ctrl-A': 'selectAll',
-		'Ctrl-Y': pasteText,
-		'Ctrl-V': pasteText,
-		'Alt-V': pasteText,
-		'Ctrl-X': cutText,
-		'Ctrl-W': cutText,
-		'Ctrl-K': killLine,
-		'Ctrl-Z': 'undo',
-		'Ctrl-F': 'findPersistent',
-		'Ctrl-R': 'replace',
-		'Cmd-Left': "goLineStart",
-		'Cmd-Right': 'goLineEnd',
+		'Ctrl-Left' : CodeMirror.keyMap.emacs['Alt-B'],
+		"End"       : "goLineEnd",
+		"Home"      : "goLineStart",
+		'Ctrl-C'    : copyText,
+		'Alt-W'     : copyText,
+		'Ctrl-A'    : 'selectAll',
+		'Ctrl-Y'    : pasteText,
+		'Ctrl-V'    : pasteText,
+		'Alt-V'     : pasteText,
+		'Ctrl-X'    : cutText,
+		'Ctrl-W'    : cutText,
+		'Ctrl-K'    : killLine,
+		'Ctrl-Z'    : 'undo',
+		'Ctrl-F'    : 'findPersistent',
+		'Ctrl-R'    : 'replace',
+		'Cmd-Left'  : "goLineStart",
+		'Cmd-Right' : 'goLineEnd',
 		//'Cmd-Up': 'goDocStart', 'Cmd-Down': 'goDocEnd',
 		'Alt-G G': () => {
 			// delete this behavior
@@ -201,20 +200,20 @@ function enterHandler(before, after) {
 			var c = cm.getCursor();
 			var lineText = cm.getRange({
 				line: c.line,
-				ch: 0
+				ch  : 0
 			}, {
 				line: c.line,
-				ch: c.ch
+				ch  : c.ch
 			});
 			var m = SPACES_REGEXP.exec(lineText);
 			if (m) {
 				var numDelete = m[1].length < 4 ? m[1].length : 4;
 				return cm.replaceRange('', {
 					line: c.line,
-					ch: 0
+					ch  : 0
 				}, {
 					line: c.line,
-					ch: numDelete
+					ch  : numDelete
 				});
 			}
 			return CodeMirror.keyMap.emacs['Backspace'](cm);
@@ -257,10 +256,10 @@ function enterHandler(before, after) {
 				var c = cm.getCursor();
 				cm.replaceRange('    ', {
 					line: c.line,
-					ch: 0
+					ch  : 0
 				}, {
 					line: c.line,
-					ch: 0
+					ch  : 0
 				});
 			} else {
 				var replaces = [];
@@ -279,10 +278,10 @@ function enterHandler(before, after) {
 				var line = cm.getLine(c.line);
 				cm.replaceRange('', {
 					line: c.line,
-					ch: 0
+					ch  : 0
 				}, {
 					line: c.line,
-					ch: dedent(line)
+					ch  : dedent(line)
 				});
 			} else {
 				var replaces = [];

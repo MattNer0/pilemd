@@ -9,10 +9,13 @@ var mainWindow = null;
 var appIcon = null;
 
 // support for portable mode
-app.setPath('userData',
-  fs.existsSync(path.join(path.dirname(process.execPath),
-  '.portable')) == true ?  path.join(path.dirname(process.execPath),
-  'userdata') : app.getPath("userData") );
+app.setPath(
+	'userData',
+	fs.existsSync(path.join(
+		path.dirname(process.execPath),
+		'.portable'
+	)) == true ? path.join(path.dirname(process.execPath), 'userdata') : app.getPath("userData")
+);
 
 var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
 	// someone tried to run a second instance, we should focus our window.
@@ -51,23 +54,23 @@ function makeWindow() {
 
 	// create the browser window.
 	var conf = {
-		width: WINDOW_WIDTH,
-		height: WINDOW_HEIGHT,
-		x: WINDOW_X,
-		y: WINDOW_Y,
-		minWidth: 270,
-		minHeight: 437,
-		center: WINDOW_CENTER,
-		title: 'PileMd',
-		backgroundColor: '#36393e',
-		show: false,
-		darkTheme: true,
+		width            : WINDOW_WIDTH,
+		height           : WINDOW_HEIGHT,
+		x                : WINDOW_X,
+		y                : WINDOW_Y,
+		minWidth         : 270,
+		minHeight        : 437,
+		center           : WINDOW_CENTER,
+		title            : 'PileMd',
+		backgroundColor  : '#36393e',
+		show             : false,
+		darkTheme        : true,
 		tabbingIdentifier: 'pilemd',
-		titleBarStyle: 'hidden',
-		frame: false,
-		webPreferences: {
+		titleBarStyle    : 'hidden',
+		frame            : false,
+		webPreferences   : {
 			devTools: true,
-			webgl: false,
+			webgl   : false,
 			webaudio: false
 		}
 	};
@@ -142,47 +145,40 @@ if (shouldQuit) {
 			submenu: [
 				{
 					label: 'About ' + APP_NAME,
-					role: 'about'
+					role : 'about'
 				},
 				{ type: 'separator' },
 				{
-					label: 'Services',
-					role: 'services',
+					label  : 'Services',
+					role   : 'services',
 					submenu: []
 				},
 				{ type: 'separator' },
 				{
-					label: 'Hide ' + APP_NAME,
+					label      : 'Hide ' + APP_NAME,
 					accelerator: 'Command+H',
-					role: 'hide'
-				},
-				{
-					label: 'Hide Others',
+					role       : 'hide'
+				}, {
+					label      : 'Hide Others',
 					accelerator: 'Command+Shift+H',
-					role: 'hideothers'
-				},
-				{
+					role       : 'hideothers'
+				}, {
 					label: 'Show All',
-					role: 'unhide'
+					role : 'unhide'
 				},
 				{ type: 'separator' },
 				{
-					label: 'Quit ' + APP_NAME,
+					label      : 'Quit ' + APP_NAME,
 					accelerator: 'Command+Q',
-					click: function() {
-						app.quit();
-					}
+					click      : () => { app.quit(); }
 				}
 			]
-		},
-		{
+		}, {
 			label: 'File',
-			submenu: [
-				{
-					label: 'New ' + APP_NAME + ' Window',
-					click: makeWindow
-				}
-			]
+			submenu: [{
+				label: 'New ' + APP_NAME + ' Window',
+				click: makeWindow
+			}]
 		}
 	];
 

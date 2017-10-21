@@ -13,8 +13,10 @@ var settings_path;
 module.exports = {
     init(filename) {
 		if (filename) settings_filename = filename;
-		settings_path = path.join(remote.app.getPath("userData"), settings_filename);
-		if (!fs.existsSync(settings_path)) settings_path = path.join(remote.app.getPath("userData"), settings_filename);
+		settings_path = path.join(elosenv.userDataPath(), settings_filename);
+		if (!fs.existsSync(settings_path)) {
+			settings_path = path.join(elosenv.userDataPath(), settings_filename);
+		}
 
 		try {
 			settings_data = JSON.parse(fs.readFileSync(settings_path));

@@ -66,21 +66,20 @@
 		},
 		mounted() {
 			this.$nextTick(() => {
-
 				var cm = CodeMirror(this.$el, {
-					mode: 'piledmd',
-					lineNumbers: false,
-					lineWrapping: true,
-					theme: "default",
-					keyMap: 'piledmap',
-					indentUnit: 4,
-					smartIndent: true,
-					tabSize: 4,
-					indentWithTabs: true,
-					cursorBlinkRate: 540,
-					addModeClass: true,
+					mode             : 'piledmd',
+					lineNumbers      : false,
+					lineWrapping     : true,
+					theme            : "default",
+					keyMap           : 'piledmap',
+					indentUnit       : 4,
+					smartIndent      : true,
+					tabSize          : 4,
+					indentWithTabs   : true,
+					cursorBlinkRate  : 540,
+					addModeClass     : true,
 					autoCloseBrackets: true,
-					placeholder: 'Start writing...'
+					placeholder      : 'Start writing...'
 				});
 				this.cm = cm;
 				this.$root.codeMirror = cm;
@@ -112,35 +111,35 @@
 						var menu = new Menu();
 
 						menu.append(new MenuItem({
-							label: 'Cut',
+							label      : 'Cut',
 							accelerator: 'CmdOrCtrl+X',
-							click: () => { cutText(cm) }
+							click      : () => { cutText(cm) }
 						}));
 
 						menu.append(new MenuItem({
-							label: 'Copy',
+							label      : 'Copy',
 							accelerator: 'CmdOrCtrl+C',
-							click: () => { copyText(cm) }
+							click      : () => { copyText(cm) }
 						}));
 
 						menu.append(new MenuItem({
-							label: 'Paste',
+							label      : 'Paste',
 							accelerator: 'CmdOrCtrl+V',
-							click: () => { pasteText(cm) }
+							click      : () => { pasteText(cm) }
 						}));
 
 						menu.append(new MenuItem({ type: 'separator' }));
 						menu.append(new MenuItem({
-							label: 'Select All',
+							label      : 'Select All',
 							accelerator: 'CmdOrCtrl+A',
-							click: () => { selectAllText(cm) }
+							click      : () => { selectAllText(cm) }
 						}));
 
 						menu.append(new MenuItem({ type: 'separator' }));
 						menu.append(new MenuItem({
-							label: 'Attach Image',
+							label      : 'Attach Image',
 							accelerator: 'Shift+CmdOrCtrl+A',
-							click: () => { this.uploadFile() }
+							click      : () => { this.uploadFile() }
 						}));
 
 						var c = cm.getCursor();
@@ -159,11 +158,11 @@
 							}));
 						} else {
 							menu.append(new MenuItem({
-								label: 'Copy Link',
+								label  : 'Copy Link',
 								enabled: false
 							}));
 							menu.append(new MenuItem({
-								label: 'Open Link In Browser',
+								label  : 'Open Link In Browser',
 								enabled: false
 							}));
 						}
@@ -201,7 +200,7 @@
 				var notePaths = dialog.showOpenDialog({
 					title: 'Attach Image',
 					filters: [{
-						name: 'Markdown',
+						name      : 'Markdown',
 						extensions: [
 							'png', 'jpeg', 'jpg', 'bmp',
 							'gif', 'tif', 'ico'
@@ -238,9 +237,9 @@
 			updateNoteBody: _.debounce(function () {
 					this.note.body = this.cm.getValue();
 				}, 1000, {
-					leading: true,
+					leading : true,
 					trailing: true,
-					maxWait: 5000
+					maxWait : 5000
 				}
 			),
 			updateNoteBeforeSaving() {
@@ -254,13 +253,29 @@
 				} else {
 					CodeMirror.commands.undoSearch(this.cm);
 				}
+			},
+			refreshCM() {
+				this.cm.refresh();
+			},
+			refreshNoteBody() {
+				var doc;
+				if (this.note.body) {
+					doc = new CodeMirror.Doc(this.note.body, 'piledmd');
+				}
+				this.note.doc = doc;
+				//this.$nextTick(() => { this.cm.refresh(); });
+				//setTimeout(() => { this.cm.refresh(); }, 100);
+				if (doc) {
+					if(doc.cm) doc.cm = null;
+					this.cm.swapDoc(doc);
+				}
 			}
 		},
 		watch: {
 			isFullScreen() {
 				this.$nextTick(() => {
 					setTimeout(() => {
-						this.cm.refresh();
+						this.refreshCM();
 						this.cm.focus();
 					}, 300);
 				});
@@ -268,7 +283,7 @@
 			isPreview() {
 				if (!this.isPreview) {
 					this.$nextTick(() => {
-						this.cm.refresh();
+						this.refreshCM();
 						this.cm.focus();
 					});
 				}

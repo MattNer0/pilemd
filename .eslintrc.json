@@ -27,10 +27,7 @@
         "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
         "callback-return": "error",
         "camelcase": "off",
-        "capitalized-comments": [
-            "error",
-            "never"
-        ],
+        "capitalized-comments": "off",
         "class-methods-use-this": "off",
         "comma-dangle": "off",
         "comma-spacing": "off",
@@ -81,7 +78,7 @@
         ],
         "lines-around-comment": "off",
         "lines-around-directive": "error",
-        "max-depth": "error",
+        "max-depth": "off",
         "max-len": "off",
         "max-lines": "off",
         "max-nested-callbacks": "error",

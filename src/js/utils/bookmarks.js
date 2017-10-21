@@ -31,9 +31,9 @@ function parseTag(tag) {
 		});
 
 		return {
-			input: match.input,
-			tag: match[3].toUpperCase(),
-			text: match[2],
+			input     : match.input,
+			tag       : match[3].toUpperCase(),
+			text      : match[2],
 			attributes: attributes_object
 		};
 	}
@@ -47,8 +47,8 @@ module.exports = {
 		const BookmarkFolder = require('../models').BookmarkFolder;
 
 		var result_json = {
-			title: '',
-			name: '',
+			title   : '',
+			name    : '',
 			children: []
 		};
 
@@ -76,26 +76,26 @@ module.exports = {
 					case 'H3':
 						result_folder = new BookmarkFolder({
 							attributes: tags.attributes,
-							name: tags.text,
-							rack: rack,
-							ordering: folder_index
+							name      : tags.text,
+							rack      : rack,
+							ordering  : folder_index
 						});
 						break;
 					case 'A':
 						if (result_folder.name) {
 							result_folder.notes.push({
-								uid: uid.timeUID(),
+								uid       : uid.timeUID(),
 								attributes: tags.attributes || {},
-								body: tags.attributes['HREF'],
-								folderUid: result_folder.uid,
-								name: tags.text,
-								rack: rack,
-								folder: result_folder,
-								dragHover: false,
-								sortUpper: false,
-								sortLower: false,
-								updatedAt: moment(tags.attributes['LAST_MODIFIED'], 'X'),
-								createdAt: moment(tags.attributes['ADD_DATE'], 'X')
+								body      : tags.attributes['HREF'],
+								folderUid : result_folder.uid,
+								name      : tags.text,
+								rack      : rack,
+								folder    : result_folder,
+								dragHover : false,
+								sortUpper : false,
+								sortLower : false,
+								updatedAt : moment(tags.attributes['LAST_MODIFIED'], 'X'),
+								createdAt : moment(tags.attributes['ADD_DATE'], 'X')
 							});
 						}
 						// bookmark

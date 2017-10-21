@@ -16,9 +16,9 @@
 					y: 0
 				},
 				start_width: 0,
-				min_width: 180,
-				max_width: 400,
-				dragging: false
+				min_width  : 180,
+				max_width  : 400,
+				dragging   : false
 			};
 		},
 		mounted() {

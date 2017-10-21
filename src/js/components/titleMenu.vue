@@ -74,24 +74,24 @@
 	export default {
 		name: 'titleMenu',
 		props: {
-			'isFullScreen': Boolean,
-			'selectedTheme': String,
-			'notesDisplayOrder': String,
-			'toggleFullScreen': Function,
-			'openSync': Function,
-			'moveSync': Function,
-			'openCredits': Function,
-			'changeTheme': Function,
+			'isFullScreen'      : Boolean,
+			'selectedTheme'     : String,
+			'notesDisplayOrder' : String,
+			'toggleFullScreen'  : Function,
+			'openSync'          : Function,
+			'moveSync'          : Function,
+			'openCredits'       : Function,
+			'changeTheme'       : Function,
 			'changeDisplayOrder': Function
 		},
 		data: function() {
 			return {
-				'search': "",
-				'menu_visible': false,
-				'order_visible': false,
-				'saveDesktop': true,
-				'position': [ "right", "top", "right", "top" ],
-				'isLinux': remote.getGlobal('isLinux'),
+				'search'          : "",
+				'menu_visible'    : false,
+				'order_visible'   : false,
+				'saveDesktop'     : true,
+				'position'        : [ "right", "top", "right", "top" ],
+				'isLinux'         : remote.getGlobal('isLinux'),
 				'desktopEntryPath': path.join(remote.app.getPath('home'), '.local', 'share', 'applications', 'pilemd.desktop')
 			};
 		},

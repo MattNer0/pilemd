@@ -65,30 +65,29 @@
 	export default {
 		name: 'racks',
 		props: {
-			'racks': Array,
-			'folders': Array,
-			/*'filteredNotes': Array,*/
+			'racks'               : Array,
+			'folders'             : Array,
 			'selectedRackOrFolder': Object,
-			'selectedNote': Object,
-			'draggingNote': Object,
-			'changeRackOrFolder': Function,
-			'openRack': Function,
-			'closeRack': Function,
-			'folderDragEnded': Function,
-			'setDraggingNote': Function,
-			'deleteFolder': Function,
-			'addFolderToRack': Function,
-			'addRackSeparator': Function,
-			'updateTrayMenu': Function
+			'selectedNote'        : Object,
+			'draggingNote'        : Object,
+			'changeRackOrFolder'  : Function,
+			'openRack'            : Function,
+			'closeRack'           : Function,
+			'folderDragEnded'     : Function,
+			'setDraggingNote'     : Function,
+			'deleteFolder'        : Function,
+			'addFolderToRack'     : Function,
+			'addRackSeparator'    : Function,
+			'updateTrayMenu'      : Function
 		},
 		data() {
 			return {
-				draggingRack: null,
-				draggingFolder: null,
+				draggingRack      : null,
+				draggingFolder    : null,
 				draggingFolderRack: null,
-				editingRack: null,
-				editingFolder: null,
-				scrollbarNotes: null
+				editingRack       : null,
+				editingFolder     : null,
+				scrollbarNotes    : null
 			};
 		},
 		directives: {
@@ -118,10 +117,10 @@
 			},
 			addBookmarkRack() {
 				var rack = new models.BookmarkRack({
-					name: "",
-					path: "",
+					name     : "",
+					path     : "",
 					extension: ".html",
-					ordering: 0
+					ordering : 0
 				});
 				this.$root.addRack(rack);
 				this.editingRack = rack;
@@ -130,16 +129,16 @@
 				var folder;
 				if (rack.data.bookmarks) {
 					folder = new models.BookmarkFolder({
-						name: '',
-						rack: rack,
-						rackUid: rack.uid,
+						name    : '',
+						rack    : rack,
+						rackUid : rack.uid,
 						ordering: 0
 					});
 				} else {
 					folder = new models.Folder({
-						name: '',
-						rack: rack,
-						rackUid: rack.uid,
+						name    : '',
+						rack    : rack,
+						rackUid : rack.uid,
 						ordering: 0
 					});
 				}

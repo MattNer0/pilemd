@@ -28,13 +28,13 @@
 		name: 'modal',
 		data() {
 			return {
-				show: false,
-				title: '',
+				show       : false,
+				title      : '',
 				description: '',
-				image_url: '',
-				buttons: [],
-				prompts: [],
-				okcb: undefined
+				image_url  : '',
+				buttons    : [],
+				prompts    : [],
+				okcb       : undefined
 			};
 		},
 		components: {
@@ -113,18 +113,18 @@
 					type: 'separator',
 				}, {
 					label: 'Cut',
-					role: 'cut',
+					role : 'cut',
 				}, {
 					label: 'Copy',
-					role: 'copy',
+					role : 'copy',
 				}, {
 					label: 'Paste',
-					role: 'paste',
+					role : 'paste',
 				}, {
 					type: 'separator',
 				}, {
 					label: 'Select all',
-					role: 'selectall',
+					role : 'selectall',
 				}]);
 				inputMenu.popup(remote.getCurrentWindow());
 			}

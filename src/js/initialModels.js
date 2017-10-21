@@ -61,17 +61,17 @@ function makeInitialNotes(rack, folder) {
  */
 function makeInitialFolders(rack1) {
 	var folder1 = new models.Folder({
-		name: 'Todo',
-		ordering: 0,
+		name         : 'Todo',
+		ordering     : 0,
 		load_ordering: false,
-		rack: rack1
+		rack         : rack1
 	});
 
 	var folder2 = new models.Folder({
-		name: 'Meeting',
-		ordering: 1,
+		name         : 'Meeting',
+		ordering     : 1,
 		load_ordering: false,
-		rack: rack1
+		rack         : rack1
 	});
 
 	models.Folder.setModel(folder1);
@@ -87,8 +87,8 @@ function makeInitialFolders(rack1) {
 function makeInitialRacks() {
 
 	var rack1 = new models.Rack({
-		name: 'Work',
-		ordering: 0,
+		name         : 'Work',
+		ordering     : 0,
 		load_ordering: false
 	});
 
@@ -96,7 +96,7 @@ function makeInitialRacks() {
 	var folders = makeInitialFolders(rack1);
 
 	return {
-		rack1: rack1,
+		rack1  : rack1,
 		folder1: folders[0],
 		folder2: folders[1]
 	};
@@ -116,7 +116,7 @@ function initialSetup(racks) {
 		if (initialFolders.length == 0) initialFolders = makeInitialFolders(racks[0]);
 
 		initialData = {
-			rack1: racks[0],
+			rack1  : racks[0],
 			folder1: initialFolders[0]
 		};
 	}
@@ -125,8 +125,8 @@ function initialSetup(racks) {
 }
 
 module.exports = {
-	initialFolder: initialFolder,
+	initialFolder   : initialFolder,
 	makeInitialNotes: makeInitialNotes,
 	makeInitialRacks: makeInitialRacks,
-	initialSetup: initialSetup
+	initialSetup    : initialSetup
 };

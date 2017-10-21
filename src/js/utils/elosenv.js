@@ -9,6 +9,9 @@ module.exports = {
 	appDataPath() {
 		return remote.app.getPath('appData');
 	},
+	userDataPath() {
+		return remote.app.getPath('userData');
+	},
 	tempPath() {
 		return remote.app.getPath('temp');
 	},

@@ -11,19 +11,19 @@ module.exports = function(Vue) {
 		if (notes.length == 0) {
 			return [{
 				dateStr: 'No notes, let\'s write',
-				notes: []
+				notes  : []
 			}];
 		}
 		if (notes[0].folder && notes[0].folder.data.bookmarks) {
 			return [{
 				dateStr: '',
-				notes: notes
+				notes  : notes
 			}];
 		}
 		if (property == 'title') {
 			return [{
 				dateStr: '',
-				notes: arr.sortBy(notes.slice(), property, true)
+				notes  : arr.sortBy(notes.slice(), property, true)
 			}];
 		}
 		var now = moment();
@@ -64,15 +64,15 @@ module.exports = function(Vue) {
 			if (!lastDate) {
 				lastDate = {
 					dateStr: getDateStr(note[property]),
-					date: note[property],
-					notes: [note]
+					date   : note[property],
+					notes  : [note]
 				};
 			} else if (getDateDiff(lastDate.date, note[property]) > 0) {
 				ret.push(lastDate);
 				lastDate = {
 					dateStr: getDateStr(note[property]),
-					date: note[property],
-					notes: [note]
+					date   : note[property],
+					notes  : [note]
 				};
 			} else {
 				lastDate.notes.push(note);

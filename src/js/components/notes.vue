@@ -61,18 +61,18 @@
 	export default {
 		name: 'notes',
 		props: {
-			'bookmarksList': Boolean,
-			'notesDisplayOrder': String,
-			'notes': Array,
-			'originalNotes': Array,
-			'selectedNote': Object,
+			'bookmarksList'       : Boolean,
+			'notesDisplayOrder'   : String,
+			'notes'               : Array,
+			'originalNotes'       : Array,
+			'selectedNote'        : Object,
 			'selectedRackOrFolder': Object,
-			'draggingNote': Object,
-			'loadingUid': String,
-			'toggleFullScreen': Function,
-			'changeNote': Function,
-			'setDraggingNote': Function,
-			'editBookmark': Function,
+			'draggingNote'        : Object,
+			'loadingUid'          : String,
+			'toggleFullScreen'    : Function,
+			'changeNote'          : Function,
+			'setDraggingNote'     : Function,
+			'editBookmark'        : Function,
 			'refreshBookmarkThumb': Function,
 			'getBookmarkMetaImage': Function
 		},
@@ -106,10 +106,10 @@
 			},
 			removeNote(note) {
 				var dialog_options = {
-					type: 'question',
-					buttons: ['Delete', 'Cancel'],
+					type     : 'question',
+					buttons  : ['Delete', 'Cancel'],
 					defaultId: 1,
-					cancelId: 1
+					cancelId : 1
 				};
 
 				if(this.bookmarksList){

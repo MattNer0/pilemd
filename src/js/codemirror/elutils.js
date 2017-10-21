@@ -172,9 +172,9 @@ function selectAllText(cm) {
 }
 
 module.exports = {
-	killLine: killLine,
-	copyText: copyText,
-	cutText: cutText,
-	pasteText: pasteText,
+	killLine     : killLine,
+	copyText     : copyText,
+	cutText      : cutText,
+	pasteText    : pasteText,
 	selectAllText: selectAllText
 };

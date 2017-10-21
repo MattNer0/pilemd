@@ -33,8 +33,8 @@
 	export default {
 		name: 'windowBar',
 		props: {
-			'note': Object,
-			'bookmark': Object,
+			'note'      : Object,
+			'bookmark'  : Object,
 			'rackFolder': Object
 		},
 		computed: {

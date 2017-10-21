@@ -138,9 +138,7 @@ renderer.listitem = function(text) {
 	}
 
 	if (/^\s*\[[x ]\]\s*/.test(text)) {
-
 		var clean_text = text.replace(/^\s*\[ \]\s*/, '').replace(/^\s*\[x\]\s*/, '');
-
 		var escapedText = clean_text.toLowerCase().replace(/[^\w]+/g, '-');
 		var duplicateIndex = checkboxes.map(function(h) {
 			return h.text;
@@ -180,7 +178,7 @@ renderer.heading = function(text, level) {
 	var duplicateText;
 	if (duplicateIndex === -1) {
 		headings.push({
-			text: escapedText,
+			text : escapedText,
 			count: 0
 		});
 	} else {
@@ -188,8 +186,8 @@ renderer.heading = function(text, level) {
 		duplicateText = escapedText + '-' + headings[duplicateIndex].count;
 	}
 	headings_id.push({
-		id: 'h_' + (duplicateText || escapedText),
-		text: text,
+		id   : 'h_' + (duplicateText || escapedText),
+		text : text,
 		level: level
 	});
 	return '<h' + level + ' id="h_' + (duplicateText || escapedText) + '">' + text + '</h' + level + '>';
@@ -211,13 +209,13 @@ renderer.link = function(href, title, text) {
 };
 
 marked.setOptions({
-	renderer: renderer,
-	gfm: true,
-	tables: true,
-	breaks: true,
-	pedantic: false,
-	sanitize: true,
-	smartLists: true,
+	renderer   : renderer,
+	gfm        : true,
+	tables     : true,
+	breaks     : true,
+	pedantic   : false,
+	sanitize   : true,
+	smartLists : true,
 	smartypants: false,
 	highlight(code) {
 		return '<div class="hljs">' + highlightjs.highlightAuto(code).value + '</div>';
@@ -230,39 +228,52 @@ var forEach = function(array, callback, scope) {
 	}
 };
 
+/**
+ * @function clickCheckbox
+ * @param  {Object} cm    CodeMirror component
+ * @param  {Object} note  Note objct
+ * @param  {Number} index Checkbox index
+ * @param  {Object} el    DOM element object
+ * @return {Void} Void
+ */
+function clickCheckbox(cm, note, index, el) {
+	el.onclick = function(event) {
+		event.preventDefault();
+		if (event.target.tagName == 'A') return;
+		var i = 0;
+		var ok = note.body.replace(/[*-]\s*(\[[x ]\])/g, function(x) {
+			x = x.replace(/\s/g, ' ');
+			var start = x.charAt(0);
+			if (i == index) {
+				i++;
+				if (x == start + ' [x]') {
+					return start + ' [ ]';
+				}
+				return start + ' [x]';
+			}
+			i++;
+			return x;
+		});
+		note.body = ok;
+		cm.refreshNoteBody();
+	};
+}
+
 module.exports = {
 	/**
 	 * @function render
 	 * @param {Object} note Selected note
-	 * @param {Object} v Vue Instance
+	 * @param {Object} vue  Vue Instance
 	 * @return {String} Html version of note content
 	 */
-	render(note, v) {
+	render(note, vue) {
 		headings = [];
 		checkboxes = [];
 		headings_id = [];
 		var p = marked(note.bodyWithDataURL);
-		v.$nextTick(() => {
+		vue.$nextTick(() => {
 			forEach(document.querySelectorAll('li.checkbox'), (index, el) => {
-				el.onclick = function(event) {
-					event.preventDefault();
-					if (event.target.tagName == 'A') return;
-					var i = 0;
-					var ok = note.body.replace(/[*-]\s*(\[[x ]\])/g, function(x) {
-						x = x.replace(/\s/g, ' ');
-						var start = x.charAt(0);
-						if (i == index) {
-							i++;
-							if (x == start + ' [x]') {
-								return start + ' [ ]';
-							}
-							return start + ' [x]';
-						}
-						i++;
-						return x;
-					});
-					note.body = ok;
-				};
+				clickCheckbox(vue.$refs.refCodeMirror, note, index, el);
 			});
 		});
 		return p;

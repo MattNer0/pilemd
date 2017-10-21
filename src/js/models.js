@@ -365,7 +365,7 @@ class Note extends Model {
 	}
 
 	get img() {
-		var matched = (/(https?|pilemd):\/\/[-a-zA-Z0-9@:%_\+.~#?&//=]+?\.(png|jpeg|jpg|gif)/).exec(this.body);
+		var matched = (/(https?|pilemd):\/\/[-a-zA-Z0-9@:%_+.~#?&//=]+?\.(png|jpeg|jpg|gif)/).exec(this.body);
 		if (!matched) {
 			return null;
 		} else if (matched[1] == 'http' || matched[1] == 'https') {
@@ -392,6 +392,33 @@ class Note extends Model {
 		return this._folder.rackUid == r.uid;
 	}
 
+	parseMetadata() {
+		var re = this.metadataregex;
+		var metadata = {};
+		var m;
+
+		var first_meta = this._body.match(re);
+		if (first_meta && this._body.indexOf(first_meta[0]) == 0) {
+			do {
+				m = re.exec(this._body);
+				if (m) {
+					m[2] = m[2].replace(/\s+/g,' ');
+					if (m[1] === 'updatedAt' || m[1] === 'createdAt') {
+						metadata[m[1]] = moment(m[2]).format('YYYY-MM-DD HH:mm:ss');
+					} else {
+						metadata[m[1]] = m[2];
+					}
+				}
+			} while (m);
+			this._metadata = metadata;
+			this._body = this.bodyWithoutMetadata;
+		}
+
+		if(!this._metadata.createdAt) {
+			this.initializeCreationDate();
+		}
+	}
+
 	loadBody() {
 		if (this._loadedBody) return;
 
@@ -402,30 +429,7 @@ class Note extends Model {
 				this._body = content;
 
 				if (!this.isEncryptedNote) {
-					var re = this.metadataregex;
-					var metadata = {};
-					var m;
-
-					var first_meta = this._body.match(re);
-					if (first_meta && this._body.indexOf(first_meta[0]) == 0) {
-						do {
-							m = re.exec(this._body);
-							if (m) {
-								m[2] = m[2].replace(/\s+/g,' ');
-								if (m[1] === 'updatedAt' || m[1] === 'createdAt') {
-									metadata[m[1]] = moment(m[2]).format('YYYY-MM-DD HH:mm:ss');
-								} else {
-									metadata[m[1]] = m[2];
-								}
-							}
-						} while (m);
-						this._metadata = metadata;
-						this._body = this.bodyWithoutMetadata;
-					}
-
-					if(!this._metadata.createdAt) {
-						this.initializeCreationDate();
-					}
+					this.parseMetadata();
 				}
 			}
 			this._loadedBody = true;
@@ -531,7 +535,7 @@ class Note extends Model {
 
 			try {
 				//fs.accessSync(new_path, fs.constants.R_OK | fs.constants.W_OK );
-				if (!fs.existsSync(new_path) || body.length > 0 && body != fs.readFileSync(new_path).toString()){
+				if (!fs.existsSync(new_path) || (body.length > 0 && body != fs.readFileSync(new_path).toString())) {
 					fs.writeFileSync(new_path, body);
 					this.path = new_path;
 					return { saved: true };
@@ -809,7 +813,7 @@ class Folder extends Model {
 	}
 
 	saveModel() {
-		if (!this.data.name || !this.uid) {
+		if (!this.name || !this.uid) {
 			return;
 		}
 
@@ -1079,6 +1083,10 @@ class Rack extends Model {
 	}
 
 	saveModel() {
+		if (!this.name || !this.uid) {
+			return;
+		}
+
 		var new_path = path.join( getBaseLibraryPath(), this.data.fsName );
 		if(new_path != this._path || !fs.existsSync(new_path) ) {
 			try{
@@ -1093,41 +1101,6 @@ class Rack extends Model {
 			}
 		}
 		this.saveOrdering();
-	}
-
-
-	static readRacks() {
-
-		var valid_racks = [];
-		if( fs.existsSync(getBaseLibraryPath()) ) {
-
-			var racks = fs.readdirSync(getBaseLibraryPath());
-			for(var ri = 0; ri<racks.length; ri++){
-
-				var rack = racks[ri];
-				var rackPath = path.join( getBaseLibraryPath(), rack);
-
-				if(fs.existsSync(rackPath) && rack.charAt(0) != ".") {
-					var rackStat = fs.statSync(rackPath);
-					if(rackStat.isDirectory()){
-						valid_racks.push( new Rack({
-							name: rack,
-							ordering: valid_racks.length,
-							load_ordering: true,
-							path: rackPath
-						}) );
-					}
-				}
-			}
-
-			var separators = RackSeparator.readSeparators();
-			if(separators) valid_racks = valid_racks.concat(separators);
-
-			var bookmarks = BookmarkRack.readBookmarkRacks();
-			if(bookmarks) valid_racks = valid_racks.concat(bookmarks);
-		}
-
-		return valid_racks;
 	}
 }
 
@@ -1159,25 +1132,6 @@ class RackSeparator extends Rack {
 	saveModel() {
 		/* load INI file and save new rack separator data */
 		libini.writeKey(getBaseLibraryPath(), ['separator', this.uid], this.ordering );
-	}
-
-	static readRacks() {
-		return this.readSeparators();
-	}
-
-	static readSeparators() {
-		var valid_racks = [];
-		if( fs.existsSync(getBaseLibraryPath()) ) {
-			var racks = libini.readKeyAsArray( getBaseLibraryPath(), 'separator');
-			for (var r = 0; r < racks.length; r++) {
-				valid_racks.push(new RackSeparator({
-					uid: racks[r].key,
-					name: racks[r].key,
-					ordering: racks[r].value
-				}));
-			}
-		}
-		return valid_racks;
 	}
 }
 
@@ -1327,13 +1281,12 @@ class BookmarkRack extends Rack {
 					this.path = new_path;
 				}
 			} else {
-				try{
-					//fs.accessSync(new_path, fs.constants.R_OK | fs.constants.W_OK );
+				try {
 					if( !fs.existsSync(new_path) || string_html != fs.readFileSync(new_path).toString() ){
 						fs.writeFileSync(new_path, string_html);
 						this.path = new_path;
 					}
-				} catch(e){
+				} catch(e) {
 					console.log("Couldn't save the BookmarkRack.\nPermission Error\n", new_path);
 					return {
 						error: "Permission Error",
@@ -1343,31 +1296,79 @@ class BookmarkRack extends Rack {
 			}
 		}
 	}
+}
 
-	static readBookmarkRacks() {
-		var valid_racks = [];
-		if( fs.existsSync(getBaseLibraryPath()) ) {
+var readSeparators = function() {
+	var valid_racks = [];
+	if( fs.existsSync(getBaseLibraryPath()) ) {
+		var racks = libini.readKeyAsArray( getBaseLibraryPath(), 'separator');
+		for (var r = 0; r < racks.length; r++) {
+			valid_racks.push(new RackSeparator({
+				uid: racks[r].key,
+				name: racks[r].key,
+				ordering: racks[r].value
+			}));
+		}
+	}
+	return valid_racks;
+};
 
-			var racks = fs.readdirSync(getBaseLibraryPath());
-			for(var ri = 0; ri<racks.length; ri++){
-				var rack = racks[ri];
-				var rackPath = path.join( getBaseLibraryPath(), rack);
-				if(fs.existsSync(rackPath) && rack.charAt(0) != ".") {
-					var rackStat = fs.statSync(rackPath);
-					var rackExt = path.extname(rack);
-					if(rackStat.isFile() && rackExt == '.html' ){
-						valid_racks.push(new BookmarkRack({
-							name: rack,
-							path: rackPath,
-							extension: rackExt
-						}));
-					}
+var readBookmarkRacks = function() {
+	var valid_racks = [];
+	if( fs.existsSync(getBaseLibraryPath()) ) {
+
+		var racks = fs.readdirSync(getBaseLibraryPath());
+		for(var ri = 0; ri<racks.length; ri++){
+			var rack = racks[ri];
+			var rackPath = path.join( getBaseLibraryPath(), rack);
+			if(fs.existsSync(rackPath) && rack.charAt(0) != ".") {
+				var rackStat = fs.statSync(rackPath);
+				var rackExt = path.extname(rack);
+				if(rackStat.isFile() && rackExt == '.html' ){
+					valid_racks.push(new BookmarkRack({
+						name: rack,
+						path: rackPath,
+						extension: rackExt
+					}));
 				}
 			}
 		}
-		return valid_racks;
 	}
-}
+	return valid_racks;
+};
+
+var readRacks = function() {
+	var valid_racks = [];
+	if( fs.existsSync(getBaseLibraryPath()) ) {
+
+		var racks = fs.readdirSync(getBaseLibraryPath());
+		for(var ri = 0; ri<racks.length; ri++){
+
+			var rack = racks[ri];
+			var rackPath = path.join( getBaseLibraryPath(), rack);
+
+			if(fs.existsSync(rackPath) && rack.charAt(0) != ".") {
+				var rackStat = fs.statSync(rackPath);
+				if(rackStat.isDirectory()){
+					valid_racks.push( new Rack({
+						name: rack,
+						ordering: valid_racks.length,
+						load_ordering: true,
+						path: rackPath
+					}) );
+				}
+			}
+		}
+
+		var separators = readSeparators();
+		if(separators) valid_racks = valid_racks.concat(separators);
+
+		var bookmarks = readBookmarkRacks();
+		if(bookmarks) valid_racks = valid_racks.concat(bookmarks);
+	}
+
+	return valid_racks;
+};
 
 module.exports = {
 	Note: Note,
@@ -1381,5 +1382,6 @@ module.exports = {
 	setBaseLibraryPath: setBaseLibraryPath,
 	doesLibraryExists: doesLibraryExists,
 	getValidMarkdownFormats: getValidMarkdownFormats,
-	Image: Image
+	Image: Image,
+	readRacks: readRacks
 };

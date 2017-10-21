@@ -61,47 +61,47 @@ var appVue = new Vue({
 	el: '#main-editor',
 	template: require('../html/app.html'),
 	data: {
-		isFullScreen: false,
-		isPreview: settings.get('vue_isPreview') || false,
-		selectedTheme: settings.get('theme') || 'dark',
-		preview: "",
-		racks: [],
-		folders: [],
-		notes: [],
-		bookmarksDomains: [],
+		isFullScreen        : false,
+		isPreview           : settings.get('vue_isPreview') || false,
+		selectedTheme       : settings.get('theme') || 'dark',
+		preview             : "",
+		racks               : [],
+		folders             : [],
+		notes               : [],
+		bookmarksDomains    : [],
 		selectedRackOrFolder: null,
-		search: "",
-		selectedNote: {},
-		selectedBookmark: {},
-		loadingUid: "",
-		draggingNote: null,
-		allDragHover: false,
-		messages: [],
-		noteHeadings: [],
-		modalShow: false,
-		modalTitle: 'title',
-		modalDescription: 'description',
-		modalPrompts: [],
-		modalOkcb: null,
-		racksWidth: settings.get('racksWidth') || 180,
-		notesWidth: settings.get('notesWidth') || 180,
-		propertiesWidth: 180,
-		fontsize: parseInt(settings.get('fontsize')) || 15,
-		notesDisplayOrder: 'updatedAt',
+		search              : "",
+		selectedNote        : {},
+		selectedBookmark    : {},
+		loadingUid          : "",
+		draggingNote        : null,
+		allDragHover        : false,
+		messages            : [],
+		noteHeadings        : [],
+		modalShow           : false,
+		modalTitle          : 'title',
+		modalDescription    : 'description',
+		modalPrompts        : [],
+		modalOkcb           : null,
+		racksWidth          : settings.get('racksWidth') || 180,
+		notesWidth          : settings.get('notesWidth') || 180,
+		propertiesWidth     : 180,
+		fontsize            : parseInt(settings.get('fontsize')) || 15,
+		notesDisplayOrder   : 'updatedAt',
 	},
 	components: {
 		'flashmessage': component_flashmessage,
-		'racks': component_racks,
-		'notes': component_notes,
-		'modal': component_modal,
-		'addNote': component_addNote,
-		'windowBar': component_windowBar,
-		'titleMenu': component_titleMenu,
-		'noteMenu': component_noteMenu,
+		'racks'       : component_racks,
+		'notes'       : component_notes,
+		'modal'       : component_modal,
+		'addNote'     : component_addNote,
+		'windowBar'   : component_windowBar,
+		'titleMenu'   : component_titleMenu,
+		'noteMenu'    : component_noteMenu,
 		'handlerStack': component_handlerStack,
 		'handlerNotes': component_handlerNotes,
-		'codemirror': component_codeMirror,
-		'browser': component_browser
+		'codemirror'  : component_codeMirror,
+		'browser'     : component_browser
 	},
 	computed: {
 		/**
@@ -179,10 +179,10 @@ var appVue = new Vue({
 		if( models.doesLibraryExists() ){
 			// library folder exists, let's read what's inside
 
-			racks = models.Rack.readRacks();
+			racks = models.readRacks();
 			if( racks.length == 0 ){
 				initial_notes = initialModels.initialSetup(racks);
-				racks = models.Rack.readRacks();
+				racks = models.readRacks();
 
 				if(initial_notes.length == 1){
 					folders = initial_notes[0].data.rack.readContents();
@@ -372,13 +372,13 @@ var appVue = new Vue({
 							}
 						}
 					}, {
-						label: 'Cancel',
+						label : 'Cancel',
 						cancel: true
 					}], [{
-						type: 'password',
+						type    : 'password',
 						retValue: '',
-						label: 'Secret Key',
-						name: 'secretkey',
+						label   : 'Secret Key',
+						name    : 'secretkey',
 						required: true
 					}]);
 				} else {
@@ -695,7 +695,8 @@ var appVue = new Vue({
 		 */
 		saveNote() {
 			var result;
-			if (this.selectedNote && this.isPreview) this.preview = preview.render(this.selectedNote, this);
+			//if (this.selectedNote && this.isPreview) this.preview = preview.render(this.selectedNote, this);
+			this.updatePreview();
 			if (this.selectedNote.saveModel) {
 				result = this.selectedNote.saveModel();
 			}
@@ -759,10 +760,10 @@ var appVue = new Vue({
 					return 'pageurl';
 				}
 			}], [{
-				type: 'text',
+				type    : 'text',
 				retValue: '',
-				label: 'URL',
-				name: 'pageurl',
+				label   : 'URL',
+				name    : 'pageurl',
 				required: true
 			}]);
 		},
@@ -819,9 +820,9 @@ var appVue = new Vue({
 				/**
 				 * validate the form input data
 				 *
-				 * @param      {Object}            data    Form data object
-				 * @return     {(boolean|string)}          If false, the validation was succesful.
-				 *                                         If a string value is returned it means that's the name of the field that failed validation.
+				 * @param  {Object}  data  Form data object
+				 * @return {(boolean|string)} If false, the validation was succesful.
+				 *                            If a string value is returned it means that's the name of the field that failed validation.
 				 */
 				validate(data) {
 					var expression = /[-a-zA-Z0-9@:%_+.~#?&=]{2,256}(\.[a-z]{2,4}|:\d+)\b(\/[-a-zA-Z0-9@:%_+.~#?&/=]*)?/gi;
@@ -830,21 +831,21 @@ var appVue = new Vue({
 						return false;
 					}
 					/*
-					 * @todo gonna use this to highlight the wrong field in the dialog form
+					 * TODO: gonna use this to highlight the wrong field in the dialog form
 					 */
 					return 'bkurl';
 				}
 			}], [{
-				type: 'text',
+				type    : 'text',
 				retValue: bookmark.name,
-				label: 'Name',
-				name: 'bkname',
+				label   : 'Name',
+				name    : 'bkname',
 				required: false
 			},{
-				type: 'text',
+				type    : 'text',
 				retValue: bookmark.body,
-				label: 'URL',
-				name: 'bkurl',
+				label   : 'URL',
+				name    : 'bkurl',
 				required: true
 			}]);
 		},
@@ -927,27 +928,30 @@ var appVue = new Vue({
 			};
 			var bookmarkLoaded = () => {
 				self.$refs.webview.removeEventListener('did-finish-load', bookmarkLoaded);
-				self.$refs.webview.getWebContents().executeJavaScript("document.querySelector('head').innerHTML + document.querySelector('body').innerHTML", (result) => {
-					var shortcut = (/rel=['"`]shortcut icon['"`][^<>]+?href=['"`](http.+?)['"`]/gi).exec(result) ||
-									(/<img[^>]+?src=['"`](http.+?profile[-_]images.+?)['"`]/gi).exec(result);
-					var og_image = (/property=['"`]og:image['"`][^<>]+?content=['"`](http.+?)['"`]/gi).exec(result) ||
-									(/content=['"`](http.+?)['"`][^<>]+?property=['"`]og:image['"`]/gi).exec(result);
-					var user_profile = result.match(/https?:\/\/[a-z0-9.-]+?\/user-profile\/img[^.<>]+\.(jpg|png|gif)/gi);
+				self.$refs.webview.getWebContents().executeJavaScript(
+					"document.querySelector('head').innerHTML + document.querySelector('body').innerHTML",
+					(result) => {
+						var shortcut = (/rel=['"`]shortcut icon['"`][^<>]+?href=['"`](http.+?)['"`]/gi).exec(result) ||
+										(/<img[^>]+?src=['"`](http.+?profile[-_]images.+?)['"`]/gi).exec(result);
+						var og_image = (/property=['"`]og:image['"`][^<>]+?content=['"`](http.+?)['"`]/gi).exec(result) ||
+										(/content=['"`](http.+?)['"`][^<>]+?property=['"`]og:image['"`]/gi).exec(result);
+						var user_profile = result.match(/https?:\/\/[a-z0-9.-]+?\/user-profile\/img[^.<>]+\.(jpg|png|gif)/gi);
 
-					if (user_profile || shortcut || og_image) {
-						var image_url;
-						if (user_profile) image_url = user_profile[0];
-						else if(shortcut) image_url = shortcut[1];
-						else if(og_image) image_url = og_image[1];
+						if (user_profile || shortcut || og_image) {
+							var image_url;
+							if (user_profile) image_url = user_profile[0];
+							else if(shortcut) image_url = shortcut[1];
+							else if(og_image) image_url = og_image[1];
 
-						self.$refs.webview.src = image_url;
-						self.$refs.webview.addEventListener('did-finish-load', imageLoaded);
-					} else {
-						console.log('No Bookmark meta image found!');
-						self.$refs.webview.src = '';
-						self.loadingUid = '';
+							self.$refs.webview.src = image_url;
+							self.$refs.webview.addEventListener('did-finish-load', imageLoaded);
+						} else {
+							console.log('No Bookmark meta image found!');
+							self.$refs.webview.src = '';
+							self.loadingUid = '';
+						}
 					}
-				});
+				);
 			};
 			var bookmarkFailed = (e) => {
 				if (e.isMainFrame) {
@@ -971,30 +975,28 @@ var appVue = new Vue({
 		},
 		/**
 		 * displays context menu for the list of racks.
-		 * 
+		 * @function shelfMenu
 		 * @return {Void} Function doesn't return anything
 		 */
 		shelfMenu() {
-			var self = this;
 			var menu = new Menu();
 			menu.append(new MenuItem({
 				label: 'Add Rack',
-				click() { self.$refs.refRacks.addRack(); }
+				click: () => { this.$refs.refRacks.addRack(); }
 			}));
 			menu.append(new MenuItem({
 				label: 'Add Bookmark Rack',
-				click() {
-					self.$refs.refRacks.addBookmarkRack();
-				}
+				click: () => { this.$refs.refRacks.addBookmarkRack(); }
 			}));
 			menu.append(new MenuItem({
 				label: 'Add Rack Separator',
-				click() { self.addRackSeparator(); }
+				click: () => { this.addRackSeparator(); }
 			}));
 			menu.popup(remote.getCurrentWindow());
 		},
 		/**
 		 * displays context menu on the selected note in preview mode.
+		 * @function previewMenu
 		 * @return {Void} Function doesn't return anything
 		 */
 		previewMenu() {
@@ -1085,7 +1087,7 @@ var appVue = new Vue({
 		},
 		/**
 		 * shows the Credits dialog window.
-		 * 
+		 * @function openCredits
 		 * @return {Void} Function doesn't return anything
 		 */
 		openCredits() {
@@ -1100,7 +1102,7 @@ var appVue = new Vue({
 		},
 		/**
 		 * change the application theme.
-		 * 
+		 * @function changeTheme
 		 * @param  {String}  value  The theme name
 		 * @return {Void} Function doesn't return anything
 		 */
@@ -1131,7 +1133,7 @@ var appVue = new Vue({
 		},
 		/**
 		 * change how notes are sorted in the sidebar
-		 *
+		 * @function changeDisplayOrder
 		 * @param  {String}  value   The sort by field
 		 * @return {Void} Function doesn't return anything
 		 */
@@ -1143,7 +1145,7 @@ var appVue = new Vue({
 		},
 		/**
 		 * sends a Flash Message.
-		 *
+		 * @function sendFlashMessage
 		 * @param    {Integer}    period   How long it will last (in ms)
 		 * @param    {String}     level    Flash level (info,error)
 		 * @param    {String}     text     Flash message text
@@ -1167,7 +1169,7 @@ var appVue = new Vue({
 		 * changes the main container margins to accomodate it.
 		 * If the application is in fullscreen mode (sidebar hidden)
 		 * then the sidebar is moved outside of the visible workspace.
-		 * 
+		 * @function update_editor_size
 		 * @return {Void} Function doesn't return anything
 		 */
 		update_editor_size() {
@@ -1196,7 +1198,7 @@ var appVue = new Vue({
 		},
 		/**
 		 * saves the sidebar width (both racks and notes lists).
-		 * 
+		 * @function save_editor_size
 		 * @return {Void} Function doesn't return anything
 		 */
 		save_editor_size() {
@@ -1221,6 +1223,7 @@ var appVue = new Vue({
 		},
 		/**
 		 * update the context menu in the system tray icon.
+		 * @function updateTrayMenu
 		 * @return {Void} Function doesn't return anything
 		 */
 		updateTrayMenu: _.debounce(function () {
