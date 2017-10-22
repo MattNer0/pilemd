@@ -303,3 +303,72 @@
 		}
 	}
 }
+
+.w210 {
+	.my-notes.my-bookmarks {
+		.my-notes-note {
+			min-height: 6.4em;
+
+			h5.my-notes-note-title {
+				height: auto;
+				max-height: 4.2em;
+				white-space: normal;
+				padding-left: 6.8em;
+				font-size: 85%;
+			}
+
+			.my-notes-note-image {
+				width: 7em;
+				height: auto;
+				max-height: none;
+				position: absolute;
+				top: 0.5em;
+				left: 0;
+			}
+
+			.my-notes-note-body {
+				height: auto;
+				max-height: 2.7em;
+				white-space: normal;
+				padding-left: 8.5em;
+				word-break: break-all;
+				font-size: 70%;
+				opacity: 0.6;
+			}
+		}
+	}
+}
+
+.w290 {
+	.my-notes.my-bookmarks {
+		.my-notes-note {
+			min-height: 8em;
+
+			h5.my-notes-note-title {
+				height: auto;
+				max-height: 5.7em;
+				white-space: normal;
+				padding-left: 8.5em;
+				font-size: 100%;
+			}
+
+			.my-notes-note-image {
+				width: 10em;
+				height: auto;
+				max-height: none;
+				position: absolute;
+				top: 0.5em;
+				left: 0;
+			}
+
+			.my-notes-note-body {
+				height: auto;
+				max-height: 2.5em;
+				white-space: normal;
+				padding-left: 10.5em;
+				word-break: break-all;
+				opacity: 0.6;
+			}
+		}
+	}
+}

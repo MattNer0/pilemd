@@ -164,10 +164,9 @@
 									"MimeType=text/markdown;\n" +
 									"Categories=Office;Utility;";
 						fs.writeFileSync(this.desktopEntryPath, body);
-						console.log('desktop entry created!');
+						// desktop entry created
 					} else {
 						// desktop exists already
-						console.log('desktop exists already');
 						this.saveDesktop = false;
 					}
 				}, 100);

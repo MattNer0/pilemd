@@ -15,10 +15,10 @@
 					x: 0,
 					y: 0
 				},
-				start_width: 0,
-				min_width  : 180,
-				max_width  : 400,
-				dragging   : false
+				start_width  : 0,
+				min_width    : 180,
+				max_width    : 400,
+				dragging     : false
 			};
 		},
 		mounted() {
@@ -45,6 +45,17 @@
 				this.dragging = false;
 				this.sidebarDragEnd();
 			},
+			widthClass(new_width, width_limit) {
+				if (new_width >= width_limit && !this.$el.previousElementSibling.classList.contains('w'+width_limit)) {
+					this.$el.previousElementSibling.classList.add('w'+width_limit);
+				} else if (new_width < width_limit && this.$el.previousElementSibling.classList.contains('w'+width_limit)) {
+					this.$el.previousElementSibling.classList.remove('w'+width_limit);
+				}
+			},
+			checkWidth(new_width) {
+				this.widthClass(new_width, 210);
+				this.widthClass(new_width, 290);
+			},
 			drag(e) {
 				// prevent to emit unwanted value on dragend
 				if (!this.dragging) return;
@@ -53,6 +64,7 @@
 				var new_width = this.start_width + e.pageX - this.initialPos.x;
 				if (new_width >= this.min_width && new_width <= this.max_width) {
 					this.$el.previousElementSibling.style.width = new_width + 'px';
+					this.checkWidth(new_width);
 					this.sidebarDrag();
 				}
 			}

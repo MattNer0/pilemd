@@ -289,9 +289,11 @@ var appVue = new Vue({
 		init_sidebar_width() {
 			var handlerStack = document.getElementById('handlerStack');
 			if(handlerStack) handlerStack.previousElementSibling.style.width = this.racksWidth+"px";
+			this.$refs.refHandleStack.checkWidth(this.racksWidth);
 
 			var handlerNotes = document.getElementById('handlerNotes');
 			if(handlerNotes) handlerNotes.previousElementSibling.style.width = this.notesWidth+"px";
+			this.$refs.refHandleNote.checkWidth(this.notesWidth);
 		},
 		/**
 		 * scrolls to the top of the notes sidebar.
@@ -811,7 +813,9 @@ var appVue = new Vue({
 					if(bookmark.body != data.bkurl || !bookmark.attributes['THUMBNAIL']) {
 						models.BookmarkFolder.setBookmarkNameUrl(bookmark, data.bkname, data.bkurl);
 						this.bookmarksDomains.push(models.BookmarkFolder.getDomain({ body: data.bkurl }));
-						self.refreshBookmarkThumb(bookmark);
+						self.$nextTick(() => {
+							self.refreshBookmarkThumb(bookmark);
+						});
 					} else {
 						models.BookmarkFolder.setBookmarkNameUrl(bookmark, data.bkname, data.bkurl);
 					}
@@ -857,6 +861,7 @@ var appVue = new Vue({
 		 * @return {Void} Function doesn't return anything
 		 */
 		refreshBookmarkThumb(bookmark) {
+			if(!bookmark || !bookmark.body) return;
 			var self = this;
 			console.log('Loading Bookmark thumbnail...', bookmark.body);
 			this.loadingUid = bookmark.uid;
@@ -876,8 +881,7 @@ var appVue = new Vue({
 				self.$refs.webview.capturePage((img) => {
 					/**
 					 * callback after webview took a page screenshot
-					 * 
-					 * @param    {Object}     img     NativeImage page screenshot
+					 * @param  {Object}  img  NativeImage page screenshot
 					 */
 					console.log('Bookmark thumbnail was succesful!');
 					self.sendFlashMessage(3000, 'info', 'Thumbnail saved');
@@ -935,11 +939,13 @@ var appVue = new Vue({
 										(/<img[^>]+?src=['"`](http.+?profile[-_]images.+?)['"`]/gi).exec(result);
 						var og_image = (/property=['"`]og:image['"`][^<>]+?content=['"`](http.+?)['"`]/gi).exec(result) ||
 										(/content=['"`](http.+?)['"`][^<>]+?property=['"`]og:image['"`]/gi).exec(result);
+						var avatar_image = (/class=['"`]avatar['"`][^<>]+>[^<>]+<img[^<>]+src=['"`](http.+?)['"`]/gi).exec(result);
 						var user_profile = result.match(/https?:\/\/[a-z0-9.-]+?\/user-profile\/img[^.<>]+\.(jpg|png|gif)/gi);
 
-						if (user_profile || shortcut || og_image) {
+						if (user_profile || shortcut || og_image || avatar_image) {
 							var image_url;
 							if (user_profile) image_url = user_profile[0];
+							else if(avatar_image) image_url = avatar_image[1];
 							else if(shortcut) image_url = shortcut[1];
 							else if(og_image) image_url = og_image[1];
 

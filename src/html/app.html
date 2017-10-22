@@ -38,7 +38,7 @@
 						</div>
 					</div>
 				</div>
-				<handler-stack :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd"></handler-stack>
+				<handler-stack :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd" ref="refHandleStack"></handler-stack>
 				<div class="cell-container">
 					<add-note v-if="selectedFolder"
 						:notes-list="isNoteRackSelected"
@@ -63,7 +63,7 @@
 						</notes>
 					</div>
 				</div>
-				<handler-notes :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd"></handler-notes>
+				<handler-notes :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd" ref="refHandleNote"></handler-notes>
 			</div>
 			<div class="cell-container main-cell-container" :class="[ 'font'+fontsize ]">
 				<note-menu :note="selectedNote"

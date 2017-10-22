@@ -229,12 +229,12 @@
 			dropToRack(event, rack) {
 				if (this.draggingFolder) {
 					console.log('Dropping to rack');
-					if(!rack.openFolders) this.openRack(rack);
+					if (!rack.openFolders) this.openRack(rack);
 					var draggingFolder = this.draggingFolder;
 					// Drop Folder to Rack
 					
 					var folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
-					if(draggingFolder.data.rack != rack) {
+					if (draggingFolder.data.rack != rack) {
 						arr.remove(draggingFolder.data.rack.folders, (f) => {return f == draggingFolder});
 						draggingFolder.rack = rack;
 					}
@@ -242,10 +242,10 @@
 					folders.unshift(draggingFolder);
 					folders.forEach((f) => {
 						f.ordering += 1;
-						if(!f.data.bookmarks) f.saveModel();
+						if (!f.data.bookmarks) f.saveModel();
 					});
 					rack.folders = folders;
-					if(rack.data.bookmarks) rack.saveModel();
+					if (rack.data.bookmarks) rack.saveModel();
 					rack.dragHover = false;
 					this.draggingFolder = null;
 					this.draggingFolderRack = null;

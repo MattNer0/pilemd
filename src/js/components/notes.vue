@@ -205,7 +205,7 @@
 			exportNoteDiag(note) {
 				var filename = fileUtils.safeName(note.title) + '.md';
 				var notePath = dialog.showSaveDialog(remote.getCurrentWindow(), {
-					title: 'Export Note',
+					title      : 'Export Note',
 					defaultPath: filename
 				});
 				if (!notePath) {
