@@ -97,6 +97,12 @@
 								ref="refBrowser">
 							</browser>
 						</div>
+						<div class="my-splash-page" v-show="notesHistory && !isNoteSelected && !selectedBookmark.name">
+							<welcome-splash
+								:notes="notesHistory"
+								:change-note="changeNote">
+							</welcome-splash>
+						</div>
 					</div>
 				</div>
 				<flashmessage :messages="messages"></flashmessage>

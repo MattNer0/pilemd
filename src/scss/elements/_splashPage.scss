@@ -1,0 +1,62 @@
+.my-splash-page {
+	margin: 0 auto;
+	width: auto;
+	min-width: 15em;
+	max-width: 70em;
+
+	> div {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		min-height: calc( 100vh - 2px - #{$title-bar-height} - #{$system-bar-height} );
+	}
+
+	.splash-box {
+		width: 80%;
+		color: $ui-text-color;
+		background: $main-background-color;
+		border-radius: $folder-list-border-radius;
+		padding: 1em 1em 0.6em;
+
+		.title {
+			font-size: 150%;
+			text-align: center;
+		}
+
+		ul.list {
+			list-style-type: none;
+			padding: 0;
+			margin: 0;
+
+			i.material-icons {
+				font-size: 140%;
+				vertical-align: text-bottom;
+				display: inline-block;
+				margin-right: 0.3em;
+			}
+
+			i.material-icons.alone {
+				margin-right: 0;
+			}
+
+			li {
+				border-radius: $folder-list-border-radius;
+				display: block;
+				margin: 0.5em 0;
+				padding: 1em;
+				cursor: default;
+
+				span {
+					display: inline-block;
+					margin-right: 0.8em;
+				}
+			}
+
+			li:hover {
+				background-color: $ui-text-background-hover;
+				color: $ui-text-color-hover;
+				cursor: pointer;
+			}
+		}
+	}
+}

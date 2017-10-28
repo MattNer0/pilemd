@@ -290,8 +290,11 @@ class Note extends Model {
 			this._folder.data.fsName,
 			this.document_filename
 		) + this._ext;
-		console.log(new_path);
 		return new_path;
+	}
+
+	get relativePath() {
+		return this.path.replace(getBaseLibraryPath()+'/', '');
 	}
 
 	get document_filename() {
@@ -1370,6 +1373,24 @@ var readRacks = function() {
 	return valid_racks;
 };
 
+var readHistoryNotes = function(racks, note_history, readRackContent) {
+	var result = [];
+	for (var i = 0; i < racks.length; i++) {
+		var r = racks[i];
+		var racks_history = note_history.filter(function(obj) {
+			return path.join(getBaseLibraryPath(), obj.split(path.sep)[0]) == r.data.path;
+		});
+		if (racks_history.length > 0) readRackContent(r);
+		for(var j = 0; j < r.notes.length; j++) {
+			var n = r.notes[j];
+			if(racks_history.indexOf(n.relativePath) >= 0) {
+				result.push(n);
+			}
+		}
+	}
+	return result;
+};
+
 module.exports = {
 	Note: Note,
 	EncryptedNote: EncryptedNote,
@@ -1383,5 +1404,6 @@ module.exports = {
 	doesLibraryExists: doesLibraryExists,
 	getValidMarkdownFormats: getValidMarkdownFormats,
 	Image: Image,
-	readRacks: readRacks
+	readRacks: readRacks,
+	readHistoryNotes: readHistoryNotes
 };

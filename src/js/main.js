@@ -38,6 +38,7 @@ import component_notes from './components/notes.vue';
 import component_racks from './components/racks.vue';
 import component_titleMenu from './components/titleMenu.vue';
 import component_windowBar from './components/windowBar.vue';
+import component_welcomeSplash from './components/welcomeSplash.vue';
 
 // loading CSSs
 require('../scss/pilemd-light.scss');
@@ -69,6 +70,7 @@ var appVue = new Vue({
 		folders             : [],
 		notes               : [],
 		bookmarksDomains    : [],
+		notesHistory        : [],
 		selectedRackOrFolder: null,
 		search              : "",
 		selectedNote        : {},
@@ -90,18 +92,19 @@ var appVue = new Vue({
 		notesDisplayOrder   : 'updatedAt',
 	},
 	components: {
-		'flashmessage': component_flashmessage,
-		'racks'       : component_racks,
-		'notes'       : component_notes,
-		'modal'       : component_modal,
-		'addNote'     : component_addNote,
-		'windowBar'   : component_windowBar,
-		'titleMenu'   : component_titleMenu,
-		'noteMenu'    : component_noteMenu,
-		'handlerStack': component_handlerStack,
-		'handlerNotes': component_handlerNotes,
-		'codemirror'  : component_codeMirror,
-		'browser'     : component_browser
+		'flashmessage' : component_flashmessage,
+		'racks'        : component_racks,
+		'notes'        : component_notes,
+		'modal'        : component_modal,
+		'addNote'      : component_addNote,
+		'windowBar'    : component_windowBar,
+		'titleMenu'    : component_titleMenu,
+		'noteMenu'     : component_noteMenu,
+		'handlerStack' : component_handlerStack,
+		'handlerNotes' : component_handlerNotes,
+		'codemirror'   : component_codeMirror,
+		'browser'      : component_browser,
+		'welcomeSplash': component_welcomeSplash
 	},
 	computed: {
 		/**
@@ -225,6 +228,9 @@ var appVue = new Vue({
 				this.readRackContent(this.racks[r]);
 			});
 			this.updateTrayMenu();
+		}
+		if (last_history && last_history.note.length > 0) {
+			this.notesHistory = models.readHistoryNotes(this.racks, last_history.note, this.readRackContent);
 		}
 
 		if(remote.getGlobal('argv')) {
@@ -385,6 +391,7 @@ var appVue = new Vue({
 					}]);
 				} else {
 					this.selectedNote = note;
+					libini.pushKey(models.getBaseLibraryPath(), ['history', 'note'], this.selectedNote.relativePath, 5);
 				}
 			} else {
 				this.selectedNote = {};
@@ -429,8 +436,9 @@ var appVue = new Vue({
 				for(var i=0; i<newData.length; i++){
 					var newNotes = newData[i].readContents();
 					if(newNotes) {
-						this.notes = this.notes.concat( newNotes );
+						this.notes = this.notes.concat(newNotes);
 						newData[i].notes = newNotes;
+						rack.notes = rack.notes.concat(newNotes);
 					}
 				}
 			}
