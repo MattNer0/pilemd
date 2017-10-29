@@ -65,6 +65,7 @@ var appVue = new Vue({
 		isFullScreen        : false,
 		isPreview           : settings.get('vue_isPreview') || false,
 		selectedTheme       : settings.get('theme') || 'dark',
+		keepHistory         : settings.get('keepHistory') || true,
 		preview             : "",
 		racks               : [],
 		folders             : [],
@@ -233,9 +234,9 @@ var appVue = new Vue({
 			this.notesHistory = models.readHistoryNotes(this.racks, last_history.note, this.readRackContent);
 		}
 
-		if(remote.getGlobal('argv')) {
+		if (remote.getGlobal('argv')) {
 			var argv = remote.getGlobal('argv');
-			if(argv.length > 1 && path.extname(argv[1]) == '.md' && fs.existsSync(argv[1])) {
+			if (argv.length > 1 && path.extname(argv[1]) == '.md' && fs.existsSync(argv[1])) {
 				var notePath = argv[1];
 				var noteData = models.Note.isValidNotePath(notePath);
 				var openedNote;
@@ -251,9 +252,9 @@ var appVue = new Vue({
 						this.changeRackOrFolder(openedNote.data.folder);
 						this.changeNote(openedNote);
 					}
-				} else if(noteData && noteData.ext == '.mdencrypted' ) {
+				} else if (noteData && noteData.ext == '.mdencrypted' ) {
 					// encripted note
-				} else if(noteData) {
+				} else if (noteData) {
 					openedNote = new models.Note({
 						name: path.basename(notePath, noteData.ext),
 						body: "",
@@ -294,11 +295,11 @@ var appVue = new Vue({
 		 */
 		init_sidebar_width() {
 			var handlerStack = document.getElementById('handlerStack');
-			if(handlerStack) handlerStack.previousElementSibling.style.width = this.racksWidth+"px";
+			if (handlerStack) handlerStack.previousElementSibling.style.width = this.racksWidth+"px";
 			this.$refs.refHandleStack.checkWidth(this.racksWidth);
 
 			var handlerNotes = document.getElementById('handlerNotes');
-			if(handlerNotes) handlerNotes.previousElementSibling.style.width = this.notesWidth+"px";
+			if (handlerNotes) handlerNotes.previousElementSibling.style.width = this.notesWidth+"px";
 			this.$refs.refHandleNote.checkWidth(this.notesWidth);
 		},
 		/**
@@ -331,7 +332,7 @@ var appVue = new Vue({
 		changeRackOrFolder(obj) {
 			var rf = this.selectedRackOrFolder;
 			this.selectedRackOrFolder = obj;
-			if(this.selectedRackOrFolder && !this.selectedRackOrFolder.data.bookmarks) {
+			if (this.selectedRackOrFolder && !this.selectedRackOrFolder.data.bookmarks && this.keepHistory) {
 				if (this.selectedRackOrFolder instanceof models.Rack) {
 					libini.pushKey(models.getBaseLibraryPath(), ['history', 'rack'], this.selectedRackOrFolder.ordering, 3 );
 				} else {
@@ -391,7 +392,9 @@ var appVue = new Vue({
 					}]);
 				} else {
 					this.selectedNote = note;
-					libini.pushKey(models.getBaseLibraryPath(), ['history', 'note'], this.selectedNote.relativePath, 5);
+					if (this.keepHistory) {
+						libini.pushKey(models.getBaseLibraryPath(), ['history', 'note'], this.selectedNote.relativePath, 5);
+					}
 				}
 			} else {
 				this.selectedNote = {};
@@ -1265,6 +1268,13 @@ var appVue = new Vue({
 		},
 		fontsize() {
 			settings.set('fontsize', this.fontsize);
+		},
+		keepHistory() {
+			settings.set('keepHistory', this.keepHistory);
+			if (!this.keepHistory) {
+				this.notesHistory = [];
+				models.resetHistory();
+			}
 		},
 		selectedNote() {
 			this.noteHeadings = [];

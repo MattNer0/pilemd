@@ -1391,6 +1391,10 @@ var readHistoryNotes = function(racks, note_history, readRackContent) {
 	return result;
 };
 
+var resetHistory = function() {
+	libini.removeKey(getBaseLibraryPath(), 'history');
+};
+
 module.exports = {
 	Note: Note,
 	EncryptedNote: EncryptedNote,
@@ -1405,5 +1409,6 @@ module.exports = {
 	getValidMarkdownFormats: getValidMarkdownFormats,
 	Image: Image,
 	readRacks: readRacks,
-	readHistoryNotes: readHistoryNotes
+	readHistoryNotes: readHistoryNotes,
+	resetHistory: resetHistory
 };

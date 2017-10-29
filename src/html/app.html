@@ -99,6 +99,7 @@
 						</div>
 						<div class="my-splash-page" v-show="notesHistory && !isNoteSelected && !selectedBookmark.name">
 							<welcome-splash
+								:keep-history="keepHistory"
 								:notes="notesHistory"
 								:change-note="changeNote">
 							</welcome-splash>

@@ -18,7 +18,10 @@ module.exports = {
 		if (typeof key === 'string') {
 			return this.readIni(library_path)[key];
 		} else if (key.length == 2) {
-			return this.readIni(library_path)[key[0]][key[1]];
+			var value = this.readIni(library_path)[key[0]];
+			if (value) {
+				return value[key[1]];
+			}
 		}
 	},
 	readKeyAsArray(library_path, key) {
