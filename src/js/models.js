@@ -248,7 +248,7 @@ class Note extends Model {
 	}
 
 	get metadataregex() {
-		return /^([a-z]+):\s+([\w\W\s]+?)\s*\n(?=(\w+:)|\n)\n*/gmiy;
+		return /^((\+\+\++\n)|([a-z]+)\s?[:=]\s+[`'"]?([\w\W\s]+?)[`'"]?\s*\n(?=(\w+\s?[:=])|\n|(\+\+\++\n)?))\n*/gmiy;
 	}
 
 	get metadata() {
@@ -261,11 +261,11 @@ class Note extends Model {
 
 	set metadata(newValue) {
 		this._metadata = newValue;
-		var str = '';
+		var str = '+++\n';
 		Object.keys(newValue).forEach((key) => {
-			if (newValue[key]) str += key + ': ' + newValue[key] + '\n';
+			if (newValue[key]) str += key + ' = "' + newValue[key] + '"\n';
 		});
-		this._body = str + '\n' + this.bodyWithoutMetadata;
+		this._body = str + '+++\n\n' + this.bodyWithoutMetadata;
 	}
 
 	set path(newValue) {
@@ -360,11 +360,11 @@ class Note extends Model {
 	}
 
 	get bodyWithMetadata() {
-		var str = '';
+		var str = '+++\n';
 		Object.keys(this._metadata).forEach((key) => {
-			if (this._metadata[key]) str += key + ': ' + this._metadata[key] + '\n';
+			if (this._metadata[key]) str += key + ' = "' + this._metadata[key] + '"\n';
 		});
-		return str + '\n' + this._body;
+		return str + '+++\n\n' + this._body;
 	}
 
 	get img() {
@@ -400,11 +400,31 @@ class Note extends Model {
 		var metadata = {};
 		var m;
 
+		/**
+		 * @function cleanMatch
+		 * @param  {type} m {description}
+		 * @return {type} {description}
+		 */
+		function cleanMatch(m) {
+			if (!m) return m;
+			var newM = [];
+			for (var i = 1; i < m.length; i++) {
+				if(m[i]) {
+					newM.push(m[i]);
+				}
+			}
+			return newM;
+		}
+
 		var first_meta = this._body.match(re);
 		if (first_meta && this._body.indexOf(first_meta[0]) == 0) {
 			do {
 				m = re.exec(this._body);
-				if (m) {
+				m = cleanMatch(m);
+				//console.log(this._name, m);
+				if (m && m[1].match(/^\+\+\++/)) {
+					// +++
+				} else if (m) {
 					m[2] = m[2].replace(/\s+/g,' ');
 					if (m[1] === 'updatedAt' || m[1] === 'createdAt') {
 						metadata[m[1]] = moment(m[2]).format('YYYY-MM-DD HH:mm:ss');
