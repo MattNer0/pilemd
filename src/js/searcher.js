@@ -49,6 +49,9 @@ module.exports = {
 	 */
 	calculateSearchMeaning(selectedRackOrFolder, searchInput) {
 		var words = searchInput.toLowerCase().split(' ');
+		words = words.filter(function(str) {
+			return str.length > 0;
+		});
 		var folderUids;
 		if (selectedRackOrFolder === null || selectedRackOrFolder === undefined) {
 			folderUids = null;

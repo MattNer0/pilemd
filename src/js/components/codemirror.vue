@@ -175,13 +175,11 @@
 				this.$watch('note', function(value) {
 					// When swapped the doc;
 					var doc = null;
-					if (value.doc) {
+					if (value && value.doc) {
 						doc = value.doc;
 					} else {
 						// New doc
-						if (value.body) {
-							doc = new CodeMirror.Doc(value.body, 'piledmd');
-						}
+						doc = new CodeMirror.Doc(value.body, 'piledmd');
 						value.doc = doc;
 						cm.focus();
 					}

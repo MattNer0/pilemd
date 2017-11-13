@@ -37,8 +37,8 @@ import component_noteMenu from './components/noteMenu.vue';
 import component_notes from './components/notes.vue';
 import component_racks from './components/racks.vue';
 import component_titleMenu from './components/titleMenu.vue';
-import component_windowBar from './components/windowBar.vue';
 import component_welcomeSplash from './components/welcomeSplash.vue';
+import component_windowBar from './components/windowBar.vue';
 
 // loading CSSs
 require('../scss/pilemd-light.scss');
@@ -632,17 +632,20 @@ var appVue = new Vue({
 		 */
 		addNote() {
 			var currFolder = this.getCurrentFolder();
+			this.changeNote(null);
+			this.selectedRackOrFolder = currFolder;
 			var newNote = models.Note.newEmptyNote(currFolder);
-			if(newNote){
-				if(currFolder.notes) currFolder.notes.unshift(newNote);
-				this.notes.unshift(newNote);
-				newNote.saveModel();
-				this.changeNote(newNote);
-				this.isPreview = false;
-
-				if (this.search.length > 0) {
-					this.search = '';
+			if (newNote) {
+				if (this.search.length > 0) this.search = '';
+				if (currFolder.data.rack && currFolder.data.rack.notes) {
+					currFolder.data.rack.notes.unshift(newNote);
+					currFolder.data.rack.openFolders = true;
 				}
+				if (currFolder.notes) currFolder.notes.unshift(newNote);
+				this.notes.unshift(newNote);
+				this.isPreview = false;
+				this.changeNote(newNote);
+				newNote.saveModel();
 			} else {
 				var message;
 				if(this.racks.length > 0){
@@ -661,17 +664,17 @@ var appVue = new Vue({
 		 */
 		addEncryptedNote() {
 			var currFolder = this.getCurrentFolder();
+			this.changeNote(null);
+			this.selectedRackOrFolder = currFolder;
 			var newNote = models.EncryptedNote.newEmptyNote(currFolder);
-			if(newNote){
-				if(currFolder.notes) currFolder.notes.unshift(newNote);
+			if (newNote) {
+				if (this.search.length > 0) this.search = '';
+				if (currFolder.data.rack && currFolder.data.rack.notes) currFolder.data.rack.notes.unshift(newNote);
+				if (currFolder.notes) currFolder.notes.unshift(newNote);
 				this.notes.unshift(newNote);
-				newNote.saveModel();
-				this.changeNote(newNote);
 				this.isPreview = false;
-
-				if (this.search.length > 0) {
-					this.search = '';
-				}
+				this.changeNote(newNote);
+				newNote.saveModel();
 			} else {
 				var message;
 				if(this.racks.length > 0){
