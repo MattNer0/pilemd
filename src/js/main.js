@@ -425,26 +425,49 @@ var appVue = new Vue({
 			rack.openFolders = true;
 		},
 		/**
-		 * reads folders and notes inside the Rack.
-		 *
 		 * @function readRackContent
-		 * @param  {Object}  rack    The rack
+		 * @description reads folders and notes inside the Rack.
+		 * @param  {Object}   rack       The rack
+		 * @param  {Boolean}  loadNotes  True if it should load notes content
 		 * @return {Void} Function doesn't return anything
 		 */
-		readRackContent(rack) {
-			if(!(rack instanceof models.Rack)) return;
-			var newData = rack.readContents();
-			if(newData) {
-				this.folders = this.folders.concat( newData );
-				for(var i=0; i<newData.length; i++){
-					var newNotes = newData[i].readContents();
-					if(newNotes) {
-						this.notes = this.notes.concat(newNotes);
-						newData[i].notes = newNotes;
-						rack.notes = rack.notes.concat(newNotes);
-					}
-				}
+		readRackContent(rack, loadNotes) {
+			if (!(rack instanceof models.Rack)) return;
+			var newData = rack.readContents(loadNotes);
+			var loadedFolders = 0;
+			if (newData) {
+				this.folders = this.folders.concat(newData);
+			} else {
+				newData = rack.folders;
 			}
+			newData.forEach((folder) => {
+				var newNotes = folder.readContents();
+				if (newNotes) {
+					this.notes = this.notes.concat(newNotes);
+					folder.notes = newNotes;
+					rack.notes = rack.notes.concat(newNotes);
+				} else {
+					newNotes = folder.notes;
+				}
+
+				var unloadedNotes = newNotes.filter(function(obj) {
+					return !obj.body;
+				});
+				if (unloadedNotes.length == 0) {
+					loadedFolders += 1;
+				}
+
+				if (loadNotes) {
+					unloadedNotes.forEach((note) => {
+						note.loadBody();
+					});
+				}
+			});
+
+			if (loadedFolders == newData.length) {
+				rack.loadedNotes = true;
+			}
+
 			rack.folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
 		},
 		/**

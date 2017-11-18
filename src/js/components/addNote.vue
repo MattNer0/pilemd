@@ -1,7 +1,7 @@
 <template lang="pug">
-	.my-notes
+	.my-notes(v-if="selectedFolder || !selectedRackOrFolder.loadedNotes")
 		.my-separator
-			.my-notes-note.new-note
+			.my-notes-note.new-note(v-if="selectedFolder")
 				h5.my-notes-note-title(@click.prevent="newNote")
 					i.material-icons add_circle_outline
 					template(v-if="notesList")
@@ -21,6 +21,10 @@
 						li: a(@click.prevent="$root.addEncryptedNote()", href="#")
 							i.material-icons note_add
 							|  New Encrypted Note
+			.my-notes-note.new-note(v-else)
+				h5.my-notes-note-title(@click.prevent="loadNotes")
+					i.material-icons sync
+					|  Load All Notes
 </template>
 
 <script>
@@ -30,6 +34,7 @@
 		name: 'addNote',
 		props: {
 			'selectedRackOrFolder': Object,
+			'selectedFolder': Object,
 			'notesList': Boolean
 		},
 		components: {
@@ -42,6 +47,9 @@
 			};
 		},
 		methods: {
+			loadNotes() {
+				return this.$root.readRackContent(this.selectedRackOrFolder, true);
+			},
 			newNote() {
 				if (this.notesList) {
 					return this.$root.addNote();

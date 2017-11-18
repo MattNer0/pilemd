@@ -1,6 +1,6 @@
 <template lang="pug">
 	.my-notes(:class="{'my-bookmarks': bookmarksList}")
-		.my-separator(v-for="separated in notesFiltered", v-bind:key="separated.dateStr", :class="{'my-bookmark-separator': bookmarksList}")
+		.my-separator(v-if="selectedRackOrFolder", v-for="separated in notesFiltered", v-bind:key="separated.dateStr", :class="{'my-bookmark-separator': bookmarksList}")
 			.my-separator-date {{ separated.dateStr }}
 			.my-notes-note(v-for="note in separated.notes",
 				track-by="uid",

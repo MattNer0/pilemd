@@ -172,7 +172,7 @@
 			},
 			selectRack(rack) {
 				var previousRackOrFolder = this.changeRackOrFolder(rack);
-				if(rack.openFolders && previousRackOrFolder == rack){
+				if (rack.openFolders && previousRackOrFolder == rack) {
 					this.closeRack(rack);
 				} else {
 					this.openRack(rack);

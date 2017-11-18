@@ -271,12 +271,14 @@
 		},
 		watch: {
 			isFullScreen() {
-				this.$nextTick(() => {
-					setTimeout(() => {
-						this.refreshCM();
-						this.cm.focus();
-					}, 300);
-				});
+				if (this.cm) {
+					this.$nextTick(() => {
+						setTimeout(() => {
+							this.refreshCM();
+							this.cm.focus();
+						}, 300);
+					});
+				}
 			},
 			isPreview() {
 				if (!this.isPreview) {

@@ -762,6 +762,8 @@ class Folder extends Model {
 		this.sortUpper = false;
 		this.sortLower = false;
 		this._contentLoaded = false;
+		this._loadingFull = false;
+
 		this.openNotes = false;
 		this._notes = [];
 	}
@@ -815,6 +817,14 @@ class Folder extends Model {
 		return this._notes;
 	}
 
+	get contentLoaded() {
+		return this._contentLoaded;
+	}
+
+	get loadedNotes() {
+		return this._loadingFull;
+	}
+
 	update(data) {
 		super.update(data);
 		this.name = data.name;
@@ -827,10 +837,13 @@ class Folder extends Model {
 		fs.writeFileSync(folderConfigPath, this.ordering);
 	}
 
-	readContents() {
-		if(!this._contentLoaded){
+	readContents(loading_full) {
+		if (!this._contentLoaded) {
 			this._contentLoaded = true;
 			return Note.readNoteByFolder(this);
+		}
+		if (loading_full) {
+			this._loadingFull = true;
 		}
 		return null;
 	}
@@ -1044,6 +1057,7 @@ class Rack extends Model {
 		this.sortLower = false;
 		this.openFolders = false;
 		this._contentLoaded = false;
+		this._loadingFull = false;
 
 		this.folders = [];
 		this.notes = [];
@@ -1066,6 +1080,18 @@ class Rack extends Model {
 
 	get rackExists() {
 		return fs.existsSync(this._path);
+	}
+
+	get contentLoaded() {
+		return this._contentLoaded;
+	}
+
+	get loadedNotes() {
+		return this._loadingFull;
+	}
+
+	set loadedNotes(newValue) {
+		this._loadingFull = Boolean(newValue);
 	}
 
 	update(data) {
@@ -1096,11 +1122,14 @@ class Rack extends Model {
 		fs.writeFileSync(rackConfigPath, this.ordering);
 	}
 
-	readContents() {
+	readContents(loading_full) {
 		if(!this._contentLoaded){
 			this._contentLoaded = true;
 			this.folders = Folder.readFoldersByRack(this);
 			return this.folders;
+		}
+		if (loading_full) {
+			this._loadingFull = true;
 		}
 		return null;
 	}

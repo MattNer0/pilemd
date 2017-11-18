@@ -40,8 +40,9 @@
 				</div>
 				<handler-stack :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd" ref="refHandleStack"></handler-stack>
 				<div class="cell-container">
-					<add-note v-if="selectedFolder"
+					<add-note v-if="selectedRackOrFolder"
 						:notes-list="isNoteRackSelected"
+						:selected-folder="selectedFolder"
 						:selected-rack-or-folder="selectedRackOrFolder">
 					</add-note>
 					<div class="my-shelf-notes" ref="refNotes">
