@@ -72,6 +72,11 @@
 					lineWrapping     : true,
 					theme            : "default",
 					keyMap           : 'piledmap',
+					extraKeys        : {
+						'Ctrl-Y'    : () => { pasteText(cm, this.note) },
+						'Ctrl-V'    : () => { pasteText(cm, this.note) },
+						'Alt-V'     : () => { pasteText(cm, this.note) }
+					},
 					indentUnit       : 4,
 					smartIndent      : true,
 					tabSize          : 4,
@@ -125,7 +130,7 @@
 						menu.append(new MenuItem({
 							label      : 'Paste',
 							accelerator: 'CmdOrCtrl+V',
-							click      : () => { pasteText(cm) }
+							click      : () => { pasteText(cm, this.note) }
 						}));
 
 						menu.append(new MenuItem({ type: 'separator' }));
@@ -174,6 +179,8 @@
 
 				this.$watch('note', function(value) {
 					// When swapped the doc;
+					if(!value || !value.title) return;
+
 					var doc = null;
 					if (value && value.doc) {
 						doc = value.doc;
@@ -219,7 +226,7 @@
 				files = Array.prototype.slice.call(files, 0, 5);
 				_.forEach(files, (f) => {
 					try {
-						var image = Image.fromBinary(f.name, f.path);
+						var image = Image.fromBinary(f.name, f.path, this.note);
 					} catch (e) {
 						this.$message('error', 'Failed to load and save image', 5000);
 						console.log(e);

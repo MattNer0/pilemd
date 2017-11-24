@@ -94,14 +94,15 @@ function isCheckbox(text) {
  * @function uploadFile
  * @param   {Object}   cm    The CodeMirror instance
  * @param   {Object}   file  The file to upload
+ * @param   {Object}   selectedNote  Current selected Note
  * @return  {Boolean}        True if file was uploaded correctly, False otherwise
  * 
  * upload image file into library directory.
  */
-function uploadFile(cm, file) {
+function uploadFile(cm, file, selectedNote) {
 	var image;
 	try {
-		image = Image.fromBinary(file.name, file.path);
+		image = Image.fromBinary(file.name, file.path, selectedNote);
 	} catch (err) {
 		console.warn('uploadFile', err);
 		return false;
@@ -119,15 +120,16 @@ function uploadFile(cm, file) {
 
 /**
  * @function pasteText
- * @param  {Object} cm CodeMirror instance
+ * @param  {Object}   cm  CodeMirror instance
+ * @param   {Object}  selectedNote  Current selected Note
  * @return {type} {description}
  * 
  * Handles pasting text into the editor
  */
-function pasteText(cm) {
+function pasteText(cm, selectedNote) {
 	if (clipboard.availableFormats().indexOf('image/png') != -1 || clipboard.availableFormats().indexOf('image/jpg') != -1) {
 		var im = clipboard.readImage();
-		var image = Image.fromClipboard(im);
+		var image = Image.fromClipboard(im, selectedNote);
 		cm.doc.replaceRange(
 			temp_IMAGE_TAG({
 				filename: image.name,
@@ -145,7 +147,7 @@ function pasteText(cm) {
 				name: pasted.split('/').pop(),
 				path: pasted
 			};
-			if (!uploadFile(cm, f)) cm.replaceSelection(pasted);
+			if (!uploadFile(cm, f, selectedNote)) cm.replaceSelection(pasted);
 		} else if (isCheckbox(pasted)) {
 			var c = cm.getCursor();
 			var thisLine = cm.getLine(c.line);

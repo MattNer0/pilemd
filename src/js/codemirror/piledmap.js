@@ -1,7 +1,6 @@
 const elutils = require('./elutils');
 const copyText = elutils.copyText;
 const cutText = elutils.cutText;
-const pasteText = elutils.pasteText;
 const killLine = elutils.killLine;
 
 const TODO_REGEXP = /^( *)((\*|-) \[( |x)] )(.*)$/;
@@ -177,9 +176,6 @@ function enterHandler(before, after) {
 		'Ctrl-C'    : copyText,
 		'Alt-W'     : copyText,
 		'Ctrl-A'    : 'selectAll',
-		'Ctrl-Y'    : pasteText,
-		'Ctrl-V'    : pasteText,
-		'Alt-V'     : pasteText,
 		'Ctrl-X'    : cutText,
 		'Ctrl-W'    : cutText,
 		'Ctrl-K'    : killLine,

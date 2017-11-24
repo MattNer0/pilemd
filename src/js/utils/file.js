@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var url = require('url');
 
 /**
  * copy source file into the target directory.
@@ -85,5 +86,45 @@ module.exports = {
 			});
 			fs.rmdirSync(source);
 		}
+	},
+	getFileNameFromUrl(file_url) {
+		return this.getFileDataFromUrl(file_url).basename;
+	},
+	getFileExtensionFromUrl(file_url) {
+		return this.getFileDataFromUrl(file_url).extname;
+	},
+	getFileDataFromUrl(file_url) {
+		var path_url = url.parse(file_url).pathname;
+		return {
+			basename: path.basename(path_url),
+			extname: path.extname(path_url)
+		};
+	},
+	downloadMultipleFiles(array_urls, target_folder) {
+		array_urls.forEach((url) => {
+			this.downloadFile(url, target_folder);
+		});
+	},
+	downloadFile(source_url, target_folder, filename) {
+		var http = require('http');
+		var fs = require('fs');
+
+		if (!filename) filename = this.getFileNameFromUrl(source_url);
+		if (!target_folder || !filename) return;
+
+		var file = path.join(target_folder, filename);
+		http.get(source_url, function(res) {
+			var imagedata = '';
+			res.setEncoding('binary');
+			res.on('data', function(chunk) {
+				imagedata += chunk;
+			});
+			res.on('end', function() {
+				fs.writeFile(file, imagedata, 'binary', function(err) {
+					if (err) throw err;
+					console.log('Downloaded', filename, 'to', target_folder);
+				});
+			});
+		});
 	}
 };

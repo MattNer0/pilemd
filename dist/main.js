@@ -137,7 +137,6 @@ function makeWindow() {
 if (shouldQuit) {
 	app.quit();
 } else {
-
 	const APP_NAME = app.getName();
 	const DARWIN_ALL_CLOSED_MENU = [
 		{

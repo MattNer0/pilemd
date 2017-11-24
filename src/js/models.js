@@ -79,21 +79,22 @@ class Model {
 
 class Image {
 
-		constructor (pilemdURL, name) {
-			if (!pilemdURL.startsWith('pilemd://.images/')) {
+		constructor (pilemdURL, name, note) {
+			if (!pilemdURL.startsWith('pilemd://')) {
 				throw "Incorrect Image URL";
 			}
+
 			this.pilemdURL = pilemdURL;
 			this.name = name;
+			this._note = note;
 		}
 
 		makeFilePath() {
-			var p = this.pilemdURL.slice(9);
-			var basePath = getBaseLibraryPath();
+			// remove pilemd
+			var p = this.pilemdURL.replace(/^pilemd:\/\//i,'');
+			var basePath = this._note.imagePath;
 			if (!basePath || basePath.length == 0) throw "Invalid Base Path";
-			//var relativePath = path.join('images', this.name);
-			return path.join(getBaseLibraryPath(), p);
-			//return new this('pilemd://' + relativePath, this.name);
+			return path.join(basePath, p);
 		}
 
 		convertDataURL() {
@@ -113,14 +114,17 @@ class Image {
 			return filePath + '_' + r;
 		}
 
-		static fromClipboard(im) {
+		static fromClipboard(im, note) {
+			var dirPath = path.join(getBaseLibraryPath(), '.images');
+			if (note) {
+				dirPath = note.imagePath;
+			}
 			//create a name based on current date and save it.
 			var d = new Date();
 			var name = d.getFullYear().toString() + (d.getMonth()+1).toString() +
 				d.getDate().toString() + '_' + d.getHours().toString() +
 				d.getMinutes().toString() + d.getSeconds().toString() + ".png";
 
-			var dirPath = path.join(getBaseLibraryPath(), '.images');
 			try {
 				fs.mkdirSync(dirPath);
 			} catch (e) {
@@ -139,14 +143,17 @@ class Image {
 				// if not exists
 			}
 			fs.writeFileSync(savePath, im.toPNG());
-			var relativePath = path.join('.images', name);
-			console.log(name);
-			return new this('pilemd://' + relativePath, name);
+			//var relativePath = path.join('.images', name);
+			//var relativePath = path.relative(getBaseLibraryPath(), savePath);
+			return new this('pilemd://' + name, name);
 		}
 
-		static fromBinary(name, frompath) {
-			// try creating images dir.
+		static fromBinary(name, frompath, note) {
 			var dirPath = path.join(getBaseLibraryPath(), '.images');
+			if (note) {
+				dirPath = note.imagePath;
+			}
+			// try creating images dir.
 			try {
 				fs.mkdirSync(dirPath);
 			} catch (e) {
@@ -165,8 +172,9 @@ class Image {
 				// if not exists
 			}
 			fs.writeFileSync(savePath, fs.readFileSync(frompath));
-			var relativePath = path.join('.images', name);
-			return new this('pilemd://' + relativePath);
+			//var relativePath = path.join('.images', name);
+			//var relativePath = path.relative(getBaseLibraryPath(), savePath);
+			return new this('pilemd://' + name, name);
 		}
 	}
 
@@ -269,11 +277,22 @@ class Note extends Model {
 	}
 
 	set path(newValue) {
-		if (newValue != this._path) {
+		if (newValue != this._path && this._path) {
 			try {
-				if (this._path && fs.existsSync(this._path)) fs.unlinkSync(this._path);
+				if (fs.existsSync(this._path)) fs.unlinkSync(this._path);
 			} catch (e) {
 				// unlink failed
+			}
+
+			var imageFolderPath = this.imagePath;
+
+			// what if new folder already exists?
+			if (fs.existsSync(imageFolderPath)) {
+				util_file.moveFolderRecursiveSync(
+					imageFolderPath,
+					path.dirname(newValue),
+					'.' + path.basename(newValue, path.extname(newValue))
+				);
 			}
 
 			this._path = newValue;
@@ -291,6 +310,10 @@ class Note extends Model {
 			this.document_filename
 		) + this._ext;
 		return new_path;
+	}
+
+	get imagePath() {
+		return path.join(path.dirname(this._path), '.' + path.basename(this._path, path.extname(this._path)));
 	}
 
 	get relativePath() {
@@ -344,12 +367,13 @@ class Note extends Model {
 	}
 
 	get bodyWithDataURL() {
-		return this.body.replace(
+		var body = this.body;
+		body = body.replace(
 			/!\[(.*?)]\((pilemd:\/\/.*?)\)/mg,
 			(match, p1, p2) => {
 				var dataURL;
 				try {
-					dataURL = new Image(p2, path.basename(p2)).convertDataURL();
+					dataURL = new Image(p2, path.basename(p2), this).convertDataURL();
 				} catch (e) {
 					console.warn(e);
 					return match;
@@ -357,6 +381,22 @@ class Note extends Model {
 				return '![' + p1 + '](' + dataURL + ')';
 			}
 		);
+
+		body = body.replace(
+			/^\[(\d+)]:\s(pilemd:\/\/.*?)$/mg,
+			(match, p1, p2) => {
+				var dataURL;
+				try {
+					dataURL = new Image(p2, path.basename(p2), this).convertDataURL();
+				} catch (e) {
+					console.warn(e);
+					return match;
+				}
+				return '[' + p1 + ']: ' + dataURL;
+			}
+		);
+
+		return body;
 	}
 
 	get bodyWithMetadata() {
@@ -376,11 +416,72 @@ class Note extends Model {
 		}
 		var dataUrl;
 		try {
-			dataUrl = new Image(matched[0]).convertDataURL();
+			dataUrl = new Image(matched[0], path.basename(matched[0]), this).convertDataURL();
 		} catch (e) {
 			dataUrl = null;
 		}
 		return dataUrl;
+	}
+
+	downloadImages() {
+		var createdDir = false;
+		var imageFormats = ['.png', '.jpg', '.gif', '.bmp'];
+
+		var urlDownloads = [];
+
+		this.body = this.body.replace(
+			/!\[(.*?)]\((https?:\/\/.*?)\)/img,
+			(match, p1, p2) => {
+				var file_data = util_file.getFileDataFromUrl(p2);
+				if (file_data.extname && imageFormats.indexOf(file_data.extname) >= 0) {
+					if (!createdDir) {
+						try {
+							fs.mkdirSync(this.imagePath);
+						} catch (e) {
+							// directory exists
+						}
+						createdDir = true;
+					}
+					try {
+						if (urlDownloads.indexOf(p2) == -1) urlDownloads.push(p2);
+					} catch (e) {
+						console.warn(e);
+						return match;
+					}
+
+					return '![' + p1 + '](pilemd://' + util_file.basename + ')';
+				}
+				return match;
+			}
+		);
+
+		this.body = this.body.replace(
+			/^\[(\d+)\]:\s(https?:\/\/.*?$)/img,
+			(match, p1, p2) => {
+				var file_data = util_file.getFileDataFromUrl(p2);
+				if (file_data.extname && imageFormats.indexOf(file_data.extname) >= 0) {
+					if (!createdDir) {
+						try {
+							fs.mkdirSync(this.imagePath);
+						} catch (e) {
+							// directory exists
+						}
+						createdDir = true;
+					}
+					try {
+						if (urlDownloads.indexOf(p2) == -1) urlDownloads.push(p2);
+					} catch (e) {
+						console.warn(e);
+						return match;
+					}
+
+					return '[' + p1 + ']: pilemd://' + file_data.basename;
+				}
+				return match;
+			}
+		);
+
+		if (urlDownloads.length > 0) util_file.downloadMultipleFiles(urlDownloads, this.imagePath);
 	}
 
 	setMetadata(key, value) {
@@ -421,7 +522,6 @@ class Note extends Model {
 			do {
 				m = re.exec(this._body);
 				m = cleanMatch(m);
-				//console.log(this._name, m);
 				if (m && m[1].match(/^\+\+\++/)) {
 					// +++
 				} else if (m) {
@@ -453,6 +553,7 @@ class Note extends Model {
 
 				if (!this.isEncryptedNote) {
 					this.parseMetadata();
+					this.downloadImages();
 				}
 			}
 			this._loadedBody = true;
@@ -565,7 +666,7 @@ class Note extends Model {
 				}
 				return { saved: false };
 			} catch(e) {
-				console.log("Couldn't save the note. Permission Error");
+				console.warn("Couldn't save the note. Permission Error");
 				return {
 					error: "Permission Error",
 					path: new_path
@@ -1339,7 +1440,7 @@ class BookmarkRack extends Rack {
 						this.path = new_path;
 					}
 				} catch(e) {
-					console.log("Couldn't save the BookmarkRack.\nPermission Error\n", new_path);
+					console.warn("Couldn't save the BookmarkRack.\nPermission Error\n", new_path);
 					return {
 						error: "Permission Error",
 						path: new_path
