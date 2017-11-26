@@ -92,6 +92,10 @@ class Image {
 		makeFilePath() {
 			// remove pilemd
 			var p = this.pilemdURL.replace(/^pilemd:\/\//i,'');
+			if(p.indexOf('.images/') == 0) {
+				return path.join(getBaseLibraryPath(), p);
+			}
+
 			var basePath = this._note.imagePath;
 			if (!basePath || basePath.length == 0) throw "Invalid Base Path";
 			return path.join(basePath, p);
@@ -449,7 +453,7 @@ class Note extends Model {
 						return match;
 					}
 
-					return '![' + p1 + '](pilemd://' + util_file.basename + ')';
+					return '![' + p1 + '](pilemd://' + file_data.basename + ')';
 				}
 				return match;
 			}
