@@ -2,6 +2,8 @@ var fs = require('fs');
 var path = require('path');
 var url = require('url');
 
+const electron = require('electron');
+
 /**
  * copy source file into the target directory.
  *
@@ -41,11 +43,22 @@ function moveFileSync(source, target) {
 }
 
 module.exports = {
+	deleteFile(path) {
+		if (path && fs.existsSync(path)) {
+			if (!electron.shell.moveItemToTrash(path)) {
+				fs.unlinkSync(path);
+			}
+		}
+	},
 	safeName(name) {
 		return name.replace(/[/\\¥]/g, '-');
 	},
 	copyFolderRecursiveSync(source, target) {
 		var files = [];
+
+		if (!fs.existsSync(source)) {
+			return;
+		}
 
 		//check if folder needs to be created or integrated
 		var targetFolder = path.join(target, path.basename(source));
@@ -67,6 +80,10 @@ module.exports = {
 	},
 	moveFolderRecursiveSync(source, target, new_name) {
 		var files = [];
+
+		if (!fs.existsSync(source)) {
+			return;
+		}
 
 		//check if folder needs to be created or integrated
 		var targetFolder = path.join(target, new_name ? new_name : path.basename(source));

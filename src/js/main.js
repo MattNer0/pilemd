@@ -194,10 +194,13 @@ var appVue = new Vue({
 				}
 			}
 		} else {
-			this.$refs.dialog.init('Error', 'Couldn\'t open library directory.\nPath: '+models.getBaseLibraryPath(), [{
-				label: 'Ok',
-				cancel: true
-			}]);
+			console.error('Couldn\'t open library directory.\nPath: '+models.getBaseLibraryPath());
+			setTimeout(() => {
+				this.$refs.dialog.init('Error', 'Couldn\'t open library directory.\nPath: '+models.getBaseLibraryPath(), [{
+					label: 'Ok',
+					cancel: true
+				}]);
+			}, 100);
 		}
 
 		this.racks = arr.sortBy(racks.slice(), 'ordering', true);
@@ -668,7 +671,7 @@ var appVue = new Vue({
 				this.notes.unshift(newNote);
 				this.isPreview = false;
 				this.changeNote(newNote);
-				newNote.saveModel();
+				//newNote.saveModel();
 			} else {
 				var message;
 				if(this.racks.length > 0){
@@ -1305,7 +1308,7 @@ var appVue = new Vue({
 		selectedNote() {
 			this.noteHeadings = [];
 			this.updatePreview();
-			if (this.selectedNote.data) {
+			if (this.selectedNote instanceof models.Note) {
 				this.selectedRackOrFolder = this.selectedNote.data.folder;
 				this.scrollUpScrollbarNote();
 			}
