@@ -8,7 +8,7 @@ var Library;
 class Image {
 	constructor (pilemdURL, name, note) {
 		if (!pilemdURL.startsWith('pilemd://')) {
-			throw "Incorrect Image URL";
+			throw 'Incorrect Image URL';
 		}
 
 		this.pilemdURL = pilemdURL;
@@ -24,7 +24,7 @@ class Image {
 		}
 
 		var basePath = this._note.imagePath;
-		if (!basePath || basePath.length == 0) throw "Invalid Base Path";
+		if (!basePath || basePath.length == 0) throw 'Invalid Base Path';
 		return path.join(basePath, p);
 	}
 

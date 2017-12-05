@@ -517,9 +517,9 @@ class Note extends Model {
 				}
 				return { saved: false };
 			} catch(e) {
-				console.warn("Couldn't save the note. Permission Error");
+				console.warn('Couldn\'t save the note. Permission Error');
 				return {
-					error: "Permission Error",
+					error: 'Permission Error',
 					path: new_path
 				};
 			}
@@ -678,9 +678,9 @@ class EncryptedNote extends Note {
 	static newEmptyNote(folder) {
 		if(folder){
 			return new EncryptedNote({
-				name: "NewNote",
-				body: "",
-				path: "",
+				name: 'NewNote',
+				body: '',
+				path: '',
 				folder: folder,
 				folderUid: folder.uid
 			});

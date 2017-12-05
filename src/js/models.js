@@ -111,14 +111,20 @@ module.exports = {
 	readHistoryNotes(racks, note_history, readRackContent) {
 		var result = [];
 		for (var i = 0; i < racks.length; i++) {
+			// one rack
 			var r = racks[i];
+
+			// notes inside current rack
 			var racks_history = note_history.filter(function(obj) {
 				return path.join(baseLibrary.baseLibraryPath, obj.split(path.sep)[0]) == r.data.path;
 			});
+
 			if (racks_history.length > 0) readRackContent(r);
+
 			for(var j = 0; j < r.notes.length; j++) {
 				var n = r.notes[j];
-				if(racks_history.indexOf(n.relativePath) >= 0) {
+				if (racks_history.indexOf(n.relativePath) >= 0) {
+					// found note
 					result.push(n);
 				}
 			}

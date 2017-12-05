@@ -73,10 +73,10 @@ var appVue = new Vue({
 		bookmarksDomains    : [],
 		notesHistory        : [],
 		selectedRackOrFolder: null,
-		search              : "",
+		search              : '',
 		selectedNote        : {},
 		selectedBookmark    : {},
-		loadingUid          : "",
+		loadingUid          : '',
 		draggingNote        : null,
 		allDragHover        : false,
 		messages            : [],
@@ -131,8 +131,7 @@ var appVue = new Vue({
 			return searcher.searchNotes(this.selectedRackOrFolder, this.search, notes);
 		},
 		/**
-		 * returns currently selected folder or "undefined" if no folder is selected.
-		 * 
+		 * @description returns currently selected folder or 'undefined' if no folder is selected.
 		 * @function selectedFolder
 		 * @return    {Object}     Currently selected folder
 		 */
@@ -142,7 +141,7 @@ var appVue = new Vue({
 		},
 		/**
 		 * check if the title attribute is defined to see
-		 * if the "selectedNote" is really a note object or just an empty object
+		 * if the 'selectedNote' is really a note object or just an empty object
 		 * 
 		 * @return    {Boolean}    True if note is selected
 		 */
@@ -260,7 +259,7 @@ var appVue = new Vue({
 				} else if (noteData) {
 					openedNote = new models.Note({
 						name: path.basename(notePath, noteData.ext),
-						body: "",
+						body: '',
 						path: notePath,
 						extension: noteData.ext
 					});
@@ -298,11 +297,11 @@ var appVue = new Vue({
 		 */
 		init_sidebar_width() {
 			var handlerStack = document.getElementById('handlerStack');
-			if (handlerStack) handlerStack.previousElementSibling.style.width = this.racksWidth+"px";
+			if (handlerStack) handlerStack.previousElementSibling.style.width = this.racksWidth + 'px';
 			this.$refs.refHandleStack.checkWidth(this.racksWidth);
 
 			var handlerNotes = document.getElementById('handlerNotes');
-			if (handlerNotes) handlerNotes.previousElementSibling.style.width = this.notesWidth+"px";
+			if (handlerNotes) handlerNotes.previousElementSibling.style.width = this.notesWidth + 'px';
 			this.$refs.refHandleNote.checkWidth(this.notesWidth);
 		},
 		/**
@@ -367,14 +366,14 @@ var appVue = new Vue({
 				this.selectedBookmark = {};
 				if (!note.body) note.loadBody();
 				if (note.isEncrypted) {
-					var message = "Insert the secret key to Encrypt and Decrypt this note";
+					var message = 'Insert the secret key to Encrypt and Decrypt this note';
 					this.$refs.dialog.init('Secret Key', message, [{
 						label: 'Ok',
 						cb(data) {
 							var result = note.decrypt(data.secretkey);
 							if(result.error) {
 								setTimeout(() => {
-									self.$refs.dialog.init('Error', result.error + "\nNote: " + note.path, [{
+									self.$refs.dialog.init('Error', result.error + '\nNote: ' + note.path, [{
 										label: 'Ok',
 										cancel: true
 									}]);
@@ -635,7 +634,7 @@ var appVue = new Vue({
 		 * if a rack object is selected instead of a folder object,
 		 * then it will get the first folder inside the rack.
 		 * 
-		 * @return  {Object}  Folder object if one is selected, "null" otherwise
+		 * @return  {Object}  Folder object if one is selected, 'null' otherwise
 		 */
 		getCurrentFolder() {
 			if (this.selectedRackOrFolder === null){
@@ -945,7 +944,7 @@ var appVue = new Vue({
 		},
 		/**
 		 * refresh bookmark thumbnail using some metadata content
-		 * (og:image, "shortcut icon" and "user-profile" img)
+		 * (og:image, 'shortcut icon' and 'user-profile' img)
 		 * 
 		 * @param {Object}  bookmark  The bookmark
 		 * @return {Void} Function doesn't return anything
@@ -973,7 +972,7 @@ var appVue = new Vue({
 			var bookmarkLoaded = () => {
 				self.$refs.webview.removeEventListener('did-finish-load', bookmarkLoaded);
 				self.$refs.webview.getWebContents().executeJavaScript(
-					"document.querySelector('head').innerHTML + document.querySelector('body').innerHTML",
+					'document.querySelector(\'head\').innerHTML + document.querySelector(\'body\').innerHTML',
 					(result) => {
 						var shortcut = (/rel=['"`]shortcut icon['"`][^<>]+?href=['"`](http.+?)['"`]/gi).exec(result) ||
 										(/<img[^>]+?src=['"`](http.+?profile[-_]images.+?)['"`]/gi).exec(result);
@@ -1053,7 +1052,7 @@ var appVue = new Vue({
 			menu.append(new MenuItem({
 				label: 'Copy',
 				accelerator: 'CmdOrCtrl+C',
-				click() { document.execCommand("copy"); }
+				click() { document.execCommand('copy'); }
 			}));
 			menu.append(new MenuItem({ type: 'separator' }));
 			menu.append(new MenuItem({
@@ -1137,9 +1136,9 @@ var appVue = new Vue({
 		 * @return {Void} Function doesn't return anything
 		 */
 		openCredits() {
-			var message = "PileMd was originally created by Hiroki KIYOHARA.\n"+
-				"The full list of Authors is available on GitHub.\n\n"+
-				"This Fork with updated components and additional features is maintained by MattNer0.";
+			var message = 'PileMd was originally created by Hiroki KIYOHARA.\n' +
+				'The full list of Authors is available on GitHub.\n\n' +
+				'This Fork with updated components and additional features is maintained by MattNer0.';
 
 			this.$refs.dialog.init('Credits', message, [{
 				label: 'Ok',
@@ -1162,7 +1161,7 @@ var appVue = new Vue({
 				switch(value) {
 					case 'original':
 						body.classList.add('original-theme');
-						body.classList.remove("light-theme");
+						body.classList.remove('light-theme');
 						break;
 					case 'light':
 						body.classList.add('light-theme');
@@ -1228,18 +1227,18 @@ var appVue = new Vue({
 			widthTotalLeft += parseInt( cellsLeft[1].style.width.replace('px','') ) + 4;
 
 			if(this.isFullScreen) {
-				document.querySelector('.sidebar').style.left = "-"+widthTotalLeft+'px';
+				document.querySelector('.sidebar').style.left = '-' + widthTotalLeft + 'px';
 				document.querySelector('.main-cell-container .my-browser').style.width = '100vw';
 				widthTotalLeft = 0;
 			} else {
-				document.querySelector('.sidebar').style.left = "";
+				document.querySelector('.sidebar').style.left = '';
 				setTimeout(() => {
-					document.querySelector('.main-cell-container .my-browser').style.width = 'calc( 100vw - '+widthTotalLeft+'px )';
+					document.querySelector('.main-cell-container .my-browser').style.width = 'calc( 100vw - ' + widthTotalLeft + 'px )';
 				}, 300);
 			}
 
 			setTimeout(() => {
-				document.querySelector('.main-cell-container').style.marginLeft = widthTotalLeft+'px';
+				document.querySelector('.main-cell-container').style.marginLeft = widthTotalLeft + 'px';
 			}, 5);
 		},
 		/**
