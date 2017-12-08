@@ -23,7 +23,7 @@
 					@blur="doneRackEdit(rack)"
 					@keyup.enter="doneRackEdit(rack)"
 					@keyup.esc="doneRackEdit(rack)")
-			
+
 			//- Folder
 			div.my-shelf-folder(v-for="folder in rack.folders"
 				:class="{'isShelfSelected': (isSelectedFolder(folder) && !isDraggingNote()) || folder.dragHover, 'openNotes' : folder.openNotes, 'noteDragging': isDraggingNote(), 'noteIsHere': !isDraggingNote() && selectedNote.folderUid == folder.uid, 'sortUpper': folder.sortUpper, 'sortLower': folder.sortLower}"
@@ -53,26 +53,19 @@
 
 	const Vue = require('vue');
 
-	const fs = require('fs');
-	const path = require('path');
-
 	const arr = require('../utils/arr');
 	const dragging = require('../utils/dragging');
 
 	const models = require('../models');
-	const { Rack, Folder, Note } = models;
 
 	export default {
 		name: 'racks',
 		props: {
 			'racks'               : Array,
-			'folders'             : Array,
 			'selectedRackOrFolder': Object,
 			'selectedNote'        : Object,
 			'draggingNote'        : Object,
 			'changeRackOrFolder'  : Function,
-			'openRack'            : Function,
-			'closeRack'           : Function,
 			'folderDragEnded'     : Function,
 			'setDraggingNote'     : Function,
 			'deleteFolder'        : Function,
@@ -171,19 +164,16 @@
 				});
 			},
 			selectRack(rack) {
-				var previousRackOrFolder = this.changeRackOrFolder(rack);
-				if (rack.openFolders && previousRackOrFolder == rack) {
-					this.closeRack(rack);
-				} else {
-					this.openRack(rack);
-				}
+				this.changeRackOrFolder(rack);
+				if (this.isSelectedRack(rack)) rack.openFolders = !rack.openFolders;
+				else rack.openFolders = true;
 			},
 			selectFolder(folder) {
 				this.changeRackOrFolder(folder);
 			},
 			// Dragging
 			rackDragStart(event, rack) {
-				this.closeRack(rack);
+				rack.openFolders = false;
 				event.dataTransfer.setDragImage(event.target, 0, 0);
 				this.draggingRack = rack;
 			},
@@ -195,10 +185,7 @@
 				if (this.draggingFolder) {
 					event.preventDefault();
 					rack.dragHover = true;
-					this.openRack(rack);
-					var newData = rack.readContents();
-					if(newData) this.folders = this.folders.concat( newData );
-
+					rack.openFolders = true;
 				} else if (this.draggingRack && this.draggingRack != rack) {
 					event.preventDefault();
 					var per = dragging.dragOverPercentage(event.currentTarget, event.clientY);
@@ -215,7 +202,7 @@
 			},
 			rackDragLeave(rack) {
 				if (this.draggingFolder && this.draggingFolderRack && !this.draggingFolderRack.uid == rack.uid) {
-					this.closeRack(rack);
+					rack.openFolders = false;
 				}
 				rack.dragHover = false;
 				rack.sortUpper = false;
@@ -229,7 +216,7 @@
 			dropToRack(event, rack) {
 				if (this.draggingFolder) {
 					console.log('Dropping to rack');
-					if (!rack.openFolders) this.openRack(rack);
+					rack.openFolders = true;
 					var draggingFolder = this.draggingFolder;
 					// Drop Folder to Rack
 					
@@ -328,7 +315,7 @@
 					arr.remove(note.data.folder.notes, (n) => {return n == note});
 					note.folder = folder;
 					folder.notes.unshift(note);
-					Note.setModel(note);
+					note.saveModel();
 					this.setDraggingNote(null);
 					var s = this.selectedRackOrFolder;
 					this.changeRackOrFolder(null);

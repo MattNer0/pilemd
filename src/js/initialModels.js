@@ -50,7 +50,7 @@ function makeInitialNotes(rack, folder) {
 		folder: folder
 	});
 
-	models.Note.setModel(note);
+	note.saveModel();
 	return [note];
 }
 
@@ -74,8 +74,8 @@ function makeInitialFolders(rack1) {
 		rack         : rack1
 	});
 
-	models.Folder.setModel(folder1);
-	models.Folder.setModel(folder2);
+	folder1.saveModel();
+	folder2.saveModel();
 
 	return [folder1, folder2];
 }
@@ -92,8 +92,10 @@ function makeInitialRacks() {
 		load_ordering: false
 	});
 
-	models.Rack.setModel(rack1);
+	rack1.saveModel();
+
 	var folders = makeInitialFolders(rack1);
+	rack1.folders = folders;
 
 	return {
 		rack1  : rack1,
@@ -112,7 +114,7 @@ function initialSetup(racks) {
 	if (racks.length == 0) {
 		initialData = makeInitialRacks();
 	} else {
-		var initialFolders = racks[0].readContents();
+		var initialFolders = racks[0].folders;
 		if (initialFolders.length == 0) initialFolders = makeInitialFolders(racks[0]);
 
 		initialData = {

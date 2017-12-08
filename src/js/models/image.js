@@ -28,8 +28,12 @@ class Image {
 		return path.join(basePath, p);
 	}
 
-	convertDataURL() {
+	/*convertDataURL() {
 		return Datauri.sync(this.makeFilePath());
+	}*/
+
+	makeAbsolutePath() {
+		return 'pilemd://' + this.makeFilePath();
 	}
 
 	static appendSuffix(filePath) {

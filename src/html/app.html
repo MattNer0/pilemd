@@ -20,13 +20,10 @@
 						<div class="my-shelf-wrapper">
 							<racks
 								:racks="racks"
-								:folders="folders"
 								:selected-rack-or-folder="selectedRackOrFolder"
 								:dragging-note="draggingNote"
 								:selected-note="selectedNote"
 								:change-rack-or-folder="changeRackOrFolder"
-								:open-rack="openRack"
-								:close-rack="closerack"
 								:folder-drag-ended="folderDragEnded"
 								:set-dragging-note="setDraggingNote"
 								:delete-folder="deleteFolder"
@@ -98,7 +95,7 @@
 								ref="refBrowser">
 							</browser>
 						</div>
-						<div class="my-splash-page" v-show="notesHistory && !isNoteSelected && !selectedBookmark.name">
+						<div class="my-splash-page" v-show="notesHistory && notesHistory.length > 0 && !isNoteSelected && !selectedBookmark.name">
 							<welcome-splash
 								:keep-history="keepHistory"
 								:notes="notesHistory"

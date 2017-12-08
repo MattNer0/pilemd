@@ -143,8 +143,7 @@
 			},
 			menu_quit() {
 				this.menu_visible = false;
-				var win = remote.getCurrentWindow();
-				win.close();
+				remote.app.quit();
 			},
 			menu_desktopEntry() {
 				this.menu_visible = false;

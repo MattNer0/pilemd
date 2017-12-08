@@ -13,10 +13,6 @@ class Model {
 		this.uid = data.uid;
 	}
 
-	static setModel(model) {
-		model.saveModel();
-	}
-
 	static removeModelFromStorage(model) {
 		model.remove();
 	}

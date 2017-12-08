@@ -30,10 +30,13 @@ if (isProduction) {
 }
 
 module.exports = {
-	entry: './src/js/main.js',
+	entry: {
+		app: './src/js/main.js',
+		background: './src/js/background.js',
+	},
 	output: {
 		path: __dirname + '/dist/',
-		filename: 'app.js'
+		filename: '[name].js'
 	},
 	resolve: {
 		alias: {

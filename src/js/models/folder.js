@@ -9,7 +9,6 @@ const util_file = require('../utils/file');
 
 const Model = require('./baseModel');
 
-var Note;
 var Library;
 
 class Folder extends Model {
@@ -33,7 +32,6 @@ class Folder extends Model {
 		this.dragHover = false;
 		this.sortUpper = false;
 		this.sortLower = false;
-		this._contentLoaded = false;
 		this._loadingFull = false;
 
 		this.openNotes = false;
@@ -58,6 +56,10 @@ class Folder extends Model {
 			rackUid: this.rackUid,
 			path: this._path
 		});
+	}
+
+	get path() {
+		return this._path;
 	}
 
 	set path(newValue) {
@@ -89,12 +91,18 @@ class Folder extends Model {
 		return this._notes;
 	}
 
-	get contentLoaded() {
-		return this._contentLoaded;
-	}
-
 	get loadedNotes() {
 		return this._loadingFull;
+	}
+
+	toJSON() {
+		return {
+			name: this.name,
+			path: this._path,
+			rack: this._rack,
+			ordering: this.ordering,
+			notes: this._notes.map((n) => { return n.toJSON(); })
+		};
 	}
 
 	update(data) {
@@ -107,17 +115,6 @@ class Folder extends Model {
 	saveOrdering() {
 		var folderConfigPath = path.join( this._path, '.folder');
 		fs.writeFileSync(folderConfigPath, this.ordering);
-	}
-
-	readContents(loading_full) {
-		if (!this._contentLoaded) {
-			this._contentLoaded = true;
-			return Note.readNoteByFolder(this);
-		}
-		if (loading_full) {
-			this._loadingFull = true;
-		}
-		return null;
 	}
 
 	saveModel() {
@@ -144,33 +141,6 @@ class Folder extends Model {
 			}
 		}
 		this.saveOrdering();
-	}
-
-	static readFoldersByRack(rack) {
-		var valid_folders = [];
-		if( fs.existsSync(rack.data.path) ) {
-
-			var folders = fs.readdirSync(rack.data.path);
-			for(var fi = 0; fi<folders.length; fi++){
-
-				var folder = folders[fi];
-				var folderPath = path.join(rack.data.path, folder);
-
-				if(fs.existsSync(folderPath) && folder.charAt(0) != ".") {
-					var folderStat = fs.statSync(folderPath);
-					if(folderStat.isDirectory()){
-						valid_folders.push( new Folder({
-							name: folder,
-							ordering: valid_folders.length,
-							load_ordering: true,
-							path: folderPath,
-							rack: rack
-						}) );
-					}
-				}
-			}
-		}
-		return valid_folders;
 	}
 
 	static removeModelFromStorage(model) {
@@ -209,10 +179,6 @@ class BookmarkFolder extends Folder {
 
 	get folderExists() {
 		return false;
-	}
-
-	readContents() {
-		return null;
 	}
 
 	remove() {
@@ -308,7 +274,6 @@ class BookmarkFolder extends Folder {
 
 module.exports = function(library) {
     Library = library;
-    Note = require('./note')(library).Note;
 	return {
 		Folder        : Folder,
 		BookmarkFolder: BookmarkFolder

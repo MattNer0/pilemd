@@ -9,7 +9,6 @@ const util_file = require('../utils/file');
 
 const Model = require('./baseModel');
 
-var Folder;
 var Library;
 
 class Rack extends Model {
@@ -34,7 +33,6 @@ class Rack extends Model {
 		this.sortUpper = false;
 		this.sortLower = false;
 		this.openFolders = false;
-		this._contentLoaded = false;
 		this._loadingFull = false;
 
 		this.folders = [];
@@ -50,6 +48,10 @@ class Rack extends Model {
 		});
 	}
 
+	get path() {
+		return this._path;
+	}
+
 	set path(newValue) {
 		if(newValue != this._path){
 			this._path = newValue;
@@ -60,10 +62,6 @@ class Rack extends Model {
 		return fs.existsSync(this._path);
 	}
 
-	get contentLoaded() {
-		return this._contentLoaded;
-	}
-
 	get loadedNotes() {
 		return this._loadingFull;
 	}
@@ -72,17 +70,24 @@ class Rack extends Model {
 		this._loadingFull = Boolean(newValue);
 	}
 
+	toJSON() {
+		return {
+			name: this.name,
+			path: this._path,
+			ordering: this.ordering,
+			folders: this.folders.map((f) => { return f.toJSON(); })
+		};
+	}
+
 	update(data) {
 		super.update(data);
 		this.name = data.name;
 		this.ordering = data.ordering;
 	}
 
-	remove(origNotes, origFolders) {
-		origFolders.forEach((folder) => {
-			if (folder.rackUid == this.uid) {
-				folder.remove(origNotes);
-			}
+	remove(origNotes) {
+		this.folders.forEach((folder) => {
+			folder.remove(origNotes);
 		});
 		this.removeFromStorage();
 	}
@@ -98,18 +103,6 @@ class Rack extends Model {
 	saveOrdering() {
 		var rackConfigPath = path.join( this._path, '.rack');
 		fs.writeFileSync(rackConfigPath, this.ordering);
-	}
-
-	readContents(loading_full) {
-		if(!this._contentLoaded){
-			this._contentLoaded = true;
-			this.folders = Folder.readFoldersByRack(this);
-			return this.folders;
-		}
-		if (loading_full) {
-			this._loadingFull = true;
-		}
-		return null;
 	}
 
 	saveModel() {
@@ -151,10 +144,6 @@ class RackSeparator extends Rack {
 		return false;
 	}
 
-	readContents() {
-		return null;
-	}
-
 	remove() {
 		libini.removeKey(Library.baseLibraryPath, ['separator', this.uid]);
 	}
@@ -170,9 +159,19 @@ class BookmarkRack extends Rack {
 		data.load_ordering = false;
 		super(data);
 		this._ext = data.extension || '.html';
-		this._contentLoaded = false;
 		this._bookmarks = {};
-		this.readContents();
+
+		if (data.body) {
+			this._bookmarks = bookmarksConverter.parse(data.body, this);
+			this._name = this._bookmarks.name;
+			this.ordering = this._bookmarks.ordering || 0;
+		} else {
+			this._bookmarks = {
+				title: 'Bookmarks',
+				name: '',
+				children: []
+			};
+		}
 	}
 
 	get data() {
@@ -242,28 +241,6 @@ class BookmarkRack extends Rack {
 		return this.title ? this.title.replace(/[^\w _-]/g, '').substr(0, 40) : '';
 	}
 
-	readContents() {
-		if(!this._contentLoaded){
-			this._contentLoaded = true;
-
-			if (fs.existsSync(this.path)) {
-				var content = fs.readFileSync(this.path).toString();
-				this._bookmarks = bookmarksConverter.parse(content, this);
-				this._name = this._bookmarks.name;
-				this.ordering = this._bookmarks.ordering || 0;
-			} else {
-				this._bookmarks = {
-					title: 'Bookmarks',
-					name: '',
-					children: []
-				};
-			}
-
-		} else {
-			return null;
-		}
-	}
-
 	remove() {
 		if(fs.existsSync(this.path)) {
 			fs.unlinkSync(this.path);
@@ -330,7 +307,6 @@ class BookmarkRack extends Rack {
 
 module.exports = function(library) {
     Library = library;
-    Folder = require('./folder')(library).Folder;
 	return {
 		Rack         : Rack,
 		RackSeparator: RackSeparator,

@@ -19,8 +19,7 @@ var preview = require('./preview');
 var searcher = require('./searcher');
 
 // electron things
-const electron = require('electron');
-const remote = electron.remote;
+const { ipcRenderer, remote, clipboard } = require('electron');
 const { Menu, MenuItem, dialog } = remote;
 
 var arr = require('./utils/arr');
@@ -68,7 +67,6 @@ var appVue = new Vue({
 		keepHistory         : settings.get('keepHistory') || true,
 		preview             : "",
 		racks               : [],
-		folders             : [],
 		notes               : [],
 		bookmarksDomains    : [],
 		notesHistory        : [],
@@ -109,23 +107,11 @@ var appVue = new Vue({
 	},
 	computed: {
 		/**
-		 * filters notes based on search terms.
-		 * It also makes sure that all the notes inside the current selected rack are loaded,
-		 * otherwise we wouldn't be able to find any results for the current search.
-		 * 
+		 * filters notes based on search terms
 		 * @function filteredNotes
 		 * @return  {Array}  notes array
 		 */
 		filteredNotes() {
-			if(this.search && this.selectedRackOrFolder){
-				if (this.selectedRackOrFolder instanceof models.Rack) {
-					this.selectedRackOrFolder.folders.forEach((folder) => {
-						var newNotes = folder.readContents();
-						if(newNotes) this.notes = this.notes.concat(newNotes);
-					});
-				}
-			}
-
 			var notes = this.isNoteRackSelected ? this.notes : this.selectedRackOrFolder.notes;
 			//arr.sortBy(notes, this.notesDisplayOrder, false)
 			return searcher.searchNotes(this.selectedRackOrFolder, this.search, notes);
@@ -160,10 +146,6 @@ var appVue = new Vue({
 		}
 	},
 	created() {
-		var notes = [];
-		var folders = [];
-		var racks = [];
-		var initial_notes = [];
 
 		// modal
 		this.$on('modal-show', (modalMessage) => {
@@ -179,19 +161,25 @@ var appVue = new Vue({
 			initialModels.initialFolder();
 		}
 
-		if( models.doesLibraryExists() ){
+		if (models.doesLibraryExists()) {
 			// library folder exists, let's read what's inside
 
-			racks = models.readRacks();
-			if( racks.length == 0 ){
+			ipcRenderer.send('load-racks', { library: models.getBaseLibraryPath() });
+
+			/*racks = models.readRacks();
+			if (racks.length == 0) {
 				initial_notes = initialModels.initialSetup(racks);
 				racks = models.readRacks();
 
-				if(initial_notes.length == 1){
-					folders = initial_notes[0].data.rack.readContents();
+				if (initial_notes.length == 1) {
+					folders = initial_notes[0].data.rack.read?Contents();
 					notes = initial_notes;
 				}
 			}
+
+			this.racks = arr.sortBy(racks.slice(), 'ordering', true);
+			this.notes = notes;*/
+
 		} else {
 			console.error('Couldn\'t open library directory.\nPath: '+models.getBaseLibraryPath());
 			setTimeout(() => {
@@ -202,41 +190,28 @@ var appVue = new Vue({
 			}, 100);
 		}
 
-		this.racks = arr.sortBy(racks.slice(), 'ordering', true);
-		this.folders = folders;
-		this.notes = notes;
-
-		if(this.racks && this.racks.length > 0) {
+		/*if (this.racks && this.racks.length > 0) {
 			var domain_array = [];
-			for( var i=0; i < this.racks.length; i++) {
-				if(this.racks[i] instanceof models.BookmarkRack) {
-					domain_array = domain_array.concat(this.racks[i].domains());
+			this.racks.forEach((r) => {
+				if (r instanceof models.BookmarkRack) {
+					domain_array = domain_array.concat(r.domains());
 				}
-			}
+			});
 			this.bookmarksDomains = _.uniq(domain_array);
 		}
 
-		if(initial_notes.length > 0){
+		if (initial_notes.length > 0) {
 			initial_notes[0].data.rack.openFolders = true;
 			this.selectedRackOrFolder = initial_notes[0].data.folder;
 			this.selectedNote = initial_notes[0];
 		}
 
-		this.changeTheme(this.selectedTheme);
-		traymenu.init();
-
 		var last_history = libini.readKey(models.getBaseLibraryPath(), 'history');
-		if (last_history && last_history.rack.length > 0) {
-			last_history.rack.forEach((r) => {
-				this.readRackContent(this.racks[r]);
-			});
-			this.updateTrayMenu();
-		}
 		if (last_history && last_history.note.length > 0) {
-			this.notesHistory = models.readHistoryNotes(this.racks, last_history.note, this.readRackContent);
-		}
+			this.notesHistory = models.readHistoryNotes(this.racks, last_history.note);
+		}*/
 
-		if (remote.getGlobal('argv')) {
+		/*if (remote.getGlobal('argv')) {
 			var argv = remote.getGlobal('argv');
 			if (argv.length > 1 && path.extname(argv[1]) == '.md' && fs.existsSync(argv[1])) {
 				var notePath = argv[1];
@@ -246,7 +221,7 @@ var appVue = new Vue({
 					var openedRack = this.racks.find((rack) => {
 						return rack.data.path == path.join(path.dirname(notePath), '..');
 					});
-					if (openedRack) this.readRackContent(openedRack);
+					if (openedRack) this.readRack?Content(openedRack);
 					openedNote = this.notes.find((note) => {
 						return note.data.path == notePath;
 					});
@@ -269,7 +244,7 @@ var appVue = new Vue({
 					console.log('path not valid!');
 				}
 			}
-		}
+		}*/
 	},
 	mounted() {
 		var self = this;
@@ -283,9 +258,79 @@ var appVue = new Vue({
 
 			this.init_sidebar_width();
 
+			this.changeTheme(this.selectedTheme);
+			traymenu.init();
+
 			setTimeout(() => {
 				self.update_editor_size();
-			}, 100);
+			}, 1000);
+		});
+
+		ipcRenderer.on('loaded-racks', (event, data) => {
+			if (!data || !data.racks) return;
+
+			var racks = [];
+			data.racks.forEach((r) => {
+				switch(r._type) {
+					case 'separator':
+						racks.push(new models.RackSeparator(r));
+						break;
+					case 'bookmark':
+						racks.push(new models.BookmarkRack(r));
+						break;
+					default:
+						racks.push(new models.Rack(r));
+						break;
+				}
+			});
+
+			this.racks = arr.sortBy(racks.slice(), 'ordering', true);
+		});
+
+		ipcRenderer.on('loaded-folders', (event, data) => {
+			if (!data || !data.folders || !data.rack) return;
+
+			var rack = this.racks.filter((r) => {
+				return r.path == data.rack;
+			})[0];
+
+			var folders = [];
+			data.folders.forEach((f) => {
+				f.rack = rack;
+				folders.push(new models.Folder(f));
+			});
+
+			rack.folders = arr.sortBy(folders.slice(), 'ordering', true);
+		});
+
+		ipcRenderer.on('loaded-notes', (event, data) => {
+			if (!data || !data.notes || !data.rack || !data.folder) return;
+
+			var rack = this.racks.filter((r) => {
+				return r.path == data.rack;
+			})[0];
+
+			var folder = rack.folders.filter((f) => {
+				return f.path == data.folder;
+			})[0];
+
+			var notes = [];
+			data.notes.forEach((n) => {
+				n.rack = rack;
+				n.folder = folder;
+				switch(n._type) {
+					case 'encrypted':
+						notes.push(new models.EncryptedNote(n));
+						break;
+					default:
+						notes.push(new models.Note(n));
+						break;
+				}
+			});
+
+			folder.notes = notes;
+			this.notes = notes.concat(this.notes);
+			rack.notes = notes.concat(rack.notes);
 		});
 	},
 	methods: {
@@ -334,14 +379,6 @@ var appVue = new Vue({
 		changeRackOrFolder(obj) {
 			var rf = this.selectedRackOrFolder;
 			this.selectedRackOrFolder = obj;
-			if (this.selectedRackOrFolder && !this.selectedRackOrFolder.data.bookmarks && this.keepHistory) {
-				if (this.selectedRackOrFolder instanceof models.Rack) {
-					libini.pushKey(models.getBaseLibraryPath(), ['history', 'rack'], this.selectedRackOrFolder.ordering, 3 );
-				} else {
-					libini.pushKey(models.getBaseLibraryPath(), ['history', 'rack'], this.selectedRackOrFolder.data.rack.ordering, 3 );
-					//libini.pushKey(models.getBaseLibraryPath(), ['history', 'folder'], this.selectedRackOrFolder.ordering, 3 );
-				}
-			}
 			return rf;
 		},
 		/**
@@ -353,7 +390,6 @@ var appVue = new Vue({
 			var self = this;
 
 			if (this.isNoteSelected) {
-				//if (!this.isPreview) this.$refs.refCodeMirror.updateNoteBeforeSaving();
 				this.saveNote();
 			}
 
@@ -423,54 +459,7 @@ var appVue = new Vue({
 		 */
 		openRack(rack) {
 			if(!(rack instanceof models.Rack)) return;
-			this.readRackContent(rack);
 			rack.openFolders = true;
-		},
-		/**
-		 * @function readRackContent
-		 * @description reads folders and notes inside the Rack.
-		 * @param  {Object}   rack       The rack
-		 * @param  {Boolean}  loadNotes  True if it should load notes content
-		 * @return {Void} Function doesn't return anything
-		 */
-		readRackContent(rack, loadNotes) {
-			if (!(rack instanceof models.Rack)) return;
-			var newData = rack.readContents(loadNotes);
-			var loadedFolders = 0;
-			if (newData) {
-				this.folders = this.folders.concat(newData);
-			} else {
-				newData = rack.folders;
-			}
-			newData.forEach((folder) => {
-				var newNotes = folder.readContents();
-				if (newNotes) {
-					this.notes = this.notes.concat(newNotes);
-					folder.notes = newNotes;
-					rack.notes = rack.notes.concat(newNotes);
-				} else {
-					newNotes = folder.notes;
-				}
-
-				var unloadedNotes = newNotes.filter(function(obj) {
-					return !obj.body;
-				});
-				if (unloadedNotes.length == 0) {
-					loadedFolders += 1;
-				}
-
-				if (loadNotes) {
-					unloadedNotes.forEach((note) => {
-						note.loadBody();
-					});
-				}
-			});
-
-			if (loadedFolders == newData.length) {
-				rack.loadedNotes = true;
-			}
-
-			rack.folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
 		},
 		/**
 		 * hides rack content (folders).
@@ -526,19 +515,18 @@ var appVue = new Vue({
 			return rack_separator;
 		},
 		/**
-		 * removes the Rack (and its contents) from the current working directory.
-		 * 
+		 * @description removes the Rack (and its contents) from the current working directory.
 		 * @param  {Object}  rack    The rack
 		 * @return {Void} Function doesn't return anything
 		 */
 		removeRack(rack) {
-			rack.remove(this.notes, this.folders);
+			rack.remove(this.notes);
 			arr.remove(this.racks, (r) => {
 				return r == rack;
 			});
 			this.selectedRackOrFolder = null;
 			// we need to close the current selected note if it was from the removed rack.
-			if(this.isNoteSelected && this.selectedNote.data.rack == rack) {
+			if (this.isNoteSelected && this.selectedNote.data.rack == rack) {
 				this.selectedNote = {};
 			}
 		},
@@ -561,24 +549,18 @@ var appVue = new Vue({
 			});
 			rack.folders = folders;
 			if(rack.data.bookmarks) rack.saveModel();
-			else this.folders.push(folder);
 		},
 		/**
 		 * deletes a folder and its contents from the parent rack.
-		 * 
 		 * @function deleteFolder
 		 * @param  {Object}  folder  The folder
 		 * @return {Void} Function doesn't return anything
 		 */
 		deleteFolder(folder) {
-			folder.remove(this.notes);
-
-			arr.remove(this.folders, (f) => {
-				return f == folder;
-			});
 			arr.remove(folder.data.rack.folders, (f) => {
 				return f == folder;
 			});
+			folder.remove(this.notes);
 
 			this.selectedRackOrFolder = null;
 			// we need to close the current selected note if it was from the removed folder.
@@ -588,7 +570,6 @@ var appVue = new Vue({
 		},
 		/**
 		 * event called after folder was dragged into a rack.
-		 * 
 		 * @param  {Object}  rack    The rack
 		 * @param  {Object}  folder  The folder
 		 * @return {Void} Function doesn't return anything
@@ -1045,7 +1026,6 @@ var appVue = new Vue({
 		 * @return {Void} Function doesn't return anything
 		 */
 		previewMenu() {
-			var clipboard = electron.clipboard;
 			var self = this;
 			var menu = new Menu();
 
@@ -1316,23 +1296,7 @@ var appVue = new Vue({
 			this.saveNote();
 		},
 		selectedRackOrFolder() {
-			if (this.selectedRackOrFolder) {
-				var newData = this.selectedRackOrFolder.readContents();
-
-				if (this.selectedRackOrFolder instanceof models.Folder) {
-					if(newData) {
-						this.notes = this.notes.concat( newData );
-						this.selectedRackOrFolder.notes = newData;
-					}
-					var filteredNotes = searcher.searchNotes(this.selectedRackOrFolder, this.search, this.notes);
-					filteredNotes.forEach((note) => {
-						if(!note.body) note.loadBody();
-					});
-				} else if(newData) {
-					this.folders = this.folders.concat(newData);
-				}
-				this.update_editor_size();
-			}
+			//this.update_editor_size();
 			this.scrollUpScrollbarNotes();
 		},
 		racks() {

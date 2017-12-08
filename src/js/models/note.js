@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const { ipcRenderer } = require('electron');
+
 const encrypt = require('encryptjs');
 
 const moment = require('moment');
@@ -12,14 +14,7 @@ const util_file = require('../utils/file');
 const Model = require('./baseModel');
 
 var Library;
-
-/**
- * @function getValidMarkdownFormats
- * @return {Array} Array of valid formats
- */
-function getValidMarkdownFormats() {
-	return ['.md', '.markdown', '.txt', '.mdencrypted'];
-}
+var Image;
 
 class Note extends Model {
 	constructor(data) {
@@ -30,7 +25,7 @@ class Note extends Model {
 		var re = new RegExp('\\' + this._ext + '$');
 
 		this._name = data.name.replace(re, '');
-		this._body = data.body.replace(/ {4}/g, '\t');
+		this._body = data.body;
 		this._path = data.path;
 		if (data.folder || data.rack) {
 			this._rack = data.rack || data.folder.data.rack;
@@ -40,15 +35,20 @@ class Note extends Model {
 		this._folder = data.folder;
 		this.folderUid = data.folder ? data.folder.data.uid : null;
 		this.doc = null;
+		this._removed = false;
+		this._metadata = {};
 
-		if (this._body == '') {
+		if (!this._body || this._body == '') {
 			this._loadedBody = false;
 		} else {
 			this._loadedBody = true;
+
+			if (!this.isEncryptedNote) {
+				this.parseMetadata();
+				this.downloadImages();
+			}
 		}
 
-		this._removed = false;
-		this._metadata = {};
 		this.dragHover = false;
 		this.sortUpper = false;
 		this.sortLower = false;
@@ -99,7 +99,8 @@ class Note extends Model {
 	}
 
 	get metadataregex() {
-		return /^((\+\+\++\n)|([a-z]+)\s?[:=]\s+[`'"]?([\w\W\s]+?)[`'"]?\s*\n(?=(\w+\s?[:=])|\n|(\+\+\++\n)?))\n*/gmiy;
+		return /^(([+-]{3,}\n)|([a-z]+)\s?[:=]\s+['"]?([\w\W\s]+?)['"]?\s*\n(?=(\w+\s?[:=])|\n|([+-]{3,}\n)?))\n*/gmiy;
+		//return /^((\+\+\++\n)|([a-z]+)\s?[:=]\s+[`'"]?([\w\W\s]+?)[`'"]?\s*\n(?=(\w+\s?[:=])|\n|(\+\+\++\n)?))\n*/gmiy;
 	}
 
 	get metadata() {
@@ -219,7 +220,7 @@ class Note extends Model {
 			(match, p1, p2) => {
 				var dataURL;
 				try {
-					dataURL = new Image(p2, path.basename(p2), this).convertDataURL();
+					dataURL = new Image(p2, path.basename(p2), this).makeAbsolutePath();
 				} catch (e) {
 					console.warn(e);
 					return match;
@@ -233,7 +234,7 @@ class Note extends Model {
 			(match, p1, p2) => {
 				var dataURL;
 				try {
-					dataURL = new Image(p2, path.basename(p2), this).convertDataURL();
+					dataURL = new Image(p2, path.basename(p2), this).makeAbsolutePath();
 				} catch (e) {
 					console.warn(e);
 					return match;
@@ -241,7 +242,6 @@ class Note extends Model {
 				return '[' + p1 + ']: ' + dataURL;
 			}
 		);
-
 		return body;
 	}
 
@@ -265,11 +265,22 @@ class Note extends Model {
 		}
 		var dataUrl;
 		try {
-			dataUrl = new Image(matched[0], path.basename(matched[0]), this).convertDataURL();
+			dataUrl = new Image(matched[0], path.basename(matched[0]), this).makeAbsolutePath();
 		} catch (e) {
 			dataUrl = null;
 		}
 		return dataUrl;
+	}
+
+	toJSON() {
+		return {
+			extension: this._ext,
+			name: this._name,
+			body: this._body,
+			path: this._path,
+			folder: this._folder.path,
+			rack: this._rack.path
+		};
 	}
 
 	downloadImages() {
@@ -330,7 +341,12 @@ class Note extends Model {
 			}
 		);
 
-		if (urlDownloads.length > 0) util_file.downloadMultipleFiles(urlDownloads, this.imagePath);
+		if (urlDownloads.length > 0) {
+			ipcRenderer.send('download-files', {
+				files: urlDownloads,
+				folder: this.imagePath
+			});
+		}
 	}
 
 	setMetadata(key, value) {
@@ -396,7 +412,6 @@ class Note extends Model {
 
 		if (fs.existsSync(this.path)) {
 			var content = fs.readFileSync(this.path).toString();
-			content = content.replace(/ {4}/g, '\t');
 			if (content && content != this._body) {
 				this._body = content;
 
@@ -410,13 +425,13 @@ class Note extends Model {
 	}
 
 	initializeCreationDate() {
-		var noteData = Note.isValidNotePath(this._path);
-		if (noteData) {
-			if(!this._metadata.createdAt) {
-				this._metadata.createdAt = moment(noteData.stat.birthtime).format('YYYY-MM-DD HH:mm:ss');
+		var noteStat = fs.statSync(this._path);
+		if (noteStat) {
+			if (!this._metadata.createdAt) {
+				this._metadata.createdAt = moment(noteStat.birthtime).format('YYYY-MM-DD HH:mm:ss');
 			}
-			if(!this._metadata.updatedAt) {
-				this._metadata.updatedAt = moment(noteData.stat.mtime).format('YYYY-MM-DD HH:mm:ss');
+			if (!this._metadata.updatedAt) {
+				this._metadata.updatedAt = moment(noteStat.mtime).format('YYYY-MM-DD HH:mm:ss');
 			}
 		}
 	}
@@ -500,7 +515,6 @@ class Note extends Model {
 				}
 
 				if (new_path) {
-					console.log(new_path, body);
 					fs.writeFileSync(new_path, body);
 					this.path = new_path;
 					return { saved: true };
@@ -558,59 +572,6 @@ class Note extends Model {
 			});
 		}
 		return false;
-	}
-
-	static isValidNotePath(notePath) {
-		var valid_formats = getValidMarkdownFormats();
-		var noteStat = fs.statSync(notePath);
-		var noteExt = path.extname(notePath);
-		if (noteStat.isFile() && valid_formats.indexOf(noteExt) >= 0 ) {
-			return {
-				ext: noteExt,
-				stat: noteStat
-			};
-		}
-		return false;
-	}
-
-	/**
-	 * loads every note inside a folder.
-	 *
-	 * @param      {Object}  folder  The folder
-	 * @return     {Array}           Array of notes inside the folder
-	 */
-	static readNoteByFolder(folder) {
-		if(!fs.existsSync(folder.data.path)) return [];
-
-		var valid_notes = [];
-		var notes = fs.readdirSync(folder.data.path);
-		notes.forEach((note) => {
-			var notePath = path.join( folder.data.path, note);
-			if(fs.existsSync(notePath) && note.charAt(0) != ".") {
-				var noteData = this.isValidNotePath(notePath);
-				if (noteData) {
-					//note encrypted
-					if(noteData.ext == '.mdencrypted' ) {
-						valid_notes.push(new EncryptedNote({
-							name: note,
-							body: "",
-							path: notePath,
-							extension: noteData.ext,
-							folder: folder
-						}));
-					} else {
-						valid_notes.push(new Note({
-							name: note,
-							body: "",
-							path: notePath,
-							extension: noteData.ext,
-							folder: folder
-						}));
-					}
-				}
-			}
-		});
-		return valid_notes;
 	}
 }
 
@@ -691,6 +652,7 @@ class EncryptedNote extends Note {
 
 module.exports = function(library) {
 	Library = library;
+	Image = require('./image')(library);
 	return {
 		Note         : Note,
 		EncryptedNote: EncryptedNote

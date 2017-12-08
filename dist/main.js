@@ -1,11 +1,12 @@
 const electron = require('electron');
 const fs = require('fs');
 const path = require('path');
-const { app, Tray, BrowserWindow, Menu, ipcMain } = electron;
+const { app, Tray, BrowserWindow, Menu, ipcMain, protocol } = electron;
 
 const { download } = require('electron-dl');
 
 var mainWindow = null;
+var backgroundWindow = null;
 var appIcon = null;
 
 // support for portable mode
@@ -26,10 +27,10 @@ var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) 
 });
 
 /**
- * @function makeWindow
+ * @function makeMainWindow
  * @return {Void} Function doesn't return anything
  */
-function makeWindow() {
+function makeMainWindow() {
 
 	var settings_path = path.join(electron.app.getPath('appData'), 'pilemdConfig.json');
 	var settings_data = null;
@@ -58,8 +59,8 @@ function makeWindow() {
 		height           : WINDOW_HEIGHT,
 		x                : WINDOW_X,
 		y                : WINDOW_Y,
-		minWidth         : 270,
-		minHeight        : 437,
+		minWidth         : 400,
+		minHeight        : 400,
 		center           : WINDOW_CENTER,
 		title            : 'PileMd',
 		backgroundColor  : '#36393e',
@@ -134,6 +135,31 @@ function makeWindow() {
 	});
 }
 
+/**
+ * @function makeBackgroundWindow
+ * @return {Void} Function doesn't return anything
+ */
+function makeBackgroundWindow() {
+	backgroundWindow = new BrowserWindow({
+		frame         : false,
+		show          : false,
+		titleBarStyle : 'hidden',
+		skipTaskbar   : true,
+		webPreferences: {
+			devTools: false,
+			webgl   : false,
+			webaudio: false
+		}
+	});
+
+	backgroundWindow.on('closed', () => {
+		backgroundWindow = null;
+	});
+
+	backgroundWindow.setMenu(null);
+	backgroundWindow.loadURL('file://' + __dirname + '/background.html');
+}
+
 if (shouldQuit) {
 	app.quit();
 } else {
@@ -176,7 +202,10 @@ if (shouldQuit) {
 			label: 'File',
 			submenu: [{
 				label: 'New ' + APP_NAME + ' Window',
-				click: makeWindow
+				click: () => {
+					makeBackgroundWindow();
+					makeMainWindow();
+				}
 			}]
 		}
 	];
@@ -192,23 +221,45 @@ if (shouldQuit) {
 		}
 	});
 
+	// this method will be called when Electron has finished
+	// initialization and is ready to create browser windows.
+	app.on('ready', () => {
+
+		protocol.registerFileProtocol('pilemd', (request, callback) => {
+			const url = request.url.substr(9);
+			callback({ path: path.normalize(url) });
+		}, (err) => {
+			if (err) console.error('Failed to register protocol');
+		});
+
+		makeBackgroundWindow();
+		makeMainWindow();
+	});
+
+	app.on('activate', () => {
+		if(!mainWindow){
+			makeMainWindow();
+		} else {
+			mainWindow.show();
+		}
+	});
+
 	ipcMain.on('download-btn', (e, args) => {
 		download(BrowserWindow.getFocusedWindow(), args.url, args.options).then((dl) => {
 			console.log('Saved to '+ dl.getSavePath());
 		}).catch(console.error);
 	});
 
-	// this method will be called when Electron has finished
-	// initialization and is ready to create browser windows.
-	app.on('ready', () => {
-		makeWindow();
-	});
+	// relay events to background task
+	ipcMain.on('download-files', (event, payload) => backgroundWindow.webContents.send('download-files', payload));
+	ipcMain.on('load-racks', (event, payload) => backgroundWindow.webContents.send('load-racks', payload));
 
-	app.on('activate', () => {
-		if(!mainWindow){
-			makeWindow();
-		} else {
-			mainWindow.show();
-		}
+	// relay events to main task
+	ipcMain.on('loaded-racks', (event, payload) => mainWindow.webContents.send('loaded-racks', payload));
+	ipcMain.on('loaded-folders', (event, payload) => mainWindow.webContents.send('loaded-folders', payload));
+	ipcMain.on('loaded-notes', (event, payload) => mainWindow.webContents.send('loaded-notes', payload));
+
+	ipcMain.on('console', (event, payload) => {
+		console.log(payload);
 	});
 }
