@@ -16,38 +16,49 @@ function logMainProcess(message) {
 
 /**
  * @function loadNotes
- * @param  {type} rack         {description}
- * @param  {type} arrayFolders {description}
+ * @param  {type} library {description}
+ * @param  {type} arrayRacks {description}
  * @return {type} {description}
  */
-function loadNotes(rack, arrayFolders) {
-	arrayFolders.forEach((f) => {
-		var arrayNotes = libraryHelper.readNotesByFolder(f.path);
-		ipcRenderer.send('loaded-notes', {
-			notes: arrayNotes,
-			folder: f.path,
-			rack: rack.path
+function loadNotes(library, arrayRacks) {
+	var allNotes = [];
+	arrayRacks.forEach((r) => {
+		var arrayNotes = [];
+		r.folders.forEach((f) => {
+			var newNotes = libraryHelper.readNotesByFolder(f.path);
+			allNotes = allNotes.concat(newNotes);
+			arrayNotes.push({
+				notes: newNotes,
+				folder: f.path,
+				rack: r.rack
+			});
 		});
+
+		ipcRenderer.send('loaded-notes', arrayNotes);
 	});
+	ipcRenderer.send('loaded-all-notes', allNotes.map((n) => {
+		return n.path.replace(library + '/', '');
+	}));
 }
 
 /**
  * @function loadFolders
+ * @param  {type} library {description}
  * @param  {type} arrayRacks {description}
  * @return {type} {description}
  */
-function loadFolders(arrayRacks) {
+function loadFolders(library, arrayRacks) {
+	var arrayFolders = [];
 	arrayRacks.forEach((r) => {
-		if(r._type != 'rack') return;
-
-		var arrayFolders = libraryHelper.readFoldersByRack(r.path);
-		ipcRenderer.send('loaded-folders', {
-			folders: arrayFolders,
-			rack: r.path
+		if (r._type != 'rack') return;
+		var newFolders = libraryHelper.readFoldersByRack(r.path);
+		arrayFolders.push({
+			folders: newFolders,
+			rack   : r.path
 		});
-
-		loadNotes(r, arrayFolders);
 	});
+	ipcRenderer.send('loaded-folders', arrayFolders);
+	loadNotes(library, arrayFolders);
 }
 
 window.onload = function () {
@@ -67,7 +78,7 @@ window.onload = function () {
 		try {
 			var arrayRacks = libraryHelper.readRacks(data.library);
 			ipcRenderer.send('loaded-racks', { racks: arrayRacks });
-			loadFolders(arrayRacks);
+			loadFolders(data.library, arrayRacks);
 		} catch(e) {
 			logMainProcess(e);
 		}

@@ -12,7 +12,7 @@
 
 	const electron = require('electron');
 	const { remote, shell, clipboard } = electron;
-	const { Menu, MenuItem, dialog } = remote;
+	const { Menu, MenuItem } = remote;
 
 	const { copyText, cutText, pasteText, selectAllText } = require('../codemirror/elutils');
 
@@ -84,7 +84,7 @@
 					cursorBlinkRate  : 540,
 					addModeClass     : true,
 					autoCloseBrackets: true,
-					placeholder      : 'Start writing...'
+					placeholder      : ''
 				});
 				this.cm = cm;
 				this.$root.codeMirror = cm;
@@ -179,7 +179,7 @@
 
 				this.$watch('note', function(value) {
 					// When swapped the doc;
-					if(!value || !value.title) return;
+					if (!value || !value.title) return;
 
 					var doc = null;
 					if (value && value.doc) {
@@ -200,9 +200,8 @@
 			});
 		},
 		methods: {
-
 			uploadFile() {
-				var notePaths = dialog.showOpenDialog({
+				var notePaths = remote.dialog.showOpenDialog({
 					title: 'Attach Image',
 					filters: [{
 						name      : 'Markdown',
@@ -251,7 +250,7 @@
 				this.note.body = this.cm.getValue();
 			},
 			runSearch() {
-				if(this.note && this.search && this.search.length > 1) {
+				if (this.note && this.search && this.search.length > 1) {
 					this.$nextTick(() => {
 						CodeMirror.commands.setSearch(this.cm, this.search);
 					});
@@ -268,8 +267,6 @@
 					doc = new CodeMirror.Doc(this.note.body, 'piledmd');
 				}
 				this.note.doc = doc;
-				//this.$nextTick(() => { this.cm.refresh(); });
-				//setTimeout(() => { this.cm.refresh(); }, 100);
 				if (doc) {
 					if(doc.cm) doc.cm = null;
 					this.cm.swapDoc(doc);

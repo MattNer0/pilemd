@@ -62,7 +62,7 @@ var appVue = new Vue({
 	template: require('../html/app.html'),
 	data: {
 		isFullScreen        : false,
-		isPreview           : settings.get('vue_isPreview') || false,
+		isPreview           : false,
 		selectedTheme       : settings.get('theme') || 'dark',
 		keepHistory         : settings.get('keepHistory') || true,
 		preview             : "",
@@ -156,8 +156,8 @@ var appVue = new Vue({
 			this.modalShow = true;
 		});
 
+		// hey, this is the first time.
 		if (!models.getBaseLibraryPath()) {
-			// hey, this is the first time.
 			initialModels.initialFolder();
 		}
 
@@ -204,11 +204,6 @@ var appVue = new Vue({
 			initial_notes[0].data.rack.openFolders = true;
 			this.selectedRackOrFolder = initial_notes[0].data.folder;
 			this.selectedNote = initial_notes[0];
-		}
-
-		var last_history = libini.readKey(models.getBaseLibraryPath(), 'history');
-		if (last_history && last_history.note.length > 0) {
-			this.notesHistory = models.readHistoryNotes(this.racks, last_history.note);
 		}*/
 
 		/*if (remote.getGlobal('argv')) {
@@ -288,49 +283,65 @@ var appVue = new Vue({
 		});
 
 		ipcRenderer.on('loaded-folders', (event, data) => {
-			if (!data || !data.folders || !data.rack) return;
+			if (!data) return;
 
-			var rack = this.racks.filter((r) => {
-				return r.path == data.rack;
-			})[0];
+			data.forEach((r) => {
+				var rack = this.racks.filter((rk) => {
+					return rk.path == r.rack;
+				})[0];
 
-			var folders = [];
-			data.folders.forEach((f) => {
-				f.rack = rack;
-				folders.push(new models.Folder(f));
+				var folders = [];
+				r.folders.forEach((f) => {
+					f.rack = rack;
+					folders.push(new models.Folder(f));
+				});
+
+				rack.folders = arr.sortBy(folders.slice(), 'ordering', true);
 			});
 
-			rack.folders = arr.sortBy(folders.slice(), 'ordering', true);
+			this.updateTrayMenu();
 		});
 
 		ipcRenderer.on('loaded-notes', (event, data) => {
-			if (!data || !data.notes || !data.rack || !data.folder) return;
+			if (!data) return;
 
-			var rack = this.racks.filter((r) => {
-				return r.path == data.rack;
-			})[0];
+			data.forEach((r) => {
+				var rack = this.racks.filter((rk) => {
+					return rk.path == r.rack;
+				})[0];
 
-			var folder = rack.folders.filter((f) => {
-				return f.path == data.folder;
-			})[0];
+				var folder = rack.folders.filter((f) => {
+					return f.path == r.folder;
+				})[0];
 
-			var notes = [];
-			data.notes.forEach((n) => {
-				n.rack = rack;
-				n.folder = folder;
-				switch(n._type) {
-					case 'encrypted':
-						notes.push(new models.EncryptedNote(n));
-						break;
-					default:
-						notes.push(new models.Note(n));
-						break;
-				}
+				var notes = [];
+				r.notes.forEach((n) => {
+					n.rack = rack;
+					n.folder = folder;
+					switch(n._type) {
+						case 'encrypted':
+							notes.push(new models.EncryptedNote(n));
+							break;
+						default:
+							notes.push(new models.Note(n));
+							break;
+					}
+				});
+
+				folder.notes = notes;
+				this.notes = notes.concat(this.notes);
+				rack.notes = notes.concat(rack.notes);
 			});
+		});
 
-			folder.notes = notes;
-			this.notes = notes.concat(this.notes);
-			rack.notes = notes.concat(rack.notes);
+		ipcRenderer.on('loaded-all-notes', (event, data) => {
+			if (!data) return;
+			var last_history = libini.readKey(models.getBaseLibraryPath(), 'history');
+			if (last_history && last_history.note.length > 0) {
+				this.notesHistory = this.notes.filter((obj) => {
+					return last_history.note.indexOf(obj.relativePath) >= 0;
+				});
+			}
 		});
 	},
 	methods: {
@@ -529,6 +540,7 @@ var appVue = new Vue({
 			if (this.isNoteSelected && this.selectedNote.data.rack == rack) {
 				this.selectedNote = {};
 			}
+			this.updateTrayMenu();
 		},
 		/**
 		 * inserts a new Folder inside the selected Rack.
@@ -545,10 +557,11 @@ var appVue = new Vue({
 			folders.unshift(folder);
 			folders.forEach((f, i) => {
 				f.ordering = i;
-				if(!f.data.bookmarks) f.saveModel();
+				if (!f.data.bookmarks) f.saveModel();
 			});
 			rack.folders = folders;
-			if(rack.data.bookmarks) rack.saveModel();
+			if (rack.data.bookmarks) rack.saveModel();
+			this.updateTrayMenu();
 		},
 		/**
 		 * deletes a folder and its contents from the parent rack.
@@ -567,6 +580,7 @@ var appVue = new Vue({
 			if(this.isNoteSelected && this.selectedNote.data.folder == folder) {
 				this.selectedNote = {};
 			}
+			this.updateTrayMenu();
 		},
 		/**
 		 * event called after folder was dragged into a rack.
@@ -575,8 +589,9 @@ var appVue = new Vue({
 		 * @return {Void} Function doesn't return anything
 		 */
 		folderDragEnded(rack) {
-			if(!rack) return;
+			if (!rack) return;
 			rack.folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
+			this.updateTrayMenu();
 		},
 		/**
 		 * toggles left sidebar.
@@ -595,7 +610,6 @@ var appVue = new Vue({
 		 */
 		togglePreview() {
 			this.isPreview = !this.isPreview;
-			settings.set('vue_isPreview', this.isPreview);
 			this.update_editor_size();
 		},
 		calcSaveUid() {
@@ -651,7 +665,7 @@ var appVue = new Vue({
 				this.notes.unshift(newNote);
 				this.isPreview = false;
 				this.changeNote(newNote);
-				//newNote.saveModel();
+				this.updateTrayMenu();
 			} else {
 				var message;
 				if(this.racks.length > 0){
@@ -1298,15 +1312,6 @@ var appVue = new Vue({
 		selectedRackOrFolder() {
 			//this.update_editor_size();
 			this.scrollUpScrollbarNotes();
-		},
-		racks() {
-			this.updateTrayMenu();
-		},
-		folders() {
-			this.updateTrayMenu();
-		},
-		notes() {
-			this.updateTrayMenu();
 		}
 	}
 });

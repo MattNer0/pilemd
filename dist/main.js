@@ -258,6 +258,7 @@ if (shouldQuit) {
 	ipcMain.on('loaded-racks', (event, payload) => mainWindow.webContents.send('loaded-racks', payload));
 	ipcMain.on('loaded-folders', (event, payload) => mainWindow.webContents.send('loaded-folders', payload));
 	ipcMain.on('loaded-notes', (event, payload) => mainWindow.webContents.send('loaded-notes', payload));
+	ipcMain.on('loaded-all-notes', (event, payload) => mainWindow.webContents.send('loaded-all-notes', payload));
 
 	ipcMain.on('console', (event, payload) => {
 		console.log(payload);

@@ -185,7 +185,6 @@
 			},
 			tableSelect(row, column) {
 				this.table_visible = false;
-				console.log(row, column);
 
 				var markdown_table = []
 				for (var i=0;i<row;i++) {
