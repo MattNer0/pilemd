@@ -17,7 +17,7 @@ module.exports = {
 	refreshTrayMenu() {
 		var contextMenu = Menu.buildFromTemplate([{
 			label: mainWindow.isVisible() ? 'Hide App' : 'Show App',
-			click: function() {
+			click() {
 				if (mainWindow.isVisible()) {
 					mainWindow.hide();
 				} else {
@@ -25,18 +25,17 @@ module.exports = {
 					if (mainWindow.isMinimized()) mainWindow.restore();
 				}
 			}
-		}, { type: 'separator' }].concat(menu_array, [{ type: 'separator' }, {
+		}, { type: 'separator' }, {
 			label: 'Quit',
-			click: function() {
+			click() {
 				electron.remote.app.isQuiting = true;
 				electron.remote.app.quit();
 			}
-		}]));
+		}]);
 
 		appIcon.setContextMenu(contextMenu);
 
 		if (mainWindow.isVisible()) {
-			//probably useless
 			mainWindow.setVisibleOnAllWorkspaces(false);
 		} else {
 			mainWindow.setVisibleOnAllWorkspaces(true);

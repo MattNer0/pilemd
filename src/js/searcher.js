@@ -31,11 +31,9 @@ module.exports = {
 		}
 		var searchPayload = this.calculateSearchMeaning(selectedRackOrFolder, searchInput);
 		var filteredNotes = notes.filter((note) => {
-			if (!searchPayload.folderUids || _.includes(searchPayload.folderUids, note.folderUid)) {
-				if (searchPayload.words.length == 0) return true;
-				if (!note.body && note.loadBody) note.loadBody();
-				if (note.body && allWords(note.body.toLowerCase(), searchPayload.words)) return true;
-			}
+			if (searchPayload.words.length == 0) return true;
+			if (!note.body && note.loadBody) note.loadBody();
+			if (note.body && allWords(note.body.toLowerCase(), searchPayload.words)) return true;
 			return false;
 		});
 		return filteredNotes;
@@ -48,24 +46,14 @@ module.exports = {
 	 * @return {Object} Search payload with list of folder uids and list of words in search string
 	 */
 	calculateSearchMeaning(selectedRackOrFolder, searchInput) {
+		if (!searchInput) {
+			return { words: [] };
+		}
+
 		var words = searchInput.toLowerCase().split(' ');
 		words = words.filter(function(str) {
 			return str.length > 0;
 		});
-		var folderUids;
-		if (selectedRackOrFolder === null || selectedRackOrFolder === undefined) {
-			folderUids = null;
-		} else if (selectedRackOrFolder instanceof models.Rack) {
-			folderUids = selectedRackOrFolder.folders.map((f) => {
-				return f.uid;
-			});
-		} else {
-			folderUids = [selectedRackOrFolder.uid];
-		}
-
-		return {
-			folderUids: folderUids,
-			words: words
-		};
+		return { words: words };
 	}
 };

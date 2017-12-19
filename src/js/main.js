@@ -112,7 +112,7 @@ var appVue = new Vue({
 		 * @return  {Array}  notes array
 		 */
 		filteredNotes() {
-			var notes = this.isNoteRackSelected ? this.notes : this.selectedRackOrFolder.notes;
+			var notes = this.selectedRackOrFolder ? this.selectedRackOrFolder.notes : [];
 			//arr.sortBy(notes, this.notesDisplayOrder, false)
 			return searcher.searchNotes(this.selectedRackOrFolder, this.search, notes);
 		},
@@ -252,9 +252,7 @@ var appVue = new Vue({
 			});
 
 			this.init_sidebar_width();
-
 			this.changeTheme(this.selectedTheme);
-			traymenu.init();
 
 			setTimeout(() => {
 				self.update_editor_size();
@@ -298,8 +296,6 @@ var appVue = new Vue({
 
 				rack.folders = arr.sortBy(folders.slice(), 'ordering', true);
 			});
-
-			this.updateTrayMenu();
 		});
 
 		ipcRenderer.on('loaded-notes', (event, data) => {
@@ -342,12 +338,13 @@ var appVue = new Vue({
 					return last_history.note.indexOf(obj.relativePath) >= 0;
 				});
 			}
+
+			traymenu.init();
 		});
 	},
 	methods: {
 		/**
 		 * initialize the width of the left sidebar elements.
-		 * 
 		 * @function init_sidebar_width
 		 * @return {Void} Function doesn't return anything
 		 */
@@ -400,11 +397,8 @@ var appVue = new Vue({
 		changeNote(note) {
 			var self = this;
 
-			if (this.isNoteSelected) {
-				this.saveNote();
-			}
-
-			if(note === null) {
+			if (this.isNoteSelected) this.saveNote();
+			if (note === null) {
 				this.selectedNote = {};
 				return;
 			}
@@ -480,9 +474,6 @@ var appVue = new Vue({
 		 * @return {Void} Function doesn't return anything
 		 */
 		closerack(rack) {
-			/*if(this.selectedNote && this.selectedNote.data && this.selectedNote.isRack(rack)){
-				return;
-			}*/
 			rack.openFolders = false;
 			if(this.selectedRackOrFolder == rack) {
 				this.selectedRackOrFolder = null;
@@ -540,7 +531,6 @@ var appVue = new Vue({
 			if (this.isNoteSelected && this.selectedNote.data.rack == rack) {
 				this.selectedNote = {};
 			}
-			this.updateTrayMenu();
 		},
 		/**
 		 * inserts a new Folder inside the selected Rack.
@@ -561,7 +551,6 @@ var appVue = new Vue({
 			});
 			rack.folders = folders;
 			if (rack.data.bookmarks) rack.saveModel();
-			this.updateTrayMenu();
 		},
 		/**
 		 * deletes a folder and its contents from the parent rack.
@@ -580,7 +569,6 @@ var appVue = new Vue({
 			if(this.isNoteSelected && this.selectedNote.data.folder == folder) {
 				this.selectedNote = {};
 			}
-			this.updateTrayMenu();
 		},
 		/**
 		 * event called after folder was dragged into a rack.
@@ -591,7 +579,6 @@ var appVue = new Vue({
 		folderDragEnded(rack) {
 			if (!rack) return;
 			rack.folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
-			this.updateTrayMenu();
 		},
 		/**
 		 * toggles left sidebar.
@@ -665,7 +652,6 @@ var appVue = new Vue({
 				this.notes.unshift(newNote);
 				this.isPreview = false;
 				this.changeNote(newNote);
-				this.updateTrayMenu();
 			} else {
 				var message;
 				if(this.racks.length > 0){
@@ -731,7 +717,6 @@ var appVue = new Vue({
 		 */
 		saveNote() {
 			var result;
-			//if (this.selectedNote && this.isPreview) this.preview = preview.render(this.selectedNote, this);
 			this.updatePreview();
 			if (this.selectedNote.saveModel) {
 				result = this.selectedNote.saveModel();
@@ -778,8 +763,7 @@ var appVue = new Vue({
 					self.$refs.webview.addEventListener('did-fail-load', pageFailed);
 				},
 				/**
-				 * validate the form input data
-				 *
+				 * @description validate the form input data
 				 * @param      {Object}            data    Form data object
 				 * @return     {(boolean|string)}          If false, the validation was succesful.
 				 *                                         If a string value is returned it means that's the name of the field that failed validation.
@@ -827,7 +811,6 @@ var appVue = new Vue({
 				cancel: true,
 				/**
 				 * function called when user click on the 'Cancel' button
-				 *
 				 * @return {Void} Function doesn't return anything
 				 */
 				cb() {
@@ -839,7 +822,6 @@ var appVue = new Vue({
 				label: 'Ok',
 				/**
 				 * function called when user click on the 'Ok' button
-				 *
 				 * @param  {Object}  data  Form data object
 				 * @return {Void} Function doesn't return anything
 				 */
@@ -857,7 +839,6 @@ var appVue = new Vue({
 				},
 				/**
 				 * validate the form input data
-				 *
 				 * @param  {Object}  data  Form data object
 				 * @return {(boolean|string)} If false, the validation was succesful.
 				 *                            If a string value is returned it means that's the name of the field that failed validation.
@@ -889,7 +870,6 @@ var appVue = new Vue({
 		},
 		/**
 		 * refresh bookmark thumbnail image and icon
-		 * 
 		 * @function refreshBookmarkThumb
 		 * @param {Object}  bookmark  The bookmark
 		 * @return {Void} Function doesn't return anything
@@ -940,7 +920,6 @@ var appVue = new Vue({
 		/**
 		 * refresh bookmark thumbnail using some metadata content
 		 * (og:image, 'shortcut icon' and 'user-profile' img)
-		 * 
 		 * @param {Object}  bookmark  The bookmark
 		 * @return {Void} Function doesn't return anything
 		 */
@@ -1259,29 +1238,7 @@ var appVue = new Vue({
 				this.preview = preview.render(this.selectedNote, this);
 				this.noteHeadings = preview.getHeadings();
 			}
-		},
-		/**
-		 * update the context menu in the system tray icon.
-		 * @function updateTrayMenu
-		 * @return {Void} Function doesn't return anything
-		 */
-		updateTrayMenu: _.debounce(function () {
-			var self = this;
-			traymenu.setRacks(this.racks, (rack) => {
-				/**
-				 * function called when user clicks on a rack or folder in the tray menu
-				 * @param {Object}  rack  selected rack or folder in the tray menu
-				 */
-				self.openRack(rack);
-				self.changeRackOrFolder(rack);
-			}, (note) => {
-				/**
-				 * function called when user click on a note or bookmark in the tray menu
-				 * @param {Object}  note  selected note
-				 */
-				self.changeNote(note);
-			});
-		}, 500)
+		}
 	},
 	watch: {
 		isPreview() {
@@ -1300,8 +1257,8 @@ var appVue = new Vue({
 		},
 		selectedNote() {
 			this.noteHeadings = [];
-			this.updatePreview();
 			if (this.selectedNote instanceof models.Note) {
+				this.updatePreview();
 				this.selectedRackOrFolder = this.selectedNote.data.folder;
 				this.scrollUpScrollbarNote();
 			}
@@ -1310,7 +1267,6 @@ var appVue = new Vue({
 			this.saveNote();
 		},
 		selectedRackOrFolder() {
-			//this.update_editor_size();
 			this.scrollUpScrollbarNotes();
 		}
 	}

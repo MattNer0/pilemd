@@ -70,8 +70,7 @@
 			'setDraggingNote'     : Function,
 			'deleteFolder'        : Function,
 			'addFolderToRack'     : Function,
-			'addRackSeparator'    : Function,
-			'updateTrayMenu'      : Function
+			'addRackSeparator'    : Function
 		},
 		data() {
 			return {
@@ -143,14 +142,12 @@
 				rack.saveModel();
 				this.editingRack = null;
 				this.changeRackOrFolder(rack);
-				this.updateTrayMenu();
 			},
 			doneFolderEdit(rack, folder) {
 				if (!this.editingFolder) { return }
 				folder.saveModel();
 				this.editingFolder = null;
 				this.changeRackOrFolder(folder);
-				this.updateTrayMenu();
 			},
 			isSelectedRack(rack) {
 				return this.selectedRackOrFolder === rack;
