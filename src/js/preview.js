@@ -4,13 +4,14 @@
 
 const marked = require('marked');
 const _ = require('lodash');
-const highlightjs = require('highlight.js/lib/highlight');
+const highlightjs = require('highlight.js');
+//const highlightjs = require('highlight.js/lib/highlight');
 
 var checkboxes = [];
 var headings = [];
 var headings_id = [];
 
-highlightjs.registerLanguage('accesslog', require('highlight.js/lib/languages/accesslog'));
+/*highlightjs.registerLanguage('accesslog', require('highlight.js/lib/languages/accesslog'));
 highlightjs.registerLanguage('actionscript', require('highlight.js/lib/languages/actionscript'));
 highlightjs.registerLanguage('apache', require('highlight.js/lib/languages/apache'));
 highlightjs.registerLanguage('applescript', require('highlight.js/lib/languages/applescript'));
@@ -105,7 +106,7 @@ highlightjs.registerLanguage('vim', require('highlight.js/lib/languages/vim'));
 highlightjs.registerLanguage('x86asm', require('highlight.js/lib/languages/x86asm'));
 highlightjs.registerLanguage('xl', require('highlight.js/lib/languages/xl'));
 highlightjs.registerLanguage('xquery', require('highlight.js/lib/languages/xquery'));
-highlightjs.registerLanguage('yaml', require('highlight.js/lib/languages/yaml'));
+highlightjs.registerLanguage('yaml', require('highlight.js/lib/languages/yaml'));*/
 
 const temp_CHECKBOX = _.template('<li class="checkbox <%- checked ? \'checkbox-checked\' : \'\' %>"><label>' +
 	'<span><input data-value="<%- data %>" type="checkbox" <%- checked ? \'checked\' : \'\' %> /><span></span></span> <%= text %>' +

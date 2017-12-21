@@ -70,7 +70,7 @@ function makeMainWindow() {
 		titleBarStyle    : 'hidden',
 		frame            : false,
 		webPreferences   : {
-			devTools: true,
+			devTools: false,
 			webgl   : false,
 			webaudio: false
 		}

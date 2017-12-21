@@ -32,9 +32,8 @@
 								i.material-icons.faded(v-else) radio_button_unchecked
 								|  PileMd Theme
 							li: hr
-							li: a(@click.prevent="menu_devTools", href="#") Open DevTools
+							//-li: a(@click.prevent="menu_devTools", href="#") Open DevTools
 							li(v-if="isLinux && saveDesktop"): a(@click.prevent="menu_desktopEntry", href="#") Add Desktop Entry
-							li: hr
 							li: a(@click.prevent="menu_credits", href="#") Credits
 							li: hr
 							li: a(@click.prevent="menu_quit", href="#") Quit
