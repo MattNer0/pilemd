@@ -168,7 +168,7 @@ class Note extends Model {
 	}
 
 	get document_filename() {
-		return this.title ? this.title.replace(/[^\w _-]/g, '').substr(0, 40) : '';
+		return this.title ? this.title.replace(/[^\w _-]/g, '').substr(0, 40).trim() : '';
 	}
 
 	get body() {
