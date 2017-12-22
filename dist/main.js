@@ -31,14 +31,15 @@ var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) 
  * @return {Void} Function doesn't return anything
  */
 function makeMainWindow() {
-
-	var settings_path = path.join(electron.app.getPath('appData'), 'pilemdConfig.json');
+	var settings_path = path.join(electron.app.getPath('userData'), 'pilemdConfig.json');
 	var settings_data = null;
 	try {
 		settings_data = JSON.parse(fs.readFileSync(settings_path));
 	} catch (e) {
 		settings_data = {};
 	}
+
+	var DEBUG = false;
 
 	var WINDOW_WIDTH = settings_data['screen_width'] || 1024;
 	var WINDOW_HEIGHT = settings_data['screen_height'] || 768;
@@ -70,7 +71,7 @@ function makeMainWindow() {
 		titleBarStyle    : 'hidden',
 		frame            : false,
 		webPreferences   : {
-			devTools: false,
+			devTools: DEBUG,
 			webgl   : false,
 			webaudio: false
 		}
@@ -114,7 +115,7 @@ function makeMainWindow() {
 	global.argv = process.argv;
 
 	// open the DevTools.
-	// mainWindow.webContents.openDevTools();
+	if (DEBUG) mainWindow.webContents.openDevTools();
 
 	mainWindow.webContents.on('will-navigate', (e, url) => {
 		e.preventDefault();

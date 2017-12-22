@@ -51,6 +51,8 @@ module.exports = {
 
 		if (win.isMaximized()) {
 			settings_data['screen_maximized'] = true;
+			settings_data['screen_width'] = current_size[0];
+			settings_data['screen_height'] = current_size[1];
 		} else {
 			settings_data['screen_maximized'] = false;
 			settings_data['screen_width'] = current_size[0];

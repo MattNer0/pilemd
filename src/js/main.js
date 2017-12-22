@@ -252,11 +252,8 @@ var appVue = new Vue({
 			});
 
 			this.init_sidebar_width();
+			this.update_editor_size();
 			this.changeTheme(this.selectedTheme);
-
-			setTimeout(() => {
-				self.update_editor_size();
-			}, 1000);
 		});
 
 		ipcRenderer.on('loaded-racks', (event, data) => {
@@ -597,7 +594,6 @@ var appVue = new Vue({
 		 */
 		togglePreview() {
 			this.isPreview = !this.isPreview;
-			this.update_editor_size();
 		},
 		calcSaveUid() {
 			if (this.selectedRackOrFolder instanceof models.Rack) {
@@ -1183,38 +1179,6 @@ var appVue = new Vue({
 			}, message.period);
 		},
 		/**
-		 * calculates the sidebar width and
-		 * changes the main container margins to accomodate it.
-		 * If the application is in fullscreen mode (sidebar hidden)
-		 * then the sidebar is moved outside of the visible workspace.
-		 * @function update_editor_size
-		 * @return {Void} Function doesn't return anything
-		 */
-		update_editor_size() {
-			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
-			if (cellsLeft.length == 0) {
-				return;
-			}
-
-			var widthTotalLeft = parseInt( cellsLeft[0].style.width.replace('px','') ) + 4;
-			widthTotalLeft += parseInt( cellsLeft[1].style.width.replace('px','') ) + 4;
-
-			if(this.isFullScreen) {
-				document.querySelector('.sidebar').style.left = '-' + widthTotalLeft + 'px';
-				document.querySelector('.main-cell-container .my-browser').style.width = '100vw';
-				widthTotalLeft = 0;
-			} else {
-				document.querySelector('.sidebar').style.left = '';
-				setTimeout(() => {
-					document.querySelector('.main-cell-container .my-browser').style.width = 'calc( 100vw - ' + widthTotalLeft + 'px )';
-				}, 300);
-			}
-
-			setTimeout(() => {
-				document.querySelector('.main-cell-container').style.marginLeft = widthTotalLeft + 'px';
-			}, 5);
-		},
-		/**
 		 * saves the sidebar width (both racks and notes lists).
 		 * @function save_editor_size
 		 * @return {Void} Function doesn't return anything
@@ -1238,7 +1202,37 @@ var appVue = new Vue({
 				this.preview = preview.render(this.selectedNote, this);
 				this.noteHeadings = preview.getHeadings();
 			}
-		}
+		},
+		/**
+		 * calculates the sidebar width and
+		 * changes the main container margins to accomodate it.
+		 * If the application is in fullscreen mode (sidebar hidden)
+		 * then the sidebar is moved outside of the visible workspace.
+		 * @function update_editor_size
+		 * @return {Void} Function doesn't return anything
+		 */
+		update_editor_size: _.debounce(function () {
+			//ipcRenderer.send('console', 'update editor size');
+			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
+			if (cellsLeft.length == 0) {
+				return;
+			}
+
+			var widthTotalLeft = parseInt(cellsLeft[0].style.width.replace('px','')) + 4;
+			widthTotalLeft += parseInt(cellsLeft[1].style.width.replace('px','')) + 4;
+
+			if(this.isFullScreen) {
+				document.querySelector('.sidebar').style.left = '-' + widthTotalLeft + 'px';
+				document.querySelector('.main-cell-container .my-browser').style.width = '100vw';
+				widthTotalLeft = 0;
+			} else {
+				document.querySelector('.sidebar').style.left = '';
+				setTimeout(() => {
+					document.querySelector('.main-cell-container .my-browser').style.width = 'calc( 100vw - ' + widthTotalLeft + 'px )';
+				}, 200);
+			}
+			document.querySelector('.main-cell-container').style.marginLeft = widthTotalLeft + 'px';
+		}, 250)
 	},
 	watch: {
 		isPreview() {
