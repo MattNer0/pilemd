@@ -249,26 +249,15 @@ class BookmarkFolder extends Folder {
 		bookmark.body = url;
 	}
 
-	static setBookmarkIcon(bookmark, favicon_url) {
+	static setBookmarkIcon(bookmark, favicon_url, favicon_data) {
 		if(!bookmark || !favicon_url) return;
 		bookmark.attributes['ICON_URI'] = favicon_url;
-		var http = require('http');
-		http.get(favicon_url, function (res) {
-			res.setEncoding('binary');
-			var body = '';
-			res.on('data', (chunk) => {
-				body += chunk;
-			});
-			res.on('end', () => {
-				bookmark.attributes['ICON'] = "data:" + res.headers["content-type"] + ";base64," + new Buffer(body, 'binary').toString('base64');
-			});
-		});
+		bookmark.attributes['ICON'] = favicon_data;
 	}
 
 	static setBookmarkThumb(bookmark, thumbnail) {
 		if(!bookmark) return;
-		thumbnail = thumbnail.resize({ width: 150 });
-		if(thumbnail) bookmark.attributes['THUMBNAIL'] = thumbnail.toDataURL();
+		if(thumbnail) bookmark.attributes['THUMBNAIL'] = thumbnail;
 	}
 }
 

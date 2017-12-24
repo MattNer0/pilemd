@@ -9,6 +9,8 @@ var mainWindow = null;
 var backgroundWindow = null;
 var appIcon = null;
 
+var DEBUG = false;
+
 // support for portable mode
 app.setPath(
 	'userData',
@@ -38,8 +40,6 @@ function makeMainWindow() {
 	} catch (e) {
 		settings_data = {};
 	}
-
-	var DEBUG = false;
 
 	var WINDOW_WIDTH = settings_data['screen_width'] || 1024;
 	var WINDOW_HEIGHT = settings_data['screen_height'] || 768;
@@ -142,9 +142,9 @@ function makeMainWindow() {
  */
 function makeBackgroundWindow() {
 	backgroundWindow = new BrowserWindow({
-		frame         : false,
-		show          : false,
-		titleBarStyle : 'hidden',
+		width         : 960,
+		height        : 960,
+		show          : DEBUG,
 		skipTaskbar   : true,
 		webPreferences: {
 			devTools: false,
@@ -254,12 +254,18 @@ if (shouldQuit) {
 	// relay events to background task
 	ipcMain.on('download-files', (event, payload) => backgroundWindow.webContents.send('download-files', payload));
 	ipcMain.on('load-racks', (event, payload) => backgroundWindow.webContents.send('load-racks', payload));
+	ipcMain.on('load-page', (event, payload) => backgroundWindow.webContents.send('load-page', payload));
 
 	// relay events to main task
 	ipcMain.on('loaded-racks', (event, payload) => mainWindow.webContents.send('loaded-racks', payload));
 	ipcMain.on('loaded-folders', (event, payload) => mainWindow.webContents.send('loaded-folders', payload));
 	ipcMain.on('loaded-notes', (event, payload) => mainWindow.webContents.send('loaded-notes', payload));
 	ipcMain.on('loaded-all-notes', (event, payload) => mainWindow.webContents.send('loaded-all-notes', payload));
+
+	ipcMain.on('load-page-fail', (event, payload) => mainWindow.webContents.send('load-page-fail', payload));
+	ipcMain.on('load-page-success', (event, payload) => mainWindow.webContents.send('load-page-success', payload));
+	ipcMain.on('load-page-favicon', (event, payload) => mainWindow.webContents.send('load-page-favicon', payload));
+	ipcMain.on('load-page-finish', (event, payload) => mainWindow.webContents.send('load-page-finish', payload));
 
 	ipcMain.on('console', (event, payload) => {
 		console.log(payload);

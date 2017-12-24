@@ -4,7 +4,7 @@
 		:toggle-full-screen="toggleFullScreen"
 		:open-sync="openSync"
 		:move-sync="moveSync"
-		:open-credits="openCredits"
+		:open-about="openAbout"
 		:is-full-screen="isFullScreen"
 		:selected-theme="selectedTheme"
 		:change-theme="changeTheme"
@@ -14,7 +14,6 @@
 	<div class="my-main" :class="{'note_selected': isNoteSelected }">
 		<div :class="{'outer_wrapper': true}">
 			<div class="sidebar">
-				<!-- :style="{ width: racksWidth+'px' }" -->
 				<div class="cell-container">
 					<div class="my-shelf" @contextmenu="shelfMenu()">
 						<div class="my-shelf-wrapper">

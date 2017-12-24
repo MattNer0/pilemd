@@ -6,7 +6,7 @@
 					a(@click.prevent="toggleFullScreen", href="#"): span
 						i.material-icons(v-if="isFullScreen") fullscreen_exit
 						i.material-icons(v-else) fullscreen
-						|  Sidebar
+						|  Toggle Sidebar
 				li: div
 					i.material-icons search
 					input#search-bar.my-search(v-model="search", type="text", placeholder="Search notes...")
@@ -16,8 +16,8 @@
 					dropdown(:visible="menu_visible", :position="position", v-on:clickout="menu_visible = false")
 						i.link.material-icons(@click="menu_visible = !menu_visible") more_vert
 						.dialog(slot="dropdown"): ul
-							li: a(@click.prevent="menu_openFolder", href="#") Open Library Directory
-							li: a(@click.prevent="menu_moveFolder", href="#") Move Library Directory
+							li: a(@click.prevent="menu_openFolder", href="#") Select Library Directory
+							//-li: a(@click.prevent="menu_moveFolder", href="#") Move Library Directory
 							li: hr
 							li: a(@click.prevent="menu_changeTheme('dark')", href="#")
 								i.material-icons(v-if="selectedTheme == 'dark'") radio_button_checked
@@ -34,7 +34,7 @@
 							li: hr
 							//-li: a(@click.prevent="menu_devTools", href="#") Open DevTools
 							li(v-if="isLinux && saveDesktop"): a(@click.prevent="menu_desktopEntry", href="#") Add Desktop Entry
-							li: a(@click.prevent="menu_credits", href="#") Credits
+							li: a(@click.prevent="menu_about", href="#") About
 							li: hr
 							li: a(@click.prevent="menu_quit", href="#") Quit
 
@@ -79,7 +79,7 @@
 			'toggleFullScreen'  : Function,
 			'openSync'          : Function,
 			'moveSync'          : Function,
-			'openCredits'       : Function,
+			'openAbout'       : Function,
 			'changeTheme'       : Function,
 			'changeDisplayOrder': Function
 		},
@@ -122,10 +122,10 @@
 				var win = remote.getCurrentWindow();
 				win.webContents.openDevTools();
 			},
-			menu_credits() {
+			menu_about() {
 				this.menu_visible = false;
 				setTimeout(() => {
-					this.openCredits();
+					this.openAbout();
 				}, 100);
 			},
 			menu_changeTheme(value) {

@@ -9,7 +9,6 @@ settings.loadWindowSize();
 
 const libini = require('./utils/libini');
 const traymenu = require('./utils/traymenu');
-const htmlToMarkdown = require('./utils/htmlToMarkdown');
 
 import Vue from 'vue';
 
@@ -338,8 +337,60 @@ var appVue = new Vue({
 
 			traymenu.init();
 		});
+
+		ipcRenderer.on('load-page-fail', (event, data) => {
+			this.sendFlashMessage(5000, 'error', 'Load Failed');
+			this.loadingUid = '';
+		});
+
+		ipcRenderer.on('load-page-finish', (event, data) => {
+			this.loadingUid = '';
+		});
+
+		ipcRenderer.on('load-page-success', (event, data) => {
+			switch (data.mode) {
+				case 'note-from-url':
+					if (data.markdown) {
+						var new_note = this.addNote();
+						new_note.body = data.markdown;
+						this.sendFlashMessage(1000, 'info', 'New Note From Url');
+					} else {
+						this.sendFlashMessage(5000, 'error', 'Conversion Failed');
+					}
+					break;
+				case 'bookmark-thumb':
+					var bookmark = this.findBookmarkByUid(JSON.parse(data.bookmark));
+					if (bookmark.name === '') {
+						models.BookmarkFolder.setBookmarkNameUrl(bookmark, data.pageTitle, bookmark.body);
+					}
+					this.sendFlashMessage(3000, 'info', 'Thumbnail saved');
+					models.BookmarkFolder.setBookmarkThumb(bookmark, data.pageCapture);
+					bookmark.rack.saveModel();
+					this.loadingUid = '';
+					break;
+				default:
+					break;
+			}
+		});
+
+		ipcRenderer.on('load-page-favicon', (event, data) => {
+			switch (data.mode) {
+				case 'bookmark-thumb':
+					var bookmark = this.findBookmarkByUid(JSON.parse(data.bookmark));
+					models.BookmarkFolder.setBookmarkIcon(bookmark, data.faviconUrl, data.faviconData);
+					break;
+				default:
+					break;
+			}
+		});
 	},
 	methods: {
+		findBookmarkByUid(bookmark) {
+			var rack = arr.findBy(this.racks, 'uid', bookmark.rack);
+			var folder = arr.findBy(rack.folders, 'uid', bookmark.folder);
+			var bookmark = arr.findBy(folder.notes, 'uid', bookmark.uid);
+			return bookmark;
+		},
 		/**
 		 * initialize the width of the left sidebar elements.
 		 * @function init_sidebar_width
@@ -724,45 +775,24 @@ var appVue = new Vue({
 			}
 		},
 		addNoteFromUrl() {
-			var self = this;
-
-			var pageLoaded = () => {
-				self.$refs.webview.removeEventListener('did-finish-load', pageLoaded);
-				self.$refs.webview.getWebContents().executeJavaScript(htmlToMarkdown.parseScript(), (result) => {
-					var new_markdown = htmlToMarkdown.convert(result, self.$refs.webview.src, self.$refs.webview.getTitle());
-					if (new_markdown) {
-						var new_note = self.addNote();
-						new_note.body = new_markdown;
-					} else {
-						self.sendFlashMessage(5000, 'error', 'Conversion Failed');
-					}
-					self.$refs.webview.style.height = '';
-					self.$refs.webview.src = '';
-				});
-			};
-			var pageFailed = () => {
-				self.$refs.webview.removeEventListener('did-fail-load', pageFailed);
-				self.$refs.webview.style.height = '';
-				self.$refs.webview.src = '';
-				self.sendFlashMessage(5000, 'error', 'Load Failed');
-			};
-
 			this.$refs.dialog.init('Note', '', [{
 				label: 'Cancel',
 				cancel: true,
 			}, {
 				label: 'Ok',
 				cb(data) {
-					self.$refs.webview.src = data.pageurl;
-					self.$refs.webview.style.height = '10000px';
-					self.$refs.webview.addEventListener('did-finish-load', pageLoaded);
-					self.$refs.webview.addEventListener('did-fail-load', pageFailed);
+					ipcRenderer.send('load-page', {
+						url           : data.pageurl,
+						mode          : 'note-from-url',
+						webpreferences: 'images=no',
+						style         : { height: '10000px' }
+					});
 				},
 				/**
 				 * @description validate the form input data
-				 * @param      {Object}            data    Form data object
-				 * @return     {(boolean|string)}          If false, the validation was succesful.
-				 *                                         If a string value is returned it means that's the name of the field that failed validation.
+				 * @param   {Object}            data    Form data object
+				 * @return  {(boolean|string)}          If false, the validation was succesful.
+				 *                                      If a string value is returned it means that's the name of the field that failed validation.
 				 */
 				validate(data) {
 					var expression = /[-a-zA-Z0-9@:%_+.~#?&=]{2,256}(\.[a-z]{2,4}|:\d+)\b(\/[-a-zA-Z0-9@:%_+.~#?&/=]*)?/gi;
@@ -770,9 +800,7 @@ var appVue = new Vue({
 					if (data.pageurl.match(regex)) {
 						return false;
 					}
-					/*
-					 * @todo gonna use this to highlight the wrong field in the dialog form
-					 */
+					// @todo gonna use this to highlight the wrong field in the dialog form
 					return 'pageurl';
 				}
 			}], [{
@@ -872,46 +900,16 @@ var appVue = new Vue({
 		 */
 		refreshBookmarkThumb(bookmark) {
 			if(!bookmark || !bookmark.body) return;
-			var self = this;
-			console.log('Loading Bookmark thumbnail...', bookmark.body);
 			this.loadingUid = bookmark.uid;
-			self.$refs.webview.style.height = '';
-			this.$refs.webview.src = bookmark.body;
-			var bookmarkFavicon = (e) => {
-				self.$refs.webview.removeEventListener('page-favicon-updated', bookmarkFavicon);
-				if(e.favicons && e.favicons.length > 0) {
-					models.BookmarkFolder.setBookmarkIcon(bookmark, e.favicons[0]);
-				}
-			};
-			var bookmarkLoaded = () => {
-				self.$refs.webview.removeEventListener('did-finish-load', bookmarkLoaded);
-				if(bookmark.name === '') {
-					models.BookmarkFolder.setBookmarkNameUrl(bookmark, self.$refs.webview.getTitle(), bookmark.body);
-				}
-				self.$refs.webview.capturePage((img) => {
-					/**
-					 * callback after webview took a page screenshot
-					 * @param  {Object}  img  NativeImage page screenshot
-					 */
-					console.log('Bookmark thumbnail was succesful!');
-					self.sendFlashMessage(3000, 'info', 'Thumbnail saved');
-					self.$refs.webview.src = '';
-					models.BookmarkFolder.setBookmarkThumb(bookmark, img);
-					bookmark.rack.saveModel();
-					self.loadingUid = '';
-				});
-			};
-			var bookmarkFailed = (e) => {
-				if (e.isMainFrame) {
-					self.$refs.webview.removeEventListener('did-fail-load', bookmarkFailed);
-					self.loadingUid = '';
-					self.sendFlashMessage(5000, 'error', 'Load Failed');
-				}
-			};
-
-			this.$refs.webview.addEventListener('page-favicon-updated', bookmarkFavicon);
-			this.$refs.webview.addEventListener('did-finish-load', bookmarkLoaded);
-			this.$refs.webview.addEventListener('did-fail-load', bookmarkFailed);
+			ipcRenderer.send('load-page', {
+				url           : bookmark.body,
+				mode          : 'bookmark-thumb',
+				bookmark      : JSON.stringify({
+					'uid' : bookmark.uid,
+					'folder' : bookmark.folderUid,
+					'rack' : bookmark.rack.uid
+				})
+			});
 		},
 		/**
 		 * refresh bookmark thumbnail using some metadata content
@@ -923,9 +921,20 @@ var appVue = new Vue({
 			var self = this;
 			console.log('Loading Bookmark page...', bookmark.body);
 			this.loadingUid = bookmark.uid;
+			ipcRenderer.send('load-page', {
+				url           : bookmark.body,
+				mode          : 'bookmark-meta',
+				bookmark      : JSON.stringify({
+					'uid' : bookmark.uid,
+					'folder' : bookmark.folderUid,
+					'rack' : bookmark.rack.uid
+				})
+			});
+			/*
 			self.$refs.webview.style.height = '';
 			this.$refs.webview.src = bookmark.body;
-			var imageLoaded = () => {
+			*/
+			/*var imageLoaded = () => {
 				self.$refs.webview.removeEventListener('did-finish-load', imageLoaded);
 				self.$refs.webview.getWebContents().insertCSS('img { width: 100% !important; height: auto; }');
 				setTimeout( () => {
@@ -933,7 +942,7 @@ var appVue = new Vue({
 						console.log('Bookmark meta image was succesful!');
 						self.sendFlashMessage(2000, 'info', 'Thumbnail saved');
 						self.$refs.webview.src = '';
-						models.BookmarkFolder.setBookmarkThumb(bookmark, img);
+						//models.BookmarkFolder.setBookmarkThumb(bookmark, img);
 						bookmark.rack.saveModel();
 						self.loadingUid = '';
 					});
@@ -967,8 +976,8 @@ var appVue = new Vue({
 						}
 					}
 				);
-			};
-			var bookmarkFailed = (e) => {
+			};*/
+			/*var bookmarkFailed = (e) => {
 				if (e.isMainFrame) {
 					self.$refs.webview.removeEventListener('did-fail-load', bookmarkFailed);
 					self.loadingUid = '';
@@ -977,7 +986,7 @@ var appVue = new Vue({
 			};
 
 			this.$refs.webview.addEventListener('did-finish-load', bookmarkLoaded);
-			this.$refs.webview.addEventListener('did-fail-load', bookmarkFailed);
+			this.$refs.webview.addEventListener('did-fail-load', bookmarkFailed);*/
 		},
 		/**
 		 * displays an image with the popup dialog.
@@ -1100,16 +1109,16 @@ var appVue = new Vue({
 			remote.getCurrentWindow().reload();
 		},
 		/**
-		 * shows the Credits dialog window.
-		 * @function openCredits
+		 * shows the About dialog window.
+		 * @function openAbout
 		 * @return {Void} Function doesn't return anything
 		 */
-		openCredits() {
+		openAbout() {
 			var message = 'PileMd was originally created by Hiroki KIYOHARA.\n' +
 				'The full list of Authors is available on GitHub.\n\n' +
 				'This Fork with updated components and additional features is maintained by MattNer0.';
 
-			this.$refs.dialog.init('Credits', message, [{
+			this.$refs.dialog.init('About', message, [{
 				label: 'Ok',
 				cancel: true
 			}]);
@@ -1232,7 +1241,7 @@ var appVue = new Vue({
 				}, 200);
 			}
 			document.querySelector('.main-cell-container').style.marginLeft = widthTotalLeft + 'px';
-		}, 250)
+		}, 100)
 	},
 	watch: {
 		isPreview() {

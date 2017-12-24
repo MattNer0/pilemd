@@ -1,5 +1,9 @@
 <template lang="pug">
 	.my-shelf-racks(:class="{'dragginRack' : draggingRack, 'draggingFolder' : draggingFolder}")
+		.my-shelf-rack(v-if="racksWithFolders.length == 0")
+			h4(@click.prevent.stop="addRack()")
+				i.material-icons.rack-icon add_box
+				a Add Rack
 		.my-shelf-rack(v-for="rack in racksWithFolders"
 			:class="{'sortUpper': rack.sortUpper, 'sortLower': rack.sortLower, 'openFolders' : rack.openFolders }"
 			:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
@@ -24,8 +28,12 @@
 					@keyup.enter="doneRackEdit(rack)"
 					@keyup.esc="doneRackEdit(rack)")
 
+			.my-shelf-folder(v-if="rack.folders.length == 0")
+				h5(@click.prevent.stop="addFolder(rack)")
+					i.material-icons add_box
+					a.my-shelf-folder-name Add Folder
 			//- Folder
-			div.my-shelf-folder(v-for="folder in rack.folders"
+			.my-shelf-folder(v-for="folder in rack.folders"
 				:class="{'isShelfSelected': (isSelectedFolder(folder) && !isDraggingNote()) || folder.dragHover, 'openNotes' : folder.openNotes, 'noteDragging': isDraggingNote(), 'noteIsHere': !isDraggingNote() && selectedNote.folderUid == folder.uid, 'sortUpper': folder.sortUpper, 'sortLower': folder.sortLower}"
 				:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
 				@dragstart.stop="folderDragStart($event, rack, folder)"
