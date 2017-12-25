@@ -13,7 +13,6 @@ const traymenu = require('./utils/traymenu');
 import Vue from 'vue';
 
 var models = require('./models');
-var initialModels = require('./initialModels');
 var preview = require('./preview');
 var searcher = require('./searcher');
 
@@ -157,27 +156,12 @@ var appVue = new Vue({
 
 		// hey, this is the first time.
 		if (!models.getBaseLibraryPath()) {
-			initialModels.initialFolder();
+			models.setLibraryToInitial();
 		}
 
 		if (models.doesLibraryExists()) {
 			// library folder exists, let's read what's inside
-
 			ipcRenderer.send('load-racks', { library: models.getBaseLibraryPath() });
-
-			/*racks = models.readRacks();
-			if (racks.length == 0) {
-				initial_notes = initialModels.initialSetup(racks);
-				racks = models.readRacks();
-
-				if (initial_notes.length == 1) {
-					folders = initial_notes[0].data.rack.read?Contents();
-					notes = initial_notes;
-				}
-			}
-
-			this.racks = arr.sortBy(racks.slice(), 'ordering', true);
-			this.notes = notes;*/
 
 		} else {
 			console.error('Couldn\'t open library directory.\nPath: '+models.getBaseLibraryPath());
@@ -188,57 +172,6 @@ var appVue = new Vue({
 				}]);
 			}, 100);
 		}
-
-		/*if (this.racks && this.racks.length > 0) {
-			var domain_array = [];
-			this.racks.forEach((r) => {
-				if (r instanceof models.BookmarkRack) {
-					domain_array = domain_array.concat(r.domains());
-				}
-			});
-			this.bookmarksDomains = _.uniq(domain_array);
-		}
-
-		if (initial_notes.length > 0) {
-			initial_notes[0].data.rack.openFolders = true;
-			this.selectedRackOrFolder = initial_notes[0].data.folder;
-			this.selectedNote = initial_notes[0];
-		}*/
-
-		/*if (remote.getGlobal('argv')) {
-			var argv = remote.getGlobal('argv');
-			if (argv.length > 1 && path.extname(argv[1]) == '.md' && fs.existsSync(argv[1])) {
-				var notePath = argv[1];
-				var noteData = models.Note.isValidNotePath(notePath);
-				var openedNote;
-				if (noteData && notePath.indexOf(models.getBaseLibraryPath()) == 0) {
-					var openedRack = this.racks.find((rack) => {
-						return rack.data.path == path.join(path.dirname(notePath), '..');
-					});
-					if (openedRack) this.readRack?Content(openedRack);
-					openedNote = this.notes.find((note) => {
-						return note.data.path == notePath;
-					});
-					if (openedNote) {
-						this.changeRackOrFolder(openedNote.data.folder);
-						this.changeNote(openedNote);
-					}
-				} else if (noteData && noteData.ext == '.mdencrypted' ) {
-					// encripted note
-				} else if (noteData) {
-					openedNote = new models.Note({
-						name: path.basename(notePath, noteData.ext),
-						body: '',
-						path: notePath,
-						extension: noteData.ext
-					});
-					this.notes.push(openedNote);
-					this.changeNote(openedNote);
-				} else {
-					console.log('path not valid!');
-				}
-			}
-		}*/
 	},
 	mounted() {
 		var self = this;
@@ -335,6 +268,35 @@ var appVue = new Vue({
 				});
 			}
 
+			if (this.racks && this.racks.length > 0) {
+				var domain_array = [];
+				this.racks.forEach((r) => {
+					if (r instanceof models.BookmarkRack) {
+						domain_array = domain_array.concat(r.domains());
+					}
+				});
+				this.bookmarksDomains = _.uniq(domain_array);
+			}
+
+			if (this.notes.length == 1) {
+				this.notes[0].data.rack.openFolders = true;
+				this.changeRackOrFolder(this.notes[0].data.folder);
+				this.changeNote(this.notes[0]);
+
+			} else if (remote.getGlobal('argv')) {
+				var argv = remote.getGlobal('argv');
+				if (argv.length > 1 && path.extname(argv[1]) == '.md' && fs.existsSync(argv[1])) {
+					var openedNote = this.findNoteByPath(argv[1]);
+					if (openedNote) {
+						openedNote.data.rack.openFolders = true;
+						this.changeRackOrFolder(openedNote.data.folder);
+						this.changeNote(openedNote);
+					} else {
+						ipcRenderer.send('console', 'path not valid!');
+					}
+				}
+			}
+
 			traymenu.init();
 		});
 
@@ -390,6 +352,15 @@ var appVue = new Vue({
 			var folder = arr.findBy(rack.folders, 'uid', bookmark.folder);
 			var bookmark = arr.findBy(folder.notes, 'uid', bookmark.uid);
 			return bookmark;
+		},
+		findNoteByPath(notePath) {
+			var noteData = models.Note.isValidNotePath(notePath);
+			if (noteData && notePath.indexOf(models.getBaseLibraryPath()) == 0) {
+				return this.notes.find((note) => {
+					return note.data.path == notePath;
+				});
+			}
+			return undefined;
 		},
 		/**
 		 * initialize the width of the left sidebar elements.
@@ -552,7 +523,6 @@ var appVue = new Vue({
 		 * @return {RackSeparator} New rack separator
 		 */
 		addRackSeparator() {
-
 			var rack_separator = new models.RackSeparator();
 			var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
 			racks.unshift(rack_separator);
@@ -930,63 +900,6 @@ var appVue = new Vue({
 					'rack' : bookmark.rack.uid
 				})
 			});
-			/*
-			self.$refs.webview.style.height = '';
-			this.$refs.webview.src = bookmark.body;
-			*/
-			/*var imageLoaded = () => {
-				self.$refs.webview.removeEventListener('did-finish-load', imageLoaded);
-				self.$refs.webview.getWebContents().insertCSS('img { width: 100% !important; height: auto; }');
-				setTimeout( () => {
-					self.$refs.webview.capturePage((img) => {
-						console.log('Bookmark meta image was succesful!');
-						self.sendFlashMessage(2000, 'info', 'Thumbnail saved');
-						self.$refs.webview.src = '';
-						//models.BookmarkFolder.setBookmarkThumb(bookmark, img);
-						bookmark.rack.saveModel();
-						self.loadingUid = '';
-					});
-				}, 1000);
-			};
-			var bookmarkLoaded = () => {
-				self.$refs.webview.removeEventListener('did-finish-load', bookmarkLoaded);
-				self.$refs.webview.getWebContents().executeJavaScript(
-					'document.querySelector(\'head\').innerHTML + document.querySelector(\'body\').innerHTML',
-					(result) => {
-						var shortcut = (/rel=['"`]shortcut icon['"`][^<>]+?href=['"`](http.+?)['"`]/gi).exec(result) ||
-										(/<img[^>]+?src=['"`](http.+?profile[-_]images.+?)['"`]/gi).exec(result);
-						var og_image = (/property=['"`]og:image['"`][^<>]+?content=['"`](http.+?)['"`]/gi).exec(result) ||
-										(/content=['"`](http.+?)['"`][^<>]+?property=['"`]og:image['"`]/gi).exec(result);
-						var avatar_image = (/class=['"`]avatar['"`][^<>]+>[^<>]+<img[^<>]+src=['"`](http.+?)['"`]/gi).exec(result);
-						var user_profile = result.match(/https?:\/\/[a-z0-9.-]+?\/user-profile\/img[^.<>]+\.(jpg|png|gif)/gi);
-
-						if (user_profile || shortcut || og_image || avatar_image) {
-							var image_url;
-							if (user_profile) image_url = user_profile[0];
-							else if(avatar_image) image_url = avatar_image[1];
-							else if(shortcut) image_url = shortcut[1];
-							else if(og_image) image_url = og_image[1];
-
-							self.$refs.webview.src = image_url;
-							self.$refs.webview.addEventListener('did-finish-load', imageLoaded);
-						} else {
-							console.log('No Bookmark meta image found!');
-							self.$refs.webview.src = '';
-							self.loadingUid = '';
-						}
-					}
-				);
-			};*/
-			/*var bookmarkFailed = (e) => {
-				if (e.isMainFrame) {
-					self.$refs.webview.removeEventListener('did-fail-load', bookmarkFailed);
-					self.loadingUid = '';
-					this.sendFlashMessage(3000, 'error', 'Load Failed');
-				}
-			};
-
-			this.$refs.webview.addEventListener('did-finish-load', bookmarkLoaded);
-			this.$refs.webview.addEventListener('did-fail-load', bookmarkFailed);*/
 		},
 		/**
 		 * displays an image with the popup dialog.

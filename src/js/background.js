@@ -1,11 +1,11 @@
 'use strict';
-var http = require('http');
 
 const { ipcRenderer } = require('electron');
 
 const downloadHelper = require('./background_tasks/download');
 const libraryHelper = require('./background_tasks/library');
 const htmlToMarkdown = require('./background_tasks/htmlToMarkdown');
+const initialModels = require('./background_tasks/initialModels');
 
 /**
  * @function logError
@@ -91,28 +91,20 @@ window.onload = function () {
 	webviewEl.addEventListener('page-favicon-updated', (e) => {
 		try {
 			if (e.favicons && e.favicons.length > 0) {
-				http.get(e.favicons[0], function (res) {
-					res.setEncoding('binary');
-					var body = '';
-					res.on('data', (chunk) => {
-						body += chunk;
-					});
-					res.on('end', () => {
-						var faviconData = "data:" + res.headers["content-type"] + ";base64," + new Buffer(body, 'binary').toString('base64');
-						switch (webviewEl.title) {
-							case 'bookmark-thumb':
-								ipcRenderer.send('load-page-favicon', {
-									url     : webviewEl.src,
-									mode    : webviewEl.title,
-									bookmark: webviewEl.bookmark,
-									faviconUrl : e.favicons[0],
-									faviconData: faviconData
-								});
-								break;
-							default:
-								break;
-						}
-					});
+				downloadHelper.getBase64Image(e.favicons[0], (faviconData) => {
+					switch (webviewEl.title) {
+						case 'bookmark-thumb':
+							ipcRenderer.send('load-page-favicon', {
+								url     : webviewEl.src,
+								mode    : webviewEl.title,
+								bookmark: webviewEl.bookmark,
+								faviconUrl : e.favicons[0],
+								faviconData: faviconData
+							});
+							break;
+						default:
+							break;
+					}
 				});
 			}
 		} catch(e) {
@@ -220,7 +212,6 @@ window.onload = function () {
 		if (!data.url) return logMainProcess('load page: url missing');
 		try {
 			setWebviewData(data);
-			//logMainProcess('- '+data.url+' '+data.bookmark);
 			webviewEl.title = data.mode || 'undefined';
 			webviewEl.loadURL(data.url);
 		} catch(e) {
@@ -243,6 +234,10 @@ window.onload = function () {
 
 		try {
 			var arrayRacks = libraryHelper.readRacks(data.library);
+			if (arrayRacks.length == 0) {
+				initialModels.initialSetup(data.library);
+				arrayRacks = libraryHelper.readRacks(data.library);
+			}
 			ipcRenderer.send('loaded-racks', { racks: arrayRacks });
 			loadFolders(data.library, arrayRacks);
 		} catch(e) {

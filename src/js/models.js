@@ -41,5 +41,8 @@ module.exports = {
 	},
 	resetHistory() {
 		libini.removeKey(baseLibrary.baseLibraryPath, 'history');
+	},
+	setLibraryToInitial() {
+		baseLibrary.baseLibraryPath = baseLibrary.initialLibrary();
 	}
 };

@@ -18,11 +18,9 @@ module.exports = {
 		});
 	},
 	findBy(objs, property, value) {
-		var results = objs.filter((obj) => {
+		return objs.find((obj) => {
 			return obj[property] == value;
 		});
-		if (results.length == 1) return results[0];
-		else return results;
 	},
 	/**
 	 * remove one element from array.

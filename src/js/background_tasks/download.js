@@ -16,6 +16,18 @@ module.exports = {
 			this.downloadFile(url, target_folder);
 		});
 	},
+	getBase64Image(source_url, callback) {
+		http.get(source_url, function (res) {
+			res.setEncoding('binary');
+			var body = '';
+			res.on('data', (chunk) => {
+				body += chunk;
+			});
+			res.on('end', () => {
+				return callback("data:" + res.headers["content-type"] + ";base64," + new Buffer(body, 'binary').toString('base64'));
+			});
+		});
+	},
 	downloadFile(source_url, target_folder, filename) {
 		if (!filename) filename = this.getFileDataFromUrl(source_url).basename;
 		if (!target_folder || !filename) return;
