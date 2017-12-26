@@ -33,7 +33,7 @@ class Image {
 	}*/
 
 	makeAbsolutePath() {
-		return 'pilemd://' + this.makeFilePath();
+		return 'pilemd://' + encodeURI(this.makeFilePath());
 	}
 
 	static appendSuffix(filePath) {

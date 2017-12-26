@@ -168,7 +168,7 @@ class Note extends Model {
 	}
 
 	get document_filename() {
-		return this.title ? this.title.replace(/[^\w _-]/g, '').substr(0, 40).trim() : '';
+		return this.title ? this.title.replace(/[^\w _-]/g, '').replace(/\s+/g, ' ').substr(0, 40).trim() : '';
 	}
 
 	get body() {
@@ -230,7 +230,7 @@ class Note extends Model {
 		);
 
 		body = body.replace(
-			/^\[(\d+)]:\s(pilemd:\/\/.*?)$/mg,
+			/^\[([\w\d]+)]:\s(pilemd:\/\/.*?)$/mg,
 			(match, p1, p2) => {
 				var dataURL;
 				try {

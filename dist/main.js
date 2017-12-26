@@ -228,7 +228,7 @@ if (shouldQuit) {
 
 		protocol.registerFileProtocol('pilemd', (request, callback) => {
 			const url = request.url.substr(9);
-			callback({ path: path.normalize(url) });
+			callback({ path: path.normalize(decodeURI(url)) });
 		}, (err) => {
 			if (err) console.error('Failed to register protocol');
 		});
