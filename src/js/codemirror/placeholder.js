@@ -2,9 +2,9 @@
 
 	/**
 	 * @function clearPlaceholder
-	* @param  {type} cm Codemirror Instance
-	* @return {type} {description}
-	*/
+	 * @param  {type} cm Codemirror Instance
+	 * @return {type} {description}
+	 */
 	function clearPlaceholder(cm) {
 		if (cm.state.placeholder) {
 			cm.state.placeholder.parentNode.removeChild(cm.state.placeholder);
@@ -14,9 +14,9 @@
 
 	/**
 	 * @function setPlaceholder
-	* @param  {type} cm Codemirror Instance
-	* @return {type} {description}
-	*/
+	 * @param  {type} cm Codemirror Instance
+	 * @return {type} {description}
+	 */
 	function setPlaceholder(cm) {
 		clearPlaceholder(cm);
 		var elt = cm.state.placeholder = document.createElement('pre');
@@ -30,18 +30,18 @@
 
 	/**
 	 * @function isEmpty
-	* @param  {type} cm Codemirror Instance
-	* @return {type} {description}
-	*/
+	 * @param  {type} cm Codemirror Instance
+	 * @return {type} {description}
+	 */
 	function isEmpty(cm) {
 		return (cm.lineCount() === 1) && (cm.getLine(0) === '');
 	}
 
 	/**
 	 * @function onChange
-	* @param  {type} cm Codemirror Instance
-	* @return {type} {description}
-	*/
+	 * @param  {type} cm Codemirror Instance
+	 * @return {type} {description}
+	 */
 	function onChange(cm) {
 		var wrapper = cm.getWrapperElement();
 		var empty = isEmpty(cm);
@@ -64,6 +64,5 @@
 			var wrapper = cm.getWrapperElement();
 			wrapper.className = wrapper.className.replace(' CodeMirror-empty', '');
 		}
-
 	});
 })(require('codemirror'));

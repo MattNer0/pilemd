@@ -1,5 +1,4 @@
-const electron = require('electron');
-const clipboard = electron.clipboard;
+const { clipboard } = require('electron');
 const _ = require('lodash');
 const Image = require('../models').Image;
 const temp_IMAGE_TAG = _.template('![<%- filename %>](<%- fileurl %>)\n');

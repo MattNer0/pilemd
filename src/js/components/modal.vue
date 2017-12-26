@@ -132,7 +132,9 @@
 		watch: {
 			image_url() {
 				this.$nextTick(() => {
-					if(this.$refs.imagemodal) this.$refs.imagemodal.style.backgroundImage = "url("+this.image_url+")";
+					if(this.$refs.imagemodal) {
+						this.$refs.imagemodal.style.backgroundImage = "url('"+this.image_url+"')";
+					}
 				});
 			}
 		}
