@@ -21,13 +21,7 @@ const temp_IMGTAG = _.template('<a href="#" onclick="appVue.openImg(\'<%- link %
 const temp_ATAG_TO_EXTERNAL = _.template('<a href="<%- href %>" title="<%- title %>" ' +
 	'onclick="require(\'electron\').shell.openExternal(\'<%- href %>\'); ' +
 	'return false;"' +
-	'oncontextmenu="var remote = new require(\'electron\').remote; ' +
-	'var Menu = remote.Menu;' +
-	'var MenuItem = remote.MenuItem;' +
-	'var m = new Menu();' +
-	'm.append(new MenuItem({label: \'Copy Link\',' +
-	'click: function() {require(\'electron\').clipboard.writeText(\'<%- href %>\')}}));' +
-	'm.popup(remote.getCurrentWindow()); return false;">' +
+	'oncontextmenu="appVue.contextOnPreviewLink(event, \'<%- href %>\')">' +
 	'<%= text %>' +
 	'</a>');
 

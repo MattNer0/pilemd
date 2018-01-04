@@ -149,27 +149,34 @@
 
 						var c = cm.getCursor();
 						var token = cm.getTokenAt(c, true);
-						menu.append(new MenuItem({ type: 'separator' }));
 						if (isLinkState(token.type)) {
-							var s = cm.getRange({ line: c.line, ch: token.start }, { line: c.line, ch: token.state.overlayPos || token.end });
+							var s = cm.getRange({ line: c.line, ch: token.start < 2 ? token.start : token.start-2 }, { line: c.line, ch: token.state.overlayPos || token.end });
+							s = s.replace(/^\W+/, '');
+							s = s.replace(/^s:\/\//, 'https://');
+							s = s.replace(/^p:\/\//, 'http://');
 							s = s.replace(/\)$/, '');
+
+							menu.append(new MenuItem({ type: 'separator' }));
 							menu.append(new MenuItem({
 								label: 'Copy Link',
 								click: () => { clipboard.writeText(s) }
 							}));
 							menu.append(new MenuItem({
 								label: 'Open Link In Browser',
-								click: () => { shell.openExternal(s) }
+								click: () => {
+									console.log(s);
+									shell.openExternal(s)
+								}
 							}));
 						} else {
-							menu.append(new MenuItem({
+							/*menu.append(new MenuItem({
 								label  : 'Copy Link',
 								enabled: false
 							}));
 							menu.append(new MenuItem({
 								label  : 'Open Link In Browser',
 								enabled: false
-							}));
+							}));*/
 						}
 						menu.append(new MenuItem({ type: 'separator' }));
 						menu.append(new MenuItem({ label: 'Toggle Preview', click: () => { this.togglePreview() } }));

@@ -17,7 +17,7 @@ var preview = require('./preview');
 var searcher = require('./searcher');
 
 // electron things
-const { ipcRenderer, remote, clipboard } = require('electron');
+const { ipcRenderer, remote, clipboard, shell } = require('electron');
 const { Menu, MenuItem, dialog } = remote;
 
 var arr = require('./utils/arr');
@@ -909,6 +909,26 @@ var appVue = new Vue({
 		 */
 		openImg(url) {
 			this.$refs.dialog.image(url);
+		},
+		contextOnPreviewLink(e, href) {
+			if (e.stopPropagation) {
+				e.stopPropagation();
+			}
+		
+			var m = new Menu();
+			m.append(new MenuItem({
+				label: 'Copy Link',
+				click: function() {
+					clipboard.writeText(href);
+				}
+			}));
+			m.append(new MenuItem({
+				label: 'Open Link In Browser',
+				click: () => {
+					shell.openExternal(href)
+				}
+			}));
+			m.popup(remote.getCurrentWindow());
 		},
 		/**
 		 * displays context menu for the list of racks.
