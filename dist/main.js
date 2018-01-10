@@ -7,6 +7,7 @@ const { download } = require('electron-dl');
 
 var mainWindow = null;
 var backgroundWindow = null;
+var backgroundBrowserWindow = null;
 var appIcon = null;
 
 var DEBUG = false;
@@ -68,12 +69,12 @@ function makeMainWindow() {
 		show             : false,
 		darkTheme        : true,
 		tabbingIdentifier: 'pilemd',
-		titleBarStyle    : 'hidden',
 		frame            : false,
 		webPreferences   : {
 			devTools: DEBUG,
 			webgl   : false,
-			webaudio: false
+			webaudio: false,
+			backgroundThrottling: true
 		}
 	};
 
@@ -140,7 +141,7 @@ function makeMainWindow() {
  * @function makeBackgroundWindow
  * @return {Void} Function doesn't return anything
  */
-function makeBackgroundWindow() {
+function makeBackgroundWindow(callback) {
 	backgroundWindow = new BrowserWindow({
 		width         : 960,
 		height        : 960,
@@ -149,7 +150,8 @@ function makeBackgroundWindow() {
 		webPreferences: {
 			devTools: false,
 			webgl   : false,
-			webaudio: false
+			webaudio: false,
+			backgroundThrottling: true
 		}
 	});
 
@@ -159,6 +161,40 @@ function makeBackgroundWindow() {
 
 	backgroundWindow.setMenu(null);
 	backgroundWindow.loadURL('file://' + __dirname + '/background.html');
+
+	if (callback) {
+		backgroundWindow.once('ready-to-show', callback);
+	}
+}
+
+/**
+ * @function makeBackgroundBrowserWindow
+ * @return {Void} Function doesn't return anything
+ */
+function makeBackgroundBrowserWindow(callback) {
+	backgroundBrowserWindow = new BrowserWindow({
+		width         : 960,
+		height        : 960,
+		show          : DEBUG,
+		skipTaskbar   : true,
+		webPreferences: {
+			devTools: false,
+			webgl   : false,
+			webaudio: false,
+			backgroundThrottling: true
+		}
+	});
+
+	backgroundBrowserWindow.on('closed', () => {
+		backgroundBrowserWindow = null;
+	});
+
+	backgroundBrowserWindow.setMenu(null);
+	backgroundBrowserWindow.loadURL('file://' + __dirname + '/bbrowser.html');
+
+	if (callback) {
+		backgroundBrowserWindow.once('ready-to-show', callback);
+	}
 }
 
 if (shouldQuit) {
@@ -254,7 +290,20 @@ if (shouldQuit) {
 	// relay events to background task
 	ipcMain.on('download-files', (event, payload) => backgroundWindow.webContents.send('download-files', payload));
 	ipcMain.on('load-racks', (event, payload) => backgroundWindow.webContents.send('load-racks', payload));
-	ipcMain.on('load-page', (event, payload) => backgroundWindow.webContents.send('load-page', payload));
+	ipcMain.on('load-page', (event, payload) => {
+		if (backgroundBrowserWindow) {
+			backgroundBrowserWindow.webContents.send('load-page', payload);
+		} else {
+			makeBackgroundBrowserWindow(() => {
+				backgroundBrowserWindow.webContents.send('load-page', payload);
+			});
+		}
+	});
+
+	ipcMain.on('kill-bbrowser', (event, payload) => {
+		if (backgroundBrowserWindow) backgroundBrowserWindow.close();
+	});
+	
 
 	// relay events to main task
 	ipcMain.on('loaded-racks', (event, payload) => mainWindow.webContents.send('loaded-racks', payload));

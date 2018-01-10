@@ -33,6 +33,7 @@ module.exports = {
 	entry: {
 		app: './src/js/main.js',
 		background: './src/js/background.js',
+		bbrowser: './src/js/bbrowser.js'
 	},
 	output: {
 		path: __dirname + '/dist/',

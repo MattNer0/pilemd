@@ -3,15 +3,20 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-		<title>Background Process</title>
+		<title>Background Browser Process</title>
 		<style>
 			body, html {
 				padding: 0;
 				margin: 0;
 			}
+			#webview {
+				width: 960px;
+				height: 960px;
+			}
 		</style>
 	</head>
 	<body>
-		<script type="text/javascript" src="background.js"></script>
+		<webview id="webview" src="about:blank"></webview>
+		<script type="text/javascript" src="bbrowser.js"></script>
 	</body>
 </html>

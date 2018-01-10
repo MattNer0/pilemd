@@ -2,11 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const ini = require('ini');
 
-var libIni = '.library.ini';
-
 module.exports = {
 	iniPath(library_path) {
-		return path.join(library_path, libIni);
+		return path.join(library_path, '.library.ini');
 	},
 	readIni(library_path) {
 		if (fs.existsSync(this.iniPath(library_path))) {
