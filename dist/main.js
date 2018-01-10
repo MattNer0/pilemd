@@ -24,10 +24,20 @@ app.setPath(
 var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
 	// someone tried to run a second instance, we should focus our window.
 	if (mainWindow) {
+		if (!mainWindow.isVisible()) {
+			mainWindow.show();
+		}
 		if (mainWindow.isMinimized()) mainWindow.restore();
 		mainWindow.focus();
+	} else {
+		if (!backgroundWindow) makeBackgroundWindow();
+		makeMainWindow();
 	}
 });
+
+if (shouldQuit) {
+	app.quit();
+}
 
 /**
  * @function makeMainWindow
@@ -71,9 +81,9 @@ function makeMainWindow() {
 		tabbingIdentifier: 'pilemd',
 		frame            : false,
 		webPreferences   : {
-			devTools: DEBUG,
-			webgl   : false,
-			webaudio: false,
+			devTools            : DEBUG,
+			webgl               : false,
+			webaudio            : false,
 			backgroundThrottling: true
 		}
 	};
@@ -90,12 +100,12 @@ function makeMainWindow() {
 	appIcon = new Tray(__dirname + '/icon.png');
 	var contextMenu = Menu.buildFromTemplate([{
 		label: 'Show App',
-		click: function() {
+		click() {
 			mainWindow.show();
 		}
 	},{
 		label: 'Quit',
-		click: function() {
+		click() {
 			app.isQuiting = true;
 			app.quit();
 		}
@@ -148,9 +158,9 @@ function makeBackgroundWindow(callback) {
 		show          : DEBUG,
 		skipTaskbar   : true,
 		webPreferences: {
-			devTools: false,
-			webgl   : false,
-			webaudio: false,
+			devTools            : false,
+			webgl               : false,
+			webaudio            : false,
 			backgroundThrottling: true
 		}
 	});
@@ -178,9 +188,9 @@ function makeBackgroundBrowserWindow(callback) {
 		show          : DEBUG,
 		skipTaskbar   : true,
 		webPreferences: {
-			devTools: false,
-			webgl   : false,
-			webaudio: false,
+			devTools            : false,
+			webgl               : false,
+			webaudio            : false,
 			backgroundThrottling: true
 		}
 	});
@@ -197,96 +207,69 @@ function makeBackgroundBrowserWindow(callback) {
 	}
 }
 
-if (shouldQuit) {
-	app.quit();
-} else {
-	const APP_NAME = app.getName();
-	const DARWIN_ALL_CLOSED_MENU = [
-		{
-			label: APP_NAME,
-			submenu: [
-				{
-					label: 'About ' + APP_NAME,
-					role : 'about'
-				},
-				{ type: 'separator' },
-				{
-					label  : 'Services',
-					role   : 'services',
-					submenu: []
-				},
-				{ type: 'separator' },
-				{
-					label      : 'Hide ' + APP_NAME,
-					accelerator: 'Command+H',
-					role       : 'hide'
-				}, {
-					label      : 'Hide Others',
-					accelerator: 'Command+Shift+H',
-					role       : 'hideothers'
-				}, {
-					label: 'Show All',
-					role : 'unhide'
-				},
-				{ type: 'separator' },
-				{
-					label      : 'Quit ' + APP_NAME,
-					accelerator: 'Command+Q',
-					click      : () => { app.quit(); }
-				}
-			]
-		}, {
-			label: 'File',
-			submenu: [{
-				label: 'New ' + APP_NAME + ' Window',
-				click: () => {
-					makeBackgroundWindow();
-					makeMainWindow();
-				}
-			}]
-		}
-	];
+var DARWIN_ALL_CLOSED_MENU;
+function init() {
+	var APP_NAME = app.getName();
+	DARWIN_ALL_CLOSED_MENU = [{
+		label: APP_NAME,
+		submenu: [
+			{
+				label: 'About ' + APP_NAME,
+				role : 'about'
+			},
+			{ type: 'separator' },
+			{
+				label  : 'Services',
+				role   : 'services',
+				submenu: []
+			},
+			{ type: 'separator' },
+			{
+				label      : 'Hide ' + APP_NAME,
+				accelerator: 'Command+H',
+				role       : 'hide'
+			}, {
+				label      : 'Hide Others',
+				accelerator: 'Command+Shift+H',
+				role       : 'hideothers'
+			}, {
+				label: 'Show All',
+				role : 'unhide'
+			},
+			{ type: 'separator' },
+			{
+				label      : 'Quit ' + APP_NAME,
+				accelerator: 'Command+Q',
+				click      : () => { app.quit(); }
+			}
+		]
+	}, {
+		label: 'File',
+		submenu: [{
+			label: 'New ' + APP_NAME + ' Window',
+			click: () => {
+				if (!backgroundWindow) makeBackgroundWindow();
+				makeMainWindow();
+			}
+		}]
+	}];
 
-	// quit when all windows are closed.
-	app.on('window-all-closed', () => {
-		// on OS X it is common for applications and their menu bar
-		// to stay active until the user quits explicitly with Cmd + Q
-		if (process.platform != 'darwin') {
-			app.quit();
-		} else {
-			Menu.setApplicationMenu(Menu.buildFromTemplate(DARWIN_ALL_CLOSED_MENU));
-		}
+	protocol.registerFileProtocol('pilemd', (request, callback) => {
+		const url = request.url.substr(9);
+		callback({ path: path.normalize(decodeURI(url)) });
+	}, (err) => {
+		if (err) console.error('Failed to register protocol');
 	});
 
-	// this method will be called when Electron has finished
-	// initialization and is ready to create browser windows.
-	app.on('ready', () => {
-
-		protocol.registerFileProtocol('pilemd', (request, callback) => {
-			const url = request.url.substr(9);
-			callback({ path: path.normalize(decodeURI(url)) });
-		}, (err) => {
-			if (err) console.error('Failed to register protocol');
-		});
-
-		makeBackgroundWindow();
-		makeMainWindow();
-	});
-
-	app.on('activate', () => {
-		if(!mainWindow){
-			makeMainWindow();
-		} else {
-			mainWindow.show();
-		}
-	});
+	makeBackgroundWindow();
+	makeMainWindow();
 
 	ipcMain.on('download-btn', (e, args) => {
 		download(BrowserWindow.getFocusedWindow(), args.url, args.options).then((dl) => {
 			console.log('Saved to '+ dl.getSavePath());
 		}).catch(console.error);
 	});
-
+	
 	// relay events to background task
 	ipcMain.on('download-files', (event, payload) => backgroundWindow.webContents.send('download-files', payload));
 	ipcMain.on('load-racks', (event, payload) => backgroundWindow.webContents.send('load-racks', payload));
@@ -299,24 +282,48 @@ if (shouldQuit) {
 			});
 		}
 	});
-
+	
 	ipcMain.on('kill-bbrowser', (event, payload) => {
 		if (backgroundBrowserWindow) backgroundBrowserWindow.close();
 	});
 	
-
+	
 	// relay events to main task
 	ipcMain.on('loaded-racks', (event, payload) => mainWindow.webContents.send('loaded-racks', payload));
 	ipcMain.on('loaded-folders', (event, payload) => mainWindow.webContents.send('loaded-folders', payload));
 	ipcMain.on('loaded-notes', (event, payload) => mainWindow.webContents.send('loaded-notes', payload));
 	ipcMain.on('loaded-all-notes', (event, payload) => mainWindow.webContents.send('loaded-all-notes', payload));
-
+	
 	ipcMain.on('load-page-fail', (event, payload) => mainWindow.webContents.send('load-page-fail', payload));
 	ipcMain.on('load-page-success', (event, payload) => mainWindow.webContents.send('load-page-success', payload));
 	ipcMain.on('load-page-favicon', (event, payload) => mainWindow.webContents.send('load-page-favicon', payload));
 	ipcMain.on('load-page-finish', (event, payload) => mainWindow.webContents.send('load-page-finish', payload));
-
+	
 	ipcMain.on('console', (event, payload) => {
 		console.log(payload);
 	});
 }
+
+// this method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+app.on('ready', init);
+
+app.on('activate', () => {
+	if (!backgroundWindow) makeBackgroundWindow();
+	if (!mainWindow) {
+		makeMainWindow();
+	} else {
+		mainWindow.show();
+	}
+});
+
+app.on('window-all-closed', () => {
+	if (process.platform == 'darwin') {
+		// on OS X it is common for applications and their menu bar
+		// to stay active until the user quits explicitly with Cmd + Q
+		Menu.setApplicationMenu(Menu.buildFromTemplate(DARWIN_ALL_CLOSED_MENU));
+	} else {
+		// quit when all windows are closed.
+		app.quit();
+	}
+});

@@ -36,7 +36,7 @@ module.exports = {
 		bbrowser: './src/js/bbrowser.js'
 	},
 	output: {
-		path: __dirname + '/dist/',
+		path: __dirname + '/dist/build/',
 		filename: '[name].js'
 	},
 	resolve: {

@@ -6,10 +6,9 @@
 node_modules/
 
 # front dist
-dist/js/app.js
-dist/app.js
-dist/background.js
-dist/bbrowser.js
+dist/build/app.js
+dist/build/background.js
+dist/build/bbrowser.js
 
 # What a shame. it's OSX
 .DS_Store
