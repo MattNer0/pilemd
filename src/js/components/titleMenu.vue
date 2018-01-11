@@ -8,8 +8,8 @@
 						i.material-icons(v-else) fullscreen
 						|  Toggle Sidebar
 				li: div
-					i.material-icons search
-					input#search-bar.my-search(v-model="search", type="text", placeholder="Search notes...")
+					i.material-icons(@click.prevent="focus_input") search
+					input#search-bar.my-search(ref="searchinput", v-model="search", type="text", placeholder="Search notes...")
 					i.material-icons(v-show="search", @click="clear_search") clear
 				
 				li.has-sub.right-align
@@ -104,6 +104,9 @@
 		methods: {
 			clear_search() {
 				this.search = "";
+			},
+			focus_input() {
+				this.$refs.searchinput.focus();
 			},
 			menu_openFolder() {
 				this.menu_visible = false;

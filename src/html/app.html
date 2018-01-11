@@ -102,6 +102,10 @@
 						</div>
 					</div>
 				</div>
+				<note-footer v-show="!isPreview && isNoteSelected"
+					:is-note-selected="isNoteSelected"
+					ref="refNoteFooter">
+				</note-footer>
 				<flashmessage :messages="messages"></flashmessage>
 			</div>
 		</div>

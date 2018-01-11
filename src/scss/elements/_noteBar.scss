@@ -137,3 +137,19 @@
 		}
 	}
 }
+
+.noteBar.footer {
+	top: auto;
+	bottom: 0;
+
+	nav {
+		ul {
+			font-size: 75%;
+			padding: 0 0 0.6em;
+
+			li > div {
+				cursor: default;
+			}
+		}
+	}
+}

@@ -31,6 +31,7 @@ import component_handlerNotes from './components/handlerNotes.vue';
 import component_handlerStack from './components/handlerStack.vue';
 import component_modal from './components/modal.vue';
 import component_noteMenu from './components/noteMenu.vue';
+import component_noteFooter from './components/noteFooter.vue';
 import component_notes from './components/notes.vue';
 import component_racks from './components/racks.vue';
 import component_titleMenu from './components/titleMenu.vue';
@@ -97,6 +98,7 @@ var appVue = new Vue({
 		'windowBar'    : component_windowBar,
 		'titleMenu'    : component_titleMenu,
 		'noteMenu'     : component_noteMenu,
+		'noteFooter'   : component_noteFooter,
 		'handlerStack' : component_handlerStack,
 		'handlerNotes' : component_handlerNotes,
 		'codemirror'   : component_codeMirror,
