@@ -130,6 +130,10 @@
 			}
 		}
 
+		ul.transparent {
+			background: transparent;
+		}
+
 		ul:after {
 			clear: both;
 			content: "";
@@ -140,7 +144,7 @@
 
 .noteBar.footer {
 	top: auto;
-	bottom: 0;
+	bottom: -0.1em;
 
 	nav {
 		ul {

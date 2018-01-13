@@ -171,8 +171,10 @@ function enterHandler(before, after) {
 	var keymapOverray = {
 		'Ctrl-Right': CodeMirror.keyMap.emacs['Alt-F'],
 		'Ctrl-Left' : CodeMirror.keyMap.emacs['Alt-B'],
-		"End"       : "goLineEnd",
-		"Home"      : "goLineStart",
+		"End"       : "goLineRight",
+		"Home"      : "goLineLeft",
+		"Ctrl-End"  : "goDocEnd",
+		"Ctrl-Home" : "goDocStart",
 		'Ctrl-C'    : copyText,
 		'Alt-W'     : copyText,
 		'Ctrl-A'    : 'selectAll',
@@ -182,8 +184,8 @@ function enterHandler(before, after) {
 		'Ctrl-Z'    : 'undo',
 		'Ctrl-F'    : 'findPersistent',
 		'Ctrl-R'    : 'replace',
-		'Cmd-Left'  : "goLineStart",
-		'Cmd-Right' : 'goLineEnd',
+		'Cmd-Left'  : "goLineLeft",
+		'Cmd-Right' : 'goLineRight',
 		//'Cmd-Up': 'goDocStart', 'Cmd-Down': 'goDocEnd',
 		'Alt-G G': () => {
 			// delete this behavior

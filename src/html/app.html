@@ -2,10 +2,12 @@
 	<window-bar :note="selectedNote" :bookmark="selectedBookmark" :rack-folder="selectedRackOrFolder"></window-bar>
 	<title-menu
 		:toggle-full-screen="toggleFullScreen"
+		:toggle-toolbar="toggleToolbar"
 		:open-sync="openSync"
 		:move-sync="moveSync"
 		:open-about="openAbout"
 		:is-full-screen="isFullScreen"
+		:is-toolbar-enabled="isToolbarEnabled"
 		:selected-theme="selectedTheme"
 		:change-theme="changeTheme"
 		:notes-display-order="notesDisplayOrder"
@@ -62,14 +64,16 @@
 				<handler-notes :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd" ref="refHandleNote"></handler-notes>
 			</div>
 			<div class="cell-container main-cell-container" :class="[ 'font'+fontsize ]" style="margin-left:360px;">
-				<note-menu :note="selectedNote"
+				<note-menu
+					:note="selectedNote"
 					:is-note-selected="isNoteSelected"
 					:is-full-screen="isFullScreen"
+					:is-toolbar-enabled="isToolbarEnabled"
 					:is-preview="isPreview"
 					:fontsize="fontsize"
+					:toggle-preview="togglePreview"
 					:note-headings="noteHeadings"
-					:send-flash-message="sendFlashMessage"
-					:toggle-preview="togglePreview">
+					:send-flash-message="sendFlashMessage">
 				</note-menu>
 				<div class="my-editor" :class="{ 'browser-open': selectedBookmark.name }" ref="myEditor">
 					<div>
@@ -102,7 +106,8 @@
 						</div>
 					</div>
 				</div>
-				<note-footer v-show="!isPreview && isNoteSelected"
+				<note-footer
+					v-show="!isPreview && isNoteSelected && isToolbarEnabled"
 					:is-note-selected="isNoteSelected"
 					ref="refNoteFooter">
 				</note-footer>

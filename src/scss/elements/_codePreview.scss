@@ -228,4 +228,12 @@
 	table td img {
 		max-width: 20em;
 	}
+
+	.hclosed + .hinner {
+		display: none;
+	}
+
+	p[contenteditable="true"] {
+		outline: none;
+	}
 }

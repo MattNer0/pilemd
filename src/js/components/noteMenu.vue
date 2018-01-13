@@ -1,20 +1,16 @@
 <template lang="pug">
 	.noteBar(v-if="isNoteSelected")
-		nav: ul
-
-			li(v-show="!isPreview"): a(@click="menu_checkMark", href="#", title="Insert Checkbox")
+		nav: ul(:class="{'transparent' : !isPreview && !isToolbarEnabled }")
+			li(v-show="!isPreview && isToolbarEnabled"): a(@click="menu_checkMark", href="#", title="Insert Checkbox")
 				i.material-icons done
 				|  Checkbox
-
-			li(v-show="!isPreview"): a(@click="menu_codeBlock", href="#", title="Insert Code block")
+			li(v-show="!isPreview && isToolbarEnabled"): a(@click="menu_codeBlock", href="#", title="Insert Code block")
 				i.material-icons code
 				|  Code block
-
-			li(v-show="!isPreview"): a(@click="menu_image", href="#", title="Insert Image from Url")
+			li(v-show="!isPreview && isToolbarEnabled"): a(@click="menu_image", href="#", title="Insert Image from Url")
 				i.material-icons insert_photo
 				|  Image
-
-			li(v-show="!isPreview")
+			li(v-show="!isPreview && isToolbarEnabled")
 				div: dropdown(:visible="table_visible", :position="position_left", v-on:clickout="table_visible = false")
 					span.link(@click="table_visible = !table_visible", title="Table")
 						i.material-icons border_all
@@ -43,7 +39,7 @@
 				template(v-else)
 					i.material-icons visibility
 
-			li.right-align
+			li.right-align(v-show="isPreview || isToolbarEnabled")
 				div: dropdown(:visible="properties_visible", :position="position_right", v-on:clickout="properties_visible = false")
 					span.link(@click="properties_visible = !properties_visible", title="Properties")
 						i.material-icons info_outline
@@ -86,8 +82,7 @@
 										td.right: span
 											input(type="text", name="metavalue", ref="valueinput")
 
-
-			li.right-align
+			li.right-align(v-show="isPreview || isToolbarEnabled")
 				div: dropdown(:visible="fontsize_visible", :position="position_right", v-on:clickout="fontsize_visible = false")
 					span.link(@click="fontsize_visible = !fontsize_visible", title="Font Size")
 						i.material-icons format_size
@@ -134,14 +129,15 @@
 	export default {
 		name: 'noteMenu',
 		props: {
-			'note': Object,
-			'isFullScreen': Boolean,
-			'isPreview': Boolean,
-			'fontsize': Number,
-			'noteHeadings': Array,
-			'togglePreview': Function,
-			'isNoteSelected': Boolean,
-			'sendFlashMessage': Function
+			'note'             : Object,
+			'isFullScreen'     : Boolean,
+			'isPreview'        : Boolean,
+			'isToolbarEnabled' : Boolean,
+			'fontsize'         : Number,
+			'noteHeadings'     : Array,
+			'togglePreview'    : Function,
+			'isNoteSelected'   : Boolean,
+			'sendFlashMessage' : Function
 		},
 		data() {
 			return {

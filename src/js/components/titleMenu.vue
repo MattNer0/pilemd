@@ -19,6 +19,11 @@
 							li: a(@click.prevent="menu_openFolder", href="#") Select Library Directory
 							//-li: a(@click.prevent="menu_moveFolder", href="#") Move Library Directory
 							li: hr
+							li: a(@click.prevent="menu_toggleToolbar()", href="#")
+								i.material-icons(v-if="isToolbarEnabled") check_box
+								i.material-icons.faded(v-else) check_box_outline_blank
+								|  Show Note Toolbar
+							li: hr
 							li: a(@click.prevent="menu_changeTheme('dark')", href="#")
 								i.material-icons(v-if="selectedTheme == 'dark'") radio_button_checked
 								i.material-icons.faded(v-else) radio_button_unchecked
@@ -74,12 +79,14 @@
 		name: 'titleMenu',
 		props: {
 			'isFullScreen'      : Boolean,
+			'isToolbarEnabled'  : Boolean,
 			'selectedTheme'     : String,
 			'notesDisplayOrder' : String,
 			'toggleFullScreen'  : Function,
+			'toggleToolbar'     : Function,
 			'openSync'          : Function,
 			'moveSync'          : Function,
-			'openAbout'       : Function,
+			'openAbout'         : Function,
 			'changeTheme'       : Function,
 			'changeDisplayOrder': Function
 		},
@@ -146,6 +153,12 @@
 			menu_quit() {
 				this.menu_visible = false;
 				remote.app.quit();
+			},
+			menu_toggleToolbar() {
+				this.menu_visible = false;
+				setTimeout(() => {
+					this.toggleToolbar();
+				}, 100);
 			},
 			menu_desktopEntry() {
 				this.menu_visible = false;

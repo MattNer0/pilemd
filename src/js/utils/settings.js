@@ -29,6 +29,10 @@ module.exports = {
 		return settings_data[key];
 	},
 
+	getSmart(key, default_value) {
+		return typeof settings_data[key] == typeof default_value ? settings_data[key] : default_value;
+	},
+
 	set(key, value) {
 		settings_data[key] = value;
 		fs.writeFile(settings_path, JSON.stringify(settings_data), (err) => {

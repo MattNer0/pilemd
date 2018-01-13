@@ -62,8 +62,9 @@ var appVue = new Vue({
 	data: {
 		isFullScreen        : false,
 		isPreview           : false,
-		selectedTheme       : settings.get('theme') || 'dark',
-		keepHistory         : settings.get('keepHistory') || true,
+		selectedTheme       : settings.getSmart('theme', 'dark'),
+		isToolbarEnabled    : settings.getSmart('toolbarNote', true),
+		keepHistory         : settings.getSmart('keepHistory', true),
 		preview             : "",
 		racks               : [],
 		notes               : [],
@@ -83,10 +84,10 @@ var appVue = new Vue({
 		modalDescription    : 'description',
 		modalPrompts        : [],
 		modalOkcb           : null,
-		racksWidth          : settings.get('racksWidth') || 180,
-		notesWidth          : settings.get('notesWidth') || 180,
+		racksWidth          : settings.getSmart('racksWidth', 180),
+		notesWidth          : settings.getSmart('notesWidth', 180),
 		propertiesWidth     : 180,
-		fontsize            : parseInt(settings.get('fontsize')) || 15,
+		fontsize            : settings.getSmart('fontsize', 15),
 		notesDisplayOrder   : 'updatedAt',
 	},
 	components: {
@@ -610,13 +611,17 @@ var appVue = new Vue({
 			settings.set('vue_isFullScreen', this.isFullScreen);
 			this.update_editor_size();
 		},
+		toggleToolbar() {
+			this.isToolbarEnabled = !this.isToolbarEnabled;
+			settings.set('toolbarNote', this.isToolbarEnabled);
+		},
 		/**
-		 * toggles markdown note preview.
-		 * 
+		 * @description toggles markdown note preview.
 		 * @return {Void} Function doesn't return anything
 		 */
 		togglePreview() {
 			this.isPreview = !this.isPreview;
+			this.updatePreview();
 		},
 		calcSaveUid() {
 			if (this.selectedRackOrFolder instanceof models.Rack) {
@@ -730,13 +735,12 @@ var appVue = new Vue({
 			this.notes = newNotes.concat(this.notes);
 		},
 		/**
-		 * save current selected Note.
-		 * 
+		 * @description save current selected Note.
 		 * @return {Void} Function doesn't return anything
 		 */
 		saveNote() {
 			var result;
-			this.updatePreview();
+			//this.updatePreview();
 			if (this.selectedNote.saveModel) {
 				result = this.selectedNote.saveModel();
 			}
@@ -904,8 +908,7 @@ var appVue = new Vue({
 			});
 		},
 		/**
-		 * displays an image with the popup dialog.
-		 *
+		 * @description displays an image with the popup dialog
 		 * @param  {String}  url  The image url
 		 * @return {Void} Function doesn't return anything
 		 */
@@ -1142,9 +1145,12 @@ var appVue = new Vue({
 			this.save_editor_size();
 		},
 		updatePreview() {
-			if(this.isPreview && this.selectedNote.data) {
+			if (this.isPreview && this.selectedNote.data) {
 				this.preview = preview.render(this.selectedNote, this);
 				this.noteHeadings = preview.getHeadings();
+				this.scrollUpScrollbarNote();
+			} else {
+				this.preview = '';
 			}
 		},
 		/**
@@ -1179,10 +1185,6 @@ var appVue = new Vue({
 		}, 100)
 	},
 	watch: {
-		isPreview() {
-			this.updatePreview();
-			this.scrollUpScrollbarNote();
-		},
 		fontsize() {
 			settings.set('fontsize', this.fontsize);
 		},
@@ -1198,7 +1200,6 @@ var appVue = new Vue({
 			if (this.selectedNote instanceof models.Note) {
 				this.updatePreview();
 				this.selectedRackOrFolder = this.selectedNote.data.folder;
-				this.scrollUpScrollbarNote();
 			}
 		},
 		'selectedNote.body': function() {
