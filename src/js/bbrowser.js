@@ -46,6 +46,16 @@ window.onload = function () {
 			if (e.favicons && e.favicons.length > 0) {
 				downloadHelper.getBase64Image(e.favicons[0], (faviconData) => {
 					switch (webviewEl.title) {
+						case 'bookmark-favicon':
+							ipcRenderer.send('load-page-favicon', {
+								url     : webviewEl.src,
+								mode    : webviewEl.title,
+								bookmark: webviewEl.bookmark,
+								faviconUrl : e.favicons[0],
+								faviconData: faviconData
+							});
+							setWebviewData();
+							break;
 						case 'bookmark-thumb':
 							ipcRenderer.send('load-page-favicon', {
 								url     : webviewEl.src,
@@ -97,6 +107,8 @@ window.onload = function () {
 					break;
 				case 'bookmark-thumb':
 					waitAndSendThumb();
+					break;
+				case 'bookmark-favicon':
 					break;
 				case 'bookmark-meta':
 					webviewEl.getWebContents().executeJavaScript(

@@ -340,6 +340,11 @@ var appVue = new Vue({
 
 		ipcRenderer.on('load-page-favicon', (event, data) => {
 			switch (data.mode) {
+				case 'bookmark-favicon':
+					var bookmark = this.findBookmarkByUid(JSON.parse(data.bookmark));
+					models.BookmarkFolder.setBookmarkIcon(bookmark, data.faviconUrl, data.faviconData);
+					this.loadingUid = '';
+					break;
 				case 'bookmark-thumb':
 					var bookmark = this.findBookmarkByUid(JSON.parse(data.bookmark));
 					models.BookmarkFolder.setBookmarkIcon(bookmark, data.faviconUrl, data.faviconData);
@@ -880,6 +885,19 @@ var appVue = new Vue({
 			ipcRenderer.send('load-page', {
 				url           : bookmark.body,
 				mode          : 'bookmark-thumb',
+				bookmark      : JSON.stringify({
+					'uid' : bookmark.uid,
+					'folder' : bookmark.folderUid,
+					'rack' : bookmark.rack.uid
+				})
+			});
+		},
+		refreshFavicon(bookmark) {
+			if(!bookmark || !bookmark.body) return;
+			this.loadingUid = bookmark.uid;
+			ipcRenderer.send('load-page', {
+				url           : bookmark.body,
+				mode          : 'bookmark-favicon',
 				bookmark      : JSON.stringify({
 					'uid' : bookmark.uid,
 					'folder' : bookmark.folderUid,

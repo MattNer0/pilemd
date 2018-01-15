@@ -74,6 +74,7 @@
 			'setDraggingNote'     : Function,
 			'editBookmark'        : Function,
 			'refreshBookmarkThumb': Function,
+			'refreshFavicon'      : Function,
 			'getBookmarkMetaImage': Function
 		},
 		data() {
@@ -223,22 +224,19 @@
 				var menu = new Menu();
 
 				if (this.bookmarksList) {
-					menu.append(new MenuItem({
-						label: 'Open Url',
-						click: () => {this.selectNote(note)}
-					}));
-					menu.append(new MenuItem({
-						label: 'Open Url External',
-						click: () => {this.openExternalUrl(note)}
-					}));
-					menu.append(new MenuItem({
-						label: 'Copy to clipboard',
-						click: () => {this.copyBookmarkUrl(note)}
-					}));
+					menu.append(new MenuItem({label: 'Open Url', click: () => {this.selectNote(note)}}));
+					menu.append(new MenuItem({label: 'Open Url External', click: () => {this.openExternalUrl(note)}}));
+					menu.append(new MenuItem({label: 'Copy to clipboard', click: () => {this.copyBookmarkUrl(note)}}));
 					menu.append(new MenuItem({type: 'separator'}));
 					menu.append(new MenuItem({
 						label: 'Edit Bookmark',
 						click: () => {this.editBookmark(note)},
+						enabled: this.loadingUid === ''
+					}));
+					menu.append(new MenuItem({type: 'separator'}));
+					menu.append(new MenuItem({
+						label: 'Refresh Favicon',
+						click: () => {this.refreshFavicon(note)},
 						enabled: this.loadingUid === ''
 					}));
 					menu.append(new MenuItem({
