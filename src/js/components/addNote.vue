@@ -12,15 +12,18 @@
 				dropdown(:visible="addnote_visible", :position="position", v-on:clickout="addnote_visible = false", v-if="notesList")
 					.link
 					.dialog(slot="dropdown"): ul
-						li: a(@click.prevent="$root.addNote()", href="#")
+						li: a(@click.prevent="menu_addNote", href="#")
 							i.material-icons note_add
 							|  New Simple Note
-						li: a(@click.prevent="$root.addNoteFromUrl()", href="#")
+						li: a(@click.prevent="menu_fromUrl", href="#")
 							i.material-icons note_add
 							|  Add Note from Url
-						li: a(@click.prevent="$root.addEncryptedNote()", href="#")
+						li: a(@click.prevent="menu_addEncrypted", href="#")
 							i.material-icons note_add
 							|  New Encrypted Note
+						li: a(@click.prevent="menu_addOutline", href="#")
+							i.material-icons note_add
+							|  New Outline
 </template>
 
 <script>
@@ -43,6 +46,30 @@
 			};
 		},
 		methods: {
+			menu_addNote() {
+				this.addnote_visible = false;
+				setTimeout(() => {
+					this.$root.addNote();
+				}, 100);
+			},
+			menu_addOutline() {
+				this.addnote_visible = false;
+				setTimeout(() => {
+					this.$root.addOutline();
+				}, 100);
+			},
+			menu_fromUrl() {
+				this.addnote_visible = false;
+				setTimeout(() => {
+					this.$root.addNoteFromUrl();
+				}, 100);
+			},
+			menu_addEncrypted() {
+				this.addnote_visible = false;
+				setTimeout(() => {
+					this.$root.addEncryptedNote();
+				}, 100);
+			},
 			newNote() {
 				if (this.notesList) {
 					return this.$root.addNote();

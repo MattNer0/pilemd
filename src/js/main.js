@@ -25,6 +25,7 @@ var arr = require('./utils/arr');
 // vue.js plugins
 import component_addNote from './components/addNote.vue';
 import component_browser from './components/browser.vue';
+import component_outline from './components/outline.vue';
 import component_codeMirror from './components/codemirror.vue';
 import component_flashmessage from './components/flashmessage.vue';
 import component_handlerNotes from './components/handlerNotes.vue';
@@ -34,13 +35,12 @@ import component_noteMenu from './components/noteMenu.vue';
 import component_noteFooter from './components/noteFooter.vue';
 import component_notes from './components/notes.vue';
 import component_racks from './components/racks.vue';
-import component_titleMenu from './components/titleMenu.vue';
 import component_welcomeSplash from './components/welcomeSplash.vue';
-import component_windowBar from './components/windowBar.vue';
+import component_titleBar from './components/titleBar.vue';
+import component_actionBar from './components/actionBar.vue';
 
 // loading CSSs
-require('../scss/pilemd-light.scss');
-require('../scss/pilemd-original.scss');
+//require('../scss/pilemd-light.scss');
 require('../scss/pilemd.scss');
 
 // not to accept image dropping and so on.
@@ -96,15 +96,16 @@ var appVue = new Vue({
 		'notes'        : component_notes,
 		'modal'        : component_modal,
 		'addNote'      : component_addNote,
-		'windowBar'    : component_windowBar,
-		'titleMenu'    : component_titleMenu,
+		'titleBar'     : component_titleBar,
+		//'actionBar'    : component_actionBar,
 		'noteMenu'     : component_noteMenu,
 		'noteFooter'   : component_noteFooter,
 		'handlerStack' : component_handlerStack,
 		'handlerNotes' : component_handlerNotes,
 		'codemirror'   : component_codeMirror,
 		'browser'      : component_browser,
-		'welcomeSplash': component_welcomeSplash
+		'welcomeSplash': component_welcomeSplash,
+		'outline'      : component_outline
 	},
 	computed: {
 		/**
@@ -133,7 +134,17 @@ var appVue = new Vue({
 		 * @return    {Boolean}    True if note is selected
 		 */
 		isNoteSelected() {
-			if(this.isNoteRackSelected && this.selectedNote.title) return true;
+			if(this.isNoteRackSelected && this.selectedNote instanceof models.Note) return true;
+			return false;
+		},
+		/**
+		 * check if the title attribute is defined to see
+		 * if the 'selectedNote' is really a note object or just an empty object
+		 * 
+		 * @return    {Boolean}    True if note is selected
+		 */
+		isOutlineSelected() {
+			if(this.isNoteRackSelected && this.selectedNote instanceof models.Outline) return true;
 			return false;
 		},
 		/**
@@ -249,6 +260,9 @@ var appVue = new Vue({
 					switch(n._type) {
 						case 'encrypted':
 							notes.push(new models.EncryptedNote(n));
+							break;
+						case 'outline':
+							notes.push(new models.Outline(n));
 							break;
 						default:
 							notes.push(new models.Note(n));
@@ -430,7 +444,13 @@ var appVue = new Vue({
 				return;
 			}
 
-			if (this.isNoteRackSelected) {
+			if (note instanceof models.Outline) {
+				this.selectedNote = note;
+				if (this.keepHistory) {
+					libini.pushKey(models.getBaseLibraryPath(), ['history', 'note'], this.selectedNote.relativePath, 5);
+				}
+
+			} else if (this.isNoteRackSelected) {
 				this.selectedBookmark = {};
 				if (!note.body) note.loadBody();
 				if (note.isEncrypted) {
@@ -466,10 +486,11 @@ var appVue = new Vue({
 						libini.pushKey(models.getBaseLibraryPath(), ['history', 'note'], this.selectedNote.relativePath, 5);
 					}
 				}
+
 			} else {
 				this.selectedNote = {};
 				this.selectedBookmark = note;
-				//this.$refs.refBrowser.newBookmarLoaded(note);
+
 			}
 		},
 		/**
@@ -691,6 +712,32 @@ var appVue = new Vue({
 				this.$refs.dialog.init('Error', message, [{ label: 'Ok' }]);
 			}
 			return newNote;
+		},
+		addOutline() {
+			var currFolder = this.getCurrentFolder();
+			this.changeNote(null);
+			this.selectedRackOrFolder = currFolder;
+			var newOutline = models.Outline.newEmptyOutline(currFolder);
+			if (newOutline) {
+				if (this.search.length > 0) this.search = '';
+				if (currFolder.data.rack && currFolder.data.rack.notes) {
+					currFolder.data.rack.notes.unshift(newOutline);
+					currFolder.data.rack.openFolders = true;
+				}
+				if (currFolder.notes) currFolder.notes.unshift(newOutline);
+				this.notes.unshift(newOutline);
+				this.isPreview = false;
+				this.changeNote(newOutline);
+			} else {
+				var message;
+				if(this.racks.length > 0){
+					message = 'You must select Rack and Folder first!';
+				} else {
+					message = 'You must create a Folder first!';
+				}
+				this.$refs.dialog.init('Error', message, [{ label: 'Ok' }]);
+			}
+			return newOutline;
 		},
 		/**
 		 * add new encrypted note to the current selected Folder
@@ -1086,26 +1133,18 @@ var appVue = new Vue({
 		 * @return {Void} Function doesn't return anything
 		 */
 		changeTheme(value) {
-			var allowedThemes = ['original', 'light', 'dark'];
-			if(allowedThemes.indexOf(value) >= 0) {
+			var allowedThemes = ['light', 'dark'];
+			if (allowedThemes.indexOf(value) >= 0) {
 				this.selectedTheme = value;
 				settings.set('theme', value);
 
 				var body = document.querySelector('body');
-				switch(value) {
-					case 'original':
-						body.classList.add('original-theme');
-						body.classList.remove('light-theme');
-						break;
+				switch (value) {
 					case 'light':
 						body.classList.add('light-theme');
-						body.classList.remove('original-theme');
-						break;
-					case 'dark':
-						body.classList.remove('light-theme');
-						body.classList.remove('original-theme');
 						break;
 					default:
+						body.classList.remove('light-theme');
 						break;
 				}
 			}

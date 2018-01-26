@@ -5,7 +5,7 @@
 
 .my-main {
 	width: 100%;
-	height: calc( 100vh - 2px - #{$title-bar-height} - #{$system-bar-height} );
+	height: calc( 100vh - 2px - #{ $title-bar-height } );
 	display: flex;
 	flex-flow: row nowrap;
 }
@@ -21,17 +21,17 @@
 	overflow: hidden;
 
 	.cell-container {
-		height: calc( 100vh - 2px - #{$title-bar-height} - #{$system-bar-height} );
+		height: calc( 100vh - 2px - #{ $title-bar-height } );
 		vertical-align: top;
 	}
 
 	.my-scrollbar {
-		max-height: calc( 100vh - 2px - #{$title-bar-height} - #{$system-bar-height} );
+		max-height: calc( 100vh - 2px - #{ $title-bar-height } );
 		background-color: transparent;
 	}
 
 	.my-scrollbar-notes {
-		max-height: calc( 100vh - 2px - #{$title-bar-height} - #{$system-bar-height} - 3.5em );
+		max-height: calc( 100vh - 2px - #{ $title-bar-height } - 3.5em );
 	}
 
 	.cell-container.main-cell-container{
@@ -54,7 +54,7 @@
 		position: absolute;
 		top: 0;
 		z-index: 10;
-		background: $main-background-color;
+		background-color: $sidebar-background;
 
 		.cell-container {
 			float: left;

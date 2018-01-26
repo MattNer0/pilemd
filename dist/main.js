@@ -10,7 +10,7 @@ var backgroundWindow = null;
 var backgroundBrowserWindow = null;
 var appIcon = null;
 
-var DEBUG = false;
+var DEBUG = true;
 
 // support for portable mode
 app.setPath(

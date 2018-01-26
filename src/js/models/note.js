@@ -11,6 +11,8 @@ const _ = require('lodash');
 const arr = require('../utils/arr');
 const util_file = require('../utils/file');
 
+const opml = require('../utils/opml');
+
 const Model = require('./baseModel');
 
 var Library;
@@ -43,7 +45,7 @@ class Note extends Model {
 		} else {
 			this._loadedBody = true;
 
-			if (!this.isEncryptedNote) {
+			if (!this.isEncryptedNote && !this.isOutline) {
 				this.parseMetadata();
 				this.downloadImages();
 			}
@@ -87,6 +89,10 @@ class Note extends Model {
 	}
 
 	get isEncryptedNote() {
+		return false;
+	}
+
+	get isOutline() {
 		return false;
 	}
 
@@ -453,7 +459,7 @@ class Note extends Model {
 			if (row.length > 0) {
 				ret = {
 					title: _.trimStart(row, '# '),
-					meta: this.metadata,
+					meta: this._metadata,
 					body: lines.slice(0, index).concat(lines.splice(index + 1)).join('\n')
 				};
 			}
@@ -463,7 +469,7 @@ class Note extends Model {
 
 		return {
 			title: '',
-			meta: this.metadata,
+			meta: this._metadata,
 			body: this.body
 		};
 	}
@@ -578,7 +584,6 @@ class Note extends Model {
 class EncryptedNote extends Note {
 	constructor(data) {
 		super(data);
-
 		this._ext = '.mdencrypted';
 		this._encrypted = true;
 		this._secretkey = null;
@@ -602,9 +607,9 @@ class EncryptedNote extends Note {
 	}
 
 	decrypt(secretkey) {
-		if(!secretkey && !this._secretkey) return { error: 'Secret Key missing' };
+		if (!secretkey && !this._secretkey) return { error: 'Secret Key missing' };
 
-		if(this._encrypted) {
+		if (this._encrypted) {
 			if(secretkey) this._secretkey = secretkey;
 			if(this._body && this._body.length > 0) {
 				var descrypted_body = encrypt.decrypt(this._body, this._secretkey, 256);
@@ -637,7 +642,7 @@ class EncryptedNote extends Note {
 	}
 
 	static newEmptyNote(folder) {
-		if(folder){
+		if (folder) {
 			return new EncryptedNote({
 				name: 'NewNote',
 				body: '',
@@ -650,11 +655,355 @@ class EncryptedNote extends Note {
 	}
 }
 
+class Outline extends Note {
+	constructor(data) {
+		super(data);
+		this._ext = '.opml';
+		this._nodes = data.nodes ? data.nodes : [];
+		this._snapshots = [];
+
+		if (this._loadedBody) {
+			this.parseOutlineBody();
+		}
+	}
+
+	get title() {
+		return this._name;
+	}
+
+	set title(value) {
+		this._name = value;
+	}
+
+	set metadata(newValue) {
+		this._metadata = newValue;
+	}
+
+	set nodes(newValue) {
+		this._nodes = newValue;
+	}
+	
+	get nodes() {
+		return this._nodes;
+	}
+
+	get isOutline() {
+		return true;
+	}
+
+	get bodyWithoutMetadata() {
+		var bodyString = "";
+
+		// only preview first level of the outline if length is greater than 1
+		if (this._nodes.length > 1) {
+			for (var i=0; i<this._nodes.length; i++) {
+				bodyString += this._nodes[i].title + ': ' + this._nodes[i].content + ' '
+			}
+		} else if (this._nodes.length == 1) {
+			bodyString += this._nodes[0].title + ': ' + this._nodes[0].content + ' '
+			for (var i=0; i < this._nodes[0].children.length; i++) {
+				bodyString += this._nodes[0].getChildAt(i).title + ': ' + this._nodes[0].getChildAt(i).content + ' '
+			}
+		}
+		return bodyString.trim();
+	}
+
+	get bodyWithMetadata() {
+		return this._body;
+	}
+
+	downloadImages() {
+		return;
+	}
+
+	splitTitleFromBody() {
+		return {
+			title: this._name,
+			meta: this._metadata,
+			body: this.bodyWithoutMetadata
+		};
+	}
+
+	get properties() {
+		var nodesNumber = 0;
+		for (var i=0; i<this._nodes.length; i++) {
+			nodesNumber += this._nodes[i].countNodes();
+		}
+		return {
+			nodeCount: nodesNumber
+		};
+	}
+
+	parseOutlineBody() {
+		console.log('parse!');
+		opml.parseFile(this._body, this);
+	}
+
+	compileOutlineBody() {
+		return opml.stringify(this._name, this._metadata, this._nodes);
+	}
+
+	saveModel() {
+		if(this._removed) return;
+
+		var body = this.compileOutlineBody();
+		console.log(body);
+
+		var active_nodes = this._nodes.filter(function(obj) {
+			return obj.title && obj.title != '';
+		});
+
+		if (active_nodes.length == 0) {
+			return { saved: true };
+		}
+
+		return { saved: true };
+
+		var outer_folder;
+		if (this._rack && this._folder) {
+			outer_folder = path.join( Library.baseLibraryPath, this._rack.data.fsName, this._folder.data.fsName );
+		} else {
+			outer_folder = path.dirname(this._path);
+		}
+
+		if (this.document_filename) {
+			var new_path = path.join(outer_folder, this.document_filename) + this._ext;
+
+			if (new_path != this._path) {
+				var num = 1;
+				while (num > 0) {
+					if (fs.existsSync(new_path)) {
+						if (body && body != fs.readFileSync(new_path).toString()) {
+							new_path = path.join(outer_folder, this.document_filename)+num+this._ext;
+						} else {
+							new_path = null;
+							break;
+						}
+						num++;
+					} else {
+						break;
+					}
+				}
+
+				if (new_path) {
+					fs.writeFileSync(new_path, body);
+					this.path = new_path;
+					if (this._body) this._snapshots.push(this._body);
+					this._body = body;
+					return { saved: true };
+				}
+				return { saved: false };
+			}
+
+			try {
+				if (!fs.existsSync(new_path) || (body.length > 0 && body != fs.readFileSync(new_path).toString())) {
+					fs.writeFileSync(new_path, body);
+					this.path = new_path;
+					if (this._body) this._snapshots.push(this._body);
+					this._body = body;
+					return { saved: true };
+				}
+				return { saved: false };
+			} catch(e) {
+				console.warn('Couldn\'t save the note. Permission Error');
+				return {
+					error: 'Permission Error',
+					path : new_path
+				};
+			}
+		}
+	}
+
+	newEmptyNode(previus_node, mod) {
+		var n = new OutNode({
+			outline: this,
+			title  : '',
+			content: ''
+		});
+		if (!mod) mod = 0;
+		if (previus_node && typeof previus_node == 'boolean') {
+			this._nodes.splice(0, 0, n);
+		} else if (previus_node) {
+			var i = this._nodes.indexOf(previus_node);
+			this._nodes.splice(i+1+mod, 0, n);
+		} else {
+			this._nodes.push(n);
+		}
+		return n;
+	}
+
+	addChild(child, previus) {
+		if (previus) {
+			var i = this._nodes.indexOf(previus);
+			this._nodes.splice(i+1, 0, child);
+		} else {
+			this._nodes.push(child);
+		}
+		child.parentNode.removeNode(child);
+		child.parent = undefined;
+	}
+
+	removeNode(node) {
+		var i = this._nodes.indexOf(node);
+		this._nodes.splice(i, 1);
+		if (i > 0) return this._nodes[i-1];
+	}
+
+	newNode(node) {
+		if (node instanceof OutNode) {
+			this._nodes.push(node);
+		}
+	}
+
+	generateNewNode(title, content, children) {
+		var newNode = new OutNode({
+			outline : this,
+			title   : title,
+			content : content,
+			children: children
+		});
+		if (children && children.length > 0) newNode.updateChildrenParent();
+		return newNode;
+	}
+
+	static newEmptyOutline(folder) {
+		if (folder) {
+			var out = new Outline({
+				name     : 'NewOutline',
+				body     : '',
+				path     : '',
+				folder   : folder,
+				folderUid: folder.uid
+			});
+			out.newEmptyNode();
+			return out;
+		}
+		return false;
+	}
+}
+
+class OutNode extends Model {
+	constructor(data) {
+		super(data);
+		this._outline = data.outline;
+		this._parent_node = data.parent;
+		this._title = data.title;
+		this._content = data.content;
+		this._children = data.children ? data.children : [];
+	}
+
+	get title() {
+		return this._title;
+	}
+
+	set title(newValue) {
+		this._title = newValue;
+	}
+
+	get content() {
+		return this._content;
+	}
+
+	set content(newValue) {
+		this._content = newValue;
+	}
+
+	get children() {
+		return this._children;
+	}
+
+	getChildAt(num) {
+		return this._children[num];
+	}
+
+	updateChildrens() {
+		for (var i=0; i<this._children.length; i++) {
+			this._children[i].parent = this;
+		}
+	}
+
+	set parent(newValue) {
+		this._parent_node = newValue;
+	}
+
+	get parent() {
+		return this._parent_node;
+	}
+
+	get parentNode() {
+		return this._parent_node || this._outline;
+	}
+
+	get outline() {
+		return this._outline;
+	}
+
+	countNodes() {
+		var nodesNumber = 1;
+		for (var i=0; i<this._children.length; i++) {
+			nodesNumber += this.getChildAt(i).countNodes();
+		}
+		return nodesNumber;
+	}
+
+	newEmptyNode(previus_node, mod) {
+		var n = new OutNode({
+			outline: this._outline,
+			parent: this,
+			title  : '',
+			content: ''
+		});
+		if (!mod) mod = 0;
+		if (previus_node && typeof previus_node == 'boolean') {
+			this._children.splice(0, 0, n);
+		} else if (previus_node) {
+			var i = this._children.indexOf(previus_node);
+			this._children.splice(i+1+mod, 0, n);
+		} else {
+			this._children.push(n);
+		}
+		return n;
+	}
+
+	addChild(child, previus) {
+		if (previus) {
+			var i = this._children.indexOf(previus);
+			this._children.splice(i+1, 0, child);
+		} else {
+			this._children.push(child);
+		}
+		child.parentNode.removeNode(child);
+		child.parent = this;
+	}
+
+	removeNode(node) {
+		var i = this._children.indexOf(node);
+		this._children.splice(i, 1);
+		if (i > 0) return this._children[i-1];
+		return this;
+	}
+
+	static newEmptyNode(outline, parent) {
+		if (outline) {
+			return new OutNode({
+				outline: outline,
+				parent: parent,
+				title: "",
+				content: "",
+				icon: ""
+			});
+		}
+		return false;
+	}
+}
+
 module.exports = function(library) {
 	Library = library;
 	Image = require('./image')(library);
 	return {
 		Note         : Note,
-		EncryptedNote: EncryptedNote
+		EncryptedNote: EncryptedNote,
+		Outline: Outline,
+		OutNode: OutNode
 	};
 };

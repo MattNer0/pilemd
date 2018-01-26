@@ -186,9 +186,11 @@
 				cm.on('cursorActivity', (cm, event) => {
 					var sel = cm.getSelection();
 					var c = cm.getCursor();
-					this.$root.$refs.refNoteFooter.row = c.line;
-					this.$root.$refs.refNoteFooter.column = c.ch;
-					this.$root.$refs.refNoteFooter.selection = sel.length;
+					if (this.$root.$refs.refNoteFooter) {
+						this.$root.$refs.refNoteFooter.row = c.line;
+						this.$root.$refs.refNoteFooter.column = c.ch;
+						this.$root.$refs.refNoteFooter.selection = sel.length;
+					}
 				});
 
 				this.$watch('note', function(value) {
@@ -209,9 +211,11 @@
 					if (doc) {
 						if(doc.cm) doc.cm = null;
 						cm.swapDoc(doc);
-						this.$root.$refs.refNoteFooter.row = 0;
-						this.$root.$refs.refNoteFooter.column = 0;
-						this.$root.$refs.refNoteFooter.selection = 0;
+						if (this.$root.$refs.refNoteFooter) {
+							this.$root.$refs.refNoteFooter.row = 0;
+							this.$root.$refs.refNoteFooter.column = 0;
+							this.$root.$refs.refNoteFooter.selection = 0;
+						}
 					}
 				}, { immediate: true });
 			});

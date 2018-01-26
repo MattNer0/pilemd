@@ -60,7 +60,7 @@ function readBookmarkRacks(library) {
  * @return {Array} Array of valid formats
  */
 function getValidMarkdownFormats() {
-	return ['.md', '.markdown', '.txt', '.mdencrypted'];
+	return ['.md', '.markdown', '.txt', '.mdencrypted', '.opml'];
 }
 
 /**
@@ -148,23 +148,34 @@ module.exports = {
 				var noteData = isValidNotePath(notePath);
 				if (noteData) {
 					var body = fs.readFileSync(notePath).toString();
-					if (noteData.ext == '.mdencrypted') {
-						//note encrypted
-						valid_notes.push({
-							_type: 'encrypted',
-							name: note,
-							body: body,
-							path: notePath,
-							extension: noteData.ext
-						});
-					} else {
-						valid_notes.push({
-							_type: 'note',
-							name: note,
-							body: body,
-							path: notePath,
-							extension: noteData.ext
-						});
+					switch(noteData.ext) {
+						case '.mdencrypted':
+							valid_notes.push({
+								_type: 'encrypted',
+								name: note,
+								body: body,
+								path: notePath,
+								extension: noteData.ext
+							});
+							break;
+						case '.opml':
+							valid_notes.push({
+								_type: 'outline',
+								name: note,
+								body: body,
+								path: notePath,
+								extension: noteData.ext
+							});
+							break;
+						default:
+							valid_notes.push({
+								_type: 'note',
+								name: note,
+								body: body,
+								path: notePath,
+								extension: noteData.ext
+							});
+							break;
 					}
 				}
 			}

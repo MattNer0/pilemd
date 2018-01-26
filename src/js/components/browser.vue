@@ -76,16 +76,18 @@
 			backToBookmark(bookmark) {
 				bookmark = bookmark && bookmark.body ? bookmark : this.bookmark;
 
-				if(bookmark && bookmark.body && bookmark.body.indexOf('http') == 0) {
+				if (bookmark && bookmark.body && bookmark.body.indexOf('http') == 0) {
 					this.$refs.browserview.src = bookmark.body;
 					this.$refs.browserview.loadURL(bookmark.body);
 					this.currentUrl = bookmark.body;
 					if (bookmark.attributes) this.favicon = bookmark.attributes.ICON;
 				} else {
-					this.$refs.browserview.src = 'about:blank';
-					this.$refs.browserview.loadURL('about:blank');
-					this.currentUrl = 'about:blank';
-					this.refreshPage();
+					try {
+						this.$refs.browserview.src = 'about:blank';
+						this.$refs.browserview.loadURL('about:blank');
+						this.currentUrl = 'about:blank';
+						this.refreshPage();
+					} catch (err) { }
 				}
 			},
 			refreshPage(e) {

@@ -1,0 +1,113 @@
+.my-editor-outline {
+
+	ul {
+		display: block;
+		padding-left: 1.5em;
+		margin: 0;
+	}
+
+	li {
+		display: block;
+		position: relative;
+		padding: 0.2em;
+		margin: 0.1em 0;
+	}
+
+	li > .node-circle,
+	li > .node-close,
+	li > .node-open {
+		position: absolute;
+		cursor: pointer;
+		user-select: none;
+		text-align: center;
+	}
+
+	li > .node-circle {
+		top: 0.35em;
+		left: -1.2em;
+		background: #FFF;
+		border-radius: 1em;
+		line-height: 0.8em;
+		width: 1.05em;
+		height: 1.05em;
+		opacity: 0.6;
+		transition: opacity 0.3s;
+	}
+
+	li.with-children > .node-circle {
+		background: #CCC;
+	}
+
+	li > .node-circle:hover,
+	li.with-children > .node-circle:hover {
+		opacity: 1.0;
+		background: #AAA;
+	}
+
+	li > .node-close, li > .node-open {
+		top: 0.45em;
+		left: -2.2em;
+		background: #FFF;
+		border-radius: 1em;
+		line-height: 0.7em;
+		font-weight: bold;
+		font-size: 110%;
+		width: 1em;
+		height: 1em;
+		opacity: 0;
+		transition: opacity 0.4s;
+	}
+
+	li > .node-circle:hover + input + textarea + .node-close,
+	li > .node-circle:hover + input + textarea + .node-open,
+	li > input:hover + textarea + .node-close,
+	li > input:hover + textarea + .node-open,
+	li > textarea:hover + .node-close,
+	li > textarea:hover + .node-open,
+	li > .node-close:hover, li > .node-open:hover {
+		opacity: 1.0;
+	}
+
+	li > .node-circle:before {
+		content: 'lens';
+		font-family: 'Material Icons';
+		-webkit-font-feature-settings: 'liga';
+		-webkit-font-smoothing: antialiased;
+		color: #444;
+		font-size: 50%;
+		display: inline-block;
+	}
+
+	li > textarea.node-content, li > ul {
+		display: none;
+	}
+
+	li.with-content > textarea.node-content {
+		display: block;
+	}
+
+	li.with-nested > ul {
+		display: block;
+	}
+
+	input, textarea, *[contenteditable="true"] {
+		outline: none;
+		border: none;
+		display: block;
+		width: 100%;
+		padding: 0;
+		margin: 0;
+		font-size: inherit;
+	}
+
+	textarea {
+		resize: none;
+		height: 1.4em;
+		font-size: 85%;
+		color: #666;
+	}
+
+	input.h1 {
+		margin-bottom: 1em;
+	}
+}

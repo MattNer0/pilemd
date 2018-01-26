@@ -1,166 +1,138 @@
-#title-bar {
-	height: $title-bar-height;
-	width: 100%;
-	-webkit-app-region: no-drag;
-	padding: 0;
-	margin: 0;
-	border: none;
-	color: $ui-text-color;
-	overflow: visible;
-	position: relative;
-	z-index: 100;
+.title-bar-spacing {
+	background-color: $title-bar-background;
+	height: 2px;
+}
 
-	nav {
-		height: 100%;
+.title-bar {
+	background-color: $title-bar-background;
+	border-bottom: 1px solid $app-border;
+	color: $title-bar-color;
+	width: 100%;
+	height: calc( #{ $title-bar-height } - 4px );
+
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	align-items: center;
+	padding: 0 0.1em;
+	margin: 0;
+	font-size: 14px;
+	font-weight: 500;
+
+	-webkit-app-region: drag;
+
+	.material-icons {
+		font-size: inherit;
 	}
-}
 
-nav ul {
-	-webkit-font-smoothing: antialiased;
-	background: $title-bar-background;
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	width: 100%;
-	transition: background .25s ease;
-}
+	.spacer {
+		flex-basis: content;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		overflow: hidden;
 
-nav > ul:after {
-	content: "";
-	clear: both;
-}
+		span {
+			font-weight: bold;
+			color: inherit;
+		}
 
-nav > ul {
-	height: 100%;
-
-	li {
-		float: left;
-		margin: 0;
-		padding: 0;
-		height: $title-bar-height;
-
-		a i, div i{
-			-webkit-user-select: none;
-			vertical-align: top;
+		i {
+			font-size: 120%;
+			vertical-align: middle;
 		}
 	}
 
-	li.right-align{
-		float: right;
+	.spacer:first-child {
+		min-width: 15em;
 	}
 
-	li > a, li > div {
-		box-sizing: border-box;
-		display: block;
-		padding: 0.34em 1.0em 0.2em 0.5em;
-		line-height: 1.8em;
-		height: 100%;
-		text-align: left;
-		outline: none;
-		text-decoration: none;
-		transition: all .25s ease;
+	.spacer.right-align {
+		margin-left: auto;
+
+		> nav > ul:after {
+			content: "";
+			height: 1em;
+			width: 1px;
+			border-right: 2px solid $title-bar-color;
+			margin: 0 0.7em;
+			opacity: 0.3;
+		}
 	}
 
-	li.center > a, li.center > div {
-		padding: 0.5em 0.5em 0.2em 0.5em;
+	nav {
+
+		ul {
+			-webkit-font-smoothing: antialiased;
+			list-style: none;
+
+			li {
+				padding: 0 0.5em;
+			}
+
+			li > a, li > div, li > span {
+				-webkit-app-region: no-drag;
+				font-size: inherit;
+			}
+
+			li > a span {
+				display: block;
+			}
+		}
 	}
 
-	li > a {
+	.address-bar {
+		margin-left: 0.28em;
+		background-color: $address-bar-background;
+		color: $address-bar-color;
+		border: 1px solid $app-border;
+		border-radius: $address-bar-border-radius;
+		padding: 0.3em 2em 0.3em 0.4em;
+
+		span:first-child > i.material-icons {
+			margin-right: 0.2em;
+			display: inline-block;
+			vertical-align: middle;
+			font-size: 120%;
+		}
+	}
+
+	.system-icon {
+		margin-right: 4px;
+		padding: 0 6px;
+		height: 1.8em;
+		width: 1.8em;
+
+		align-items: center;
+		display: inline-flex;
+		justify-content: center;
+		transition: .3s cubic-bezier(.25,.8,.25,1);
+		vertical-align: middle;
+
+		-webkit-app-region: no-drag;
 		-webkit-user-select: none;
-	}
-
-	li > a,
-	li > div,
-	li .my-search,
-	li .my-search::-webkit-input-placeholder {
-		color: $ui-text-color;
-	}
-
-	li:hover > a,
-	li:hover > div,
-	li.has-sub:hover {
-		background-color: $ui-text-background-hover !important;
-		color: $ui-text-color-hover;
 		cursor: pointer;
 	}
 
-	li:hover > a,
-	li:hover > div,
-	li:hover .my-search,
-	li:hover .my-search::-webkit-input-placeholder{
-		color: $ui-text-color-hover;
+	.system-icon:hover {
+		color: $title-bar-color-hover;
 	}
 
-	li hr{
-		margin: 0.2em 0.5em;
-		border: 1px solid $resize-panel-handler;
+	.system-icon.close-icon:hover {
+		background-color: $title-bar-close-button;
+		color: $title-bar-background;
 	}
 
-	li.has-sub {
-		-webkit-user-select: none;
-
-		.link.material-icons {
-			display: inline-block;
-			color: $ui-text-color;
-			padding: 0.1em 0.3em 0.1em;
-			font-size: 200%;
-		}
-
-		.link > .material-icons {
-			margin-left: 0.2em;
-		}
-
-		> span:hover .link.material-icons {
-			color: $ui-text-color-hover;
-		}
-
-		> span, > span > span {
-			display: block;
-			height: 100%;
-		}
-
-		span.sub-text {
-			display: inline-block;
-			padding: 0.34em 1.0em 0.2em 0.5em;
-			line-height: 1.8em;
-			vertical-align: bottom;
-		}
+	.system-icon.minimize .material-icons {
+		padding-top: 0.5em;
 	}
 
-	li ul {
-		width: 15em;
-		border: 1px solid $resize-panel-handler;
-		background: $main-background-color;
-		margin: 0.2em;
-
-		li {
-			height: auto;
-			float: none;
-		}
+	.my-dropdown-dd {
+		-webkit-app-region: no-drag;
+		z-index: 100;
 	}
+}
 
-	input[type=text] {
-		color: $ui-text-color;
-		font-size: 14px;
-		line-height: 1.0em;
-		background-color: transparent;
-		border: none;
-		outline: none;
-		margin: 0;
-		padding: 0;
-	}
-
-	.my-search {
-		width: 200px;
-		transition: width 200ms, margin 200ms;
-	}
-
-	.my-search::-webkit-input-placeholder {
-		color: $ui-text-color;
-	}
-
-	.my-search:focus {
-		outline: none;
-		width: 250px;
-	}
+.title-bar.open-dropdown {
+	-webkit-app-region: no-drag;
 }

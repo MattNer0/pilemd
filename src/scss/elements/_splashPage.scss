@@ -8,14 +8,14 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		min-height: calc( 100vh - 2px - #{$title-bar-height} - #{$system-bar-height} );
+		min-height: calc( 100vh - 2px - #{ $title-bar-height } );
 	}
 
 	.splash-box {
 		width: 80%;
-		color: $ui-text-color;
-		background: $main-background-color;
-		border-radius: $folder-list-border-radius;
+		color: $splash-color;
+		background: $splash-background;
+		border-radius: $splash-border-radius;
 		padding: 1em 1em 0.6em;
 
 		.title {
@@ -48,7 +48,7 @@
 			}
 
 			li {
-				border-radius: $folder-list-border-radius;
+				border-radius: $splash-border-radius;
 				display: block;
 				margin: 0.5em 0;
 				padding: 1em;
@@ -61,8 +61,8 @@
 			}
 
 			li:hover {
-				background-color: $ui-text-background-hover;
-				color: $ui-text-color-hover;
+				background-color: $splash-hover-background;
+				color: $splash-hover-color;
 				cursor: pointer;
 			}
 		}

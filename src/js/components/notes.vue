@@ -30,6 +30,9 @@
 						i.material-icons(v-else-if="note.isEncryptedNote && !note.isEncrypted") lock_open
 						i.material-icons(v-else) description
 						| {{ note.title }}
+					h5.my-notes-note-title(v-else)
+						i.material-icons description
+						| No Title
 					.my-notes-note-image(v-if="note.img")
 						img(:src="note.img")
 					.my-notes-note-body(v-if="!note.img && note.body.length != 0")

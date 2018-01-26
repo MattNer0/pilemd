@@ -14,12 +14,13 @@
 			@drop.stop="dropToRack($event, rack)"
 			@contextmenu.prevent.stop="rackMenu(rack)")
 			h4.rack-separator(v-if="rack.data.separator")
+				div
 			h4(v-else, @click.prevent.stop="selectRack(rack)"
 				:class="{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote() && rack.openFolders) || rack.dragHover }")
 				template(v-if="rack.data.bookmarks")
 					i.material-icons.rack-icon book
 				template(v-else)
-					i.material-icons.rack-icon folder_special
+					i.material-icons.rack-icon folder
 				a(v-if="editingRack != rack") {{ rack.name }}
 				input(v-if="editingRack == rack"
 					v-model="rack.name"

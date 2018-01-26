@@ -6,7 +6,7 @@
 	border-left: 0.1em solid $note-border-color;
 	border-right: 0.1em solid $note-border-color;
 	width: auto;
-	min-height: calc( 100vh - 2px - #{$title-bar-height} - #{$system-bar-height} );
+	min-height: calc( 100vh - 2px - #{ $title-bar-height } );
 	min-width: 15em;
 	max-width: 70em;
 	height: auto;
@@ -23,7 +23,8 @@
 }
 
 .CodeMirror span.cm-piled-header-1,
-.my-editor-preview h1 {
+.my-editor-preview h1,
+.my-editor-outline input.h1 {
 	font-size: 180%;
 	color: $note-header1-color;
 	font-weight: 700;
@@ -66,5 +67,6 @@ form.new-metadata-form {
 
 @import 'codeMirror';
 @import 'codePreview';
+@import 'outline';
 @import 'codeFontSize';
 @import 'browser';

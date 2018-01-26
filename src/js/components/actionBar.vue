@@ -1,5 +1,5 @@
 <template lang="pug">
-	#title-bar
+	#action-bar
 		nav#cssmenu
 			ul
 				li
@@ -9,7 +9,7 @@
 						|  Toggle Sidebar
 				li: div
 					i.material-icons(@click.prevent="focus_input") search
-					input#search-bar.my-search(ref="searchinput", v-model="search", type="text", placeholder="Search notes...")
+					input#search-bar.my-search(ref="searchinput", v-model="search", type="text")
 					i.material-icons(v-show="search", @click="clear_search") clear
 				
 				li.has-sub.right-align
@@ -32,10 +32,6 @@
 								i.material-icons(v-if="selectedTheme == 'light'") radio_button_checked
 								i.material-icons.faded(v-else) radio_button_unchecked
 								|  Light Theme
-							li: a(@click.prevent="menu_changeTheme('original')", href="#")
-								i.material-icons(v-if="selectedTheme == 'original'") radio_button_checked
-								i.material-icons.faded(v-else) radio_button_unchecked
-								|  PileMd Theme
 							li: hr
 							//-li: a(@click.prevent="menu_devTools", href="#") Open DevTools
 							li(v-if="isLinux && saveDesktop"): a(@click.prevent="menu_desktopEntry", href="#") Add Desktop Entry
@@ -76,7 +72,7 @@
 	import myDropdown from 'vue-my-dropdown';
 
 	export default {
-		name: 'titleMenu',
+		name: 'actionBar',
 		props: {
 			'isFullScreen'      : Boolean,
 			'isToolbarEnabled'  : Boolean,

@@ -1,5 +1,5 @@
 <template lang="pug">
-	.noteBar.footer(v-if="isNoteSelected")
+	.noteBar.footer
 		nav: ul
 			
 			li.right-align(v-if="selection > 0"): div
@@ -16,9 +16,6 @@
 
 	export default {
 		name: 'noteMenu',
-		props: {
-			'isNoteSelected': Boolean
-		},
 		data() {
 			return {
 				'row': 0,

@@ -41,7 +41,8 @@ module.exports = {
 	},
 	resolve: {
 		alias: {
-			vue: isProduction ? 'vue/dist/vue.min.js' : 'vue/dist/vue.js'
+			vue: isProduction ? 'vue/dist/vue.min.js' : 'vue/dist/vue.js',
+			autosize: isProduction ? 'autosize/dist/autosize.min.js' : 'autosize/dist/autosize.js'
 		}
 	},
 	module: {

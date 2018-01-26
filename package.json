@@ -10,6 +10,8 @@
 		"to-markdown": "^3.1.0"
 	},
 	"devDependencies": {
+		"autosize": "4.0.0",
+		"xmldoc": "1.1.0",
 		"vue": "^2.5.13",
 		"vue-my-dropdown": "^2.0.5",
 		"vue-password": "^0.0.11",

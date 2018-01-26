@@ -1,0 +1,194 @@
+#action-bar {
+	height: $action-bar-height;
+	width: 100%;
+	-webkit-app-region: no-drag;
+	padding: 0;
+	margin: 0;
+	border: none;
+	color: $action-bar-color;
+	overflow: visible;
+	position: relative;
+	z-index: 100;
+
+	nav {
+		height: 100%;
+		border-top: 1px solid $app-border;
+		border-bottom: 1px solid $app-border;
+	}
+}
+
+nav ul {
+	-webkit-font-smoothing: antialiased;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	transition: background-color .25s ease;
+}
+
+nav > ul:after {
+	content: "";
+	clear: both;
+	display: block;
+}
+
+nav > ul {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	align-items: center;
+
+	li {
+		display: block;
+		margin: 0;
+		padding: 0;
+
+		a i, div i{
+			user-select: none;
+			vertical-align: top;
+		}
+	}
+
+	li > a, li > div, li > span {
+		box-sizing: border-box;
+		display: block;
+		padding: 0.5em 0.2em 0.3em 0.1em;
+		text-align: left;
+		line-height: 1em;
+		outline: none;
+		text-decoration: none;
+		transition: all .25s ease;
+	}
+
+	li.center > a, li.center > div {
+		padding: 0.5em 0.5em 0.2em 0.5em;
+	}
+
+	li > a {
+		user-select: none;
+	}
+
+	li > a,
+	li > div,
+	li.has-sub,
+	li .my-search input,
+	li .my-search input::-webkit-input-placeholder {
+		color: $action-bar-color;
+		cursor: pointer;
+	}
+
+	li:hover > a,
+	li:hover > div,
+	li.has-sub:hover,
+	li:hover .my-search input,
+	li:hover .my-search input::-webkit-input-placeholder{
+		color: $title-bar-color-hover;
+	}
+
+	li hr {
+		margin: 0.2em 0.5em;
+		border: 1px solid $resize-panel-handler;
+	}
+
+	li.has-sub {
+		user-select: none;
+
+		.link.material-icons {
+			color: inherit;
+			font-size: 150%;
+			vertical-align: middle;
+		}
+
+		.link > .material-icons {
+			margin-right: 0.2em;
+		}
+
+		> span:hover .link.material-icons {
+			color: $title-bar-color-hover;
+		}
+
+		> span, > span > span {
+			display: block;
+			height: 100%;
+		}
+
+		span.sub-text {
+			display: inline-block;
+		}
+	}
+
+	li ul {
+		width: 15em;
+		border: 1px solid $app-border;
+		background: $action-bar-submenu-background;
+		margin: 0.2em;
+
+		li {
+			margin: 0.4em 0;
+		}
+	}
+
+	.my-search {
+
+		.material-icons {
+			font-size: 150%;
+			vertical-align: middle;
+		}
+
+		.material-icons:last-child {
+			margin-left: -1.4em;
+			background-color: $address-bar-background;
+		}
+
+		input[type=text] {
+			display: inline-block;
+			vertical-align: middle;
+			color: $action-bar-color;
+			font-size: 14px;
+			line-height: 1.0em;
+			background-color: transparent;
+			border: none;
+			outline: none;
+			margin: 0;
+			padding: 0.3em 0 0.3em 0;
+
+			width: 0px;
+			transition: width 200ms, margin 200ms;
+		}
+
+		input::-webkit-input-placeholder {
+			color: $action-bar-color;
+		}
+	
+		input:focus {
+			outline: none;
+			width: 250px;
+
+			background-color: $address-bar-background;
+			color: $title-bar-color-hover;
+			border: 1px solid $app-border;
+			border-radius: $address-bar-border-radius;
+			padding: 0.3em 2em 0.3em 0.4em;
+			margin: -0.3em 0.2em 0;
+		}
+	}
+
+	.my-search.search-open {
+		input {
+			outline: none;
+			width: 250px;
+
+			background-color: $address-bar-background;
+			color: $title-bar-color-hover;
+			border: 1px solid $app-border;
+			border-radius: $address-bar-border-radius;
+			padding: 0.3em 2em 0.3em 0.4em;
+			margin: -0.3em 0.2em 0;
+		}
+	}
+}
+
+.right-align nav > ul {
+	justify-content: flex-end;
+}

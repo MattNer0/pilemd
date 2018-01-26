@@ -10,6 +10,8 @@ const Image = require('./models/image')(baseLibrary);
 const NoteModels = require('./models/note')(baseLibrary);
 const Note = NoteModels.Note;
 const EncryptedNote = NoteModels.EncryptedNote;
+const Outline = NoteModels.Outline;
+const OutNode = NoteModels.OutNode;
 
 const FolderModels = require('./models/folder')(baseLibrary);
 const Folder = FolderModels.Folder;
@@ -24,6 +26,7 @@ module.exports = {
 	Image         : Image,
 	Note          : Note,
 	EncryptedNote : EncryptedNote,
+	Outline       : Outline,
 	Folder        : Folder,
 	BookmarkFolder: BookmarkFolder,
 	Rack          : Rack,
