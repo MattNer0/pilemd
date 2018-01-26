@@ -1,19 +1,19 @@
 <template lang="pug">
 	.noteBar
 		nav: ul(:class="{'transparent' : !isPreview && !isToolbarEnabled }")
-			li(v-if="isNoteSelected && !isOutlineSelected", v-show="!isPreview && isToolbarEnabled")
+			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
 				a(@click="menu_checkMark", href="#", title="Insert Checkbox")
 					i.material-icons done
 					|  Checkbox
-			li(v-if="isNoteSelected && !isOutlineSelected", v-show="!isPreview && isToolbarEnabled")
+			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
 				a(@click="menu_codeBlock", href="#", title="Insert Code block")
 					i.material-icons code
 					|  Code block
-			li(v-if="isNoteSelected && !isOutlineSelected", v-show="!isPreview && isToolbarEnabled")
+			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
 				a(@click="menu_image", href="#", title="Insert Image from Url")
 					i.material-icons insert_photo
 					|  Image
-			li(v-if="isNoteSelected && !isOutlineSelected", v-show="!isPreview && isToolbarEnabled")
+			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
 				div: dropdown(:visible="table_visible", :position="position_left", v-on:clickout="table_visible = false")
 					span.link(@click="table_visible = !table_visible", title="Table")
 						i.material-icons border_all
@@ -27,16 +27,16 @@
 							span(v-else)
 								| Select the Table Size
 
-			li(v-if="isNoteSelected && !isOutlineSelected", v-show="isPreview && noteHeadings && noteHeadings.length > 1")
+			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': !isPreview || !noteHeadings || noteHeadings.length == 0 }")
 				div: dropdown(:visible="headings_visible", :position="position_left", v-on:clickout="headings_visible = false")
-					span.link(@click="headings_visible = !headings_visible", title="Headings")
+					span.link(@click="headings_visible = !headings_visible", title="Headers")
 						i.material-icons list
-						|  Outline
+						|  Headers
 					.dialog(slot="dropdown")
 						.headings-dialog(@click="close_headings")
 							a.h(v-for="head in noteHeadings", @click.prevent="jumpTo(head.id)", :class="'hlvl'+head.level", v-html="head.text")
 
-			li.right-align(v-show="isToolbarEnabled")
+			li.right-align(:class="{ 'entry-hidden': !isToolbarEnabled }")
 				div: dropdown(:visible="fontsize_visible", :position="position_right", v-on:clickout="fontsize_visible = false")
 					span.link(@click="fontsize_visible = !fontsize_visible", title="Font Size")
 						i.material-icons format_size
@@ -74,7 +74,7 @@
 							i.material-icons.faded(v-else) radio_button_unchecked
 							|  24
 			
-			li.right-align(v-if="isNoteSelected && !isOutlineSelected", v-show="isPreview || isToolbarEnabled")
+			li.right-align(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': !isPreview && !isToolbarEnabled }")
 				div: dropdown(:visible="properties_visible", :position="position_right", v-on:clickout="properties_visible = false")
 					span.link(@click="properties_visible = !properties_visible", title="Properties")
 						i.material-icons info_outline

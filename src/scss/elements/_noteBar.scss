@@ -132,6 +132,14 @@
 				margin-left: 0;
 			}
 
+			li.entry-hidden {
+				display: none;
+			}
+
+			li.entry-hidden + li.right-align:not(.entry-hidden) {
+				margin-left: auto;
+			}
+
 			li > div span {
 				display: block;
 			}
@@ -153,6 +161,11 @@
 			content: "";
 			display: block;
 		}
+	}
+
+	.my-dropdown-dd ul li {
+		float: none;
+		display: block;
 	}
 }
 
