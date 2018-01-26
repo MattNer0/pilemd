@@ -24,9 +24,6 @@
 		components: {
 			'node' : component_nodeOutline
 		},
-		mounted() {
-			console.log(this.outlineNote);
-		},
 		methods: {
 			getOutlineNodeOffset(child, mod) {
 				var i = this.outlineNote.nodes.indexOf(child);
