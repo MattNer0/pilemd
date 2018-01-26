@@ -4,8 +4,21 @@
 			.breadcrumbs(v-if="breadcrumbs.length > 0")
 				.crumb(v-for="crumb in breadcrumbs", :key="crumb.outlineNode.uid", @click.prevent.stop="openCrumb(crumb)")
 					| {{ crumb.outlineNode.title }}
-			input.h1(v-model="outlineNote.title", v-show="breadcrumbs.length == 0")
-			input.h2(v-model="lastCrumb.outlineNode.title", v-if="lastCrumb", v-show="breadcrumbs.length > 0", @keydown.shift.enter.exact.prevent="switchToTextArea")
+			input.h1(
+				v-model="outlineNote.title",
+				v-if="breadcrumbs.length == 0"
+				@keydown.arrow-down.exact="jumpNextNode"
+			)
+			input.h2(
+				v-model="lastCrumb.outlineNode.title",
+				v-if="lastCrumb",
+				v-show="breadcrumbs.length > 0",
+				@keydown.shift.enter.exact.prevent="switchToTextArea",
+				@keydown.alt.arrow-left.exact="zoomBackCrumb",
+				@keydown.arrow-down.exact="jumpNextNode",
+				ref="crumb"
+			)
+
 			ul
 				node(
 					v-for="child in outlineNote.nodes",
@@ -71,6 +84,9 @@
 				this.lastCrumb = nodes_array.pop();
 				nodes_array.unshift(this);
 				this.breadcrumbs = nodes_array;
+				this.$nextTick(() => {
+					this.$refs.crumb.focus();
+				});
 			},
 			zoomThisNode() {
 				this.zoomedin = false;
@@ -79,15 +95,33 @@
 				for (var i=0; i<this.$children.length; i++) {
 					this.$children[i].unzoomNode();
 				}
+
+				this.$nextTick(() => {
+					var nodeElement = document.querySelectorAll('.my-editor-outline > div > input')[0];
+					nodeElement.focus();
+					nodeElement.setSelectionRange(0,0);
+				});
 			},
 			zoomBack() {
 				this.zoomThisNode();
+			},
+			zoomBackCrumb() {
+				if (this.lastCrumb) this.lastCrumb.zoomBack();
 			},
 			openCrumb(element) {
 				element.zoomThisNode();
 			},
 			switchToTextArea() {
 				if (this.lastCrumb) this.lastCrumb.switchToTextArea();
+			},
+			jumpNextNode(event) {
+				var input = event.target;
+				if (input.selectionStart == input.value.length) {
+					event.preventDefault();
+					var nodeElement = document.querySelectorAll('.visible-node > input')[0];
+					nodeElement.focus();
+					nodeElement.setSelectionRange(0,0);
+				}
 			}
 		},
 		watch: {

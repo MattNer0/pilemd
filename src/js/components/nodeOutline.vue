@@ -1,5 +1,5 @@
 <template lang="pug">
-	li.node(:class="{ 'with-content': withContent, 'with-nested': openNested || zoomedin || zoomedthis, 'visible-node': visibleNode, 'with-children': outlineNode.children.length > 0, 'zoom-parent': zoomedin, 'zoom-node': zoomedthis }")
+	li.node(:class="{ 'with-content': withContent, 'with-nested': showNested, 'visible-node': isVisible, 'with-children': outlineNode.children.length > 0, 'zoom-parent': zoomedin, 'zoom-node': zoomedthis }")
 		.node-circle(:class="{ 'circle-children' : outlineNode.children.length > 0 }", @click.prevent.stop="zoomThisNode")
 		input.node-title(
 			v-model="outlineNode.title",
@@ -35,11 +35,15 @@
 		.node-open(v-else-if="outlineNode.children.length > 0", @click.prevent.stop="openNestedUl")
 			| +
 		ul(v-if="outlineNode.children && outlineNode.children.length > 0")
-			node(v-for="child in outlineNode.children" :key="child.uid" :outline-node="child" :visible-node="openNested")
+			node(
+				v-for="child in outlineNode.children",
+				:key="child.uid",
+				:outline-node="child",
+				:visible-node="(visibleNode || zoomedthis) && openNested"
+			)
 </template>
 
 <script>
-
 	const autosize = require('autosize');
 
 	export default {
@@ -54,6 +58,14 @@
 				'zoomedin': false,
 				'zoomedthis': false
 			};
+		},
+		computed: {
+			showNested() {
+				return this.openNested || this.zoomedin || this.zoomedthis;
+			},
+			isVisible() {
+				return this.visibleNode && !this.zoomedin && !this.zoomedthis;
+			}
 		},
 		mounted() {
 			if (this.outlineNode.content) this.withContent = true;
@@ -198,7 +210,7 @@
 				return;
 			},
 			jumpPreviousNode(selection) {
-				var inputList = document.querySelectorAll('.visible-node > .node-title');
+				var inputList = document.querySelectorAll('.visible-node > input');
 				inputList = Array.prototype.slice.call(inputList);
 				var i = inputList.indexOf(this.$refs.input);
 				if (i > 0) {
@@ -208,10 +220,13 @@
 						if (typeof selection == 'number') nodeElement.setSelectionRange(selection,selection);
 						else if (!selection) nodeElement.setSelectionRange(0,0);
 					}, 0);
+				} else {
+					var inputList = document.querySelectorAll('.my-editor-outline > div > input')[0];
+					if (inputList) inputList.focus();
 				}
 			},
 			jumpNextNode() {
-				var inputList = document.querySelectorAll('.visible-node > .node-title');
+				var inputList = document.querySelectorAll('.visible-node > input');
 				inputList = Array.prototype.slice.call(inputList);
 				var i = inputList.indexOf(this.$refs.input);
 				if (i < inputList.length-1) {
