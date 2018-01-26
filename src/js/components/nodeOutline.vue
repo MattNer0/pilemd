@@ -1,6 +1,6 @@
 <template lang="pug">
-	li.node(:class="{ 'with-content': withContent, 'with-nested': openNested, 'visible-node': visibleNode, 'with-children': outlineNode.children.length > 0 }")
-		.node-circle(:class="{ 'circle-children' : outlineNode.children.length > 0 }")
+	li.node(:class="{ 'with-content': withContent, 'with-nested': openNested || zoomedin || zoomedthis, 'visible-node': visibleNode, 'with-children': outlineNode.children.length > 0, 'zoom-parent': zoomedin, 'zoom-node': zoomedthis }")
+		.node-circle(:class="{ 'circle-children' : outlineNode.children.length > 0 }", @click.prevent.stop="zoomThisNode")
 		input.node-title(
 			v-model="outlineNode.title",
 			ref="input",
@@ -8,6 +8,9 @@
 			@keydown.enter.exact.prevent="newNode",
 			@keydown.ctrl.arrow-up.exact.prevent="closeNestedUl",
 			@keydown.ctrl.arrow-down.exact.prevent="openNestedUl",
+
+			@keydown.alt.arrow-right.exact="zoomThisNode",
+			@keydown.alt.arrow-left.exact="zoomBack",
 
 			@keydown.arrow-up.exact.prevent="jumpPreviousNode",
 			@keydown.arrow-down.exact.prevent="jumpNextNode",
@@ -22,7 +25,7 @@
 		textarea.node-content(
 			v-model="outlineNode.content",
 			ref="textarea",
-			@keyup.delete.exact="deleteText",
+			@keyup.backspace.exact="deleteText",
 			@keydown.arrow-up.exact="switchToInput"
 			@keydown.tab.exact.prevent.stop="tabText",
 			@keydown.shift.tab.exact.prevent.stop="tabText",
@@ -47,7 +50,9 @@
 				'withContent': false,
 				'emptyContent': true,
 				'emptyTitle': true,
-				'openNested': false
+				'openNested': false,
+				'zoomedin': false,
+				'zoomedthis': false
 			};
 		},
 		mounted() {
@@ -107,6 +112,7 @@
 				}
 			},
 			focusInput(selection) {
+				if (this.zoomedin || this.zoomedthis) return;
 				this.$refs.input.focus();
 				if (!selection) {
 					this.$refs.input.setSelectionRange(0,0);
@@ -183,7 +189,7 @@
 			deleteText() {
 				if (this.outlineNode.content == '' && this.emptyContent) {
 					this.withContent = false;
-					this.focusInput();
+					this.focusInput(true);
 				} else if (this.outlineNode.content == '') {
 					this.emptyContent = true;
 				}
@@ -212,6 +218,35 @@
 					var nodeElement = inputList[i+1];
 					nodeElement.focus();
 					nodeElement.setSelectionRange(0,0);
+				}
+			},
+			zoomIn(array) {
+				array.unshift(this);
+				this.$parent.zoomIn(array);
+				this.zoomedin = true;
+				this.zoomedthis = false;
+			},
+			unzoomNode() {
+				this.zoomedin = false;
+				this.zoomedthis = false;
+				for (var i=0; i<this.$children.length; i++) {
+					this.$children[i].unzoomNode();
+				}
+			},
+			zoomThisNode() {
+				this.$parent.zoomIn([this]);
+				this.zoomedthis = true;
+				this.zoomedin = false;
+				for (var i=0; i<this.$children.length; i++) {
+					this.$children[i].unzoomNode();
+					this.$children[i].openNestedUl();
+				}
+			},
+			zoomBack() {
+				if (this.zoomedthis) {
+					this.$parent.zoomThisNode();
+				} else {
+					this.$parent.zoomBack();
 				}
 			}
 		},

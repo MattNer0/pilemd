@@ -6,6 +6,10 @@
 		margin: 0;
 	}
 
+	> div > ul {
+		margin-top: 0.9em;
+	}
+
 	li {
 		display: block;
 		position: relative;
@@ -108,6 +112,102 @@
 	}
 
 	input.h1 {
-		margin-bottom: 1em;
+		margin-bottom: 0.2em;
+	}
+
+	input.h2 {
+		font-size: 180%;
+		font-weight: bold;
+		margin-bottom: 0.2em;
+	}
+
+	.focus-outline {
+
+		> ul {
+			margin: 0;
+			padding: 0;
+		}
+
+		li, li.with-content, li.with-nested {
+			padding: 0;
+			margin: 0;
+
+			input, textarea, ul {
+				display: none;
+			}
+		}
+
+		li > .node-circle,
+		li > .node-close,
+		li > .node-open {
+			display: none;
+		}
+
+		li.zoom-parent > ul {
+			display: block;
+			padding: 0;
+		}
+
+		li.zoom-node {
+			li {
+				padding: 0.2em;
+				margin: 0.1em 0;
+
+				input {
+					display: block;
+				}
+			}
+		}
+
+		li.zoom-node.with-nested > ul, li.zoom-node li.with-nested > ul {
+			display: block;
+		}
+
+		li.zoom-node.with-content > textarea.node-content, li.zoom-node li.with-content > textarea.node-content {
+			display: block;
+		}
+
+		li.zoom-node li .node-circle,
+		li.zoom-node li .node-close,
+		li.zoom-node li .node-open {
+			display: block;
+		}
+	}
+
+	.breadcrumbs + input.h1 {
+		margin: 0;
+	}
+
+	.breadcrumbs + input.h1 + input.h1 {
+		margin: 0;
+	}
+
+	.breadcrumbs {
+		margin-bottom: 0.6em;
+
+		.crumb {
+			display: inline-block;
+			margin: 0 0.3em;
+		}
+
+		.crumb:before {
+			content: ">";
+			display: inline-block;
+			margin-right: 0.3em;
+		}
+
+		.crumb:first-child {
+			margin-left: 0;
+		}
+
+		.crumb:first-child:before {
+			content: "";
+			display: none;
+		}
+
+		.crumb:hover {
+			text-decoration: underline;
+			cursor: pointer;
+		}
 	}
 }
