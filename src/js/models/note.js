@@ -747,7 +747,6 @@ class Outline extends Note {
 		if(this._removed) return;
 
 		var body = this.compileOutlineBody();
-		console.log(body);
 
 		var active_nodes = this._nodes.filter(function(obj) {
 			return obj.title && obj.title != '';
@@ -756,8 +755,6 @@ class Outline extends Note {
 		if (active_nodes.length == 0) {
 			return { saved: true };
 		}
-
-		return { saved: true };
 
 		var outer_folder;
 		if (this._rack && this._folder) {
@@ -862,7 +859,7 @@ class Outline extends Note {
 			content : content,
 			children: children
 		});
-		if (children && children.length > 0) newNode.updateChildrenParent();
+		if (children && children.length > 0) newNode.updateChildrens();
 		return newNode;
 	}
 

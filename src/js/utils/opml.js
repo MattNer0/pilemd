@@ -20,10 +20,11 @@ String.prototype.formatUnicorn = String.prototype.formatUnicorn || function() {
 module.exports = {
 
 	parseFile(file_content, outline_obj) {
+		var self = this;
 		if (file_content == '') return;
 
 		var doc = new xmldoc.XmlDocument(file_content);
-		var head = doc.descendantWithPath('opml.head');
+		var head = doc.descendantWithPath('head');
 
 		var metadata = {
 			createdAt: moment(head.valueWithPath('dateCreated')).format('YYYY-MM-DD HH:mm:ss'),
@@ -33,17 +34,18 @@ module.exports = {
 		outline_obj.title = head.valueWithPath('title');
 		outline_obj.metadata = metadata;
 
-		outline_obj.nodes = doc.descendantWithPath('opml.body').children.map(function(node) {
-			return parse_nodes(node, outline_obj);
+		outline_obj.nodes = doc.descendantWithPath('body').childrenNamed('outline').map(function(node) {
+			return self.parse_nodes(node, outline_obj);
 		});
 	},
 
 	parse_nodes(node, outline_obj) {
+		var self = this;
 		return outline_obj.generateNewNode(
 			node.attr.text,
 			node.attr.content,
-			node.children.map(function(node) {
-				return parse_nodes(node, outline_obj);
+			node.childrenNamed('outline').map(function(node) {
+				return self.parse_nodes(node, outline_obj);
 			})
 		);
 	},
