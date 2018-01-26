@@ -47,5 +47,10 @@
 				return this.getElementNodeOffset(child, mod).focusInput(selection);
 			}
 		},
+		watch: {
+			'outlineNote.title': function() {
+				if (this.outlineNote) this.$root.saveNote();
+			}
+		}
 	}
 </script>

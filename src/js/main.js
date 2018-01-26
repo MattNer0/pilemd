@@ -790,7 +790,7 @@ var appVue = new Vue({
 		 * @description save current selected Note.
 		 * @return {Void} Function doesn't return anything
 		 */
-		saveNote() {
+		saveNote: _.debounce(function () {
 			var result;
 			//this.updatePreview();
 			if (this.selectedNote.saveModel) {
@@ -801,7 +801,7 @@ var appVue = new Vue({
 			} else if(result && result.saved) {
 				this.sendFlashMessage(1000, 'info', 'Note saved');
 			}
-		},
+		}, 500),
 		addNoteFromUrl() {
 			this.$refs.dialog.init('Note', '', [{
 				label: 'Cancel',
@@ -1260,6 +1260,7 @@ var appVue = new Vue({
 			}
 		},
 		'selectedNote.body': function() {
+			if (this.selectedNote instanceof models.Outline) return;
 			this.saveNote();
 		},
 		selectedRackOrFolder() {

@@ -227,11 +227,13 @@
 				if (this.outlineNode.title) {
 					this.emptyTitle = false;
 				}
+				this.$root.saveNote();
 			},
 			'outlineNode.content': function() {
 				if (this.outlineNode.content) {
 					this.emptyContent = false;
 				}
+				this.$root.saveNote();
 			}
 		}
 	}
