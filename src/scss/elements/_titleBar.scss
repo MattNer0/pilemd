@@ -33,7 +33,6 @@
 		overflow: hidden;
 
 		span {
-			font-weight: bold;
 			color: inherit;
 		}
 
@@ -89,6 +88,10 @@
 		border-radius: $address-bar-border-radius;
 		padding: 0.3em 2em 0.3em 0.4em;
 
+		span {
+			font-weight: bold;
+		}
+
 		span:first-child > i.material-icons {
 			margin-right: 0.2em;
 			display: inline-block;
@@ -116,6 +119,10 @@
 
 	.system-icon:hover {
 		color: $title-bar-color-hover;
+	}
+
+	.system-icon.close-icon {
+		border-radius: 1em;
 	}
 
 	.system-icon.close-icon:hover {

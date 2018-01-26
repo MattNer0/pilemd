@@ -29,13 +29,18 @@
 
 		nav {
 			height: 100%;
+
+			ul {
+				height: $title-bar-height;
+			}
 		}
 
 		span.favicon {
 			display: inline-block;
-			vertical-align: top;
 			margin-right: 0.3em;
-			width: 1.4em;
+			margin-top: -0.2em;
+			width: 1.7em;
+			vertical-align: middle;
 
 			i {
 				font-size: 1.5em;
@@ -44,7 +49,7 @@
 			}
 
 			img {
-				height: 1em;
+				height: 1.5em;
 				vertical-align: middle;
 			}
 		}

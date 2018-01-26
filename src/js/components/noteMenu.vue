@@ -36,13 +36,44 @@
 						.headings-dialog(@click="close_headings")
 							a.h(v-for="head in noteHeadings", @click.prevent="jumpTo(head.id)", :class="'hlvl'+head.level", v-html="head.text")
 
-			li.right-align(v-if="isNoteSelected && !isOutlineSelected")
-				a(@click="togglePreview", href="#", title="Preview")
-					template(v-if="isPreview")
-						i.material-icons visibility_off
-					template(v-else)
-						i.material-icons visibility
-
+			li.right-align(v-show="isToolbarEnabled")
+				div: dropdown(:visible="fontsize_visible", :position="position_right", v-on:clickout="fontsize_visible = false")
+					span.link(@click="fontsize_visible = !fontsize_visible", title="Font Size")
+						i.material-icons format_size
+					.dialog(slot="dropdown"): ul
+						li: a(@click.prevent="menu_fontsize(10)", href="#")
+							i.material-icons(v-if="fontsize == 10") radio_button_checked
+							i.material-icons.faded(v-else) radio_button_unchecked
+							|  10
+						li: a(@click.prevent="menu_fontsize(12)", href="#")
+							i.material-icons(v-if="fontsize == 12") radio_button_checked
+							i.material-icons.faded(v-else) radio_button_unchecked
+							|  12
+						li: a(@click.prevent="menu_fontsize(14)", href="#")
+							i.material-icons(v-if="fontsize == 14") radio_button_checked
+							i.material-icons.faded(v-else) radio_button_unchecked
+							|  14
+						li: a(@click.prevent="menu_fontsize(15)", href="#")
+							i.material-icons(v-if="fontsize == 15") radio_button_checked
+							i.material-icons.faded(v-else) radio_button_unchecked
+							|  15
+						li: a(@click.prevent="menu_fontsize(16)", href="#")
+							i.material-icons(v-if="fontsize == 16") radio_button_checked
+							i.material-icons.faded(v-else) radio_button_unchecked
+							|  16
+						li: a(@click.prevent="menu_fontsize(18)", href="#")
+							i.material-icons(v-if="fontsize == 18") radio_button_checked
+							i.material-icons.faded(v-else) radio_button_unchecked
+							|  18
+						li: a(@click.prevent="menu_fontsize(20)", href="#")
+							i.material-icons(v-if="fontsize == 20") radio_button_checked
+							i.material-icons.faded(v-else) radio_button_unchecked
+							|  20
+						li: a(@click.prevent="menu_fontsize(24)", href="#")
+							i.material-icons(v-if="fontsize == 24") radio_button_checked
+							i.material-icons.faded(v-else) radio_button_unchecked
+							|  24
+			
 			li.right-align(v-if="isNoteSelected && !isOutlineSelected", v-show="isPreview || isToolbarEnabled")
 				div: dropdown(:visible="properties_visible", :position="position_right", v-on:clickout="properties_visible = false")
 					span.link(@click="properties_visible = !properties_visible", title="Properties")
@@ -86,43 +117,12 @@
 										td.right: span
 											input(type="text", name="metavalue", ref="valueinput")
 
-			li.right-align(v-show="isToolbarEnabled")
-				div: dropdown(:visible="fontsize_visible", :position="position_right", v-on:clickout="fontsize_visible = false")
-					span.link(@click="fontsize_visible = !fontsize_visible", title="Font Size")
-						i.material-icons format_size
-					.dialog(slot="dropdown"): ul
-						li: a(@click.prevent="menu_fontsize(10)", href="#")
-							i.material-icons(v-if="fontsize == 10") radio_button_checked
-							i.material-icons.faded(v-else) radio_button_unchecked
-							|  10
-						li: a(@click.prevent="menu_fontsize(12)", href="#")
-							i.material-icons(v-if="fontsize == 12") radio_button_checked
-							i.material-icons.faded(v-else) radio_button_unchecked
-							|  12
-						li: a(@click.prevent="menu_fontsize(14)", href="#")
-							i.material-icons(v-if="fontsize == 14") radio_button_checked
-							i.material-icons.faded(v-else) radio_button_unchecked
-							|  14
-						li: a(@click.prevent="menu_fontsize(15)", href="#")
-							i.material-icons(v-if="fontsize == 15") radio_button_checked
-							i.material-icons.faded(v-else) radio_button_unchecked
-							|  15
-						li: a(@click.prevent="menu_fontsize(16)", href="#")
-							i.material-icons(v-if="fontsize == 16") radio_button_checked
-							i.material-icons.faded(v-else) radio_button_unchecked
-							|  16
-						li: a(@click.prevent="menu_fontsize(18)", href="#")
-							i.material-icons(v-if="fontsize == 18") radio_button_checked
-							i.material-icons.faded(v-else) radio_button_unchecked
-							|  18
-						li: a(@click.prevent="menu_fontsize(20)", href="#")
-							i.material-icons(v-if="fontsize == 20") radio_button_checked
-							i.material-icons.faded(v-else) radio_button_unchecked
-							|  20
-						li: a(@click.prevent="menu_fontsize(24)", href="#")
-							i.material-icons(v-if="fontsize == 24") radio_button_checked
-							i.material-icons.faded(v-else) radio_button_unchecked
-							|  24
+			li.right-align(v-if="isNoteSelected && !isOutlineSelected")
+				a(@click="togglePreview", href="#", title="Preview")
+					template(v-if="isPreview")
+						i.material-icons visibility_off
+					template(v-else)
+						i.material-icons visibility
 </template>
 
 <script>

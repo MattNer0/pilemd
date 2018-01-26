@@ -96,6 +96,11 @@
 
 			li {
 				height: 1.7em;
+				float: left;
+
+				i.material-icons {
+					vertical-align: middle;
+				}
 
 				> a, > div {
 					padding: 0 0.5em;
@@ -117,6 +122,14 @@
 						border: none !important;
 					}
 				}
+			}
+
+			li.right-align {
+				margin-left: auto;
+			}
+
+			li.right-align + li.right-align {
+				margin-left: 0;
 			}
 
 			li > div span {
