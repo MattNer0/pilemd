@@ -82,6 +82,7 @@ module.exports = {
 			oarray = oarray.concat(this.stringify_nodes(nodes_array[i]));
 		}
 		oarray.push('</body>');
+		oarray.push('</opml>');
 		return oarray.join('\n');
 	}
 }
