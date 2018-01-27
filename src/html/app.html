@@ -121,12 +121,14 @@
 							</browser>
 						</div>
 					</div>
-					<div v-else-if="notesHistory && notesHistory.length > 0" class="my-splash-page">
-						<welcome-splash
-							:keep-history="keepHistory"
-							:notes="notesHistory"
-							:change-note="changeNote">
-						</welcome-splash>
+					<div v-else-if="notesHistory && notesHistory.length > 0">
+						<div class="my-splash-page">
+							<welcome-splash
+								:keep-history="keepHistory"
+								:notes="notesHistory"
+								:change-note="changeNote">
+							</welcome-splash>
+						</div>
 					</div>
 				</div>
 				<note-footer v-if="isNoteSelected && !isOutlineSelected"
