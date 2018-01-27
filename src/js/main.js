@@ -792,13 +792,15 @@ var appVue = new Vue({
 		 */
 		saveNote: _.debounce(function () {
 			var result;
-			//this.updatePreview();
 			if (this.selectedNote.saveModel) {
 				result = this.selectedNote.saveModel();
 			}
 			if (result && result.error && result.path) {
 				this.sendFlashMessage(5000, 'error', result.error);
 			} else if(result && result.saved) {
+				if (this.keepHistory && this.selectedNote.relativePath) {
+					libini.pushKey(models.getBaseLibraryPath(), ['history', 'note'], this.selectedNote.relativePath, 5);
+				}
 				this.sendFlashMessage(1000, 'info', 'Note saved');
 			}
 		}, 500),
@@ -1219,7 +1221,6 @@ var appVue = new Vue({
 		 * @return {Void} Function doesn't return anything
 		 */
 		update_editor_size: _.debounce(function () {
-			//ipcRenderer.send('console', 'update editor size');
 			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
 			if (cellsLeft.length == 0) {
 				return;
@@ -1228,15 +1229,19 @@ var appVue = new Vue({
 			var widthTotalLeft = parseInt(cellsLeft[0].style.width.replace('px','')) + 4;
 			widthTotalLeft += parseInt(cellsLeft[1].style.width.replace('px','')) + 4;
 
-			if(this.isFullScreen) {
+			var mybrowser = document.querySelector('.main-cell-container .my-browser');
+
+			if (this.isFullScreen) {
 				document.querySelector('.sidebar').style.left = '-' + widthTotalLeft + 'px';
-				document.querySelector('.main-cell-container .my-browser').style.width = '100vw';
+				if (mybrowser) mybrowser.style.width = '100vw';
 				widthTotalLeft = 0;
 			} else {
 				document.querySelector('.sidebar').style.left = '';
-				setTimeout(() => {
-					document.querySelector('.main-cell-container .my-browser').style.width = 'calc( 100vw - ' + widthTotalLeft + 'px )';
-				}, 200);
+				if (mybrowser) {
+					setTimeout(() => {
+						if (mybrowser) mybrowser.style.width = 'calc( 100vw - ' + widthTotalLeft + 'px )';
+					}, 200);
+				}
 			}
 			document.querySelector('.main-cell-container').style.marginLeft = widthTotalLeft + 'px';
 		}, 100)

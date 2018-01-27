@@ -1,6 +1,5 @@
 <template lang="pug">
 	.title-bar-container
-		.title-bar-spacing
 		.title-bar(:class="{ 'open-dropdown' : menu_visible || order_visible }")
 			.spacer
 				.address-bar
@@ -66,12 +65,12 @@
 									i.material-icons(v-if="isToolbarEnabled") check_box
 									i.material-icons.faded(v-else) check_box_outline_blank
 									|  Show Note Toolbar
-								li: hr
-								li: a(@click.prevent="menu_changeTheme('dark')", href="#")
+								//-li: hr
+								//-li: a(@click.prevent="menu_changeTheme('dark')", href="#")
 									i.material-icons(v-if="selectedTheme == 'dark'") radio_button_checked
 									i.material-icons.faded(v-else) radio_button_unchecked
 									|  Dark Theme
-								li: a(@click.prevent="menu_changeTheme('light')", href="#")
+								//-li: a(@click.prevent="menu_changeTheme('light')", href="#")
 									i.material-icons(v-if="selectedTheme == 'light'") radio_button_checked
 									i.material-icons.faded(v-else) radio_button_unchecked
 									|  Light Theme

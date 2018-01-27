@@ -64,6 +64,14 @@ module.exports = {
 			this.writeKey(library_path, key, keyvalue);
 		}
 	},
+	popKey(library_path, key) {
+		var element;
+		var keyvalue = this.readKey(library_path, key);
+		if (!keyvalue || typeof keyvalue === 'string') keyvalue = [];
+		if (keyvalue.length > 0) element = keyvalue.pop();
+		this.writeKey(library_path, key, keyvalue);
+		return element;
+	},
 	removeKey(library_path, key) {
 		this.writeKey(library_path, key, undefined);
 	}

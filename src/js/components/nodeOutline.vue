@@ -34,12 +34,13 @@
 			| -
 		.node-open(v-else-if="outlineNode.children.length > 0", @click.prevent.stop="openNestedUl")
 			| +
-		ul(v-if="outlineNode.children && outlineNode.children.length > 0")
+		ul(v-if="outlineNode.children && outlineNode.children.length > 0", :class="{ 'zoomzoom': zoomedParent }")
 			node(
 				v-for="child in outlineNode.children",
 				:key="child.uid",
 				:outline-node="child",
-				:visible-node="(visibleNode || zoomedthis) && openNested"
+				:visible-node="(isVisible && openNested) || zoomedthis",
+				:zoomed-parent="zoomedParent && !zoomedthis"
 			)
 </template>
 
@@ -48,7 +49,7 @@
 
 	export default {
 		name: 'node',
-		props: ['outlineNode', 'visibleNode'],
+		props: ['outlineNode', 'visibleNode', 'zoomedParent'],
 		data() {
 			return {
 				'withContent': false,
@@ -64,7 +65,11 @@
 				return this.openNested || this.zoomedin || this.zoomedthis;
 			},
 			isVisible() {
-				return this.visibleNode && !this.zoomedin && !this.zoomedthis;
+				if (this.zoomedParent) {
+					return false;
+				} else {
+					return this.visibleNode && !this.zoomedin && !this.zoomedthis;
+				}
 			}
 		},
 		mounted() {

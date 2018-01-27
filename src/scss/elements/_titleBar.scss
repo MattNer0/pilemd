@@ -1,14 +1,13 @@
 .title-bar-spacing {
-	background-color: $title-bar-background;
-	height: 2px;
+	background-color: $resize-panel-handler;
+	height: $title-bar-border;
 }
 
 .title-bar {
 	background-color: $title-bar-background;
-	border-bottom: 1px solid $app-border;
 	color: $title-bar-color;
 	width: 100%;
-	height: calc( #{ $title-bar-height } - 4px );
+	height: calc( #{ $title-bar-height } - #{ $title-bar-border } );
 
 	display: flex;
 	flex-direction: row;

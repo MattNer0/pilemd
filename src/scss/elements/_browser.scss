@@ -6,7 +6,7 @@
 	border: none;
 
 	webview {
-		min-height: calc( 100vh - 2px - #{ $action-bar-height } - #{ $title-bar-height } );
+		min-height: calc( 100vh - #{ $title-bar-border } - #{ $action-bar-height } - #{ $title-bar-height } );
 		height: 100%;
 		width: 100%;
 		border: none;

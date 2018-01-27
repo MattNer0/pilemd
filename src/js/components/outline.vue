@@ -24,7 +24,8 @@
 					v-for="child in outlineNote.nodes",
 					:key="child.uid",
 					:outline-node="child",
-					:visible-node="true"
+					:visible-node="true",
+					:zoomed-parent="zoomedin"
 					ref="child"
 				)
 </template>
