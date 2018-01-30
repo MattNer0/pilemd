@@ -132,7 +132,8 @@ var forEach = function(array, callback, scope) {
  * @param  {Object} el    DOM element object
  * @return {Void} Void
  */
-function clickCheckbox(cm, note, index, el) {
+function clickCheckbox(vue, note, index, el) {
+	var cm = vue.$refs.refCodeMirror;
 	el.onclick = function(event) {
 		event.preventDefault();
 		if (event.target.tagName == 'A') return;
@@ -152,6 +153,7 @@ function clickCheckbox(cm, note, index, el) {
 		});
 		note.body = ok;
 		cm.refreshNoteBody();
+		vue.updatePreview(true);
 	};
 }
 
@@ -169,7 +171,7 @@ module.exports = {
 		var p = marked(note.bodyWithDataURL);
 		vue.$nextTick(() => {
 			forEach(document.querySelectorAll('li.checkbox'), (index, el) => {
-				clickCheckbox(vue.$refs.refCodeMirror, note, index, el);
+				clickCheckbox(vue, note, index, el);
 			});
 		});
 		return p;

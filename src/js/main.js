@@ -1201,11 +1201,11 @@ var appVue = new Vue({
 			this.update_editor_size();
 			this.save_editor_size();
 		},
-		updatePreview() {
+		updatePreview(no_scroll) {
 			if (this.isPreview && this.selectedNote.data) {
 				this.preview = preview.render(this.selectedNote, this);
 				this.noteHeadings = preview.getHeadings();
-				this.scrollUpScrollbarNote();
+				if (no_scroll === undefined) this.scrollUpScrollbarNote();
 			} else {
 				this.preview = '';
 			}
