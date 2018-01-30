@@ -25,9 +25,9 @@
 							i.material-icons(v-if="isFullScreen") fullscreen_exit
 							i.material-icons(v-else) fullscreen
 							|  Toggle Sidebar
-					li.has-sub
+					li.has-sub(@click="order_visible = !order_visible")
 						dropdown(:visible="order_visible", :position="position", v-on:clickout="order_visible = false")
-							span.link(@click="order_visible = !order_visible")
+							span.link
 								i.material-icons sort
 								span.sub-text(v-if="notesDisplayOrder == 'updatedAt'")
 									| Sort by Update Date
@@ -54,9 +54,9 @@
 						i.material-icons(@click.prevent="focus_input") search
 						input#search-bar(ref="searchinput", v-model="search", type="text")
 						i.material-icons(v-show="search", @click="clear_search") clear
-					li.has-sub
+					li.has-sub(@click="menu_visible = !menu_visible")
 						dropdown(:visible="menu_visible", :position="position", v-on:clickout="menu_visible = false")
-							i.link.material-icons(@click="menu_visible = !menu_visible") menu
+							i.link.material-icons menu
 							.dialog(slot="dropdown"): ul
 								li: a(@click.prevent="menu_openFolder", href="#") Select Library Directory
 								//-li: a(@click.prevent="menu_moveFolder", href="#") Move Library Directory
@@ -65,12 +65,12 @@
 									i.material-icons(v-if="isToolbarEnabled") check_box
 									i.material-icons.faded(v-else) check_box_outline_blank
 									|  Show Note Toolbar
-								//-li: hr
-								//-li: a(@click.prevent="menu_changeTheme('dark')", href="#")
+								li: hr
+								li: a(@click.prevent="menu_changeTheme('dark')", href="#")
 									i.material-icons(v-if="selectedTheme == 'dark'") radio_button_checked
 									i.material-icons.faded(v-else) radio_button_unchecked
 									|  Dark Theme
-								//-li: a(@click.prevent="menu_changeTheme('light')", href="#")
+								li: a(@click.prevent="menu_changeTheme('light')", href="#")
 									i.material-icons(v-if="selectedTheme == 'light'") radio_button_checked
 									i.material-icons.faded(v-else) radio_button_unchecked
 									|  Light Theme

@@ -1,10 +1,69 @@
 $main-font-size: 14px;
 $main-font-family: "Roboto";
-$title-bar-height: 2.5em;
-$system-bar-height: 30px;
 
-$body-background-note: #dedede;
-$note-background-color: #fefefe;
+$app-border: #22252c;
+$resize-panel-handler: #2e323c;
+
+$body-background-color: #404552;
+$main-background-color: #404552;
+
+/* title bar */
+$title-bar-height: 3em;
+$title-bar-border: 1px;
+$title-bar-background: #303641;
+$title-bar-color: #90949b;
+$title-bar-color-hover: #b0b9c6;
+$title-bar-close-button: #cc575d;
+
+$address-bar-color: #7e8383;
+$address-bar-background: #414a59;
+$address-bar-background: #414a59;
+$address-bar-border-radius: 0.2em;
+
+/* action bar */
+$action-bar-height: 2em;
+$action-bar-background: #373d48;
+$action-bar-color: #7e8383;
+$action-bar-submenu-background: #383c4a;
+
+/* sidebar */
+$sidebar-background: #373d48;
+$sidebar-color: #949ba6;
+
+/* splash */
+$splash-background: #373d48;
+$splash-border-radius: 0.2em;
+$splash-color: #949ba6;
+$splash-hover-color: #ffffff;
+$splash-hover-background: #445e7d;
+
+/* folder */
+
+$folder-list-border-radius: 0.2em;
+$folder-hover-background: #445e7d;
+$folder-selected-background: #5294e2;
+$folder-selected-color: #ffffff;
+$folder-dragdrop-separator: #5294e2;
+$folder-badge-background: #2e323c;
+$folder-badge-color: #adacac;
+$folder-separator: #4b535d;
+
+/* notes list */
+$note-list-border-radius: 0.4em;
+$note-list-background: transparent;
+$note-list-background-hover: #445e7d;
+$note-list-background-selected: #5294e2;
+$note-list-text-color: #949ba6;
+$note-list-text-color-hover: #ffffff;
+$note-list-text-color-selected: #ffffff;
+$note-list-body-color: #858585;
+$note-list-body-color-selected: #d2d2d2;
+$note-separator-line: #36393e;
+
+/* note */
+$body-background-note: #f5f6f7;
+$note-background-color: #ffffff;
+
 $note-border-color: #ababab;
 $note-text-color: #333;
 $note-header1-color: #3f51b5;
@@ -13,57 +72,15 @@ $note-bar-text-color: #7a7a7b;
 $note-checkbox-selected: #BBBBBB;
 
 /* light theme */
-$body-background-color: #dedede;
-$main-background-color: #f3f3f4;
-$ui-text-color: #4a4d50;
-$ui-text-color-hover: #5d6269;
+$ui-text-color: #7a7a7b;
+$ui-text-color-hover: #b9bbbe;
 $ui-text-color-dim: #848487;
-$ui-text-background-hover: #e3e3e5;
-$ui-text-color-selected: #333;
-$ui-text-background-selected: #c5c5c5;
-$resize-panel-handler: #bfbfbf;
-$note-separator-line: #d6d6d6;
-$note-list-background: transparent;
-$note-list-background-hover: $ui-text-background-hover;
-$note-list-background-selected: $ui-text-background-selected;
-$note-list-text-color: $ui-text-color;
-$note-list-text-color-hover: $ui-text-color-hover;
-$note-list-text-color-selected: $ui-text-color-selected;
-$note-list-body-color: $ui-text-color-dim;
-$note-list-body-color-selected: $note-list-body-color;
-$note-list-border-radius: 0.4em;
-$folder-list-border-radius: 0.4em;
-$folder-dragdrop-separator: #62c8f3;
-$folder-badge-background: #FFF;
-$folder-badge-color: #656565;
+$ui-text-background-hover: #36393f;
+$ui-text-color-selected: #ffffff;
+$ui-text-background-selected: #42464d;
 $scrollbar-track-background: rgba(255, 255, 255, 0.1);
 $scrollbar-thumb: #333;
 $scrollbar-thumb-border: #444;
-$title-bar-background: #bfbfbf;
-
-@font-face {
-	font-family: 'Roboto';
-	font-style: normal;
-	font-weight: 700;
-	src: local('Roboto Bold'), local('Roboto-Bold'), url(../fonts/Roboto/Roboto-Bold.woff2) format('woff2');
-}
-
-@font-face {
-	font-family: 'Roboto';
-	font-style: italic, oblique;
-	src: local('Roboto Italic'), local('Roboto-Italic'), url(../fonts/Roboto/Roboto-Italic.woff2) format('woff2');
-}
-
-@font-face {
-	font-family: 'Roboto';
-	font-style: normal;
-	font-weight: 400;
-	src: local('Roboto'), local('Roboto-Regular'), url(../fonts/Roboto/Roboto-Regular.woff2) format('woff2');
-}
-
-html {
-	border: 1px solid $title-bar-background;
-}
 
 body.light-theme {
 	margin: 0;
@@ -74,19 +91,11 @@ body.light-theme {
 	background: $body-background-color;
 }
 
-html, body, h1, h2, h3, h4, h5, p, span, input {
-	font-size: $main-font-size;
-	font-family: $main-font-family;
-}
-
-@import 'materialIcons';
-@import 'highlight';
-
 body.light-theme {
 	@import 'elements/body';
 	@import 'elements/scrollbar';
-	@import 'elements/systemBar';
 	@import 'elements/titleBar';
+	@import 'elements/actionBar';
 	@import 'elements/noteBar';
 	@import 'elements/openNote';
 	@import 'elements/splashPage';
@@ -94,8 +103,4 @@ body.light-theme {
 	@import 'elements/foldersList';
 	@import 'elements/flashMessage';
 	@import 'elements/modal';
-}
-
-div, input, svg {
-	box-sizing: border-box;
 }

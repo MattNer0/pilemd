@@ -37,11 +37,10 @@ import component_notes from './components/notes.vue';
 import component_racks from './components/racks.vue';
 import component_welcomeSplash from './components/welcomeSplash.vue';
 import component_titleBar from './components/titleBar.vue';
-import component_actionBar from './components/actionBar.vue';
 
 // loading CSSs
-//require('../scss/pilemd-light.scss');
 require('../scss/pilemd.scss');
+require('../scss/pilemd-light.scss');
 
 // not to accept image dropping and so on.
 // electron will be show local images without this.
@@ -97,7 +96,6 @@ var appVue = new Vue({
 		'modal'        : component_modal,
 		'addNote'      : component_addNote,
 		'titleBar'     : component_titleBar,
-		//'actionBar'    : component_actionBar,
 		'noteMenu'     : component_noteMenu,
 		'noteFooter'   : component_noteFooter,
 		'handlerStack' : component_handlerStack,
