@@ -183,6 +183,24 @@
 			display: block;
 			position: static;
 		}
+
+		.link {
+			padding-top: 0.3em;
+
+			.material-icons {
+				vertical-align: middle;
+				margin-top: -0.2em;
+			}
+		}
+
+		h5 {
+			padding-top: 0.2em;
+
+			.material-icons {
+				vertical-align: middle;
+				margin-top: 0.1em;
+			}
+		}
 	}
 
 	.my-notes-note.new-note:hover {

@@ -94,6 +94,21 @@
 		display: block;
 	}
 
+	li.node.add-node {
+		margin: 0;
+
+		span {
+			opacity: 0.1;
+			cursor: pointer;
+
+			transition: opacity 0.3s;
+		}
+
+		span:hover {
+			opacity: 0.7;
+		}
+	}
+
 	input, textarea, *[contenteditable="true"] {
 		outline: none;
 		border: none;
@@ -128,11 +143,11 @@
 			padding: 0;
 		}
 
-		li, li.with-content, li.with-nested {
+		li, li.with-content, li.with-nested, li.add-node {
 			padding: 0;
 			margin: 0;
 
-			input, textarea, ul {
+			input, textarea, ul, span {
 				display: none;
 			}
 		}
@@ -154,6 +169,14 @@
 				margin: 0.1em 0;
 
 				input {
+					display: block;
+				}
+			}
+
+			li.add-node {
+				margin: 0;
+
+				span {
 					display: block;
 				}
 			}

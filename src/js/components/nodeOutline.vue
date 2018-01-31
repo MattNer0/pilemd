@@ -42,6 +42,11 @@
 				:visible-node="(isVisible && openNested) || zoomedthis",
 				:zoomed-parent="zoomedParent && !zoomedthis"
 			)
+		ul(v-else-if="zoomedthis")
+			li.node.add-node
+				span.node-title(@click.prevent.stop="newNodeTail")
+					| add node
+
 </template>
 
 <script>
@@ -162,6 +167,14 @@
 					this.jumpNextNode();
 				});
 			},
+			newNodeTail() {
+				var n = this.outlineNode.newEmptyNode();
+
+				this.$nextTick(() => {
+					var el = this.getElementNodeOffset(n);
+					el.focusInput();
+				});
+			},
 			openNestedUl() {
 				this.openNested = true;
 			},
@@ -188,6 +201,7 @@
 							if (this.outlineNode.title) n.title = n.title + this.outlineNode.title;
 						}
 						this.jumpPreviousNode(len);
+						this.$root.saveNote();
 					}
 				}
 

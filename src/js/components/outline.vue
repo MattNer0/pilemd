@@ -4,6 +4,7 @@
 			.breadcrumbs(v-if="breadcrumbs.length > 0")
 				.crumb(v-for="crumb in breadcrumbs", :key="crumb.outlineNode.uid", @click.prevent.stop="openCrumb(crumb)")
 					| {{ crumb.outlineNode.title }}
+				.crumb
 			input.h1(
 				v-model="outlineNote.title",
 				v-if="breadcrumbs.length == 0"
@@ -28,6 +29,9 @@
 					:zoomed-parent="zoomedin"
 					ref="child"
 				)
+				li.node.add-node(v-if="outlineNote.nodes && outlineNote.nodes.length == 0")
+					span.node-title(@click.prevent.stop="newNodeTail")
+						| add node
 </template>
 
 <script>
@@ -87,6 +91,14 @@
 				this.breadcrumbs = nodes_array;
 				this.$nextTick(() => {
 					this.$refs.crumb.focus();
+				});
+			},
+			newNodeTail() {
+				var n = this.outlineNote.newEmptyNode();
+
+				this.$nextTick(() => {
+					var el = this.getElementNodeOffset(n);
+					el.focusInput();
 				});
 			},
 			zoomThisNode() {
