@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 
 const moment = require('moment');
-const _ = require('lodash');
 
 const arr = require('../utils/arr');
 const util_file = require('../utils/file');
@@ -18,29 +17,29 @@ class Folder extends Model {
 		this.name = data.name.replace(/^\d+\. /, "") || '';
 		this.ordering = false;
 
-		if(data.load_ordering && fs.existsSync(path.join(data.path, '.folder')) ){
-			this.ordering = parseInt( fs.readFileSync( path.join(data.path, '.folder') ).toString() );
+		if (data.load_ordering && fs.existsSync(path.join(data.path, '.folder'))) {
+			this.ordering = parseInt(fs.readFileSync(path.join(data.path, '.folder')).toString());
 		}
 
-		if(this.ordering === false || isNaN(this.ordering)){
+		if (this.ordering === false || isNaN(this.ordering)) {
 			this.ordering = data.ordering || 0;
 		}
 
-		this.rackUid = data.rack ? data.rack.data.uid : null;
-		this._rack = data.rack;
+		this.rack = data.rack;
+		this._parentFolder = data.parentFolder ? data.parentFolder : data.rack;
 		this._path = data.path || '';
+
 		this.dragHover = false;
 		this.sortUpper = false;
 		this.sortLower = false;
-		this._loadingFull = false;
-
 		this.openNotes = false;
+
 		this._notes = [];
 	}
 
 	remove(origNotes) {
 		origNotes.forEach((note) => {
-			if (note.data.folderUid && note.data.folderUid == this.uid) {
+			if (note.folder.uid && note.folder.uid == this.uid) {
 				note.remove();
 			}
 		});
@@ -48,22 +47,29 @@ class Folder extends Model {
 	}
 
 	get data() {
-		return _.assign(super.data, {
+		return {
+			uid: this.uid,
 			name: this.name,
 			fsName: this.name ? this.name.replace(/[^\w _-]/g, '') : '',
 			ordering: this.ordering,
-			rack: this._rack,
-			rackUid: this.rackUid,
+			rack: this.rack,
 			path: this._path
-		});
+		};
 	}
 
 	get path() {
-		return this._path;
+		if (this._path && fs.existsSync(this._path)) {
+			return this._path;
+		}
+		var new_path = path.join(
+			this._parentFolder.path,
+			this.data.fsName
+		);
+		return new_path;
 	}
 
 	set path(newValue) {
-		if(newValue != this._path){
+		if (newValue != this._path) {
 			this._path = newValue;
 		}
 	}
@@ -72,14 +78,13 @@ class Folder extends Model {
 		return fs.existsSync(this._path);
 	}
 
-	set rack(r) {
-		if (!r) {
+	set parent(f) {
+		if (!f) {
 			return;
 		}
 
-		if (r.rackExists) {
-			this._rack = r;
-			this.rackUid = r.uid;
+		if (f.folderExists) {
+			this._parentFolder = f;
 		}
 	}
 
@@ -91,15 +96,11 @@ class Folder extends Model {
 		return this._notes;
 	}
 
-	get loadedNotes() {
-		return this._loadingFull;
-	}
-
 	toJSON() {
 		return {
 			name: this.name,
 			path: this._path,
-			rack: this._rack,
+			rack: this.rack,
 			ordering: this.ordering,
 			notes: this._notes.map((n) => { return n.toJSON(); })
 		};
@@ -108,7 +109,6 @@ class Folder extends Model {
 	update(data) {
 		super.update(data);
 		this.name = data.name;
-		this.rackUid = data.rackUid;
 		this.ordering = data.ordering;
 	}
 
@@ -122,13 +122,13 @@ class Folder extends Model {
 			return;
 		}
 
-		var new_path = path.join( Library.baseLibraryPath, this._rack.data.fsName, this.data.fsName );
+		var new_path = path.join( Library.baseLibraryPath, this.rack.data.fsName, this.data.fsName );
 		if(new_path != this._path || !fs.existsSync(new_path) ) {
 			try{
 				if(this._path && fs.existsSync(this._path)) {
 					util_file.moveFolderRecursiveSync(
 						this._path,
-						path.join(Library.baseLibraryPath, this._rack.data.fsName),
+						path.join(Library.baseLibraryPath, this.rack.data.fsName),
 						this.data.fsName
 					);
 
@@ -171,10 +171,10 @@ class BookmarkFolder extends Folder {
 	}
 
 	get data() {
-		return _.assign(super.data, {
-			bookmarks: true,
-			attributes: this._attributes
-		});
+		var dt = super.data;
+		dt.bookmarks = true;
+		dt.attributes = this._attributes;
+		return dt;
 	}
 
 	get folderExists() {
@@ -182,21 +182,21 @@ class BookmarkFolder extends Folder {
 	}
 
 	remove() {
-		arr.remove(this._rack.folders, (f) => {
+		arr.remove(this.rack.folders, (f) => {
 			return f == this;
 		});
-		this._rack.saveModel();
+		this.rack.saveModel();
 	}
 
 	removeNote(note) {
 		arr.remove(this.notes, (n) => {
 			return n == note;
 		});
-		this._rack.saveModel();
+		this.rack.saveModel();
 	}
 
 	saveModel() {
-		this._rack.saveModel();
+		this.rack.saveModel();
 	}
 
 	domains() {
@@ -228,9 +228,8 @@ class BookmarkFolder extends Folder {
 			uid: Model.generateNewUID(),
 			attributes: attributes || {},
 			body: attributes['HREF'],
-			folderUid: folder.uid,
 			folder: folder,
-			rack: folder._rack,
+			rack: folder.rack,
 			name: '',
 			dragHover: false,
 			sortUpper: false,

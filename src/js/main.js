@@ -765,13 +765,7 @@ var appVue = new Vue({
 				this.$refs.dialog.init('Error', message, [{ label: 'Ok' }]);
 			}
 		},
-		/**
-		 * add a list of notes to the library.
-		 * 
-		 * @param {Array}  noteTexts  Array which contains the new notes
-		 * @return {Void} Function doesn't return anything
-		 */
-		addNotes(noteTexts) {
+		/*addNotes(noteTexts) {
 			var uid = this.calcSaveUid();
 			var newNotes = noteTexts.map((noteText) => {
 				return new models.Note({
@@ -783,7 +777,7 @@ var appVue = new Vue({
 				note.saveModel();
 			});
 			this.notes = newNotes.concat(this.notes);
-		},
+		},*/
 		/**
 		 * @description save current selected Note.
 		 * @return {Void} Function doesn't return anything
@@ -933,9 +927,9 @@ var appVue = new Vue({
 				url           : bookmark.body,
 				mode          : 'bookmark-thumb',
 				bookmark      : JSON.stringify({
-					'uid' : bookmark.uid,
-					'folder' : bookmark.folderUid,
-					'rack' : bookmark.rack.uid
+					'uid'   : bookmark.uid,
+					'folder': bookmark.folder.uid,
+					'rack'  : bookmark.rack.uid
 				})
 			});
 		},
@@ -946,9 +940,9 @@ var appVue = new Vue({
 				url           : bookmark.body,
 				mode          : 'bookmark-favicon',
 				bookmark      : JSON.stringify({
-					'uid' : bookmark.uid,
-					'folder' : bookmark.folderUid,
-					'rack' : bookmark.rack.uid
+					'uid'   : bookmark.uid,
+					'folder': bookmark.folder.uid,
+					'rack'  : bookmark.rack.uid
 				})
 			});
 		},
@@ -966,9 +960,9 @@ var appVue = new Vue({
 				url           : bookmark.body,
 				mode          : 'bookmark-meta',
 				bookmark      : JSON.stringify({
-					'uid' : bookmark.uid,
-					'folder' : bookmark.folderUid,
-					'rack' : bookmark.rack.uid
+					'uid'   : bookmark.uid,
+					'folder': bookmark.folder.uid,
+					'rack'  : bookmark.rack.uid
 				})
 			});
 		},
@@ -1055,7 +1049,7 @@ var appVue = new Vue({
 			}));
 			menu.popup(remote.getCurrentWindow());
 		},
-		importNotes() {
+		/*importNotes() {
 			var notePaths = dialog.showOpenDialog(remote.getCurrentWindow(), {
 				title: 'Import Note',
 				filters: [{
@@ -1071,7 +1065,7 @@ var appVue = new Vue({
 				return fs.readFileSync(notePath, 'utf8');
 			});
 			this.addNotes(noteBodies);
-		},
+		},*/
 		moveSync() {
 			var currentPath = models.getBaseLibraryPath();
 			if (!currentPath) {

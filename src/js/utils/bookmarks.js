@@ -87,7 +87,6 @@ module.exports = {
 								uid       : uid.timeUID(),
 								attributes: tags.attributes || {},
 								body      : tags.attributes['HREF'],
-								folderUid : result_folder.uid,
 								name      : tags.text,
 								rack      : rack,
 								folder    : result_folder,

@@ -35,7 +35,7 @@
 					a.my-shelf-folder-name Add Folder
 			//- Folder
 			.my-shelf-folder(v-for="folder in rack.folders"
-				:class="{'isShelfSelected': (isSelectedFolder(folder) && !isDraggingNote()) || folder.dragHover, 'openNotes' : folder.openNotes, 'noteDragging': isDraggingNote(), 'noteIsHere': !isDraggingNote() && selectedNote.folderUid == folder.uid, 'sortUpper': folder.sortUpper, 'sortLower': folder.sortLower}"
+				:class="{'isShelfSelected': (isSelectedFolder(folder) && !isDraggingNote()) || folder.dragHover, 'openNotes' : folder.openNotes, 'noteDragging': isDraggingNote(), 'noteIsHere': !isDraggingNote() && selectedNote.folder && selectedNote.folder.uid == folder.uid, 'sortUpper': folder.sortUpper, 'sortLower': folder.sortLower}"
 				:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
 				@dragstart.stop="folderDragStart($event, rack, folder)"
 				@dragend.stop="folderDragEnd(folder)"
@@ -275,7 +275,7 @@
 				this.draggingFolderRack = null;
 			},
 			folderDragOver(event, rack, folder) {
-				if (this.draggingNote && this.draggingNote.folderUid != folder.uid) {
+				if (this.draggingNote && this.draggingNote.folder.uid != folder.uid) {
 					event.stopPropagation();
 					event.preventDefault();
 					folder.dragHover = true;
@@ -311,13 +311,12 @@
 			 * @param  {Object}  folder  current folder
 			 */
 			dropToFolder(event, rack, folder) {
-				if (this.draggingNote && this.draggingNote.folderUid != folder.uid) {
+				if (this.draggingNote && this.draggingNote.folder.uid != folder.uid) {
 					console.log('Dropping to Folder');
 					event.stopPropagation();
 					// Dropping note to folder
 					folder.dragHover = false;
 					var note = this.draggingNote;
-					//note.folderUid = folder.uid;
 					arr.remove(note.data.folder.notes, (n) => {return n == note});
 					note.folder = folder;
 					folder.notes.unshift(note);

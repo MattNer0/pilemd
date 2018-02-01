@@ -27,7 +27,7 @@
 							span(v-else)
 								| Select the Table Size
 
-			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': !isPreview || !noteHeadings || noteHeadings.length == 0 }")
+			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': !isPreview || !noteHeadings || noteHeadings.length < 2 }")
 				div: dropdown(:visible="headings_visible", :position="position_left", v-on:clickout="headings_visible = false")
 					span.link(@click="headings_visible = !headings_visible", title="Headers")
 						i.material-icons list

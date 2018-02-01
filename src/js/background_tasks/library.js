@@ -112,24 +112,25 @@ module.exports = {
 		}
 		return valid_racks;
 	},
-	readFoldersByRack(rack) {
+	readFoldersByParent(parent_folder) {
 		var valid_folders = [];
-		if (fs.existsSync(rack)) {
+		if (fs.existsSync(parent_folder)) {
 
-			var folders = fs.readdirSync(rack);
+			var folders = fs.readdirSync(parent_folder);
 			for (var fi = 0; fi < folders.length; fi++) {
 
 				var folder = folders[fi];
-				var folderPath = path.join(rack, folder);
+				var folderPath = path.join(parent_folder, folder);
 
 				if (fs.existsSync(folderPath) && folder.charAt(0) != ".") {
 					var folderStat = fs.statSync(folderPath);
-					if(folderStat.isDirectory()){
+					if (folderStat.isDirectory()) {
 						valid_folders.push({
 							name: folder,
 							ordering: valid_folders.length,
 							load_ordering: true,
 							path: folderPath
+							//folders: this.readFoldersByParent(folderPath)
 						});
 					}
 				}

@@ -29,11 +29,11 @@ class Rack extends Model {
 		}
 
 		this._path = data.path;
+
 		this.dragHover = false;
 		this.sortUpper = false;
 		this.sortLower = false;
 		this.openFolders = false;
-		this._loadingFull = false;
 
 		this.folders = [];
 		this.notes = [];
@@ -49,25 +49,24 @@ class Rack extends Model {
 	}
 
 	get path() {
-		return this._path;
+		if (this._path && fs.existsSync(this._path)) {
+			return this._path;
+		}
+		var new_path = path.join(
+			Library.baseLibraryPath,
+			this.data.fsName
+		);
+		return new_path;
 	}
 
 	set path(newValue) {
-		if(newValue != this._path){
+		if (newValue != this._path) {
 			this._path = newValue;
 		}
 	}
 
 	get rackExists() {
 		return fs.existsSync(this._path);
-	}
-
-	get loadedNotes() {
-		return this._loadingFull;
-	}
-
-	set loadedNotes(newValue) {
-		this._loadingFull = Boolean(newValue);
 	}
 
 	toJSON() {
@@ -93,7 +92,7 @@ class Rack extends Model {
 	}
 
 	removeFromStorage() {
-		if(fs.existsSync(this._path)) {
+		if (fs.existsSync(this._path)) {
 			if( fs.existsSync(path.join(this._path, '.rack')) ) fs.unlinkSync( path.join(this._path, '.rack') );
 			fs.rmdirSync(this._path);
 			this.uid = null;
@@ -110,16 +109,16 @@ class Rack extends Model {
 			return;
 		}
 
-		var new_path = path.join( Library.baseLibraryPath, this.data.fsName );
-		if(new_path != this._path || !fs.existsSync(new_path) ) {
-			try{
-				if(this._path && fs.existsSync(this._path)) {
+		var new_path = this.path; //path.join(Library.baseLibraryPath, this.data.fsName);
+		if (new_path != this._path || !fs.existsSync(new_path)) {
+			try {
+				if (this._path && fs.existsSync(this._path)) {
 					util_file.moveFolderRecursiveSync(this._path, Library.baseLibraryPath, this.data.fsName);
 				} else {
 					fs.mkdirSync(new_path);
 				}
 				this.path = new_path;
-			} catch(e){
+			} catch(e) {
 				return console.error(e);
 			}
 		}
@@ -249,7 +248,7 @@ class BookmarkRack extends Rack {
 
 	removeNote(note) {
 		for(var i=0; i<this._bookmarks.children.length; i++) {
-			if (this._bookmarks.children[i].uid == note.folderUid) {
+			if (this._bookmarks.children[i].uid == note.folder.uid) {
 				this._bookmarks.children[i].removeNote(note);
 				break;
 			}

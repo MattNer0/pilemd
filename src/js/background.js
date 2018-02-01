@@ -50,7 +50,7 @@ function loadFolders(library, arrayRacks) {
 	var arrayFolders = [];
 	arrayRacks.forEach((r) => {
 		if (r._type != 'rack') return;
-		var newFolders = libraryHelper.readFoldersByRack(r.path);
+		var newFolders = libraryHelper.readFoldersByParent(r.path);
 		arrayFolders.push({
 			folders: newFolders,
 			rack   : r.path

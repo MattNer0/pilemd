@@ -30,12 +30,11 @@ class Note extends Model {
 		this._body = data.body;
 		this._path = data.path;
 		if (data.folder || data.rack) {
-			this._rack = data.rack || data.folder.data.rack;
+			this.rack = data.rack || data.folder.data.rack;
 		} else {
-			this._rack = null;
+			this.rack = null;
 		}
-		this._folder = data.folder;
-		this.folderUid = data.folder ? data.folder.data.uid : null;
+		this.folder = data.folder;
 		this.doc = null;
 		this._removed = false;
 		this._metadata = {};
@@ -78,9 +77,8 @@ class Note extends Model {
 			path: this._path,
 			extension: this._ext,
 			document_filename: this.document_filename,
-			folderUid: this.folderUid,
-			rack: this._rack,
-			folder: this._folder
+			rack: this.rack,
+			folder: this.folder
 		});
 	}
 
@@ -154,9 +152,7 @@ class Note extends Model {
 			return this._path;
 		}
 		var new_path = path.join(
-			Library.baseLibraryPath,
-			this._rack.data.fsName,
-			this._folder.data.fsName,
+			this.folder.path,
 			this.document_filename
 		) + this._ext;
 		return new_path;
@@ -191,18 +187,6 @@ class Note extends Model {
 
 	get bodyWithoutMetadata() {
 		return this._body.replace(this.metadataregex, '').replace(/^\n+/, '');
-	}
-
-	set folder(f) {
-		if (!f) {
-			return;
-		}
-
-		if (f.folderExists) {
-			this._rack = f.data.rack;
-			this._folder = f;
-			this.folderUid = f.uid;
-		}
 	}
 
 	get bodyWithoutTitle() {
@@ -284,8 +268,8 @@ class Note extends Model {
 			name: this._name,
 			body: this._body,
 			path: this._path,
-			folder: this._folder.path,
-			rack: this._rack.path
+			folder: this.folder.path,
+			rack: this.rack.path
 		};
 	}
 
@@ -360,11 +344,11 @@ class Note extends Model {
 	}
 
 	isFolder(f) {
-		return this.folderUid == f.uid;
+		return this.folder.uid == f.uid;
 	}
 
 	isRack(r) {
-		return this._folder.rackUid == r.uid;
+		return this.folder.rack.uid == r.uid;
 	}
 
 	parseMetadata() {
@@ -444,9 +428,7 @@ class Note extends Model {
 
 	update(data) {
 		super.update(data);
-
 		this._body = data.body;
-		this.folderUid = data.folderUid;
 	}
 
 	splitTitleFromBody() {
@@ -491,8 +473,8 @@ class Note extends Model {
 		}
 
 		var outer_folder;
-		if (this._rack && this._folder) {
-			outer_folder = path.join( Library.baseLibraryPath, this._rack.data.fsName, this._folder.data.fsName );
+		if (this.rack && this.folder) {
+			outer_folder = this.folder.path;
 		} else {
 			outer_folder = path.dirname(this._path);
 		}
@@ -573,8 +555,7 @@ class Note extends Model {
 				name: "NewNote",
 				body: "",
 				path: "",
-				folder: folder,
-				folderUid: folder.uid
+				folder: folder
 			});
 		}
 		return false;
@@ -647,8 +628,7 @@ class EncryptedNote extends Note {
 				name: 'NewNote',
 				body: '',
 				path: '',
-				folder: folder,
-				folderUid: folder.uid
+				folder: folder
 			});
 		}
 		return false;
@@ -751,8 +731,8 @@ class Outline extends Note {
 		}
 
 		var outer_folder;
-		if (this._rack && this._folder) {
-			outer_folder = path.join( Library.baseLibraryPath, this._rack.data.fsName, this._folder.data.fsName );
+		if (this.rack && this.folder) {
+			outer_folder = path.join( Library.baseLibraryPath, this.rack.data.fsName, this.folder.data.fsName );
 		} else {
 			outer_folder = path.dirname(this._path);
 		}
@@ -863,8 +843,7 @@ class Outline extends Note {
 				name     : 'NewOutline',
 				body     : '',
 				path     : '',
-				folder   : folder,
-				folderUid: folder.uid
+				folder   : folder
 			});
 			out.newEmptyNode();
 			return out;
