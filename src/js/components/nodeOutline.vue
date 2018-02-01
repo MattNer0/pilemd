@@ -46,7 +46,6 @@
 			li.node.add-node
 				span.node-title(@click.prevent.stop="newNodeTail")
 					| add node
-
 </template>
 
 <script>
@@ -78,7 +77,13 @@
 			}
 		},
 		mounted() {
-			if (this.outlineNode.content) this.withContent = true;
+			if (this.outlineNode.content) {
+				this.withContent = true;
+				this.emptyContent = false;
+			}
+			this.$nextTick(() => {
+				autosize(this.$refs.textarea);
+			});
 		},
 		methods: {
 			getOutlineNodeOffset(child, mod) {
@@ -282,13 +287,6 @@
 				} else {
 					this.$parent.zoomBack();
 				}
-			}
-		},
-		mounted() {
-			autosize(document.querySelectorAll('textarea'));
-			if (this.outlineNode.content) {
-				this.withContent = true;
-				this.emptyContent = false;
 			}
 		},
 		watch: {

@@ -195,19 +195,34 @@
 			// Electron methods
 			copyNoteBody(note) {
 				electron.clipboard.writeText(note.bodyWithDataURL);
-				this.$message('info', 'Copied Markdown to clipboard');
+				this.$root.sendFlashMessage(1000, 'info', 'Copied Markdown to clipboard');
 			},
 			copyBookmarkUrl(bookmark) {
 				electron.clipboard.writeText(bookmark.body);
-				this.$message('info', 'Copied Url to clipboard');
+				this.$root.sendFlashMessage(1000, 'info', 'Copied Url to clipboard');
 			},
 			copyNoteHTML(note) {
 				electron.clipboard.writeText(marked(note.body));
-				this.$message('info', 'Copied HTML to clipboard');
+				this.$root.sendFlashMessage(1000, 'info', 'Copied HTML to clipboard');
+			},
+			copyOutlinePLain(note) {
+				if (note.isOutline) {
+					electron.clipboard.writeText(note.bodyWithoutMetadata);
+					this.$root.sendFlashMessage(1000, 'info', 'Copied Text Plain to clipboard');
+				}
+			},
+			copyOutlineOPML(note) {
+				if (note.isOutline) {
+					electron.clipboard.writeText(note.compileOutlineBody());
+					this.$root.sendFlashMessage(1000, 'info', 'Copied Text Plain to clipboard');
+				}
 			},
 			// Electron
 			exportNoteDiag(note) {
 				var filename = fileUtils.safeName(note.title) + '.md';
+				if (note.isOutline) {
+					filename = fileUtils.safeName(note.title) + '.opml';
+				}
 				var notePath = dialog.showSaveDialog(remote.getCurrentWindow(), {
 					title      : 'Export Note',
 					defaultPath: filename
@@ -217,9 +232,13 @@
 				}
 				try {
 					var fd = fs.openSync(notePath, 'w');
-					fs.writeSync(fd, note.bodyWithDataURL);
+					if (note.isOutline) {
+						fs.writeSync(fd, note.compileOutlineBody());
+					} else {
+						fs.writeSync(fd, note.bodyWithDataURL);
+					}
 				} catch (e) {
-					this.$message('error', 'Skipped: File "' + filename + 'exists', 5000);
+					this.$root.sendFlashMessage(5000, 'error', 'Skipped: File "' + filename + '" already exists');
 				}
 				fs.closeSync(fd);
 			},
@@ -255,8 +274,13 @@
 					menu.append(new MenuItem({type: 'separator'}));
 					menu.append(new MenuItem({label: 'Delete Bookmark', click: () => {this.removeNote(note)}}));
 				} else {
-					menu.append(new MenuItem({label: 'Copy to clipboard (Markdown)', click: () => {this.copyNoteBody(note)}}));
-					menu.append(new MenuItem({label: 'Copy to clipboard (HTML)', click: () => {this.copyNoteHTML(note)}}));
+					if (note.isOutline) {
+						menu.append(new MenuItem({label: 'Copy to clipboard (Plain)', click: () => {this.copyOutlinePLain(note)}}));
+						menu.append(new MenuItem({label: 'Copy to clipboard (OPML)', click: () => {this.copyOutlineOPML(note)}}));
+					} else {
+						menu.append(new MenuItem({label: 'Copy to clipboard (Markdown)', click: () => {this.copyNoteBody(note)}}));
+						menu.append(new MenuItem({label: 'Copy to clipboard (HTML)', click: () => {this.copyNoteHTML(note)}}));
+					}
 					menu.append(new MenuItem({type: 'separator'}));
 					menu.append(new MenuItem({
 						label: 'Show this note in folder',

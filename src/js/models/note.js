@@ -695,15 +695,9 @@ class Outline extends Note {
 		var bodyString = "";
 
 		// only preview first level of the outline if length is greater than 1
-		if (this._nodes.length > 1) {
-			for (var i=0; i<this._nodes.length; i++) {
-				bodyString += this._nodes[i].title + ': ' + this._nodes[i].content + ' '
-			}
-		} else if (this._nodes.length == 1) {
-			bodyString += this._nodes[0].title + ': ' + this._nodes[0].content + ' '
-			for (var i=0; i < this._nodes[0].children.length; i++) {
-				bodyString += this._nodes[0].getChildAt(i).title + ': ' + this._nodes[0].getChildAt(i).content + ' '
-			}
+		for (var i = 0; i < this._nodes.length; i++) {
+			bodyString += '- ' + this._nodes[i].title + '\n' + this._nodes[i].prettifyBody(1);
+			if (i < this._nodes.length - 1) bodyString += '\n';
 		}
 		return bodyString.trim();
 	}
@@ -933,6 +927,23 @@ class OutNode extends Model {
 
 	get outline() {
 		return this._outline;
+	}
+
+	prettifyBody(nest_level) {
+		var bodyString = "";
+
+		// only preview first level of the outline if length is greater than 1
+		for (var i = 0; i < this._children.length; i++) {
+			bodyString += Array(nest_level+1).join('\t') + '- ' + this._children[i].title;
+			if (this._children[i].content) {
+				bodyString += '\n' + Array(nest_level+1).join('\t') + '  ';
+				bodyString += this._children[i].content.replace(/\n/g, '\n'+Array(nest_level+1).join('\t')+ '  ');
+			}
+			var nestedString = this._children[i].prettifyBody(nest_level+1);
+			if (nestedString) bodyString += '\n' + nestedString;
+			if (i < this._children.length - 1) bodyString += '\n';
+		}
+		return bodyString.replace(/[\s\r\n]+$/, '');
 	}
 
 	countNodes() {
