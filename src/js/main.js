@@ -365,6 +365,18 @@ var appVue = new Vue({
 					break;
 			}
 		});
+
+		ipcRenderer.on('download-files-failed', (event, data) => {
+			if (!data.replaced || data.replaced.length == 0) return;
+			var noteObj = this.findNoteByPath(data.note);
+			if (noteObj) {
+				for (var i=0; i<data.replaced.length; i++) {
+					var subStr = data.replaced[i];
+					noteObj.body = noteObj.body.replace(subStr.new, subStr.original);
+				}
+			}
+			this.sendFlashMessage(5000, 'error', data.error);
+		});
 	},
 	methods: {
 		findBookmarkByUid(bookmark) {
@@ -374,6 +386,7 @@ var appVue = new Vue({
 			return bookmark;
 		},
 		findNoteByPath(notePath) {
+			if (!notePath) return undefined;
 			var noteData = models.Note.isValidNotePath(notePath);
 			if (noteData && notePath.indexOf(models.getBaseLibraryPath()) == 0) {
 				return this.notes.find((note) => {

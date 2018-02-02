@@ -68,6 +68,8 @@ window.onload = function () {
 			downloadHelper.downloadMultipleFiles(data.files, data.folder);
 		} catch(e) {
 			logMainProcess(e);
+			data.error = e.message || e;
+			ipcRenderer.send('download-files-failed', data);
 		}
 	});
 

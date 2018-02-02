@@ -10,7 +10,7 @@ var backgroundWindow = null;
 var backgroundBrowserWindow = null;
 var appIcon = null;
 
-var DEBUG = false;
+var DEBUG = true;
 
 // support for portable mode
 app.setPath(
@@ -298,6 +298,9 @@ function init() {
 	ipcMain.on('load-page-success', (event, payload) => mainWindow.webContents.send('load-page-success', payload));
 	ipcMain.on('load-page-favicon', (event, payload) => mainWindow.webContents.send('load-page-favicon', payload));
 	ipcMain.on('load-page-finish', (event, payload) => mainWindow.webContents.send('load-page-finish', payload));
+
+	ipcMain.on('download-files-failed', (event, payload) => mainWindow.webContents.send('download-files-failed', payload));
+	
 	
 	ipcMain.on('console', (event, payload) => {
 		console.log(payload);

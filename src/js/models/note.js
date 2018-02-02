@@ -241,7 +241,7 @@ class Note extends Model {
 			Object.keys(this._metadata).forEach((key) => {
 				if (this._metadata[key]) str += key + ' = "' + this._metadata[key] + '"\n';
 			});
-			return str + '+++\n\n' + this._body;
+			return str + '+++\n\n' + this._body.replace(/[\t ]?(\r\n|\r|\n)/g,'\n');
 		}
 		return '';
 	}
@@ -278,6 +278,7 @@ class Note extends Model {
 		var imageFormats = ['.png', '.jpg', '.gif', '.bmp'];
 
 		var urlDownloads = [];
+		var replacedStrings = [];
 
 		this.body = this.body.replace(
 			/!\[(.*?)]\((https?:\/\/.*?)\)/img,
@@ -292,14 +293,21 @@ class Note extends Model {
 						}
 						createdDir = true;
 					}
+					var newStr = '![' + p1 + '](pilemd://' + file_data.basename + ')';
 					try {
-						if (urlDownloads.indexOf(p2) == -1) urlDownloads.push(p2);
+						if (urlDownloads.indexOf(p2) == -1) {
+							urlDownloads.push(p2);
+							replacedStrings.push({
+								original: match,
+								new: newStr
+							});
+						}
 					} catch (e) {
 						console.warn(e);
 						return match;
 					}
 
-					return '![' + p1 + '](pilemd://' + file_data.basename + ')';
+					return newStr;
 				}
 				return match;
 			}
@@ -318,14 +326,21 @@ class Note extends Model {
 						}
 						createdDir = true;
 					}
+					var newStr = '[' + p1 + ']: pilemd://' + file_data.basename;
 					try {
-						if (urlDownloads.indexOf(p2) == -1) urlDownloads.push(p2);
+						if (urlDownloads.indexOf(p2) == -1) {
+							urlDownloads.push(p2);
+							replacedStrings.push({
+								original: match,
+								new: newStr
+							});
+						}
 					} catch (e) {
 						console.warn(e);
 						return match;
 					}
 
-					return '[' + p1 + ']: pilemd://' + file_data.basename;
+					return newStr;
 				}
 				return match;
 			}
@@ -334,6 +349,8 @@ class Note extends Model {
 		if (urlDownloads.length > 0) {
 			ipcRenderer.send('download-files', {
 				files: urlDownloads,
+				replaced: replacedStrings,
+				note: this.path,
 				folder: this.imagePath
 			});
 		}
