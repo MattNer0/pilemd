@@ -4,15 +4,12 @@ github.com style (c) Vasily Polovnyov <vast@whiteants.net>
 
 .hljs {
 	display: block;
-	overflow-x: auto;
 	padding: 0.5em;
 	color: #333;
 	background: #f5f5f5;
 	line-height: 1.2em;
 	max-width: 100%;
-	word-break: normal;
-	word-wrap: normal;
-	white-space: pre;
+	white-space: normal;
 }
 
 .hljs-comment,

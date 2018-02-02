@@ -6,6 +6,10 @@ const marked = require('marked');
 const _ = require('lodash');
 const highlightjs = require('highlight.js');
 
+highlightjs.configure({
+	useBR: true
+});
+
 var checkboxes = [];
 var headings = [];
 var headings_id = [];
@@ -104,6 +108,12 @@ renderer.link = function(href, title, text) {
 	});
 };
 
+function cleanHighlighted(value, lang) {
+	value = value.replace(/\n/g, '<br/>');
+	value = value.replace(/    /g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+	return value;
+}
+
 marked.setOptions({
 	renderer   : renderer,
 	gfm        : true,
@@ -113,8 +123,8 @@ marked.setOptions({
 	sanitize   : true,
 	smartLists : true,
 	smartypants: false,
-	highlight(code) {
-		return '<div class="hljs">' + highlightjs.highlightAuto(code).value + '</div>';
+	highlight(code, lang) {
+		return '<div class="hljs">' + cleanHighlighted(highlightjs.highlightAuto(code, [lang]).value, lang) + '</div>';
 	}
 });
 
