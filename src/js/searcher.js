@@ -25,11 +25,9 @@ module.exports = {
 	 * @param {Array} notes Array of notes
 	 * @return {Array} Filtered notes using search input
 	 */
-	searchNotes(selectedRackOrFolder, searchInput, notes) {
-		if (selectedRackOrFolder === null || selectedRackOrFolder === undefined) {
-			return [];
-		}
-		var searchPayload = this.calculateSearchMeaning(selectedRackOrFolder, searchInput);
+	searchNotes(searchInput, notes) {
+		if (!searchInput) return notes;
+		var searchPayload = this.calculateSearchMeaning(searchInput);
 		var filteredNotes = notes.filter((note) => {
 			if (searchPayload.words.length == 0) return true;
 			if (!note.body && note.loadBody) note.loadBody();
@@ -41,11 +39,10 @@ module.exports = {
 
 	/**
 	 * @function calculateSearchMeaning
-	 * @param {Object} selectedRackOrFolder Current selected rack or folder
 	 * @param {String} searchInput Search string
 	 * @return {Object} Search payload with list of folder uids and list of words in search string
 	 */
-	calculateSearchMeaning(selectedRackOrFolder, searchInput) {
+	calculateSearchMeaning(searchInput) {
 		if (!searchInput) {
 			return { words: [] };
 		}

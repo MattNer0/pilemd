@@ -17,13 +17,13 @@
 .my-shelf-rack {
 	position: relative;
 	padding: 0;
-	margin: 0.2em 0.2em;
+	margin: 0.2em 0;
 
 	h4,
 	h5 {
 		color: $sidebar-color;
 		margin: 0 auto;
-		padding: 0.3em;
+		padding: 0.3em 0.1em;
 		font-weight: normal;
 		font-size: 110%;
 		border-radius: $folder-list-border-radius;
@@ -42,12 +42,21 @@
 		font-weight: bold;
 	}
 
-	.rack-icon{
+	.rack-icon, .bookmark-rack-icon {
 		font-size: 100%;
-		margin-right: 0.1em;
 		vertical-align: middle;
 		color: inherit;
 		opacity: 0.6;
+	}
+
+	.rack-icon {
+		transition: all 0.4s linear;
+	}
+}
+
+.my-shelf-rack.openFolders {
+	.rack-icon {
+		transform: rotate(90deg);
 	}
 }
 
@@ -81,16 +90,15 @@
 	left: 0;
 }
 
-.my-shelf-rack > div, .my-shelf-folder > .my-notes > div{
+.my-shelf-rack > div {
 	display: none;
 }
 
-.my-shelf-rack.openFolders > div,
-.my-shelf-folder.openNotes > .my-notes > div{
+.my-shelf-rack.openFolders > div {
 	display: block;
 }
 
-.my-shelf-folder > .my-notes > .my-notes-note.my-notes-note-selected{
+.my-shelf-rack > .my-shelf-folder.isShelfSelected {
 	display: block;
 }
 
@@ -123,13 +131,15 @@
 }
 
 .my-shelf-rack h4:hover .rack-icon,
+.my-shelf-rack h4:hover .bookmark-rack-icon,
 .my-shelf-folder:hover h5 {
 	color: $ui-text-color-hover;
 }
 
 .my-shelf-folder.isShelfSelected h5,
 .my-shelf-rack h4.isShelfSelected,
-.my-shelf-rack h4.isShelfSelected .rack-icon {
+.my-shelf-rack h4.isShelfSelected .rack-icon,
+.my-shelf-rack h4.isShelfSelected .bookmark-rack-icon {
 	color: $folder-selected-color;
 }
 

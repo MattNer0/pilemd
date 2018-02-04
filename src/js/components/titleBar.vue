@@ -102,10 +102,10 @@
 	export default {
 		name: 'titleBar',
 		props: {
-			'note'      : Object,
-			'bookmark'  : Object,
-			'rackFolder': Object,
-
+			'note'              : Object,
+			'bookmark'          : Object,
+			'rack'              : Object,
+			'folder'            : Object,
 			'isFullScreen'      : Boolean,
 			'isToolbarEnabled'  : Boolean,
 			'selectedTheme'     : String,
@@ -134,37 +134,11 @@
 		},
 		computed: {
 			enabled() {
-				return this.rackFolder || (this.note && this.note.title);
+				return this.rack || this.folder || (this.note && this.note.title);
 			},
 			enabledBookmark() {
 				return this.bookmark && this.bookmark.name;
-			},
-			rack() {
-				if (this.note && this.note.title) {
-					return this.note.data.rack;
-				} else if (this.bookmark && this.bookmark.name) {
-					return this.bookmark.rack;
-				} else if(this.rackFolder) {
-					if (this.rackFolder instanceof models.Folder) {
-						return this.rackFolder.data.rack;
-					} else {
-						return this.rackFolder;
-					}
-				}
-				return undefined;
-			},
-			folder() {
-				if (this.note && this.note.title) {
-					return this.note.data.folder;
-				} else if (this.bookmark && this.bookmark.name) {
-					return this.bookmark.folder;
-				} else if(this.rackFolder) {
-					if (this.rackFolder instanceof models.Folder) {
-						return this.rackFolder;
-					}
-				}
-				return undefined;
-			},
+			}
 		},
 		methods: {
 			clear_search() {

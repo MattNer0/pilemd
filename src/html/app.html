@@ -2,8 +2,8 @@
 	<title-bar
 		:note="selectedNote"
 		:bookmark="selectedBookmark"
-		:rack-folder="selectedRackOrFolder"
-
+		:rack="selectedRack"
+		:folder="selectedFolder"
 		:toggle-full-screen="toggleFullScreen"
 		:toggle-toolbar="toggleToolbar"
 		:open-sync="openSync"
@@ -16,19 +16,6 @@
 		:notes-display-order="notesDisplayOrder"
 		:change-display-order="changeDisplayOrder">
 	</title-bar>
-	<!--action-bar
-		:toggle-full-screen="toggleFullScreen"
-		:toggle-toolbar="toggleToolbar"
-		:open-sync="openSync"
-		:move-sync="moveSync"
-		:open-about="openAbout"
-		:is-full-screen="isFullScreen"
-		:is-toolbar-enabled="isToolbarEnabled"
-		:selected-theme="selectedTheme"
-		:change-theme="changeTheme"
-		:notes-display-order="notesDisplayOrder"
-		:change-display-order="changeDisplayOrder">
-	</action-bar-->
 	<div class="my-main" :class="{'note_selected': isNoteSelected }">
 		<div :class="{'outer_wrapper': true}">
 			<div class="sidebar">
@@ -37,10 +24,12 @@
 						<div class="my-shelf-wrapper">
 							<racks
 								:racks="racks"
-								:selected-rack-or-folder="selectedRackOrFolder"
+								:selected-rack="selectedRack"
+								:selected-folder="selectedFolder"
 								:dragging-note="draggingNote"
 								:selected-note="selectedNote"
-								:change-rack-or-folder="changeRackOrFolder"
+								:change-rack="changeRack"
+								:change-folder="changeFolder"
 								:folder-drag-ended="folderDragEnded"
 								:set-dragging-note="setDraggingNote"
 								:delete-folder="deleteFolder"
@@ -53,10 +42,10 @@
 				</div>
 				<handler-stack :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd" ref="refHandleStack"></handler-stack>
 				<div class="cell-container">
-					<add-note v-if="selectedRackOrFolder"
+					<add-note v-if="selectedFolder"
 						:notes-list="isNoteRackSelected"
 						:selected-folder="selectedFolder"
-						:selected-rack-or-folder="selectedRackOrFolder">
+						:selected-rack="selectedRack">
 					</add-note>
 					<div class="my-shelf-notes" :class="{ 'folder-selected': selectedFolder }" ref="refNotes">
 						<notes
@@ -65,7 +54,8 @@
 							:toggle-full-screen="toggleFullScreen"
 							:original-notes="notes"
 							:selected-note="selectedNote"
-							:selected-rack-or-folder="selectedRackOrFolder"
+							:selected-rack="selectedRack"
+							:selected-folder="selectedFolder"
 							:dragging-note="draggingNote"
 							:change-note="changeNote"
 							:set-dragging-note="setDraggingNote"

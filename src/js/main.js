@@ -69,7 +69,8 @@ var appVue = new Vue({
 		notes               : [],
 		bookmarksDomains    : [],
 		notesHistory        : [],
-		selectedRackOrFolder: null,
+		selectedRack        : null,
+		selectedFolder      : null,
 		search              : '',
 		selectedNote        : {},
 		selectedBookmark    : {},
@@ -112,18 +113,13 @@ var appVue = new Vue({
 		 * @return  {Array}  notes array
 		 */
 		filteredNotes() {
-			var notes = this.selectedRackOrFolder ? this.selectedRackOrFolder.notes : [];
-			//arr.sortBy(notes, this.notesDisplayOrder, false)
-			return searcher.searchNotes(this.selectedRackOrFolder, this.search, notes);
-		},
-		/**
-		 * @description returns currently selected folder or 'undefined' if no folder is selected.
-		 * @function selectedFolder
-		 * @return    {Object}     Currently selected folder
-		 */
-		selectedFolder() {
-			if(this.selectedRackOrFolder instanceof models.Folder) return this.selectedRackOrFolder;
-			return undefined;
+			if (this.selectedFolder) {
+				return searcher.searchNotes(this.search, this.selectedFolder.notes);
+			} else if (this.selectedRack) {
+				return searcher.searchNotes(this.search, this.selectedRack.notes);
+			} else {
+				return [];
+			}
 		},
 		/**
 		 * check if the title attribute is defined to see
@@ -151,13 +147,11 @@ var appVue = new Vue({
 		 * @return    {Boolean}    True if current rack doesn't hold bookmarks.
 		 */
 		isNoteRackSelected() {
-			if(this.selectedRackOrFolder instanceof models.BookmarkFolder) return false;
+			if(this.selectedFolder instanceof models.BookmarkFolder) return false;
 			return true;
 		}
 	},
 	created() {
-
-		// modal
 		this.$on('modal-show', (modalMessage) => {
 			this.modalTitle = modalMessage.title;
 			this.modalDescription = modalMessage.description;
@@ -295,7 +289,7 @@ var appVue = new Vue({
 
 			if (this.notes.length == 1) {
 				this.notes[0].data.rack.openFolders = true;
-				this.changeRackOrFolder(this.notes[0].data.folder);
+				this.changeFolder(this.notes[0].data.folder);
 				this.changeNote(this.notes[0]);
 
 			} else if (remote.getGlobal('argv')) {
@@ -304,7 +298,7 @@ var appVue = new Vue({
 					var openedNote = this.findNoteByPath(argv[1]);
 					if (openedNote) {
 						openedNote.data.rack.openFolders = true;
-						this.changeRackOrFolder(openedNote.data.folder);
+						this.changeFolder(openedNote.data.folder);
 						this.changeNote(openedNote);
 					} else {
 						ipcRenderer.send('console', 'path not valid!');
@@ -430,16 +424,13 @@ var appVue = new Vue({
 				this.$refs.myEditor.scrollTop = 0;
 			});
 		},
-		/**
-		 * event called when rack or folder is selected.
-		 * @function changeRackOrFolder
-		 * @param  {Object}  obj  selected rack or folder
-		 * @return {Object}       previous rack or folder selected
-		 */
-		changeRackOrFolder(obj) {
-			var rf = this.selectedRackOrFolder;
-			this.selectedRackOrFolder = obj;
-			return rf;
+		changeRack(rack) {
+			this.selectedRack = rack;
+			this.selectedFolder = null;
+		},
+		changeFolder(folder) {
+			if (folder) this.selectedRack = folder.rack;
+			this.selectedFolder = folder;
 		},
 		/**
 		 * event called when a note is selected.
@@ -501,7 +492,6 @@ var appVue = new Vue({
 			} else {
 				this.selectedNote = {};
 				this.selectedBookmark = note;
-
 			}
 		},
 		/**
@@ -534,8 +524,8 @@ var appVue = new Vue({
 		 */
 		closerack(rack) {
 			rack.openFolders = false;
-			if(this.selectedRackOrFolder == rack) {
-				this.selectedRackOrFolder = null;
+			if (this.selectedFolder === null && this.selectedRack == rack) {
+				this.selectedRack = null;
 			}
 		},
 		/**
@@ -580,11 +570,11 @@ var appVue = new Vue({
 		 * @return {Void} Function doesn't return anything
 		 */
 		removeRack(rack) {
+			if (this.selectedRack === rack) this.selectedRack = null;
 			rack.remove(this.notes);
 			arr.remove(this.racks, (r) => {
 				return r == rack;
 			});
-			this.selectedRackOrFolder = null;
 			// we need to close the current selected note if it was from the removed rack.
 			if (this.isNoteSelected && this.selectedNote.data.rack == rack) {
 				this.selectedNote = {};
@@ -617,12 +607,11 @@ var appVue = new Vue({
 		 * @return {Void} Function doesn't return anything
 		 */
 		deleteFolder(folder) {
+			if (this.selectedFolder === folder) this.selectedFolder = null;
 			arr.remove(folder.data.rack.folders, (f) => {
 				return f == folder;
 			});
 			folder.remove(this.notes);
-
-			this.selectedRackOrFolder = null;
 			// we need to close the current selected note if it was from the removed folder.
 			if(this.isNoteSelected && this.selectedNote.data.folder == folder) {
 				this.selectedNote = {};
@@ -661,14 +650,14 @@ var appVue = new Vue({
 			this.updatePreview();
 		},
 		calcSaveUid() {
-			if (this.selectedRackOrFolder instanceof models.Rack) {
-				var f = this.selectedRackOrFolder.folders;
+			if (this.selectedRack) {
+				var f = this.selectedRack.folders;
 				if (!f || f.length == 0) {
 					return null;
 				}
 				return f[0].uid;
-			} else if (this.selectedRackOrFolder instanceof models.Folder) {
-				return this.selectedRackOrFolder.uid;
+			} else if (this.selectedFolder) {
+				return this.selectedFolder.uid;
 			}
 			return null;
 		},
@@ -680,16 +669,14 @@ var appVue = new Vue({
 		 * @return  {Object}  Folder object if one is selected, 'null' otherwise
 		 */
 		getCurrentFolder() {
-			if (this.selectedRackOrFolder === null){
-				return null;
-			} else if (this.selectedRackOrFolder instanceof models.Rack) {
-				var f = this.selectedRackOrFolder.folders;
+			if (this.selectedFolder) {
+				return this.selectedFolder;
+			} else if (this.selectedRack) {
+				var f = this.selectedRack.folders;
 				if (!f || f.length == 0) {
 					return null;
 				}
 				return f[0];
-			} else if (this.selectedRackOrFolder instanceof models.Folder) {
-				return this.selectedRackOrFolder;
 			}
 			return null;
 		},
@@ -701,7 +688,7 @@ var appVue = new Vue({
 		addNote() {
 			var currFolder = this.getCurrentFolder();
 			this.changeNote(null);
-			this.selectedRackOrFolder = currFolder;
+			this.changeFolder(currFolder);
 			var newNote = models.Note.newEmptyNote(currFolder);
 			if (newNote) {
 				if (this.search.length > 0) this.search = '';
@@ -727,7 +714,7 @@ var appVue = new Vue({
 		addOutline() {
 			var currFolder = this.getCurrentFolder();
 			this.changeNote(null);
-			this.selectedRackOrFolder = currFolder;
+			this.changeFolder(currFolder);
 			var newOutline = models.Outline.newEmptyOutline(currFolder);
 			if (newOutline) {
 				if (this.search.length > 0) this.search = '';
@@ -758,7 +745,7 @@ var appVue = new Vue({
 		addEncryptedNote() {
 			var currFolder = this.getCurrentFolder();
 			this.changeNote(null);
-			this.selectedRackOrFolder = currFolder;
+			this.changeFolder(currFolder);
 			var newNote = models.EncryptedNote.newEmptyNote(currFolder);
 			if (newNote) {
 				if (this.search.length > 0) this.search = '';
@@ -853,6 +840,7 @@ var appVue = new Vue({
 		 * @return {Void} Function doesn't return anything
 		 */
 		addBookmark(folder) {
+			if (!folder) return;
 			var newBookmark = models.BookmarkFolder.newEmptyBookmark(folder);
 			folder.notes.push(newBookmark);
 			this.editBookmark(newBookmark);
@@ -1266,14 +1254,17 @@ var appVue = new Vue({
 			this.noteHeadings = [];
 			if (this.selectedNote instanceof models.Note) {
 				this.updatePreview();
-				this.selectedRackOrFolder = this.selectedNote.data.folder;
+				this.changeFolder(this.selectedNote.data.folder);
 			}
 		},
 		'selectedNote.body': function() {
 			if (this.selectedNote instanceof models.Outline) return;
 			this.saveNote();
 		},
-		selectedRackOrFolder() {
+		selectedRack() {
+			this.scrollUpScrollbarNotes();
+		},
+		selectedFolder() {
 			this.scrollUpScrollbarNotes();
 		}
 	}

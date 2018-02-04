@@ -2,13 +2,6 @@
 	.my-notes(v-if="selectedFolder")
 		.my-separator
 			.my-notes-note.new-note(@click.prevent.stop="addnote_visible = !addnote_visible", v-if="notesList")
-				//-h5.my-notes-note-title(@click.prevent="newNote")
-					i.material-icons add_circle_outline
-					template(v-if="notesList")
-						|  New Note
-					template(v-else)
-						|  New Bookmark
-					i.material-icons.right-icon(@click.prevent.stop="addnote_visible = !addnote_visible", v-if="notesList") more_horiz
 				dropdown(:visible="addnote_visible", :position="position", v-on:clickout="addnote_visible = false")
 					.link.my-notes-note-title
 						i.material-icons add_circle_outline
@@ -41,9 +34,9 @@
 	export default {
 		name: 'addNote',
 		props: {
-			'selectedRackOrFolder': Object,
+			'selectedRack'  : Object,
 			'selectedFolder': Object,
-			'notesList': Boolean
+			'notesList'     : Boolean
 		},
 		components: {
 			'dropdown': myDropdown
@@ -83,7 +76,7 @@
 				if (this.notesList) {
 					return this.$root.addNote();
 				} else {
-					return this.$root.addBookmark(this.selectedRackOrFolder);
+					return this.$root.addBookmark(this.selectedRack);
 				}
 			}
 		}

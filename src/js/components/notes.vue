@@ -1,6 +1,6 @@
 <template lang="pug">
 	.my-notes(:class="{ 'my-bookmarks': bookmarksList }")
-		.my-separator(v-if="selectedRackOrFolder", v-for="separated in notesFiltered", v-bind:key="separated.dateStr", :class="{'my-bookmark-separator': bookmarksList}")
+		.my-separator(v-if="selectedRack", v-for="separated in notesFiltered", v-bind:key="separated.dateStr", :class="{'my-bookmark-separator': bookmarksList}")
 			.my-separator-date {{ separated.dateStr }}
 			.my-notes-note(v-for="note in separated.notes",
 				track-by="uid",
@@ -69,7 +69,8 @@
 			'notes'               : Array,
 			'originalNotes'       : Array,
 			'selectedNote'        : Object,
-			'selectedRackOrFolder': Object,
+			'selectedRack'        : Object,
+			'selectedFolder'      : Object,
 			'draggingNote'        : Object,
 			'loadingUid'          : String,
 			'toggleFullScreen'    : Function,
@@ -104,9 +105,7 @@
 				this.toggleFullScreen();
 			},
 			addBookmark() {
-				if(this.selectedRackOrFolder instanceof models.Folder) {
-					this.$root.addBookmark(this.selectedRackOrFolder);
-				}
+				this.$root.addBookmark(this.selectedFolder);
 			},
 			removeNote(note) {
 				var dialog_options = {
@@ -132,8 +131,8 @@
 						}
 						var index = this.originalNotes.indexOf(note);
 						if(index >= 0) this.originalNotes.splice(index, 1);
-						if(this.selectedRackOrFolder.data.bookmarks) {
-							this.selectedRackOrFolder.removeNote(note);
+						if(this.selectedFolder.data.bookmarks) {
+							this.selectedFolder.removeNote(note);
 						} else {
 							note.remove();
 							if(note.data.folder.notes.length == 0) {

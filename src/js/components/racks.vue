@@ -15,12 +15,12 @@
 			@contextmenu.prevent.stop="rackMenu(rack)")
 			h4.rack-separator(v-if="rack.data.separator")
 				div
-			h4(v-else, @click.prevent.stop="selectRack(rack)"
-				:class="{'isShelfSelected': (isSelectedRack(rack) && !isDraggingNote() && rack.openFolders) || rack.dragHover }")
+			h4(v-else, @click.prevent.stop="selectRack(rack)",
+				:class="{'isShelfSelected': (selectedRack === rack && selectedFolder === null && !isDraggingNote()) || rack.dragHover }")
 				template(v-if="rack.data.bookmarks")
-					i.material-icons.rack-icon book
+					i.material-icons.bookmark-rack-icon book
 				template(v-else)
-					i.material-icons.rack-icon folder
+					i.material-icons.rack-icon chevron_right
 				a(v-if="editingRack != rack") {{ rack.name }}
 				input(v-if="editingRack == rack"
 					v-model="rack.name"
@@ -33,6 +33,7 @@
 				h5(@click.prevent.stop="addFolder(rack)")
 					i.material-icons add_box
 					a.my-shelf-folder-name Add Folder
+
 			//- Folder
 			.my-shelf-folder(v-for="folder in rack.folders"
 				:class="{'isShelfSelected': (isSelectedFolder(folder) && !isDraggingNote()) || folder.dragHover, 'openNotes' : folder.openNotes, 'noteDragging': isDraggingNote(), 'noteIsHere': !isDraggingNote() && selectedNote.folder && selectedNote.folder.uid == folder.uid, 'sortUpper': folder.sortUpper, 'sortLower': folder.sortLower}"
@@ -71,10 +72,12 @@
 		name: 'racks',
 		props: {
 			'racks'               : Array,
-			'selectedRackOrFolder': Object,
+			'selectedRack'        : Object,
+			'selectedFolder'      : Object,
 			'selectedNote'        : Object,
 			'draggingNote'        : Object,
-			'changeRackOrFolder'  : Function,
+			'changeRack'          : Function,
+			'changeFolder'        : Function,
 			'folderDragEnded'     : Function,
 			'setDraggingNote'     : Function,
 			'deleteFolder'        : Function,
@@ -150,19 +153,16 @@
 				if (!this.editingRack) { return }
 				rack.saveModel();
 				this.editingRack = null;
-				this.changeRackOrFolder(rack);
+				this.changeRack(rack);
 			},
 			doneFolderEdit(rack, folder) {
 				if (!this.editingFolder) { return }
 				folder.saveModel();
 				this.editingFolder = null;
-				this.changeRackOrFolder(folder);
-			},
-			isSelectedRack(rack) {
-				return this.selectedRackOrFolder === rack;
+				this.changeFolder(folder);
 			},
 			isSelectedFolder(folder) {
-				return this.selectedRackOrFolder === folder;
+				return this.selectedFolder === folder;
 			},
 			notesByFolder(folder) {
 				return this.notes.filter((obj) => {
@@ -170,12 +170,12 @@
 				});
 			},
 			selectRack(rack) {
-				this.changeRackOrFolder(rack);
-				if (this.isSelectedRack(rack)) rack.openFolders = !rack.openFolders;
+				this.changeRack(rack);
+				if (this.selectedRack === rack && this.selectedFolder === null) rack.openFolders = !rack.openFolders;
 				else rack.openFolders = true;
 			},
 			selectFolder(folder) {
-				this.changeRackOrFolder(folder);
+				this.changeFolder(folder);
 			},
 			// Dragging
 			rackDragStart(event, rack) {
@@ -185,7 +185,7 @@
 			},
 			rackDragEnd() {
 				this.draggingRack = null;
-				this.changeRackOrFolder(null);
+				this.changeRack(null);
 			},
 			rackDragOver(event, rack) {
 				if (this.draggingFolder) {
@@ -322,11 +322,7 @@
 					folder.notes.unshift(note);
 					note.saveModel();
 					this.setDraggingNote(null);
-					var s = this.selectedRackOrFolder;
-					this.changeRackOrFolder(null);
-					this.$nextTick(() => {
-						this.changeRackOrFolder(s);
-					});
+					this.changeFolder(null);
 				} else if (this.draggingFolder && this.draggingFolder != folder) {
 					console.log('Dropping Folder');
 					event.stopPropagation();
@@ -377,23 +373,19 @@
 						this.addRack();
 					}
 				}));
-
 				menu.append(new MenuItem({
 					label: 'Add Bookmark Rack',
 					click: () => {
 						this.addBookmarkRack();
 					}
 				}));
-
 				menu.append(new MenuItem({
 					label: 'Add Rack Separator',
 					click: () => {
 						this.addRackSeparator();
 					}
 				}));
-				
 				menu.append(new MenuItem({type: 'separator'}));
-				
 				menu.append(new MenuItem({
 					label: rack.data.separator ? 'Delete Separator' : 'Delete Rack',
 					click: () => {
@@ -428,7 +420,7 @@
 					menu.append(new MenuItem({
 						label: 'Add Bookmark',
 						click: () => {
-							this.changeRackOrFolder(folder);
+							this.changeFolder(folder);
 							this.$root.addBookmark(folder);
 						}
 					}));
@@ -436,14 +428,14 @@
 					menu.append(new MenuItem({
 						label: 'Add Note',
 						click: () => {
-							this.changeRackOrFolder(folder);
+							this.changeFolder(folder);
 							this.$root.addNote();
 						}
 					}));
 					menu.append(new MenuItem({
 						label: 'Add Encrypted Note',
 						click: () => {
-							this.changeRackOrFolder(folder);
+							this.changeFolder(folder);
 							this.$root.addEncryptedNote();
 						}
 					}));
@@ -453,8 +445,8 @@
 					label: 'Delete Folder',
 					click: () => {
 						if (confirm('Delete Folder "' + folder.name + '" and its content?')) {
-							this.changeRackOrFolder(rack);
-							this.deleteFolder(folder)
+							this.changeRack(rack);
+							this.deleteFolder(folder);
 						}
 					}
 				}));
