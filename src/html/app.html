@@ -19,29 +19,45 @@
 	<div class="my-main" :class="{'note_selected': isNoteSelected }">
 		<div :class="{'outer_wrapper': true}">
 			<div class="sidebar">
-				<div class="cell-container">
+				<div class="cell-container" ref="sidebarRacks">
 					<div class="my-shelf" @contextmenu="shelfMenu()">
 						<div class="my-shelf-wrapper">
 							<racks
 								:racks="racks"
 								:selected-rack="selectedRack"
-								:selected-folder="selectedFolder"
 								:dragging-note="draggingNote"
-								:selected-note="selectedNote"
 								:change-rack="changeRack"
-								:change-folder="changeFolder"
-								:folder-drag-ended="folderDragEnded"
-								:set-dragging-note="setDraggingNote"
-								:delete-folder="deleteFolder"
-								:add-folder-to-rack="addFolderToRack"
 								:add-rack-separator="addRackSeparator"
+								:editing-rack="editingRack"
+								:editing-folder="editingFolder"
+								:dragging-rack="draggingRack"
+								:dragging-folder="draggingFolder"
 								ref="refRacks">
 							</racks>
 						</div>
 					</div>
 				</div>
+				<div class="cell-container" ref="sidebarFolders">
+					<div class="my-shelf">
+						<folders
+							v-if="selectedRack"
+							:parent-folder="selectedRack"
+							:selected-folder="selectedFolder"
+							:dragging-note="draggingNote"
+							:change-folder="changeFolder"
+							:folder-drag-ended="folderDragEnded"
+							:set-dragging-note="setDraggingNote"
+							:delete-folder="deleteFolder"
+							:add-folder-to-rack="addFolderToRack"
+							:editing-rack="editingRack"
+							:editing-folder="editingFolder"
+							:dragging-folder="draggingFolder"
+							ref="refFolders">
+						</folders>
+					</div>
+				</div>
 				<handler-stack :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd" ref="refHandleStack"></handler-stack>
-				<div class="cell-container">
+				<div class="cell-container" ref="sidebarNotes">
 					<add-note v-if="selectedFolder"
 						:notes-list="isNoteRackSelected"
 						:selected-folder="selectedFolder"

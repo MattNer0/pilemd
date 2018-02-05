@@ -113,30 +113,30 @@ module.exports = {
 		return valid_racks;
 	},
 	readFoldersByParent(parent_folder) {
-		var valid_folders = [];
-		if (fs.existsSync(parent_folder)) {
-
+		try {
+			var valid_folders = [];
 			var folders = fs.readdirSync(parent_folder);
+			folders = folders.filter(function(obj) {
+				return obj.charAt(0) != ".";
+			});
 			for (var fi = 0; fi < folders.length; fi++) {
-
-				var folder = folders[fi];
-				var folderPath = path.join(parent_folder, folder);
-
-				if (fs.existsSync(folderPath) && folder.charAt(0) != ".") {
-					var folderStat = fs.statSync(folderPath);
-					if (folderStat.isDirectory()) {
-						valid_folders.push({
-							name: folder,
-							ordering: valid_folders.length,
-							load_ordering: true,
-							path: folderPath
-							//folders: this.readFoldersByParent(folderPath)
-						});
-					}
+				var folderPath = path.join(parent_folder, folders[fi]);
+				var folderStat = fs.statSync(folderPath);
+				if (folderStat.isDirectory()) {
+					valid_folders.push({
+						name: folders[fi],
+						ordering: valid_folders.length,
+						load_ordering: true,
+						path: folderPath,
+						folders: this.readFoldersByParent(folderPath)
+					});
 				}
 			}
+			return valid_folders;
+		} catch(err) {
+			console.error(err);
+			return [];
 		}
-		return valid_folders;
 	},
 	readNotesByFolder(folder) {
 		if (!fs.existsSync(folder)) return [];

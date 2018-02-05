@@ -41,6 +41,7 @@ $splash-hr: #2e323c;
 /* folder */
 
 $folder-list-border-radius: 0.2em;
+$rack-background: #303641;
 $folder-hover-background: #445e7d;
 $folder-selected-background: #5294e2;
 $folder-selected-color: #ffffff;
@@ -123,6 +124,7 @@ html, body, h1, h2, h3, h4, h5, p, span, input, textarea {
 
 @import 'materialIcons';
 @import 'highlight';
+@import 'elements/tooltip';
 @import 'elements/body';
 @import 'elements/scrollbar';
 @import 'elements/titleBar';

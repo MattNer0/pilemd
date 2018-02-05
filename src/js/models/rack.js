@@ -69,6 +69,25 @@ class Rack extends Model {
 		return fs.existsSync(this._path);
 	}
 
+	get rackUid() {
+		return this.uid;
+	}
+
+	get rack() {
+		return this;
+	}
+
+	get shortened() {
+		var split = this.name.split(/[\s,-.]+/);
+		var short;
+		if (split.length == 1) {
+			short = this.name.slice(0,2);
+		} else {
+			short = split[0].charAt(0) + split[1].charAt(0);
+		}
+		return short.toUpperCase();
+	}
+
 	toJSON() {
 		return {
 			name: this.name,

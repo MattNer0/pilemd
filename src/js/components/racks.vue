@@ -5,7 +5,7 @@
 				i.material-icons.rack-icon add_box
 				a Add Rack
 		.my-shelf-rack(v-for="rack in racksWithFolders"
-			:class="{'sortUpper': rack.sortUpper, 'sortLower': rack.sortLower, 'openFolders' : rack.openFolders }"
+			:class="{'sortUpper': rack.sortUpper, 'sortLower': rack.sortLower }"
 			:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
 			@dragstart.stop="rackDragStart($event, rack)"
 			@dragend.stop="rackDragEnd()"
@@ -13,48 +13,23 @@
 			@dragleave.stop="rackDragLeave(rack)"
 			@drop.stop="dropToRack($event, rack)"
 			@contextmenu.prevent.stop="rackMenu(rack)")
-			h4.rack-separator(v-if="rack.data.separator")
+			.rack-separator(v-if="rack.data.separator")
 				div
-			h4(v-else, @click.prevent.stop="selectRack(rack)",
-				:class="{'isShelfSelected': (selectedRack === rack && selectedFolder === null && !isDraggingNote()) || rack.dragHover }")
+			h4(v-else,
+				@click.prevent.stop="selectRack(rack)",
+				v-tooltip="{ 'content': rack.name, 'placement': 'left' }"
+				:class="{'isShelfSelected': (selectedRack === rack && !isDraggingNote) || rack.dragHover }")
 				template(v-if="rack.data.bookmarks")
 					i.material-icons.bookmark-rack-icon book
 				template(v-else)
-					i.material-icons.rack-icon chevron_right
-				a(v-if="editingRack != rack") {{ rack.name }}
-				input(v-if="editingRack == rack"
+					i.material-icons.rack-icon folder
+				a(v-if="editingRack != rack.uid") {{ rack.shortened }}
+				input(v-if="editingRack == rack.uid"
 					v-model="rack.name"
-					v-focus="editingRack == rack"
+					v-focus="editingRack == rack.uid"
 					@blur="doneRackEdit(rack)"
 					@keyup.enter="doneRackEdit(rack)"
 					@keyup.esc="doneRackEdit(rack)")
-
-			.my-shelf-folder(v-if="rack.folders.length == 0")
-				h5(@click.prevent.stop="addFolder(rack)")
-					i.material-icons add_box
-					a.my-shelf-folder-name Add Folder
-
-			//- Folder
-			.my-shelf-folder(v-for="folder in rack.folders"
-				:class="{'isShelfSelected': (isSelectedFolder(folder) && !isDraggingNote()) || folder.dragHover, 'openNotes' : folder.openNotes, 'noteDragging': isDraggingNote(), 'noteIsHere': !isDraggingNote() && selectedNote.folder && selectedNote.folder.uid == folder.uid, 'sortUpper': folder.sortUpper, 'sortLower': folder.sortLower}"
-				:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
-				@dragstart.stop="folderDragStart($event, rack, folder)"
-				@dragend.stop="folderDragEnd(folder)"
-				@dragover.stop="folderDragOver($event, rack, folder)"
-				@dragleave="folderDragLeave(folder)"
-				@drop="dropToFolder($event, rack, folder)"
-				@contextmenu.prevent.stop="folderMenu(rack, folder)")
-				h5(@click.prevent.stop="selectFolder(folder)")
-					i.material-icons folder
-					a.my-shelf-folder-name(v-if="editingFolder != folder")
-						| {{ folder.name }}
-						span.my-shelf-folder-badge(v-show="folder.notes.length > 0") {{ folder.notes.length }}
-					input(v-if="editingFolder == folder"
-						v-model="folder.name"
-						v-focus="editingFolder == folder"
-						@blur="doneFolderEdit(rack, folder)"
-						@keyup.enter="doneFolderEdit(rack, folder)"
-						@keyup.esc="doneFolderEdit(rack, folder)")
 </template>
 
 <script>
@@ -73,26 +48,13 @@
 		props: {
 			'racks'               : Array,
 			'selectedRack'        : Object,
-			'selectedFolder'      : Object,
-			'selectedNote'        : Object,
 			'draggingNote'        : Object,
 			'changeRack'          : Function,
-			'changeFolder'        : Function,
-			'folderDragEnded'     : Function,
-			'setDraggingNote'     : Function,
-			'deleteFolder'        : Function,
-			'addFolderToRack'     : Function,
-			'addRackSeparator'    : Function
-		},
-		data() {
-			return {
-				draggingRack      : null,
-				draggingFolder    : null,
-				draggingFolderRack: null,
-				editingRack       : null,
-				editingFolder     : null,
-				scrollbarNotes    : null
-			};
+			'addRackSeparator'    : Function,
+			'editingRack'         : Boolean,
+			'editingFolder'       : Boolean,
+			'draggingRack'        : Object,
+			'draggingFolder'      : Object
 		},
 		directives: {
 			focus(element) {
@@ -106,18 +68,18 @@
 			racksWithFolders() {
 				return this.racks.sort(function(a, b) { return a.ordering - b.ordering });
 			},
-		},
-		methods: {
 			isDraggingNote() {
 				return !!this.draggingNote;
-			},
+			}
+		},
+		methods: {
 			addRack() {
 				var rack = new models.Rack({
 					name: "",
 					ordering: 0
 				});
 				this.$root.addRack(rack);
-				this.editingRack = rack;
+				this.$root.setEditingRack(rack);
 			},
 			addBookmarkRack() {
 				var rack = new models.BookmarkRack({
@@ -127,71 +89,30 @@
 					ordering : 0
 				});
 				this.$root.addRack(rack);
-				this.editingRack = rack;
-			},
-			addFolder(rack) {
-				var folder;
-				if (rack.data.bookmarks) {
-					folder = new models.BookmarkFolder({
-						name    : '',
-						rack    : rack,
-						rackUid : rack.uid,
-						ordering: 0
-					});
-				} else {
-					folder = new models.Folder({
-						name    : '',
-						rack    : rack,
-						rackUid : rack.uid,
-						ordering: 0
-					});
-				}
-				this.addFolderToRack(rack, folder);
-				this.editingFolder = folder;
+				this.$root.setEditingRack(rack);
 			},
 			doneRackEdit(rack) {
 				if (!this.editingRack) { return }
 				rack.saveModel();
-				this.editingRack = null;
+				this.$root.setEditingRack(null);
 				this.changeRack(rack);
-			},
-			doneFolderEdit(rack, folder) {
-				if (!this.editingFolder) { return }
-				folder.saveModel();
-				this.editingFolder = null;
-				this.changeFolder(folder);
-			},
-			isSelectedFolder(folder) {
-				return this.selectedFolder === folder;
-			},
-			notesByFolder(folder) {
-				return this.notes.filter((obj) => {
-					return obj.isFolder(folder);
-				});
 			},
 			selectRack(rack) {
 				this.changeRack(rack);
-				if (this.selectedRack === rack && this.selectedFolder === null) rack.openFolders = !rack.openFolders;
-				else rack.openFolders = true;
-			},
-			selectFolder(folder) {
-				this.changeFolder(folder);
 			},
 			// Dragging
 			rackDragStart(event, rack) {
-				rack.openFolders = false;
 				event.dataTransfer.setDragImage(event.target, 0, 0);
-				this.draggingRack = rack;
+				this.$root.setDraggingRack(rack);
 			},
 			rackDragEnd() {
-				this.draggingRack = null;
+				this.$root.setDraggingRack();
 				this.changeRack(null);
 			},
 			rackDragOver(event, rack) {
 				if (this.draggingFolder) {
 					event.preventDefault();
 					rack.dragHover = true;
-					rack.openFolders = true;
 				} else if (this.draggingRack && this.draggingRack != rack) {
 					event.preventDefault();
 					var per = dragging.dragOverPercentage(event.currentTarget, event.clientY);
@@ -202,14 +123,9 @@
 						rack.sortLower = false;
 						rack.sortUpper = true;
 					}
-				} else {
-					//event.preventDefault();
 				}
 			},
 			rackDragLeave(rack) {
-				if (this.draggingFolder && this.draggingFolderRack && !this.draggingFolderRack.uid == rack.uid) {
-					rack.openFolders = false;
-				}
 				rack.dragHover = false;
 				rack.sortUpper = false;
 				rack.sortLower = false;
@@ -222,7 +138,6 @@
 			dropToRack(event, rack) {
 				if (this.draggingFolder) {
 					console.log('Dropping to rack');
-					rack.openFolders = true;
 					var draggingFolder = this.draggingFolder;
 					// Drop Folder to Rack
 					
@@ -240,12 +155,11 @@
 					rack.folders = folders;
 					if (rack.data.bookmarks) rack.saveModel();
 					rack.dragHover = false;
-					this.draggingFolder = null;
-					this.draggingFolderRack = null;
+					this.$root.setDraggingFolder();
 				} else if (this.draggingRack && this.draggingRack != rack) {
 					console.log('Dropping Rack');
 					var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
-					arr.remove(racks, (r) => {return r == this.draggingRack});
+					arr.remove(racks, (r) => { return r == this.draggingRack });
 					var i = racks.indexOf(rack);
 					if (rack.sortUpper) {
 						racks.splice(i, 0, this.draggingRack);
@@ -256,98 +170,12 @@
 						r.ordering = i;
 						r.saveModel();
 					});
-					this.draggingRack = null;
+					this.$root.setDraggingRack();
 					rack.sortUpper = false;
 					rack.sortLower = false;
 				} else {
 					event.preventDefault();
 					event.stopPropagation();
-				}
-			},
-			folderDragStart(event, rack, folder) {
-				event.dataTransfer.setDragImage(event.target, 8, 0);
-				this.draggingFolder = folder;
-				this.draggingFolderRack = rack;
-			},
-			folderDragEnd() {
-				this.folderDragEnded(this.draggingFolderRack, this.draggingFolder)
-				this.draggingFolder = null;
-				this.draggingFolderRack = null;
-			},
-			folderDragOver(event, rack, folder) {
-				if (this.draggingNote && this.draggingNote.folder.uid != folder.uid) {
-					event.stopPropagation();
-					event.preventDefault();
-					folder.dragHover = true;
-				} else if (this.draggingFolder) {
-					event.stopPropagation();
-					if (folder != this.draggingFolder) {
-						event.preventDefault();
-						var per = dragging.dragOverPercentage(event.currentTarget, event.clientY);
-						if (per > 0.5) {
-							folder.sortLower = true;
-							folder.sortUpper = false;
-						} else {
-							folder.sortLower = false;
-							folder.sortUpper = true;
-						}
-					}
-				} else {
-					event.preventDefault();
-				}
-			},
-			folderDragLeave(folder) {
-				if (this.draggingNote) {
-					folder.dragHover = false;
-				} else if (this.draggingFolder) {
-					folder.sortLower = false;
-					folder.sortUpper = false;
-				}
-			},
-			/**
-			 * Handles dropping a note or a folder inside a folder.
-			 * @param  {Object}  event   drag event
-			 * @param  {Object}  rack    parent rack
-			 * @param  {Object}  folder  current folder
-			 */
-			dropToFolder(event, rack, folder) {
-				if (this.draggingNote && this.draggingNote.folder.uid != folder.uid) {
-					console.log('Dropping to Folder');
-					event.stopPropagation();
-					// Dropping note to folder
-					folder.dragHover = false;
-					var note = this.draggingNote;
-					arr.remove(note.data.folder.notes, (n) => {return n == note});
-					note.folder = folder;
-					folder.notes.unshift(note);
-					note.saveModel();
-					this.setDraggingNote(null);
-					this.changeFolder(null);
-				} else if (this.draggingFolder && this.draggingFolder != folder) {
-					console.log('Dropping Folder');
-					event.stopPropagation();
-					var draggingFolder = this.draggingFolder;
-					var folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
-					arr.remove(folders, (f) => {return f == draggingFolder});
-					if(draggingFolder.data.rack != rack) {
-						arr.remove(draggingFolder.data.rack.folders, (f) => {return f == draggingFolder});
-						draggingFolder.rack = rack;
-					}
-					var i = folders.indexOf(folder);
-					if (folder.sortUpper) {
-						folders.splice(i, 0, draggingFolder);
-					} else {
-						folders.splice(i+1, 0, draggingFolder);
-					}
-					folders.forEach((f, i) => {
-						f.ordering = i;
-						if(!f.data.bookmarks) f.saveModel();
-					});
-					rack.folders = folders;
-					if(rack.data.bookmarks) rack.saveModel();
-					folder.sortUpper = false;
-					folder.sortLower = false;
-					this.draggingFolder = null;
 				}
 			},
 			rackMenu(rack) {
@@ -356,7 +184,7 @@
 					menu.append(new MenuItem({
 						label: 'Rename Rack',
 						click: () => {
-							this.editingRack = rack
+							this.$root.setEditingRack(rack);
 						}
 					}));
 					menu.append(new MenuItem({
@@ -395,58 +223,6 @@
 							}
 						} else if (confirm('Delete Rack "' + rack.name + '" and its content?')) {
 							this.$root.removeRack(rack);
-						}
-					}
-				}));
-				
-				menu.popup(remote.getCurrentWindow());
-			},
-			folderMenu(rack, folder) {
-				var menu = new Menu();
-				menu.append(new MenuItem({
-					label: 'Rename Folder',
-					click: () => {
-						this.editingFolder = folder
-					}
-				}));
-				menu.append(new MenuItem({
-					label: 'Add Folder',
-					click: () => {
-						this.addFolder(rack)
-					}
-				}));
-				menu.append(new MenuItem({type: 'separator'}));
-				if (rack.data.bookmarks) {
-					menu.append(new MenuItem({
-						label: 'Add Bookmark',
-						click: () => {
-							this.changeFolder(folder);
-							this.$root.addBookmark(folder);
-						}
-					}));
-				} else {
-					menu.append(new MenuItem({
-						label: 'Add Note',
-						click: () => {
-							this.changeFolder(folder);
-							this.$root.addNote();
-						}
-					}));
-					menu.append(new MenuItem({
-						label: 'Add Encrypted Note',
-						click: () => {
-							this.changeFolder(folder);
-							this.$root.addEncryptedNote();
-						}
-					}));
-				}
-				menu.append(new MenuItem({type: 'separator'}));
-				menu.append(new MenuItem({
-					label: 'Delete Folder',
-					click: () => {
-						if (confirm('Delete Folder "' + folder.name + '" and its content?')) {
-							this.changeRack(rack);
-							this.deleteFolder(folder);
 						}
 					}
 				}));

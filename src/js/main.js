@@ -11,6 +11,9 @@ const libini = require('./utils/libini');
 const traymenu = require('./utils/traymenu');
 
 import Vue from 'vue';
+import VTooltip from 'v-tooltip'
+
+Vue.use(VTooltip);
 
 var models = require('./models');
 var preview = require('./preview');
@@ -33,8 +36,9 @@ import component_handlerStack from './components/handlerStack.vue';
 import component_modal from './components/modal.vue';
 import component_noteMenu from './components/noteMenu.vue';
 import component_noteFooter from './components/noteFooter.vue';
-import component_notes from './components/notes.vue';
 import component_racks from './components/racks.vue';
+import component_folders from './components/folders.vue';
+import component_notes from './components/notes.vue';
 import component_welcomeSplash from './components/welcomeSplash.vue';
 import component_titleBar from './components/titleBar.vue';
 
@@ -69,13 +73,20 @@ var appVue = new Vue({
 		notes               : [],
 		bookmarksDomains    : [],
 		notesHistory        : [],
+		// selected
 		selectedRack        : null,
 		selectedFolder      : null,
-		search              : '',
 		selectedNote        : {},
 		selectedBookmark    : {},
-		loadingUid          : '',
+		// editing
+		editingRack         : null,
+		editingFolder       : null,
+		// dragging
+		draggingRack        : null,
+		draggingFolder      : null,
 		draggingNote        : null,
+		search              : '',
+		loadingUid          : '',
 		allDragHover        : false,
 		messages            : [],
 		noteHeadings        : [],
@@ -86,13 +97,13 @@ var appVue = new Vue({
 		modalOkcb           : null,
 		racksWidth          : settings.getSmart('racksWidth', 180),
 		notesWidth          : settings.getSmart('notesWidth', 180),
-		propertiesWidth     : 180,
 		fontsize            : settings.getSmart('fontsize', 15),
 		notesDisplayOrder   : 'updatedAt',
 	},
 	components: {
 		'flashmessage' : component_flashmessage,
 		'racks'        : component_racks,
+		'folders'      : component_folders,
 		'notes'        : component_notes,
 		'modal'        : component_modal,
 		'addNote'      : component_addNote,
@@ -427,10 +438,12 @@ var appVue = new Vue({
 		changeRack(rack) {
 			this.selectedRack = rack;
 			this.selectedFolder = null;
+			this.editingRack = null;
 		},
 		changeFolder(folder) {
 			if (folder) this.selectedRack = folder.rack;
 			this.selectedFolder = folder;
+			this.editingFolder = null;
 		},
 		/**
 		 * event called when a note is selected.
@@ -578,6 +591,34 @@ var appVue = new Vue({
 			// we need to close the current selected note if it was from the removed rack.
 			if (this.isNoteSelected && this.selectedNote.data.rack == rack) {
 				this.selectedNote = {};
+			}
+		},
+		setEditingRack(rack) {
+			if (rack) {
+				this.editingRack = rack.uid;
+			} else {
+				this.editingRack = null;
+			}
+		},
+		setEditingFolder(folder) {
+			if (folder) {
+				this.editingFolder = folder.uid;
+			} else {
+				this.editingFolder = null;
+			}
+		},
+		setDraggingRack(rack) {
+			if (rack) {
+				this.draggingRack = rack;
+			} else {
+				this.draggingRack = null;
+			}
+		},
+		setDraggingFolder(folder) {
+			if (folder) {
+				this.draggingFolder = folder;
+			} else {
+				this.draggingFolder = null;
 			}
 		},
 		/**
@@ -1183,10 +1224,9 @@ var appVue = new Vue({
 		 * @return {Void} Function doesn't return anything
 		 */
 		save_editor_size() {
-			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
-			this.racksWidth = cellsLeft.length > 0 ? parseInt( cellsLeft[0].style.width.replace('px','') ) : 180;
+			this.racksWidth = parseInt(this.$refs.sidebarFolders.style.width.replace('px','')) || 180;
 			settings.set('racksWidth', this.racksWidth);
-			this.notesWidth = cellsLeft.length > 1 ? parseInt( cellsLeft[1].style.width.replace('px','') ) : 180;
+			this.notesWidth = parseInt(this.$refs.sidebarNotes.style.width.replace('px','')) || 180;
 			settings.set('notesWidth', this.notesWidth);
 		},
 		sidebarDrag() {
@@ -1214,13 +1254,12 @@ var appVue = new Vue({
 		 * @return {Void} Function doesn't return anything
 		 */
 		update_editor_size: _.debounce(function () {
-			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar .cell-container');
-			if (cellsLeft.length == 0) {
-				return;
-			}
+			var cellsLeft = document.querySelectorAll('.outer_wrapper .sidebar > div');
 
-			var widthTotalLeft = parseInt(cellsLeft[0].style.width.replace('px','')) + 4;
-			widthTotalLeft += parseInt(cellsLeft[1].style.width.replace('px','')) + 4;
+			var widthTotalLeft = 0;
+			for (var i = 0; i < cellsLeft.length; i++) {
+				widthTotalLeft += cellsLeft[i].offsetWidth;
+			}
 
 			var mybrowser = document.querySelector('.main-cell-container .my-browser');
 

@@ -26,7 +26,7 @@ class Folder extends Model {
 		}
 
 		this.rack = data.rack;
-		this._parentFolder = data.parentFolder ? data.parentFolder : data.rack;
+		this.parentFolder = data.parentFolder ? data.parentFolder : data.rack;
 		this._path = data.path || '';
 
 		this.dragHover = false;
@@ -34,6 +34,14 @@ class Folder extends Model {
 		this.sortLower = false;
 		this.openNotes = false;
 
+		this.folders = [];
+		if (data.folders && data.folders.length > 0) {
+			for (var fi = 0; fi < data.folders.length; fi++) {
+				var fObj = data.folders[fi];
+				fObj.parentFolder = this;
+				this.folders.push(new Folder(fObj));
+			}
+		}
 		this._notes = [];
 	}
 
@@ -62,7 +70,7 @@ class Folder extends Model {
 			return this._path;
 		}
 		var new_path = path.join(
-			this._parentFolder.path,
+			this.parentFolder.path,
 			this.data.fsName
 		);
 		return new_path;
@@ -84,7 +92,7 @@ class Folder extends Model {
 		}
 
 		if (f.folderExists) {
-			this._parentFolder = f;
+			this.parentFolder = f;
 		}
 	}
 
@@ -94,6 +102,10 @@ class Folder extends Model {
 
 	get notes() {
 		return this._notes;
+	}
+
+	get rackUid() {
+		return this.rack.uid;
 	}
 
 	toJSON() {
