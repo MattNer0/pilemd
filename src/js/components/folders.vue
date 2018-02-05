@@ -1,31 +1,34 @@
 <template lang="pug">
-	div
-		.my-shelf-folder(v-if="parentFolder.folders.length == 0")
-			h5(@click.prevent.stop="addFolder()")
-				i.material-icons add_box
-				a.my-shelf-folder-name Add Folder
+	div(style="height: 100%;")
+		.new-folder
+			.my-shelf-folder
+				//-(v-if="parentFolder.folders.length == 0")
+				h5(@click.prevent.stop="addFolder()")
+					a.my-shelf-folder-name
+						i.material-icons add_circle_outline
+						| Add Folder
 
-		//- Folder
-		.my-shelf-folder(v-for="folder in parentFolder.folders"
-			:class="{'isShelfSelected': (selectedFolder == folder && !isDraggingNote) || folder.dragHover, 'openNotes' : folder.openNotes, 'noteDragging': isDraggingNote, 'sortUpper': folder.sortUpper, 'sortLower': folder.sortLower}"
-			:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
-			@dragstart.stop="folderDragStart($event, parentFolder, folder)"
-			@dragend.stop="folderDragEnd(folder)"
-			@dragover.stop="folderDragOver($event, folder)"
-			@dragleave="folderDragLeave(folder)"
-			@drop="dropToFolder($event, parentFolder, folder)"
-			@contextmenu.prevent.stop="folderMenu(parentFolder.rack, folder)")
-			h5(@click.prevent.stop="selectFolder(folder)")
-				i.material-icons folder
-				a.my-shelf-folder-name(v-if="editingFolder != folder.uid")
-					| {{ folder.name }}
-					span.my-shelf-folder-badge(v-show="folder.notes.length > 0") {{ folder.notes.length }}
-				input(v-if="editingFolder == folder.uid"
-					v-model="folder.name"
-					v-focus="editingFolder == folder.uid"
-					@blur="doneFolderEdit(folder)"
-					@keyup.enter="doneFolderEdit(folder)"
-					@keyup.esc="doneFolderEdit(folder)")
+		.my-shelf
+			.my-shelf-folder(v-for="folder in parentFolder.folders"
+				:class="{'isShelfSelected': (selectedFolder == folder && !isDraggingNote) || folder.dragHover, 'openNotes' : folder.openNotes, 'noteDragging': isDraggingNote, 'sortUpper': folder.sortUpper, 'sortLower': folder.sortLower}"
+				:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
+				@dragstart.stop="folderDragStart($event, parentFolder, folder)"
+				@dragend.stop="folderDragEnd(folder)"
+				@dragover.stop="folderDragOver($event, folder)"
+				@dragleave="folderDragLeave(folder)"
+				@drop="dropToFolder($event, parentFolder, folder)"
+				@contextmenu.prevent.stop="folderMenu(parentFolder.rack, folder)")
+				h5(@click.prevent.stop="selectFolder(folder)")
+					i.material-icons folder
+					a.my-shelf-folder-name(v-if="editingFolder != folder.uid")
+						| {{ folder.name }}
+						span.my-shelf-folder-badge(v-show="folder.notes.length > 0") {{ folder.notes.length }}
+					input(v-if="editingFolder == folder.uid"
+						v-model="folder.name"
+						v-focus="editingFolder == folder.uid"
+						@blur="doneFolderEdit(folder)"
+						@keyup.enter="doneFolderEdit(folder)"
+						@keyup.esc="doneFolderEdit(folder)")
 </template>
 
 <script>
@@ -50,8 +53,8 @@
 			'setDraggingNote'     : Function,
 			'deleteFolder'        : Function,
 			'addFolderToRack'     : Function,
-			'editingRack'         : Boolean,
-			'editingFolder'       : Boolean,
+			'editingRack'         : String,
+			'editingFolder'       : String,
 			'draggingFolder'      : Object
 		},
 		data() {

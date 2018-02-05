@@ -92,12 +92,17 @@ module.exports = {
 
 				if (fs.existsSync(rackPath) && rack.charAt(0) != ".") {
 					var rackStat = fs.statSync(rackPath);
-					if(rackStat.isDirectory()){
+					if (rackStat.isDirectory()) {
+						var rack_thumb = null;
+						if (fs.existsSync(path.join(rackPath, 'thumb.jpg'))) {
+							rack_thumb = 'thumb.jpg'
+						}
 						valid_racks.push({
 							_type        : 'rack',
 							name         : rack,
 							ordering     : valid_racks.length,
 							load_ordering: true,
+							thumbnail    : rack_thumb,
 							path         : rackPath
 						});
 					}

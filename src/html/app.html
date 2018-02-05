@@ -38,23 +38,21 @@
 					</div>
 				</div>
 				<div class="cell-container" ref="sidebarFolders">
-					<div class="my-shelf">
-						<folders
-							v-if="selectedRack"
-							:parent-folder="selectedRack"
-							:selected-folder="selectedFolder"
-							:dragging-note="draggingNote"
-							:change-folder="changeFolder"
-							:folder-drag-ended="folderDragEnded"
-							:set-dragging-note="setDraggingNote"
-							:delete-folder="deleteFolder"
-							:add-folder-to-rack="addFolderToRack"
-							:editing-rack="editingRack"
-							:editing-folder="editingFolder"
-							:dragging-folder="draggingFolder"
-							ref="refFolders">
-						</folders>
-					</div>
+					<folders
+						v-if="selectedRack"
+						:parent-folder="selectedRack"
+						:selected-folder="selectedFolder"
+						:dragging-note="draggingNote"
+						:change-folder="changeFolder"
+						:folder-drag-ended="folderDragEnded"
+						:set-dragging-note="setDraggingNote"
+						:delete-folder="deleteFolder"
+						:add-folder-to-rack="addFolderToRack"
+						:editing-rack="editingRack"
+						:editing-folder="editingFolder"
+						:dragging-folder="draggingFolder"
+						ref="refFolders">
+					</folders>
 				</div>
 				<handler-stack :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd" ref="refHandleStack"></handler-stack>
 				<div class="cell-container" ref="sidebarNotes">

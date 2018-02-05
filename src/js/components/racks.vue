@@ -18,6 +18,8 @@
 			h4(v-else,
 				@click.prevent.stop="selectRack(rack)",
 				v-tooltip="{ 'content': rack.name, 'placement': 'left' }"
+				:ciao="rack.thumbnail"
+				:style="rack.styleObject"
 				:class="{'isShelfSelected': (selectedRack === rack && !isDraggingNote) || rack.dragHover }")
 				template(v-if="rack.data.bookmarks")
 					i.material-icons.bookmark-rack-icon book
@@ -51,8 +53,8 @@
 			'draggingNote'        : Object,
 			'changeRack'          : Function,
 			'addRackSeparator'    : Function,
-			'editingRack'         : Boolean,
-			'editingFolder'       : Boolean,
+			'editingRack'         : String,
+			'editingFolder'       : String,
 			'draggingRack'        : Object,
 			'draggingFolder'      : Object
 		},

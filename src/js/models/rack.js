@@ -30,6 +30,8 @@ class Rack extends Model {
 
 		this._path = data.path;
 
+		this.thumbnail = data.thumbnail ? path.join(this.path, data.thumbnail) : null;
+
 		this.dragHover = false;
 		this.sortUpper = false;
 		this.sortLower = false;
@@ -62,6 +64,23 @@ class Rack extends Model {
 	set path(newValue) {
 		if (newValue != this._path) {
 			this._path = newValue;
+		}
+	}
+
+	get relativePath() {
+		return this.path.replace(Library.baseLibraryPath+'/', '');
+	}
+
+	get styleObject() {
+		if (this.thumbnail) {
+			return {
+				'backgroundImage': "url('file://"+this.thumbnail+"')",
+				"backgroundSize": "cover",
+				"backgroundPosition": "center",
+				"color": "transparent"
+			};
+		} else {
+			return {};
 		}
 	}
 
