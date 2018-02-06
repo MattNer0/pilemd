@@ -35,7 +35,6 @@ class Rack extends Model {
 		this.dragHover = false;
 		this.sortUpper = false;
 		this.sortLower = false;
-		this.openFolders = false;
 
 		this.folders = [];
 		this.notes = [];
@@ -72,7 +71,7 @@ class Rack extends Model {
 	}
 
 	get styleObject() {
-		if (this.thumbnail) {
+		if (this.thumbnail && (this.thumbnail.indexOf('.jpg') > 0 || this.thumbnail.indexOf('.png') > 0)) {
 			return {
 				'backgroundImage': "url('file://"+this.thumbnail+"')",
 				"backgroundSize": "cover",

@@ -37,7 +37,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="cell-container" ref="sidebarFolders">
+				<div v-show="selectedRack" class="cell-container" ref="sidebarFolders">
 					<folders
 						v-if="selectedRack"
 						:parent-folder="selectedRack"
@@ -54,8 +54,13 @@
 						ref="refFolders">
 					</folders>
 				</div>
-				<handler-stack :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd" ref="refHandleStack"></handler-stack>
-				<div class="cell-container" ref="sidebarNotes">
+				<handler-stack
+					v-show="selectedRack"
+					:sidebar-drag="sidebarDrag"
+					:sidebar-drag-end="sidebarDragEnd"
+					ref="refHandleStack">
+				</handler-stack>
+				<div v-show="selectedRack || selectedFolder" class="cell-container" ref="sidebarNotes">
 					<add-note v-if="selectedFolder"
 						:notes-list="isNoteRackSelected"
 						:selected-folder="selectedFolder"
@@ -82,7 +87,12 @@
 						</notes>
 					</div>
 				</div>
-				<handler-notes :sidebar-drag="sidebarDrag" :sidebar-drag-end="sidebarDragEnd" ref="refHandleNote"></handler-notes>
+				<handler-notes
+					v-show="selectedRack || selectedFolder"
+					:sidebar-drag="sidebarDrag"
+					:sidebar-drag-end="sidebarDragEnd"
+					ref="refHandleNote">
+				</handler-notes>
 			</div>
 			<div class="cell-container main-cell-container" :class="[ 'font'+fontsize ]" style="margin-left:360px;">
 				<note-menu v-if="isNoteSelected || isOutlineSelected"

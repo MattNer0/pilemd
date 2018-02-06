@@ -299,7 +299,6 @@ var appVue = new Vue({
 			}
 
 			if (this.notes.length == 1) {
-				this.notes[0].data.rack.openFolders = true;
 				this.changeFolder(this.notes[0].data.folder);
 				this.changeNote(this.notes[0]);
 
@@ -308,7 +307,6 @@ var appVue = new Vue({
 				if (argv.length > 1 && path.extname(argv[1]) == '.md' && fs.existsSync(argv[1])) {
 					var openedNote = this.findNoteByPath(argv[1]);
 					if (openedNote) {
-						openedNote.data.rack.openFolders = true;
 						this.changeFolder(openedNote.data.folder);
 						this.changeNote(openedNote);
 					} else {
@@ -436,11 +434,13 @@ var appVue = new Vue({
 			});
 		},
 		changeRack(rack) {
+			if (this.selectedRack === null) this.update_editor_size();
 			this.selectedRack = rack;
 			this.selectedFolder = null;
 			this.editingRack = null;
 		},
 		changeFolder(folder) {
+			if (this.selectedRack === null) this.update_editor_size();
 			if (folder) this.selectedRack = folder.rack;
 			this.selectedFolder = folder;
 			this.editingFolder = null;
@@ -516,30 +516,6 @@ var appVue = new Vue({
 		 */
 		setDraggingNote(note) {
 			this.draggingNote = note;
-		},
-		/**
-		 * event called when user selects a new Rack from the sidebar.
-		 * 
-		 * @function openRack
-		 * @param  {Object}  rack    The rack
-		 * @return {Void} Function doesn't return anything
-		 */
-		openRack(rack) {
-			if(!(rack instanceof models.Rack)) return;
-			rack.openFolders = true;
-		},
-		/**
-		 * hides rack content (folders).
-		 * 
-		 * @function closerack
-		 * @param  {Object}  rack    The rack
-		 * @return {Void} Function doesn't return anything
-		 */
-		closerack(rack) {
-			rack.openFolders = false;
-			if (this.selectedFolder === null && this.selectedRack == rack) {
-				this.selectedRack = null;
-			}
 		},
 		/**
 		 * adds a new rack to the working directory.
@@ -631,7 +607,6 @@ var appVue = new Vue({
 		 * @return {Void} Function doesn't return anything
 		 */
 		addFolderToRack(rack, folder) {
-			this.openRack(rack);
 			var folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
 			folders.unshift(folder);
 			folders.forEach((f, i) => {
@@ -735,7 +710,6 @@ var appVue = new Vue({
 				if (this.search.length > 0) this.search = '';
 				if (currFolder.data.rack && currFolder.data.rack.notes) {
 					currFolder.data.rack.notes.unshift(newNote);
-					currFolder.data.rack.openFolders = true;
 				}
 				if (currFolder.notes) currFolder.notes.unshift(newNote);
 				this.notes.unshift(newNote);
@@ -761,7 +735,6 @@ var appVue = new Vue({
 				if (this.search.length > 0) this.search = '';
 				if (currFolder.data.rack && currFolder.data.rack.notes) {
 					currFolder.data.rack.notes.unshift(newOutline);
-					currFolder.data.rack.openFolders = true;
 				}
 				if (currFolder.notes) currFolder.notes.unshift(newOutline);
 				this.notes.unshift(newOutline);

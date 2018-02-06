@@ -33,6 +33,7 @@ class Folder extends Model {
 		this.sortUpper = false;
 		this.sortLower = false;
 		this.openNotes = false;
+		this.openFolders = false;
 
 		this.folders = [];
 		if (data.folders && data.folders.length > 0) {

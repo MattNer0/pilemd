@@ -1,14 +1,13 @@
 <template lang="pug">
-	div(style="height: 100%;")
-		.new-folder
+	.my-shelf-folders
+		.new-folder(v-if="isRack(parentFolder)")
 			.my-shelf-folder
-				//-(v-if="parentFolder.folders.length == 0")
 				h5(@click.prevent.stop="addFolder()")
 					a.my-shelf-folder-name
 						i.material-icons add_circle_outline
 						| Add Folder
 
-		.my-shelf
+		.my-shelf(v-if="parentFolder && parentFolder.folders && parentFolder.folders.length > 0")
 			.my-shelf-folder(v-for="folder in parentFolder.folders"
 				:class="{'isShelfSelected': (selectedFolder == folder && !isDraggingNote) || folder.dragHover, 'openNotes' : folder.openNotes, 'noteDragging': isDraggingNote, 'sortUpper': folder.sortUpper, 'sortLower': folder.sortLower}"
 				:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
@@ -29,6 +28,20 @@
 						@blur="doneFolderEdit(folder)"
 						@keyup.enter="doneFolderEdit(folder)"
 						@keyup.esc="doneFolderEdit(folder)")
+
+				folders(v-if="folder.folders",
+						:parent-folder="folder"
+						:selected-folder="selectedFolder"
+						:dragging-note="draggingNote"
+						:change-folder="changeFolder"
+						:folder-drag-ended="folderDragEnded"
+						:set-dragging-note="setDraggingNote"
+						:delete-folder="deleteFolder"
+						:add-folder-to-rack="addFolderToRack"
+						:editing-rack="editingRack"
+						:editing-folder="editingFolder"
+						:dragging-folder="draggingFolder"
+						ref="refFolders")
 </template>
 
 <script>
@@ -76,6 +89,9 @@
 			}
 		},
 		methods: {
+			isRack(folder) {
+				return folder instanceof models.Rack;
+			},
 			doneFolderEdit(folder) {
 				if (!this.editingFolder) { return }
 				folder.saveModel();

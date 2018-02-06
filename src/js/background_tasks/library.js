@@ -94,8 +94,15 @@ module.exports = {
 					var rackStat = fs.statSync(rackPath);
 					if (rackStat.isDirectory()) {
 						var rack_thumb = null;
-						if (fs.existsSync(path.join(rackPath, 'thumb.jpg'))) {
-							rack_thumb = 'thumb.jpg'
+						try {
+							if (fs.existsSync(path.join(rackPath, 'thumb.jpg'))) {
+								rack_thumb = 'thumb.jpg';
+							} else if (fs.existsSync(path.join(rackPath, 'thumb.png'))) {
+								rack_thumb = 'thumb.png';
+							}
+						} catch(err) {
+							console.error(err);
+							rack_thumb = null;
 						}
 						valid_racks.push({
 							_type        : 'rack',

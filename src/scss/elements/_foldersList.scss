@@ -107,6 +107,10 @@
 	display: block;
 }
 
+.my-shelf-folders {
+	height: 100%;
+}
+
 .my-shelf-folder {
 	position: relative;
 
@@ -136,11 +140,18 @@
 		transition: background-color 200ms;
 		font-size: 16px;
 	}
+
+	.my-shelf {
+		color: $sidebar-color;
+	
+		height: auto;
+		overflow-y: initial;
+	}
 }
 
 .new-folder {
 	padding: 0.2em 0 0;
-    height: 3.5em;
+	height: 3.5em;
 
 	.my-shelf-folder {
 		border: 1px dashed $sidebar-color;
