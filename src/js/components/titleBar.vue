@@ -104,8 +104,8 @@
 		props: {
 			'note'              : Object,
 			'bookmark'          : Object,
-			'rack'              : Object,
-			'folder'            : Object,
+			'selectedRack'      : Object,
+			'selectedFolder'    : Object,
 			'isFullScreen'      : Boolean,
 			'isToolbarEnabled'  : Boolean,
 			'selectedTheme'     : String,
@@ -138,6 +138,16 @@
 			},
 			enabledBookmark() {
 				return this.bookmark && this.bookmark.name;
+			},
+			rack() {
+				if (this.note && this.note.title) return this.note.rack;
+				if (this.selectedRack) return this.selectedRack;
+				return null;
+			},
+			folder() {
+				if (this.note && this.note.title) return this.note.folder;
+				if (this.selectedFolder) return this.selectedFolder;
+				return null;
 			}
 		},
 		methods: {
