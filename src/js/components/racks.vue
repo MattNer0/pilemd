@@ -36,12 +36,16 @@
 
 <script>
 	const remote = require('electron').remote;
-	const { Menu, MenuItem } = remote;
+	const { Menu, MenuItem, dialog } = remote;
+
+	var fs = require('fs');
+	var path = require('path');
 
 	const Vue = require('vue');
 
 	const arr = require('../utils/arr');
 	const dragging = require('../utils/dragging');
+	const filehelper = require('../utils/file');
 
 	const models = require('../models');
 
@@ -180,6 +184,27 @@
 					event.stopPropagation();
 				}
 			},
+			selectRackThumbnail(rack) {
+				try {
+					var filePath = dialog.showOpenDialog(remote.getCurrentWindow(), {
+						title: 'Import Thumbnail Image',
+						filters: [{
+							name: 'Image',
+							extensions: ['png', 'jpg']
+						}],
+						properties: ['openFile']
+					});
+					if (filePath) {
+						if (filePath.length == 1) filePath = filePath[0];
+						if (rack.thumbnail) fs.unlinkSync(rack.thumbnail);
+						var fileDestination = path.join(rack.path, 'thumb'+path.extname(filePath));
+						filehelper.copyFileSync(filePath, fileDestination);
+						rack.thumbnail = fileDestination;
+					}
+				} catch(err) {
+					console.error(err);
+				}
+			},
 			rackMenu(rack) {
 				var menu = new Menu();
 				if (!rack.data.separator) {
@@ -189,6 +214,13 @@
 							this.$root.setEditingRack(rack);
 						}
 					}));
+					menu.append(new MenuItem({
+						label: 'Set Rack Thumbnail',
+						click: () => {
+							this.selectRackThumbnail(rack);
+						}
+					}));
+					
 					menu.append(new MenuItem({
 						label: 'Add Folder',
 						click: () => {

@@ -104,6 +104,9 @@ module.exports = {
 			fs.rmdirSync(source);
 		}
 	},
+	copyFileSync(source, target) {
+		fs.writeFileSync(target, fs.readFileSync(source));
+	},
 	getFileNameFromUrl(file_url) {
 		return this.getFileDataFromUrl(file_url).basename;
 	},
