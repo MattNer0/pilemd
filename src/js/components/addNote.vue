@@ -9,16 +9,16 @@
 					template(v-else)
 						|  New Bookmark
 				.dialog(slot="dropdown"): ul
-					li: a(@click.prevent="menu_addNote", href="#")
+					li: a(@click.prevent.stop="menu_addNote", href="#")
 						i.material-icons note_add
 						|  New Simple Note
-					li: a(@click.prevent="menu_fromUrl", href="#")
+					li: a(@click.prevent.stop="menu_fromUrl", href="#")
 						i.material-icons note_add
 						|  Add Note from Url
-					li: a(@click.prevent="menu_addEncrypted", href="#")
+					li: a(@click.prevent.stop="menu_addEncrypted", href="#")
 						i.material-icons note_add
 						|  New Encrypted Note
-					li: a(@click.prevent="menu_addOutline", href="#")
+					li: a(@click.prevent.stop="menu_addOutline", href="#")
 						i.material-icons note_add
 						|  New Outline
 		.my-notes-note.new-note(@click.prevent.stop="newNote", v-else)
