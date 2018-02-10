@@ -21,19 +21,30 @@ function logMainProcess(message) {
  */
 function loadNotes(library, arrayRacks) {
 	var allNotes = [];
-	arrayRacks.forEach((r) => {
+
+	function readNotesInsideFolders(rack, folders) {
 		var arrayNotes = [];
-		r.folders.forEach((f) => {
+		folders.forEach((f) => {
 			var newNotes = libraryHelper.readNotesByFolder(f.path);
 			allNotes = allNotes.concat(newNotes);
-			arrayNotes.push({
+			var fObj = {
 				notes: newNotes,
 				folder: f.path,
-				rack: r.rack
-			});
+				rack: rack
+			};
+			if (f.folders) {
+				fObj.subnotes = readNotesInsideFolders(rack, f.folders);
+			}
+			arrayNotes.push(fObj);
 		});
+		return arrayNotes;
+	}
 
-		ipcRenderer.send('loaded-notes', arrayNotes);
+	arrayRacks.forEach((r) => {
+		var arrayNotes = readNotesInsideFolders(r.rack, r.folders);
+		if (arrayNotes && arrayNotes.length > 0) {
+			ipcRenderer.send('loaded-notes', arrayNotes);
+		}
 	});
 	ipcRenderer.send('loaded-all-notes', allNotes.map((n) => {
 		return n.path.replace(library + '/', '');

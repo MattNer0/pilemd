@@ -244,6 +244,46 @@ var appVue = new Vue({
 			});
 		});
 
+		function loadByParent(obj, rack, parent) {
+			var folder;
+			if (parent) {
+				folder = parent.folders.filter((f) => {
+					return f.path == obj.folder;
+				})[0];
+			} else if (rack) {
+				folder = rack.folders.filter((f) => {
+					return f.path == obj.folder;
+				})[0];
+			}
+
+			var notes = [];
+			obj.notes.forEach((n) => {
+				n.rack = rack;
+				n.folder = folder;
+				switch(n._type) {
+					case 'encrypted':
+						notes.push(new models.EncryptedNote(n));
+						break;
+					case 'outline':
+						notes.push(new models.Outline(n));
+						break;
+					default:
+						notes.push(new models.Note(n));
+						break;
+				}
+			});
+
+			folder.notes = notes;
+			self.notes = notes.concat(self.notes);
+			rack.notes = notes.concat(rack.notes);
+
+			if (obj.subnotes && obj.subnotes.length > 0) {
+				obj.subnotes.forEach((r) => {	
+					loadByParent(r, rack, folder);
+				});
+			}
+		}
+
 		ipcRenderer.on('loaded-notes', (event, data) => {
 			if (!data) return;
 
@@ -252,30 +292,7 @@ var appVue = new Vue({
 					return rk.path == r.rack;
 				})[0];
 
-				var folder = rack.folders.filter((f) => {
-					return f.path == r.folder;
-				})[0];
-
-				var notes = [];
-				r.notes.forEach((n) => {
-					n.rack = rack;
-					n.folder = folder;
-					switch(n._type) {
-						case 'encrypted':
-							notes.push(new models.EncryptedNote(n));
-							break;
-						case 'outline':
-							notes.push(new models.Outline(n));
-							break;
-						default:
-							notes.push(new models.Note(n));
-							break;
-					}
-				});
-
-				folder.notes = notes;
-				this.notes = notes.concat(this.notes);
-				rack.notes = notes.concat(rack.notes);
+				loadByParent(r, rack);
 			});
 		});
 

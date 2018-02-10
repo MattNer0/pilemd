@@ -39,6 +39,7 @@ class Folder extends Model {
 		if (data.folders && data.folders.length > 0) {
 			for (var fi = 0; fi < data.folders.length; fi++) {
 				var fObj = data.folders[fi];
+				fObj.rack = this.rack;
 				fObj.parentFolder = this;
 				this.folders.push(new Folder(fObj));
 			}

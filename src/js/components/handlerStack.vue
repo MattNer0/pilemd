@@ -16,7 +16,7 @@
 					y: 0
 				},
 				start_width  : 0,
-				min_width    : 180,
+				min_width    : 100,
 				max_width    : 400,
 				dragging     : false
 			};

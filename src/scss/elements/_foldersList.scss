@@ -111,6 +111,10 @@
 	height: 100%;
 }
 
+.my-shelf-folders .my-shelf-folders {
+	padding-left: 1em;
+}
+
 .my-shelf-folder {
 	position: relative;
 
@@ -123,7 +127,6 @@
 
 	.my-shelf-folder-name {
 		width: 100%;
-		white-space: initial;
 		font-weight: normal;
 	}
 
@@ -134,11 +137,15 @@
 
 	> h5 {
 		position: relative;
-		margin: 0.3em 0;
+		margin: 0.1em 0;
 		padding: 0.3em 0 0.3em 0.3em;
 		border-radius: $folder-list-border-radius;
 		transition: background-color 200ms;
 		font-size: 16px;
+
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
 	}
 
 	.my-shelf {
@@ -195,7 +202,7 @@
 	color: $ui-text-color-hover;
 }
 
-.my-shelf-folder.isShelfSelected h5,
+.my-shelf-folder.isShelfSelected > h5,
 .my-shelf-rack h4.isShelfSelected,
 .my-shelf-rack h4.isShelfSelected .rack-icon,
 .my-shelf-rack h4.isShelfSelected .bookmark-rack-icon {
@@ -238,7 +245,7 @@
 	border-color: $folder-hover-background;
 }
 
-.my-shelf-folder.isShelfSelected h5,
+.my-shelf-folder.isShelfSelected > h5,
 .my-shelf-rack h4.isShelfSelected {
 	background-color: $folder-selected-background;
 	color: $folder-selected-color;
