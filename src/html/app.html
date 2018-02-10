@@ -43,11 +43,11 @@
 						:parent-folder="selectedRack"
 						:selected-folder="selectedFolder"
 						:dragging-note="draggingNote"
+						:change-rack="changeRack"
 						:change-folder="changeFolder"
 						:folder-drag-ended="folderDragEnded"
 						:set-dragging-note="setDraggingNote"
 						:delete-folder="deleteFolder"
-						:add-folder-to-rack="addFolderToRack"
 						:editing-rack="editingRack"
 						:editing-folder="editingFolder"
 						:dragging-folder="draggingFolder"
@@ -60,7 +60,7 @@
 					:sidebar-drag-end="sidebarDragEnd"
 					ref="refHandleStack">
 				</handler-stack>
-				<div v-show="selectedRack || selectedFolder" class="cell-container" ref="sidebarNotes">
+				<div v-show="selectedFolder" class="cell-container" ref="sidebarNotes">
 					<add-note v-if="selectedFolder"
 						:notes-list="isNoteRackSelected"
 						:selected-folder="selectedFolder"
@@ -88,7 +88,7 @@
 					</div>
 				</div>
 				<handler-notes
-					v-show="selectedRack || selectedFolder"
+					v-show="selectedFolder"
 					:sidebar-drag="sidebarDrag"
 					:sidebar-drag-end="sidebarDragEnd"
 					ref="refHandleNote">

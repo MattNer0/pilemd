@@ -92,10 +92,6 @@
 			input[type=checkbox]:checked + span:after {
 				content: "done";
 			}
-
-			/*input[type=checkbox]:checked + span:before {
-				opacity: 0.8;
-			}*/
 		}
 
 		li.checkbox.checkbox-checked {

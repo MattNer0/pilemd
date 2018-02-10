@@ -130,6 +130,10 @@
 		font-weight: normal;
 	}
 
+	.my-shelf-folder-name.no-name {
+		opacity: 0.8;
+	}
+
 	span input {
 		width: 48px;
 		outline: none;
@@ -138,7 +142,7 @@
 	> h5 {
 		position: relative;
 		margin: 0.1em 0;
-		padding: 0.3em 0 0.3em 0.3em;
+		padding: 0.3em 0 0.3em 1em;
 		border-radius: $folder-list-border-radius;
 		transition: background-color 200ms;
 		font-size: 16px;
@@ -146,6 +150,24 @@
 		text-overflow: ellipsis;
 		overflow: hidden;
 		white-space: nowrap;
+
+		i.material-icons {
+			position: absolute;
+			left: 0;
+			top: 0.5em;
+			display: none;
+			margin: 0;
+			padding: 0;
+			width: 1em;
+			height: 1em;
+			line-height: 1em;
+			outline: none;
+			transition: transform .4s;
+		}
+	}
+
+	.my-shelf-folders {
+		display: none;
 	}
 
 	.my-shelf {
@@ -153,6 +175,27 @@
 	
 		height: auto;
 		overflow-y: initial;
+	}
+}
+
+.my-shelf-folder.gotSubfolders {
+	> h5 {
+		i.material-icons {
+			display: inline-block;
+			transform: rotate(-90deg);
+		}
+	}
+}
+
+.my-shelf-folder.openFolder {
+	> .my-shelf-folders {
+		display: block;
+	}
+
+	> h5 {
+		i.material-icons {
+			transform: rotate(0deg);
+		}
 	}
 }
 
@@ -198,7 +241,7 @@
 
 .my-shelf-rack h4:hover .rack-icon,
 .my-shelf-rack h4:hover .bookmark-rack-icon,
-.my-shelf-folder:hover h5 {
+.my-shelf-folder:hover > h5 {
 	color: $ui-text-color-hover;
 }
 

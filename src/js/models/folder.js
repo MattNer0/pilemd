@@ -26,14 +26,15 @@ class Folder extends Model {
 		}
 
 		this.rack = data.rack;
-		this.parentFolder = data.parentFolder ? data.parentFolder : data.rack;
+		this.parentFolder = data.parentFolder;
 		this._path = data.path || '';
 
 		this.dragHover = false;
 		this.sortUpper = false;
 		this.sortLower = false;
+
 		this.openNotes = false;
-		this.openFolders = false;
+		this.openFolder = false;
 
 		this.folders = [];
 		if (data.folders && data.folders.length > 0) {
@@ -71,11 +72,10 @@ class Folder extends Model {
 		if (this._path && fs.existsSync(this._path)) {
 			return this._path;
 		}
-		var new_path = path.join(
-			this.parentFolder.path,
+		return path.join(
+			this.parent.path,
 			this.data.fsName
 		);
-		return new_path;
 	}
 
 	set path(newValue) {
@@ -96,6 +96,10 @@ class Folder extends Model {
 		if (f.folderExists) {
 			this.parentFolder = f;
 		}
+	}
+
+	get parent() {
+		return this.parentFolder || this.rack;
 	}
 
 	set notes(notes_list) {
@@ -136,16 +140,15 @@ class Folder extends Model {
 			return;
 		}
 
-		var new_path = path.join( Library.baseLibraryPath, this.rack.data.fsName, this.data.fsName );
-		if(new_path != this._path || !fs.existsSync(new_path) ) {
-			try{
-				if(this._path && fs.existsSync(this._path)) {
+		var new_path = path.join(this.parent.path, this.data.fsName);
+		if (new_path != this._path || !fs.existsSync(new_path)) {
+			try {
+				if (this._path && fs.existsSync(this._path)) {
 					util_file.moveFolderRecursiveSync(
 						this._path,
-						path.join(Library.baseLibraryPath, this.rack.data.fsName),
+						this.parent.path,
 						this.data.fsName
 					);
-
 				} else {
 					fs.mkdirSync(new_path);
 				}

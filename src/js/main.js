@@ -126,8 +126,8 @@ var appVue = new Vue({
 		filteredNotes() {
 			if (this.selectedFolder) {
 				return searcher.searchNotes(this.search, this.selectedFolder.notes);
-			} else if (this.selectedRack) {
-				return searcher.searchNotes(this.search, this.selectedRack.notes);
+			//} else if (this.selectedRack) {
+			//	return searcher.searchNotes(this.search, this.selectedRack.notes);
 			} else {
 				return [];
 			}
@@ -452,9 +452,13 @@ var appVue = new Vue({
 		},
 		changeRack(rack) {
 			if (this.selectedRack === null) this.update_editor_size();
-			this.selectedRack = rack;
-			this.selectedFolder = null;
-			this.editingRack = null;
+			if (rack instanceof models.Rack) {
+				this.selectedRack = rack;
+				this.selectedFolder = null;
+				this.editingRack = null;
+			} else {
+				this.changeFolder(rack);
+			}
 		},
 		changeFolder(folder) {
 			if (this.selectedRack === null) this.update_editor_size();
@@ -641,7 +645,7 @@ var appVue = new Vue({
 		 */
 		deleteFolder(folder) {
 			if (this.selectedFolder === folder) this.selectedFolder = null;
-			arr.remove(folder.data.rack.folders, (f) => {
+			arr.remove(folder.parent.folders, (f) => {
 				return f == folder;
 			});
 			folder.remove(this.notes);
