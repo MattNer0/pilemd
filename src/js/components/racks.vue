@@ -47,6 +47,8 @@
 	const dragging = require('../utils/dragging');
 	const filehelper = require('../utils/file');
 
+	const Datauri = require('datauri');
+
 	const models = require('../models');
 
 	export default {
@@ -199,7 +201,7 @@
 						if (rack.thumbnail) fs.unlinkSync(rack.thumbnail);
 						var fileDestination = path.join(rack.path, 'thumb'+path.extname(filePath));
 						filehelper.copyFileSync(filePath, fileDestination);
-						rack.thumbnail = fileDestination;
+						rack.thumbnail = Datauri.sync(fileDestination);
 					}
 				} catch(err) {
 					console.error(err);

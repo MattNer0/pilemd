@@ -25,6 +25,10 @@
 		vertical-align: top;
 	}
 
+	.cell-container > .my-shelf-folders > .my-shelf {
+		height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height } - 3.7em );
+	}
+
 	.my-scrollbar {
 		max-height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height } );
 		background-color: transparent;

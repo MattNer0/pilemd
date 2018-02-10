@@ -18,13 +18,18 @@
 				@drop="dropToFolder($event, parentFolder, folder)"
 				@contextmenu.prevent.stop="folderMenu(parentFolder, folder)")
 				h5(@click.prevent.stop="selectFolder(folder)")
-					i.material-icons(@click.prevent.stop="folder.openFolder = !folder.openFolder") arrow_drop_down
-					a.my-shelf-folder-name(v-if="editingFolder != folder.uid && folder.name")
-						| {{ folder.name }}
-						span.my-shelf-folder-badge(v-show="folder.notes.length > 0") {{ folder.notes.length }}
-					a.my-shelf-folder-name.no-name(v-if="editingFolder != folder.uid && !folder.name")
-						| No Title
-						span.my-shelf-folder-badge(v-show="folder.notes.length > 0") {{ folder.notes.length }}
+					i.material-icons.down(@click.prevent.stop="folder.openFolder = !folder.openFolder") arrow_drop_down
+					a.my-shelf-folder-name.no-name(v-if="editingFolder != folder.uid")
+						template(v-if="folder.name")
+							| {{ folder.name }}
+						template(v-else)
+							| No Title
+						span.my-shelf-folder-badge(v-show="folder.notes.length > 0")
+							| {{ folder.notes.length }} 
+							i.material-icons description
+						span.my-shelf-folder-badge(v-show="folder.folders.length > 0")
+							| {{ folder.folders.length }} 
+							i.material-icons folder
 					input(v-if="editingFolder == folder.uid"
 						v-model="folder.name"
 						v-focus="editingFolder == folder.uid"
@@ -203,23 +208,16 @@
 					console.log('Dropping Folder to Folder');
 					event.stopPropagation();
 					var draggingFolder = this.draggingFolder;
-
-					// remove from original position
 					var foldersFrom = arr.sortBy(draggingFolder.parent.folders.slice(), 'ordering', true);
 					arr.remove(foldersFrom, (f) => { return f == draggingFolder });
 					draggingFolder.parent.folders = foldersFrom;
-
 					var foldersTo = arr.sortBy(folder.parent.folders.slice(), 'ordering', true);
-
-					//var folders = arr.sortBy(rack.folders.slice(), 'ordering', true);
-					//arr.remove(draggingFolder.rack.folders, (f) => { return f == draggingFolder });
 					if (draggingFolder.rack != rack) {
 						draggingFolder.rack = rack;
 					}
 					if (draggingFolder.parentFolder != folder.parentFolder) {
 						draggingFolder.parentFolder = folder.parentFolder;
 					}
-
 					var i = foldersTo.indexOf(folder);
 					if (folder.sortUpper) {
 						foldersTo.splice(i, 0, draggingFolder);

@@ -451,7 +451,7 @@ var appVue = new Vue({
 			});
 		},
 		changeRack(rack) {
-			if (this.selectedRack === null) this.update_editor_size();
+			if (this.selectedRack === null && rack) this.update_editor_size();
 			if (rack instanceof models.Rack) {
 				this.selectedRack = rack;
 				this.selectedFolder = null;
@@ -461,7 +461,7 @@ var appVue = new Vue({
 			}
 		},
 		changeFolder(folder) {
-			if (this.selectedRack === null) this.update_editor_size();
+			if (this.selectedFolder === null && folder) this.update_editor_size();
 			if (folder) this.selectedRack = folder.rack;
 			this.selectedFolder = folder;
 			this.editingFolder = null;

@@ -1,8 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const Datauri = require('datauri');
-
 var Library;
 
 class Image {
@@ -27,10 +25,6 @@ class Image {
 		if (!basePath || basePath.length == 0) throw 'Invalid Base Path';
 		return path.join(basePath, p);
 	}
-
-	/*convertDataURL() {
-		return Datauri.sync(this.makeFilePath());
-	}*/
 
 	makeAbsolutePath() {
 		return 'pilemd://' + encodeURI(this.makeFilePath());

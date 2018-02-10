@@ -85,7 +85,7 @@
 	color: $folder-badge-color;
 	font-size: 80%;
 	line-height: 1.4em;
-	padding: 0;
+	padding: 0 0.2em 0 0.3em;
 	min-width: 1.4em;
 	margin: -0.1em 0 0 0.3em;
 	opacity: 0.6;
@@ -95,12 +95,12 @@
 	content: "";
 	position: absolute;
 	background-color: $folder-badge-background;
-	width: 1.4em;
 	height: 1.4em;
 	border-radius: 10em;
 	z-index: -1;
 	top: 0;
 	left: 0;
+	right: 0;
 }
 
 .my-shelf-folder.isShelfSelected {
@@ -112,6 +112,7 @@
 }
 
 .my-shelf-folders .my-shelf-folders {
+	background-color: rgba(0,0,0,0.05);
 	padding-left: 1em;
 }
 
@@ -151,7 +152,7 @@
 		overflow: hidden;
 		white-space: nowrap;
 
-		i.material-icons {
+		i.material-icons.down {
 			position: absolute;
 			left: 0;
 			top: 0.5em;
@@ -180,7 +181,7 @@
 
 .my-shelf-folder.gotSubfolders {
 	> h5 {
-		i.material-icons {
+		i.material-icons.down {
 			display: inline-block;
 			transform: rotate(-90deg);
 		}
@@ -193,7 +194,7 @@
 	}
 
 	> h5 {
-		i.material-icons {
+		i.material-icons.down {
 			transform: rotate(0deg);
 		}
 	}

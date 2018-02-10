@@ -2,6 +2,11 @@ var fs = require('fs');
 var path = require('path');
 
 const libini = require('../utils/libini');
+const Datauri = require('datauri');
+
+function dataImage(path) {
+	return Datauri.sync(path);
+}
 
 /**
  * @function readSeparators
@@ -96,9 +101,9 @@ module.exports = {
 						var rack_thumb = null;
 						try {
 							if (fs.existsSync(path.join(rackPath, 'thumb.jpg'))) {
-								rack_thumb = 'thumb.jpg';
+								rack_thumb = dataImage(path.join(rackPath, 'thumb.jpg'));
 							} else if (fs.existsSync(path.join(rackPath, 'thumb.png'))) {
-								rack_thumb = 'thumb.png';
+								rack_thumb = dataImage(path.join(rackPath, 'thumb.png'));
 							}
 						} catch(err) {
 							console.error(err);

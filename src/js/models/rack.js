@@ -30,7 +30,7 @@ class Rack extends Model {
 
 		this._path = data.path;
 
-		this.thumbnail = data.thumbnail ? path.join(this.path, data.thumbnail) : null;
+		this.thumbnail = data.thumbnail;
 
 		this.dragHover = false;
 		this.sortUpper = false;
@@ -71,9 +71,9 @@ class Rack extends Model {
 	}
 
 	get styleObject() {
-		if (this.thumbnail && (this.thumbnail.indexOf('.jpg') > 0 || this.thumbnail.indexOf('.png') > 0)) {
+		if (this.thumbnail) {
 			return {
-				'backgroundImage': "url('file://"+this.thumbnail+"')",
+				'backgroundImage': "url("+this.thumbnail+")",
 				"backgroundSize": "cover",
 				"backgroundPosition": "center",
 				"color": "transparent"
