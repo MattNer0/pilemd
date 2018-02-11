@@ -34,6 +34,8 @@ class Rack extends Model {
 		this.sortUpper = false;
 		this.sortLower = false;
 
+		this._openFolder = false;
+
 		this.folders = [];
 		this.notes = [];
 	}
@@ -78,6 +80,14 @@ class Rack extends Model {
 
 	get rack() {
 		return this;
+	}
+
+	get openFolder() {
+		return this._openFolder;
+	}
+
+	set openFolder(value) {
+		this._openFolder = value;
 	}
 
 	toJSON() {
@@ -134,33 +144,6 @@ class Rack extends Model {
 			}
 		}
 		this.saveOrdering();
-	}
-}
-
-class RackSeparator extends Rack {
-
-	constructor(data) {
-		if(!data) data = { name: '' };
-		data.load_ordering = false;
-		data.path = null;
-		super(data);
-	}
-
-	get data() {
-		return _.assign(super.data, { separator: true });
-	}
-
-	get rackExists() {
-		return false;
-	}
-
-	remove() {
-		libini.removeKey(Library.baseLibraryPath, ['separator', this.uid]);
-	}
-
-	saveModel() {
-		/* load INI file and save new rack separator data */
-		libini.writeKey(Library.baseLibraryPath, ['separator', this.uid], this.ordering );
 	}
 }
 
@@ -319,7 +302,6 @@ module.exports = function(library) {
     Library = library;
 	return {
 		Rack         : Rack,
-		RackSeparator: RackSeparator,
 		BookmarkRack : BookmarkRack
 	};
 };

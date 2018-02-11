@@ -34,7 +34,7 @@ class Folder extends Model {
 		this.sortLower = false;
 
 		this.openNotes = false;
-		this.openFolder = false;
+		this._openFolder = false;
 
 		this.folders = [];
 		if (data.folders && data.folders.length > 0) {
@@ -112,6 +112,15 @@ class Folder extends Model {
 
 	get rackUid() {
 		return this.rack.uid;
+	}
+
+	get openFolder() {
+		return this._openFolder;
+	}
+
+	set openFolder(value) {
+		this._openFolder = value;
+		if (value) this.parent.openFolder = value;
 	}
 
 	toJSON() {

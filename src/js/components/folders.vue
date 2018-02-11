@@ -1,51 +1,43 @@
 <template lang="pug">
-	.my-shelf-folders
-		//-.new-folder(v-if="isRack(parentFolder)")
-			.my-shelf-folder
-				h5(@click.prevent.stop="addFolder()")
-					a.my-shelf-folder-name
-						i.material-icons add_circle_outline
-						| Add Folder
+	.my-shelf-folders(v-if="parentFolder && parentFolder.folders && parentFolder.folders.length > 0")
+		.my-shelf-folder(v-for="folder in parentFolder.folders"
+			:class="classFolder(folder)"
+			:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
+			@dragstart.stop="folderDragStart($event, parentFolder, folder)"
+			@dragend.stop="folderDragEnd(folder)"
+			@dragover.stop="folderDragOver($event, folder)"
+			@dragleave="folderDragLeave(folder)"
+			@drop="dropToFolder($event, parentFolder, folder)"
+			@contextmenu.prevent.stop="folderMenu(parentFolder, folder)")
+			.folder-object(@click.prevent.stop="selectFolder(folder)")
+				i.material-icons.down(@click.prevent.stop="folder.openFolder = !folder.openFolder") arrow_drop_down
+				a.my-shelf-folder-name.no-name(v-if="editingFolder != folder.uid")
+					template(v-if="folder.name")
+						| {{ folder.name }}
+					template(v-else)
+						| No Title
+					span.my-shelf-folder-badge(v-show="folder.notes.length > 0")
+						| {{ folder.notes.length }} 
+						i.material-icons description
+					span.my-shelf-folder-badge(v-show="folder.folders.length > 0")
+						| {{ folder.folders.length }} 
+						i.material-icons folder
+				input(v-if="editingFolder == folder.uid"
+					v-model="folder.name"
+					v-focus="editingFolder == folder.uid"
+					@blur="doneFolderEdit(folder)"
+					@keyup.enter="doneFolderEdit(folder)"
+					@keyup.esc="doneFolderEdit(folder)")
 
-		.my-shelf(v-if="parentFolder && parentFolder.folders && parentFolder.folders.length > 0")
-			.my-shelf-folder(v-for="folder in parentFolder.folders"
-				:class="classFolder(folder)"
-				:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
-				@dragstart.stop="folderDragStart($event, parentFolder, folder)"
-				@dragend.stop="folderDragEnd(folder)"
-				@dragover.stop="folderDragOver($event, folder)"
-				@dragleave="folderDragLeave(folder)"
-				@drop="dropToFolder($event, parentFolder, folder)"
-				@contextmenu.prevent.stop="folderMenu(parentFolder, folder)")
-				h5(@click.prevent.stop="selectFolder(folder)")
-					i.material-icons.down(@click.prevent.stop="folder.openFolder = !folder.openFolder") arrow_drop_down
-					a.my-shelf-folder-name.no-name(v-if="editingFolder != folder.uid")
-						template(v-if="folder.name")
-							| {{ folder.name }}
-						template(v-else)
-							| No Title
-						span.my-shelf-folder-badge(v-show="folder.notes.length > 0")
-							| {{ folder.notes.length }} 
-							i.material-icons description
-						span.my-shelf-folder-badge(v-show="folder.folders.length > 0")
-							| {{ folder.folders.length }} 
-							i.material-icons folder
-					input(v-if="editingFolder == folder.uid"
-						v-model="folder.name"
-						v-focus="editingFolder == folder.uid"
-						@blur="doneFolderEdit(folder)"
-						@keyup.enter="doneFolderEdit(folder)"
-						@keyup.esc="doneFolderEdit(folder)")
-
-				folders(v-if="folder.folders",
-						:parent-folder="folder"
-						:selected-folder="selectedFolder"
-						:dragging-note="draggingNote"
-						:change-rack="changeRack"
-						:change-folder="changeFolder"
-						:editing-rack="editingRack"
-						:editing-folder="editingFolder"
-						:dragging-folder="draggingFolder")
+			folders(v-if="folder.folders",
+					:parent-folder="folder"
+					:selected-folder="selectedFolder"
+					:dragging-note="draggingNote"
+					:change-rack="changeRack"
+					:change-folder="changeFolder"
+					:editing-rack="editingRack"
+					:editing-folder="editingFolder"
+					:dragging-folder="draggingFolder")
 </template>
 
 <script>

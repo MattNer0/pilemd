@@ -19,56 +19,75 @@
 	padding: 0;
 	margin: 0;
 
-	h4,
-	h5 {
+	.rack-object,
+	.folder-object {
+		position: relative;
 		color: $sidebar-color;
-		margin: 0 auto;
-		padding: 0.3em 0.1em;
-		font-weight: normal;
+		text-align: left;
 		font-size: 110%;
-		border-radius: $folder-list-border-radius;
-		white-space: initial;
-		word-wrap: break-word;
+
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
 
 		-webkit-user-select: none;
-		transition: background-color 200ms;
 
 		input {
 			width: 80%;
-		}
-	}
-
-	h4 {
-		font-weight: bold;
-		margin: 0.5em 0.4em;
-		padding: 0;
-		text-align: left;
-
-		i {
-			margin-right: 0.2em;
-		}
-
-		a {
-			border-bottom: 1px solid $sidebar-background;
-		}
-
-		input {
+			font-size: inherit;
 			padding: 0;
 			margin: 0;
-			font-weight: bold;
-			font-size: inherit;
 			background: transparent;
 			color: $sidebar-color;
 			outline: none;
-			border-top: 0;
-			border-left: 0;
-			border-right: 0;
-			border-bottom: 1px solid $sidebar-color;
+			border: 0;
 		}
+	}
+
+	i.material-icons.down {
+		position: absolute;
+		left: 0;
+		top: 0.5em;
+		display: none;
+		cursor: pointer;
+		margin: 0;
+		padding: 0;
+		width: 1em;
+		height: 1em;
+		font-size: 100%;
+		line-height: 1em;
+		outline: none;
+		transition: transform .4s;
+	}
+
+	.rack-object {
+		font-weight: bold;
+		margin: 0.3em 0;
+		padding: 0.3em 0 0.3em 1em;
+		border-bottom: 1px solid $folder-separator;
+		opacity: 0.9;
+
+		i.material-icons.down {
+			top: 0.4em;
+		}
+
+		input {
+			font-weight: bold;
+		}
+	}
+
+	.folder-object {
+		margin: 0.1em 0;
+		padding: 0.3em 0 0.3em 1em;
+		font-weight: normal;
+		border-radius: $folder-list-border-radius;
+
+		transition: background-color 200ms;
 	}
 
 	.rack-icon, .bookmark-rack-icon {
 		font-size: 100%;
+		margin-right: 0.2em;
 		vertical-align: middle;
 		color: $sidebar-color;
 		opacity: 0.8;
@@ -115,9 +134,15 @@
 	padding-left: 1em;
 }
 
-.my-shelf-folder {
-	position: relative;
+.my-shelf-rack .my-shelf-folders {
+	padding-left: 1em;
+}
 
+.my-shelf-folders {
+	display: none;
+}
+
+.my-shelf-folder {
 	i {
 		font-size: 100%;
 		margin-top: -0.1em;
@@ -138,52 +163,13 @@
 		width: 48px;
 		outline: none;
 	}
-
-	> h5 {
-		position: relative;
-		margin: 0.1em 0;
-		padding: 0.3em 0 0.3em 1em;
-		border-radius: $folder-list-border-radius;
-		transition: background-color 200ms;
-		font-size: 16px;
-
-		text-overflow: ellipsis;
-		overflow: hidden;
-		white-space: nowrap;
-
-		i.material-icons.down {
-			position: absolute;
-			left: 0;
-			top: 0.5em;
-			display: none;
-			margin: 0;
-			padding: 0;
-			width: 1em;
-			height: 1em;
-			line-height: 1em;
-			outline: none;
-			transition: transform .4s;
-		}
-	}
-
-	.my-shelf-folders {
-		display: none;
-	}
-
-	.my-shelf {
-		color: $sidebar-color;
-	
-		height: auto;
-		overflow-y: initial;
-	}
 }
 
-.my-shelf-folder.gotSubfolders {
-	> h5 {
-		i.material-icons.down {
-			display: inline-block;
-			transform: rotate(-90deg);
-		}
+.my-shelf-rack.gotSubfolders > .rack-object,
+.my-shelf-folder.gotSubfolders > .folder-object {
+	i.material-icons.down {
+		display: inline-block;
+		transform: rotate(-90deg);
 	}
 }
 
@@ -192,7 +178,19 @@
 		display: block;
 	}
 
-	> h5 {
+	> .folder-object {
+		i.material-icons.down {
+			transform: rotate(0deg);
+		}
+	}
+}
+
+.my-shelf-rack.openFolder {
+	> .my-shelf-folders {
+		display: block;
+	}
+
+	> .rack-object {
 		i.material-icons.down {
 			transform: rotate(0deg);
 		}
@@ -212,7 +210,7 @@
 		padding: 0.4em;
 		border-radius: 0.2em;
 
-		h5 {
+		.folder-object {
 			padding: 0;
 			margin: 0;
 			font-size: 14px;
@@ -239,21 +237,21 @@
 	}
 }
 
-.my-shelf-folder:hover > h5 {
+.my-shelf-folder:hover > .folder-object {
 	color: $ui-text-color-hover;
 }
 
-.my-shelf-folder.isShelfSelected > h5 {
+.my-shelf-folder.isShelfSelected > .folder-object {
 	color: $folder-selected-color;
 }
 
-.my-shelf-folder h5:hover {
+.my-shelf-folder .folder-object:hover {
 	background-color: $folder-hover-background;
 	color: $folder-selected-color;
 	cursor: pointer;
 }
 
-.my-shelf-folder.isShelfSelected > h5 {
+.my-shelf-folder.isShelfSelected > .folder-object {
 	background-color: $folder-selected-background;
 	color: $folder-selected-color;
 	cursor: pointer;
@@ -284,26 +282,6 @@
 
 .my-shelf-folder.noteDragging {
 	color: #fefefe;
-}
-
-.my-shelf-rack .rack-separator {
-	background-color: transparent;
-	padding: 4px 0;
-
-	div {
-		background-color: $folder-separator;
-		width: 100%;
-		height: 1px;
-	}
-}
-
-.my-shelf-rack .rack-separator:hover {
-	background-color: transparent;
-	cursor: move;
-
-	div {
-		background-color: $folder-selected-color;
-	}
 }
 
 .my-shelf-racks.dragginRack, .my-shelf-racks.dragginFolder {

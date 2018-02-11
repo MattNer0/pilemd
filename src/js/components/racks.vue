@@ -5,7 +5,7 @@
 				i.material-icons.rack-icon add_box
 				a Add Rack
 		.my-shelf-rack(v-for="rack in racksWithFolders"
-			:class="{'sortUpper': rack.sortUpper, 'sortLower': rack.sortLower }"
+			:class="classRack(rack)"
 			:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
 			@dragstart.stop="rackDragStart($event, rack)"
 			@dragend.stop="rackDragEnd()"
@@ -13,9 +13,10 @@
 			@dragleave.stop="rackDragLeave(rack)"
 			@drop.stop="dropToRack($event, rack)"
 			@contextmenu.prevent.stop="rackMenu(rack)")
-			.rack-separator(v-if="rack.data.separator")
-				div
-			h4(v-else)
+			.rack-object(:class="{ 'editing' : editingRack == rack.uid }")
+				i.material-icons.down(
+					@click.prevent.stop="rack.openFolder = !rack.openFolder",
+					v-show="rack.folders.length > 0") arrow_drop_down
 				template(v-if="rack.data.bookmarks")
 					i.material-icons.bookmark-rack-icon book
 				template(v-else)
@@ -68,7 +69,6 @@
 			'draggingNote'        : Object,
 			'changeRack'          : Function,
 			'changeFolder'        : Function,
-			'addRackSeparator'    : Function,
 			'editingRack'         : String,
 			'editingFolder'       : String,
 			'draggingRack'        : Object,
@@ -94,6 +94,14 @@
 			}
 		},
 		methods: {
+			classRack(rack) {
+				return {
+					'gotSubfolders': rack.folders && rack.folders.length > 0,
+					'openFolder'   : rack.openFolder,
+					'sortUpper'    : rack.sortUpper,
+					'sortLower'    : rack.sortLower
+				};
+			},
 			addRack() {
 				var rack = new models.Rack({
 					name: "",
@@ -253,21 +261,11 @@
 						this.addBookmarkRack();
 					}
 				}));
-				menu.append(new MenuItem({
-					label: 'Add Rack Separator',
-					click: () => {
-						this.addRackSeparator();
-					}
-				}));
 				menu.append(new MenuItem({type: 'separator'}));
 				menu.append(new MenuItem({
 					label: rack.data.separator ? 'Delete Separator' : 'Delete Rack',
 					click: () => {
-						if (rack.data.separator) {
-							if(confirm('Delete Rack Separator?')) {
-								this.$root.removeRack(rack);
-							}
-						} else if (confirm('Delete Rack "' + rack.name + '" and its content?')) {
+						if (confirm('Delete Rack "' + rack.name + '" and its content?')) {
 							this.$root.removeRack(rack);
 						}
 					}

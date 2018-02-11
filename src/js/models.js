@@ -19,7 +19,6 @@ const BookmarkFolder = FolderModels.BookmarkFolder;
 
 const RackModels = require('./models/rack')(baseLibrary);
 const Rack = RackModels.Rack;
-const RackSeparator = RackModels.RackSeparator;
 const BookmarkRack = RackModels.BookmarkRack;
 
 module.exports = {
@@ -30,7 +29,6 @@ module.exports = {
 	Folder        : Folder,
 	BookmarkFolder: BookmarkFolder,
 	Rack          : Rack,
-	RackSeparator : RackSeparator,
 	BookmarkRack  : BookmarkRack,
 	getBaseLibraryPath() {
 		return baseLibrary.baseLibraryPath;

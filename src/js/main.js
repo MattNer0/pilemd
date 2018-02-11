@@ -211,7 +211,6 @@ var appVue = new Vue({
 			data.racks.forEach((r) => {
 				switch(r._type) {
 					case 'separator':
-						racks.push(new models.RackSeparator(r));
 						break;
 					case 'bookmark':
 						racks.push(new models.BookmarkRack(r));
@@ -305,6 +304,7 @@ var appVue = new Vue({
 				this.notesHistory = this.notes.filter((obj) => {
 					return last_history.note.indexOf(obj.relativePath) >= 0;
 				});
+				this.notesHistory.reverse();
 			}
 
 			if (this.racks && this.racks.length > 0) {
@@ -482,6 +482,10 @@ var appVue = new Vue({
 				return;
 			}
 
+			if (note.folder && note.folder instanceof models.Folder) {
+				note.folder.openFolder = true;
+			}
+
 			if (note instanceof models.Outline) {
 				this.selectedNote = note;
 				if (this.keepHistory) {
@@ -556,25 +560,6 @@ var appVue = new Vue({
 				r.saveModel();
 			});
 			this.racks = racks;
-		},
-		/**
-		 * adds a new rack separator to the working directory.
-		 * The new rack is placed on top of the list.
-		 * 
-		 * @function addRackSeparator
-		 * @return {RackSeparator} New rack separator
-		 */
-		addRackSeparator() {
-			var rack_separator = new models.RackSeparator();
-			var racks = arr.sortBy(this.racks.slice(), 'ordering', true);
-			racks.unshift(rack_separator);
-			racks.forEach((r, i) => {
-				r.ordering = i;
-				r.saveModel();
-			});
-			this.racks = racks;
-
-			return rack_separator;
 		},
 		/**
 		 * @description removes the Rack (and its contents) from the current working directory.
@@ -1046,10 +1031,6 @@ var appVue = new Vue({
 			menu.append(new MenuItem({
 				label: 'Add Bookmark Rack',
 				click: () => { this.$refs.refRacks.addBookmarkRack(); }
-			}));
-			menu.append(new MenuItem({
-				label: 'Add Rack Separator',
-				click: () => { this.addRackSeparator(); }
 			}));
 			menu.popup(remote.getCurrentWindow());
 		},

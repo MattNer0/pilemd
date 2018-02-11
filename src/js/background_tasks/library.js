@@ -9,27 +9,6 @@ function dataImage(path) {
 }
 
 /**
- * @function readSeparators
- * @param  {type} library {description}
- * @return {type} {description}
- */
-function readSeparators(library) {
-	var valid_racks = [];
-	if (fs.existsSync(library)) {
-		var racks = libini.readKeyAsArray(library, 'separator');
-		for (var r = 0; r < racks.length; r++) {
-			valid_racks.push({
-				_type   : 'separator',
-				uid     : racks[r].key,
-				name    : racks[r].key,
-				ordering: racks[r].value
-			});
-		}
-	}
-	return valid_racks;
-}
-
-/**
  * @function readBookmarkRacks
  * @param  {type} library {description}
  * @return {type} {description}
@@ -121,8 +100,8 @@ module.exports = {
 				}
 			}
 
-			var separators = readSeparators(library);
-			if (separators) valid_racks = valid_racks.concat(separators);
+			//var separators = readSeparators(library);
+			//if (separators) valid_racks = valid_racks.concat(separators);
 
 			var bookmarks = readBookmarkRacks(library);
 			if (bookmarks) valid_racks = valid_racks.concat(bookmarks);
