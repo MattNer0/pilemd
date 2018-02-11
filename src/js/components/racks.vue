@@ -13,10 +13,8 @@
 			@dragleave.stop="rackDragLeave(rack)"
 			@drop.stop="dropToRack($event, rack)"
 			@contextmenu.prevent.stop="rackMenu(rack)")
-			.rack-object(:class="{ 'editing' : editingRack == rack.uid }")
-				i.material-icons.down(
-					@click.prevent.stop="rack.openFolder = !rack.openFolder",
-					v-show="rack.folders.length > 0") arrow_drop_down
+			.rack-object(:class="{ 'editing' : editingRack == rack.uid }", @click.prevent.stop="rack.openFolder = !rack.openFolder")
+				i.material-icons.down(v-show="rack.folders.length > 0") arrow_drop_down
 				template(v-if="rack.data.bookmarks")
 					i.material-icons.bookmark-rack-icon book
 				template(v-else)

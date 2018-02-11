@@ -1,5 +1,4 @@
 .my-shelf-racks {
-	padding-bottom: 2em;
 	cursor: default;
 }
 
@@ -25,6 +24,8 @@
 		color: $sidebar-color;
 		text-align: left;
 		font-size: 110%;
+
+		cursor: pointer;
 
 		text-overflow: ellipsis;
 		overflow: hidden;
@@ -248,13 +249,11 @@
 .my-shelf-folder .folder-object:hover {
 	background-color: $folder-hover-background;
 	color: $folder-selected-color;
-	cursor: pointer;
 }
 
 .my-shelf-folder.isShelfSelected > .folder-object {
 	background-color: $folder-selected-background;
 	color: $folder-selected-color;
-	cursor: pointer;
 	opacity: 1.0;
 }
 
