@@ -37,7 +37,6 @@ import component_modal from './components/modal.vue';
 import component_noteMenu from './components/noteMenu.vue';
 import component_noteFooter from './components/noteFooter.vue';
 import component_racks from './components/racks.vue';
-import component_folders from './components/folders.vue';
 import component_notes from './components/notes.vue';
 import component_welcomeSplash from './components/welcomeSplash.vue';
 import component_titleBar from './components/titleBar.vue';
@@ -63,6 +62,7 @@ var appVue = new Vue({
 	el: '#main-editor',
 	template: require('../html/app.html'),
 	data: {
+		loadedEverything    : false,
 		isFullScreen        : false,
 		isPreview           : false,
 		selectedTheme       : settings.getSmart('theme', 'dark'),
@@ -103,7 +103,6 @@ var appVue = new Vue({
 	components: {
 		'flashmessage' : component_flashmessage,
 		'racks'        : component_racks,
-		'folders'      : component_folders,
 		'notes'        : component_notes,
 		'modal'        : component_modal,
 		'addNote'      : component_addNote,
@@ -298,6 +297,9 @@ var appVue = new Vue({
 
 		ipcRenderer.on('loaded-all-notes', (event, data) => {
 			if (!data) return;
+
+			this.loadedEverything = true;
+
 			var last_history = libini.readKey(models.getBaseLibraryPath(), 'history');
 			if (last_history && last_history.note.length > 0) {
 				this.notesHistory = this.notes.filter((obj) => {

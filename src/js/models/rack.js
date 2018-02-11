@@ -30,8 +30,6 @@ class Rack extends Model {
 
 		this._path = data.path;
 
-		this.thumbnail = data.thumbnail;
-
 		this.dragHover = false;
 		this.sortUpper = false;
 		this.sortLower = false;
@@ -70,19 +68,6 @@ class Rack extends Model {
 		return this.path.replace(Library.baseLibraryPath+'/', '');
 	}
 
-	get styleObject() {
-		if (this.thumbnail) {
-			return {
-				'backgroundImage': "url("+this.thumbnail+")",
-				"backgroundSize": "cover",
-				"backgroundPosition": "center",
-				"color": "transparent"
-			};
-		} else {
-			return {};
-		}
-	}
-
 	get rackExists() {
 		return fs.existsSync(this._path);
 	}
@@ -93,17 +78,6 @@ class Rack extends Model {
 
 	get rack() {
 		return this;
-	}
-
-	get shortened() {
-		var split = this.name.split(/[\s,-.]+/);
-		var short;
-		if (split.length == 1) {
-			short = this.name.slice(0,2);
-		} else {
-			short = split[0].charAt(0) + split[1].charAt(0);
-		}
-		return short.toUpperCase();
 	}
 
 	toJSON() {

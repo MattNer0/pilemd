@@ -1,6 +1,6 @@
 <template lang="pug">
 	.my-shelf-folders
-		.new-folder(v-if="isRack(parentFolder)")
+		//-.new-folder(v-if="isRack(parentFolder)")
 			.my-shelf-folder
 				h5(@click.prevent.stop="addFolder()")
 					a.my-shelf-folder-name
@@ -43,13 +43,9 @@
 						:dragging-note="draggingNote"
 						:change-rack="changeRack"
 						:change-folder="changeFolder"
-						:folder-drag-ended="folderDragEnded"
-						:set-dragging-note="setDraggingNote"
-						:delete-folder="deleteFolder"
 						:editing-rack="editingRack"
 						:editing-folder="editingFolder"
-						:dragging-folder="draggingFolder"
-						ref="refFolders")
+						:dragging-folder="draggingFolder")
 </template>
 
 <script>
@@ -71,9 +67,6 @@
 			'draggingNote'        : Object,
 			'changeRack'          : Function,
 			'changeFolder'        : Function,
-			'folderDragEnded'     : Function,
-			'setDraggingNote'     : Function,
-			'deleteFolder'        : Function,
 			'editingRack'         : String,
 			'editingFolder'       : String,
 			'draggingFolder'      : Object
@@ -150,7 +143,7 @@
 				this.draggingFolderParent = parent;
 			},
 			folderDragEnd() {
-				this.folderDragEnded(this.draggingFolderParent, this.draggingFolder);
+				this.$root.folderDragEnded(this.draggingFolderParent, this.draggingFolder);
 				this.$root.setDraggingFolder();
 				this.draggingFolderParent = null;
 			},
@@ -202,7 +195,7 @@
 					note.folder = folder;
 					folder.notes.unshift(note);
 					note.saveModel();
-					this.setDraggingNote(null);
+					this.$root.setDraggingNote(null);
 					this.changeFolder(null);
 				} else if (this.draggingFolder && this.draggingFolder != folder) {
 					console.log('Dropping Folder to Folder');
@@ -282,7 +275,7 @@
 					click: () => {
 						if (confirm('Delete Folder "' + folder.name + '" and its content?')) {
 							this.changeRack(rack);
-							this.deleteFolder(folder);
+							this.$root.deleteFolder(folder);
 						}
 					}
 				}));

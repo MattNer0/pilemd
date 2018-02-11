@@ -15,23 +15,30 @@
 			@contextmenu.prevent.stop="rackMenu(rack)")
 			.rack-separator(v-if="rack.data.separator")
 				div
-			h4(v-else,
-				@click.prevent.stop="selectRack(rack)",
-				v-tooltip="{ 'content': rack.name, 'placement': 'left' }"
-				:ciao="rack.thumbnail"
-				:style="rack.styleObject"
-				:class="{'isShelfSelected': (selectedRack === rack && !isDraggingNote) || rack.dragHover }")
+			h4(v-else)
 				template(v-if="rack.data.bookmarks")
 					i.material-icons.bookmark-rack-icon book
 				template(v-else)
 					i.material-icons.rack-icon folder
-				a(v-if="editingRack != rack.uid") {{ rack.shortened }}
+				a(v-if="editingRack != rack.uid")
+					| {{ rack.name }}
 				input(v-if="editingRack == rack.uid"
 					v-model="rack.name"
 					v-focus="editingRack == rack.uid"
 					@blur="doneRackEdit(rack)"
 					@keyup.enter="doneRackEdit(rack)"
 					@keyup.esc="doneRackEdit(rack)")
+			
+			folders(v-if="rack.folders.length > 0",
+				v-show="!draggingRack"
+				:parent-folder="rack"
+				:selected-folder="selectedFolder"
+				:dragging-note="draggingNote"
+				:change-rack="changeRack"
+				:change-folder="changeFolder"
+				:editing-rack="editingRack"
+				:editing-folder="editingFolder"
+				:dragging-folder="draggingFolder")
 </template>
 
 <script>
@@ -51,13 +58,16 @@
 
 	const models = require('../models');
 
+	import component_folders from './folders.vue';
+
 	export default {
 		name: 'racks',
 		props: {
 			'racks'               : Array,
-			'selectedRack'        : Object,
+			'selectedFolder'      : Object,
 			'draggingNote'        : Object,
 			'changeRack'          : Function,
+			'changeFolder'        : Function,
 			'addRackSeparator'    : Function,
 			'editingRack'         : String,
 			'editingFolder'       : String,
@@ -71,6 +81,9 @@
 					element.focus();
 				});
 			}
+		},
+		components: {
+			'folders': component_folders
 		},
 		computed: {
 			racksWithFolders() {
@@ -103,9 +116,6 @@
 				if (!this.editingRack) { return }
 				rack.saveModel();
 				this.$root.setEditingRack(null);
-				this.changeRack(rack);
-			},
-			selectRack(rack) {
 				this.changeRack(rack);
 			},
 			// Dragging
@@ -186,7 +196,7 @@
 					event.stopPropagation();
 				}
 			},
-			selectRackThumbnail(rack) {
+			/*selectRackThumbnail(rack) {
 				try {
 					var filePath = dialog.showOpenDialog(remote.getCurrentWindow(), {
 						title: 'Import Thumbnail Image',
@@ -206,7 +216,7 @@
 				} catch(err) {
 					console.error(err);
 				}
-			},
+			},*/
 			rackMenu(rack) {
 				var menu = new Menu();
 				if (!rack.data.separator) {
@@ -216,12 +226,12 @@
 							this.$root.setEditingRack(rack);
 						}
 					}));
-					menu.append(new MenuItem({
+					/*menu.append(new MenuItem({
 						label: 'Set Rack Thumbnail',
 						click: () => {
 							this.selectRackThumbnail(rack);
 						}
-					}));
+					}));*/
 					
 					menu.append(new MenuItem({
 						label: 'Add Folder',

@@ -19,14 +19,15 @@
 	<div class="my-main" :class="{'note_selected': isNoteSelected }">
 		<div :class="{'outer_wrapper': true}">
 			<div class="sidebar">
-				<div class="cell-container" ref="sidebarRacks">
+				<div v-show="loadedEverything" class="cell-container" ref="sidebarRacks">
 					<div class="my-shelf" @contextmenu="shelfMenu()">
 						<div class="my-shelf-wrapper">
 							<racks
 								:racks="racks"
-								:selected-rack="selectedRack"
+								:selected-folder="selectedFolder"
 								:dragging-note="draggingNote"
 								:change-rack="changeRack"
+								:change-folder="changeFolder"
 								:add-rack-separator="addRackSeparator"
 								:editing-rack="editingRack"
 								:editing-folder="editingFolder"
@@ -37,25 +38,7 @@
 						</div>
 					</div>
 				</div>
-				<div v-show="selectedRack" class="cell-container" ref="sidebarFolders">
-					<folders
-						v-if="selectedRack"
-						:parent-folder="selectedRack"
-						:selected-folder="selectedFolder"
-						:dragging-note="draggingNote"
-						:change-rack="changeRack"
-						:change-folder="changeFolder"
-						:folder-drag-ended="folderDragEnded"
-						:set-dragging-note="setDraggingNote"
-						:delete-folder="deleteFolder"
-						:editing-rack="editingRack"
-						:editing-folder="editingFolder"
-						:dragging-folder="draggingFolder"
-						ref="refFolders">
-					</folders>
-				</div>
 				<handler-stack
-					v-show="selectedRack"
 					:sidebar-drag="sidebarDrag"
 					:sidebar-drag-end="sidebarDragEnd"
 					ref="refHandleStack">
@@ -153,5 +136,4 @@
 		</div>
 	</div>
 	<modal ref="dialog"></modal>
-	<webview id="bookmark-webview" src="about:blank" ref="webview"></webview>
 </main>

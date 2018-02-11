@@ -40,32 +40,31 @@
 
 	h4 {
 		font-weight: bold;
-		position: relative;
-		background-color: $rack-background;
-		margin: 0.6em;
+		margin: 0.5em 0.4em;
 		padding: 0;
-		width: 3.5em;
-		height: 3.5em;
-		text-align: center;
-		border-radius: 2em;
-		line-height: 3.7em;
-
-		transition: border-radius 0.4s;
-		border: 3px solid $rack-background;
-
-		a {
-			font-size: 150%;
-		}
+		text-align: left;
 
 		i {
-			position: absolute;
-			left: 0;
-			bottom: 0;
+			margin-right: 0.2em;
 		}
-	}
 
-	h4:hover {
-		border-radius: 1.5em;
+		a {
+			border-bottom: 1px solid $sidebar-background;
+		}
+
+		input {
+			padding: 0;
+			margin: 0;
+			font-weight: bold;
+			font-size: inherit;
+			background: transparent;
+			color: $sidebar-color;
+			outline: none;
+			border-top: 0;
+			border-left: 0;
+			border-right: 0;
+			border-bottom: 1px solid $sidebar-color;
+		}
 	}
 
 	.rack-icon, .bookmark-rack-icon {
@@ -240,65 +239,25 @@
 	}
 }
 
-.my-shelf-rack h4:hover .rack-icon,
-.my-shelf-rack h4:hover .bookmark-rack-icon,
 .my-shelf-folder:hover > h5 {
 	color: $ui-text-color-hover;
 }
 
-.my-shelf-folder.isShelfSelected > h5,
-.my-shelf-rack h4.isShelfSelected,
-.my-shelf-rack h4.isShelfSelected .rack-icon,
-.my-shelf-rack h4.isShelfSelected .bookmark-rack-icon {
+.my-shelf-folder.isShelfSelected > h5 {
 	color: $folder-selected-color;
 }
 
-.my-shelf-rack h4:before {
-	content: "";
-	position: absolute;
-	border-radius: 1em;
-	width: 1.5em;
-	height: 1.5em;
-	bottom: -0.2em;
-	left: -0.2em;
-	z-index: 1;
-	background-color: $sidebar-background;
-	opacity: 0.9;
-}
-
-.my-shelf-rack h4.isShelfSelected:after {
-	content: "";
-	position: absolute;
-	top: 50%;
-	left: -1.5em;
-	border-radius: 1em;
-	width: 1em;
-	height: 1em;
-	margin-top: -0.5em;
-	z-index: 1;
-	background-color: $sidebar-color;
-}
-
-.my-shelf-folder h5:hover, .my-shelf-rack h4:hover {
+.my-shelf-folder h5:hover {
 	background-color: $folder-hover-background;
 	color: $folder-selected-color;
 	cursor: pointer;
 }
 
-.my-shelf-rack h4:hover {
-	border-color: $folder-hover-background;
-}
-
-.my-shelf-folder.isShelfSelected > h5,
-.my-shelf-rack h4.isShelfSelected {
+.my-shelf-folder.isShelfSelected > h5 {
 	background-color: $folder-selected-background;
 	color: $folder-selected-color;
 	cursor: pointer;
 	opacity: 1.0;
-}
-
-.my-shelf-rack h4.isShelfSelected {
-	border-color: $folder-selected-background;
 }
 
 .my-shelf-rack.sortUpper:after,
