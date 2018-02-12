@@ -6,18 +6,14 @@
 					span(v-if="!enabled")
 						i.material-icons folder
 						| PileMd Library
-					span(v-if="enabled && rack")
-						i.material-icons folder
-						|  {{ rack.name }}
-					span(v-if="enabled && folder")
-						i.material-icons chevron_right
-						|  {{ folder.name }}
-					span(v-if="note && note.title")
-						i.material-icons chevron_right
-						|  {{ note.title }}
-					span(v-if="enabledBookmark")
+					span(v-else-if="enabledBookmark")
 						i.material-icons chevron_right
 						|  {{ bookmark.name }}
+					template(v-else)
+						span(v-for="(path, index) in selectionPath")
+							i.material-icons(v-if="index == 0") folder
+							i.material-icons(v-else) chevron_right
+							|  {{ path }}
 			.spacer
 				nav: ul
 					li
@@ -134,20 +130,22 @@
 		},
 		computed: {
 			enabled() {
-				return this.rack || this.folder || (this.note && this.note.title);
+				return this.selectedRack || this.selectedFolder || (this.note && this.note.title);
 			},
 			enabledBookmark() {
 				return this.bookmark && this.bookmark.name;
 			},
-			rack() {
-				if (this.note && this.note.title) return this.note.rack;
-				if (this.selectedRack) return this.selectedRack;
-				return null;
-			},
-			folder() {
-				if (this.note && this.note.title) return this.note.folder;
+			topLevel() {
+				if (this.note && this.note.title) return this.note;
 				if (this.selectedFolder) return this.selectedFolder;
-				return null;
+				if (this.selectedRack) return this.selectedRack;
+				return { 'path': '' };
+			},
+			selectionPath() {
+				var p = path.normalize(this.topLevel.path);
+				if (this.note && this.note.title) p = p.replace(this.note.extension, '');
+				p = path.relative(models.getBaseLibraryPath(), p);
+				return p.split(path.sep);
 			}
 		},
 		methods: {

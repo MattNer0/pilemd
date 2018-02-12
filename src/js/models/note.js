@@ -82,6 +82,10 @@ class Note extends Model {
 		});
 	}
 
+	get extension() {
+		return this._ext;
+	}
+
 	get isEncrypted() {
 		return false;
 	}
