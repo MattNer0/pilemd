@@ -15,10 +15,7 @@
 			@contextmenu.prevent.stop="rackMenu(rack)")
 			.rack-object(:class="{ 'editing' : editingRack == rack.uid }", @click.prevent.stop="rack.openFolder = !rack.openFolder")
 				i.material-icons.down(v-show="rack.folders.length > 0") arrow_drop_down
-				template(v-if="rack.data.bookmarks")
-					i.material-icons.bookmark-rack-icon book
-				template(v-else)
-					i.material-icons.rack-icon folder
+				i.material-icons.rack-icon {{ rack.icon }}
 				a(v-if="editingRack != rack.uid")
 					| {{ rack.name }}
 				input(v-if="editingRack == rack.uid"

@@ -34,6 +34,8 @@ class Rack extends Model {
 		this.sortUpper = false;
 		this.sortLower = false;
 
+		this._icon = '';
+
 		this._openFolder = false;
 
 		this.folders = [];
@@ -88,6 +90,16 @@ class Rack extends Model {
 
 	set openFolder(value) {
 		this._openFolder = value;
+	}
+
+	get icon() {
+		if (this._icon) {
+			return this._icon;
+		} else if (this.data.bookmarks) {
+			return 'book';
+		} else {
+			return 'folder';
+		}
 	}
 
 	toJSON() {
