@@ -18,15 +18,7 @@ class Rack extends Model {
 
 		this.name = data.name.replace(/^\d+\. /, "") || '';
 
-		this.ordering = false;
-
-		if(data.load_ordering && fs.existsSync(path.join(data.path, '.rack')) ){
-			this.ordering = parseInt( fs.readFileSync( path.join(data.path, '.rack') ).toString() );
-		}
-
-		if(this.ordering === false || isNaN(this.ordering)){
-			this.ordering = data.ordering || 0;
-		}
+		this.ordering = data.ordering || 0;
 
 		this._path = data.path;
 
@@ -34,7 +26,7 @@ class Rack extends Model {
 		this.sortUpper = false;
 		this.sortLower = false;
 
-		this._icon = '';
+		this._icon = data.icon;
 
 		this._openFolder = false;
 
@@ -126,15 +118,14 @@ class Rack extends Model {
 
 	removeFromStorage() {
 		if (fs.existsSync(this._path)) {
-			if( fs.existsSync(path.join(this._path, '.rack')) ) fs.unlinkSync( path.join(this._path, '.rack') );
+			if( fs.existsSync(path.join(this._path, '.rack.ini')) ) fs.unlinkSync( path.join(this._path, '.rack.ini') );
 			fs.rmdirSync(this._path);
 			this.uid = null;
 		}
 	}
 
 	saveOrdering() {
-		var rackConfigPath = path.join( this._path, '.rack');
-		fs.writeFileSync(rackConfigPath, this.ordering);
+		libini.writeKeyByIni(this._path, '.rack.ini', 'ordering', this.ordering);
 	}
 
 	saveModel() {
@@ -161,7 +152,6 @@ class Rack extends Model {
 
 class BookmarkRack extends Rack {
 	constructor(data) {
-		data.load_ordering = false;
 		super(data);
 		this._ext = data.extension || '.html';
 		this._bookmarks = {};

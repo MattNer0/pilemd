@@ -63,6 +63,7 @@ var appVue = new Vue({
 	template: require('../html/app.html'),
 	data: {
 		loadedEverything    : false,
+		loadedRack          : false,
 		isFullScreen        : false,
 		isPreview           : false,
 		selectedTheme       : settings.getSmart('theme', 'dark'),
@@ -222,6 +223,7 @@ var appVue = new Vue({
 			});
 
 			this.racks = arr.sortBy(racks.slice(), 'ordering', true);
+			this.loadedRack = true;
 		});
 
 		ipcRenderer.on('loaded-folders', (event, data) => {

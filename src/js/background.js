@@ -78,7 +78,7 @@ window.onload = function () {
 		try {
 			downloadHelper.downloadMultipleFiles(data.files, data.folder);
 		} catch(e) {
-			logMainProcess(e);
+			logMainProcess(e.message);
 			data.error = e.message || e;
 			ipcRenderer.send('download-files-failed', data);
 		}
@@ -96,7 +96,7 @@ window.onload = function () {
 			ipcRenderer.send('loaded-racks', { racks: arrayRacks });
 			loadFolders(data.library, arrayRacks);
 		} catch(e) {
-			logMainProcess(e);
+			logMainProcess(e.message);
 		}
 	});
 };

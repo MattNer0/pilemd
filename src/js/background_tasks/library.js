@@ -9,37 +9,6 @@ function dataImage(path) {
 }
 
 /**
- * @function readBookmarkRacks
- * @param  {type} library {description}
- * @return {type} {description}
- */
-function readBookmarkRacks(library) {
-	var valid_racks = [];
-	if (fs.existsSync(library)) {
-		var racks = fs.readdirSync(library);
-		for (var ri = 0; ri<racks.length; ri++) {
-			var rack = racks[ri];
-			var rackPath = path.join(library, rack);
-			if (fs.existsSync(rackPath) && rack.charAt(0) != ".") {
-				var rackStat = fs.statSync(rackPath);
-				var rackExt = path.extname(rack);
-				if (rackStat.isFile() && rackExt == '.html') {
-					var body = fs.readFileSync(rackPath).toString();
-					valid_racks.push({
-						_type    : 'bookmark',
-						name     : rack,
-						body     : body,
-						path     : rackPath,
-						extension: rackExt
-					});
-				}
-			}
-		}
-	}
-	return valid_racks;
-}
-
-/**
  * @function getValidMarkdownFormats
  * @return {Array} Array of valid formats
  */
@@ -65,6 +34,10 @@ function isValidNotePath(notePath) {
 	return false;
 }
 
+function readRackData(rack_path) {
+	return libini.readIniFile(rack_path, '.rack.ini');
+}
+
 module.exports = {
 	readRacks(library) {
 		var valid_racks = [];
@@ -77,34 +50,34 @@ module.exports = {
 				if (fs.existsSync(rackPath) && rack.charAt(0) != ".") {
 					var rackStat = fs.statSync(rackPath);
 					if (rackStat.isDirectory()) {
-						var rack_thumb = null;
+						var rack_data = {};
 						try {
-							if (fs.existsSync(path.join(rackPath, 'thumb.jpg'))) {
-								rack_thumb = dataImage(path.join(rackPath, 'thumb.jpg'));
-							} else if (fs.existsSync(path.join(rackPath, 'thumb.png'))) {
-								rack_thumb = dataImage(path.join(rackPath, 'thumb.png'));
-							}
+							rack_data = readRackData(rackPath);
 						} catch(err) {
-							console.error(err);
-							rack_thumb = null;
+							rack_data = {};
 						}
 						valid_racks.push({
 							_type        : 'rack',
 							name         : rack,
-							ordering     : valid_racks.length,
-							load_ordering: true,
-							thumbnail    : rack_thumb,
+							ordering     : rack_data.ordering || valid_racks.length,
+							icon         : rack_data.icon || '',
 							path         : rackPath
 						});
+					} else if (rackStat.isFile()) {
+						var rackExt = path.extname(rack);
+						if (rackExt == '.html') {
+							var body = fs.readFileSync(rackPath).toString();
+							valid_racks.push({
+								_type    : 'bookmark',
+								name     : rack,
+								body     : body,
+								path     : rackPath,
+								extension: rackExt
+							});
+						}
 					}
 				}
 			}
-
-			//var separators = readSeparators(library);
-			//if (separators) valid_racks = valid_racks.concat(separators);
-
-			var bookmarks = readBookmarkRacks(library);
-			if (bookmarks) valid_racks = valid_racks.concat(bookmarks);
 		}
 		return valid_racks;
 	},

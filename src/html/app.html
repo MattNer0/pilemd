@@ -19,7 +19,7 @@
 	<div class="my-main" :class="{'note_selected': isNoteSelected }">
 		<div :class="{'outer_wrapper': true}">
 			<div class="sidebar">
-				<div v-show="loadedEverything" class="cell-container" ref="sidebarFolders">
+				<div v-show="loadedRack" class="cell-container" ref="sidebarFolders">
 					<div class="my-shelf" @contextmenu="shelfMenu()">
 						<div class="my-shelf-wrapper">
 							<racks
