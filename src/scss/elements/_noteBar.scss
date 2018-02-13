@@ -88,12 +88,15 @@
 		margin: 0 auto;
 		width: 100%;
 		min-width: 16em;
-		max-width: 69em;
+		max-width: 70em;
 		font-size: 110%;
 
 		ul {
 			padding: 0.5em 0 0;
+			margin-left: 0.2em;
+			margin-right: 0.2em;
 			background: $note-background-color;
+			width: calc( 100% - 0.4em );
 
 			li {
 				height: 1.7em;
