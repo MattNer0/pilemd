@@ -1,10 +1,11 @@
 .noteBar{
 	position: absolute;
-	top: 0;
-	right: 1.8em;
-	left: 1.2em;
+	top: 0em;
+	right: 1.6em;
+	left: 1.1em;
 	height: 2em;
 	z-index: 5;
+	padding: 0 1px;
 
 	i.material-icons.faded {
 		opacity: 0.4;

@@ -1,5 +1,5 @@
 .tabs-bar {
-	height: calc( #{ $title-bar-height } );
+	height: #{ $title-bar-height };
 	background-color: $tabs-background;
 	padding-left: 1.2em;
 	padding-right: 1.2em;
@@ -10,30 +10,38 @@
 		height: 100%;
 		margin: 0 auto;
 		font-size: 110%;
-		border-bottom: 0.1em solid $note-border-color;
+		overflow: hidden;
 	}
 
 	.tab {
 		position: relative;
-		height: calc( #{ $title-bar-height } - 0.9em );
+		z-index: 6;
+		height: calc( #{ $title-bar-height } - 0.8em );
 		background-color: $tabs-background;
 		display: inline-block;
 		text-align: left;
-		min-width: 10em;
-		padding: 0.5em 1.2em 0 0.5em;
+		min-width: 5em;
+		max-width: 15em;
+		padding: 0.5em 1.8em 0 0.5em;
 		margin: 0.5em 0 0;
 		border: 0.1em solid $note-border-color;
 		border-bottom: 0;
 		border-radius: 0.5em 0.5em 0 0;
-		vertical-align: top;
+		vertical-align: bottom;
 		cursor: pointer;
+
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
+
+		-webkit-user-select: none;
 	}
 
 	i.material-icons.close {
 		position: absolute;
 		top: 0.4em;
 		right: 0.1em;
-		padding: 0.6em 0.4em 0.4em;
+		padding: 0.55em 0.3em 0.4em;
 		border-radius: 1em;
 		opacity: 0.3;
 
@@ -53,16 +61,23 @@
 	}
 
 	.tab.selected {
-		margin-top: 0.6em;
-	}
-
-	.tab:first-child {
-		margin-left: -0.2em;
+		margin-bottom: -0.1em;
 	}
 
 	i.material-icons {
 		font-size: inherit;
 		vertical-align: middle;
 		margin-top: -0.3em;
+	}
+}
+
+.tabs-open {
+	.CodeMirror,
+	.my-editor-preview,
+	.my-browser {
+		min-height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height } - #{ $title-bar-height } );
+	}
+	.noteBar:first-child nav {
+		border-top: 0.15em solid $note-border-color;
 	}
 }
