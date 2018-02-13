@@ -94,8 +94,8 @@
 			}
 		},
 		methods: {
-			selectNote(note) {
-				this.changeNote(note);
+			selectNote(note, newtab) {
+				this.changeNote(note, newtab);
 			},
 			openExternalUrl(bookmark) {
 				electron.shell.openExternal(bookmark.body);
@@ -273,6 +273,9 @@
 					menu.append(new MenuItem({type: 'separator'}));
 					menu.append(new MenuItem({label: 'Delete Bookmark', click: () => {this.removeNote(note)}}));
 				} else {
+					menu.append(new MenuItem({label: 'Open Note', click: () => {this.selectNote(note)}}));
+					menu.append(new MenuItem({label: 'Open Note in new Tab', click: () => {this.selectNote(note, true)}}));
+					menu.append(new MenuItem({type: 'separator'}));
 					if (note.isOutline) {
 						menu.append(new MenuItem({label: 'Copy to clipboard (Plain)', click: () => {this.copyOutlinePLain(note)}}));
 						menu.append(new MenuItem({label: 'Copy to clipboard (OPML)', click: () => {this.copyOutlineOPML(note)}}));

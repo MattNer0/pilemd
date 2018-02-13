@@ -35,9 +35,13 @@
 	}
 
 	.cell-container.main-cell-container{
-		position: relative;
 		margin-left: 0;
 		transition: margin 400ms;
+	}
+
+	.main-note-container {
+		position: relative;
+		height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height } );
 
 		.my-editor > div {
 			margin-left: 1em;
@@ -48,6 +52,10 @@
 			margin-left: 0;
 			margin-right: 0;
 		}
+	}
+
+	.tabs-open .main-note-container {
+		height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height } - #{ $title-bar-height } );
 	}
 
 	.sidebar {

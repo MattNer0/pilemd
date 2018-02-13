@@ -30,6 +30,10 @@ $action-bar-submenu-background: #383c4a;
 $sidebar-background: #373d48;
 $sidebar-color: #949ba6;
 
+/* tabs */
+$tabs-background: #f5f6f7;
+$tab-selected-background: #fff;
+
 /* splash */
 $splash-background: #FFFFFF;
 $splash-border-radius: 0.2em;
@@ -95,6 +99,7 @@ body.light-theme {
 
 body.light-theme {
 	@import 'elements/body';
+	@import 'elements/tabsBar';
 	@import 'elements/scrollbar';
 	@import 'elements/titleBar';
 	@import 'elements/actionBar';

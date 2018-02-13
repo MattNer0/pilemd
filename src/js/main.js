@@ -40,6 +40,7 @@ import component_racks from './components/racks.vue';
 import component_notes from './components/notes.vue';
 import component_welcomeSplash from './components/welcomeSplash.vue';
 import component_titleBar from './components/titleBar.vue';
+import component_tabsBar from './components/tabsBar.vue';
 
 // loading CSSs
 require('../scss/pilemd.scss');
@@ -79,6 +80,7 @@ var appVue = new Vue({
 		selectedFolder      : null,
 		selectedNote        : {},
 		selectedBookmark    : {},
+		noteTabs            : [],
 		// editing
 		editingRack         : null,
 		editingFolder       : null,
@@ -115,7 +117,8 @@ var appVue = new Vue({
 		'codemirror'   : component_codeMirror,
 		'browser'      : component_browser,
 		'welcomeSplash': component_welcomeSplash,
-		'outline'      : component_outline
+		'outline'      : component_outline,
+		'tabsBar'      : component_tabsBar
 	},
 	computed: {
 		/**
@@ -160,6 +163,11 @@ var appVue = new Vue({
 		isNoteRackSelected() {
 			if(this.selectedFolder instanceof models.BookmarkFolder) return false;
 			return true;
+		},
+		mainCellClass() {
+			var classes = [ 'font' + this.fontsize ];
+			if (this.noteTabs.length > 1) classes.push('tabs-open')
+			return classes;
 		}
 	},
 	created() {
@@ -475,13 +483,32 @@ var appVue = new Vue({
 		 * @param  {Object}  note  selected note
 		 * @return {Void} Function doesn't return anything
 		 */
-		changeNote(note) {
+		changeNote(note, newtab) {
 			var self = this;
 
 			if (this.isNoteSelected) this.saveNote();
 			if (note === null) {
 				this.selectedNote = {};
 				return;
+			}
+
+			if (this.noteTabs.length > 1) {
+				newtab = true;
+			}
+
+			if (this.noteTabs.indexOf(note) == -1) {
+				if (newtab) {
+					this.noteTabs.push(note);
+				}
+
+				if (!newtab && this.selectedNote && this.selectedNote.title) {
+					var ci = this.noteTabs.indexOf(this.selectedNote);
+					this.noteTabs.splice(ci, 1, note);
+				}
+			}
+
+			if (this.noteTabs.length == 0) {
+				this.noteTabs.push(note);
 			}
 
 			if (note.folder && note.folder instanceof models.Folder) {

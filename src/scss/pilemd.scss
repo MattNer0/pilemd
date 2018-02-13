@@ -30,6 +30,10 @@ $action-bar-submenu-background: #383c4a;
 $sidebar-background: #373d48;
 $sidebar-color: #949ba6;
 
+/* tabs */
+$tabs-background: #f5f6f7;
+$tab-selected-background: #fff;
+
 /* splash */
 $splash-background: #373d48;
 $splash-border-radius: 0.2em;
@@ -126,6 +130,7 @@ html, body, h1, h2, h3, h4, h5, p, span, input, textarea {
 @import 'highlight';
 @import 'elements/tooltip';
 @import 'elements/body';
+@import 'elements/tabsBar';
 @import 'elements/scrollbar';
 @import 'elements/titleBar';
 @import 'elements/actionBar';
