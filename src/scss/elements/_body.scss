@@ -34,24 +34,21 @@
 		background-color: transparent;
 	}
 
-	.cell-container.main-cell-container{
+	.cell-container.main-cell-container {
 		margin-left: 0;
+		padding-left: 1em;
+		padding-right: 1em;
 		transition: margin 400ms;
+	}
+
+	.cell-container.main-cell-container.browser-open {
+		padding-left: 0;
+		padding-right: 0;
 	}
 
 	.main-note-container {
 		position: relative;
 		height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height } );
-
-		.my-editor > div {
-			margin-left: 1em;
-			margin-right: 1em;
-		}
-
-		.browser-open.my-editor > div {
-			margin-left: 0;
-			margin-right: 0;
-		}
 	}
 
 	.tabs-open .main-note-container {
@@ -88,10 +85,9 @@
 	}
 
 	.my-editor {
-		height: 100%;
 		width: auto;
 		margin: 0 auto;
-		overflow-y: scroll;
+		height: 100%;
 		position: relative;
 	}
 

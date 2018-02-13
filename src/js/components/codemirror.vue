@@ -1,5 +1,5 @@
 <template lang="pug">
-	div
+	.codemirror-div
 </template>
 
 <script>
@@ -77,14 +77,16 @@
 						'Ctrl-V'    : () => { pasteText(cm, this.note) },
 						'Alt-V'     : () => { pasteText(cm, this.note) }
 					},
-					indentUnit       : 4,
-					smartIndent      : true,
-					tabSize          : 4,
-					indentWithTabs   : true,
-					cursorBlinkRate  : 540,
-					addModeClass     : true,
-					autoCloseBrackets: true,
-					placeholder      : ''
+					indentUnit        : 4,
+					smartIndent       : true,
+					tabSize           : 4,
+					indentWithTabs    : true,
+					cursorBlinkRate   : 540,
+					addModeClass      : true,
+					autoCloseBrackets : true,
+					scrollbarStyle    : 'native',
+					cursorScrollMargin: 10,
+					placeholder       : ''
 				});
 				this.cm = cm;
 				this.$root.codeMirror = cm;

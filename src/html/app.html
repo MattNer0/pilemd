@@ -81,8 +81,8 @@
 					:current-note="selectedNote"
 					:tabs-array="noteTabs"
 				></tabs-bar>
-				<div class="main-note-container">
-					<note-menu v-if="isNoteSelected || isOutlineSelected"
+				<div v-if="isNoteSelected || isOutlineSelected" class="main-note-container">
+					<note-menu
 						:note="selectedNote"
 						:is-full-screen="isFullScreen"
 						:is-toolbar-enabled="isToolbarEnabled"
@@ -94,14 +94,13 @@
 						:note-headings="noteHeadings"
 						:send-flash-message="sendFlashMessage">
 					</note-menu>
-					<div class="my-editor" :class="{ 'browser-open': selectedBookmark.name }" ref="myEditor">
-						<div v-if="isOutlineSelected">
-							<outline
-								:outline-note="selectedNote">
-							</outline>
-						</div>
-						<div v-else-if="isNoteSelected || selectedBookmark.name">
-							<codemirror v-show="!isPreview && isNoteSelected"
+					<div class="my-editor" ref="myEditor">
+						<template v-if="isOutlineSelected">
+							<outline :outline-note="selectedNote"></outline>
+						</template>
+						<template v-else>
+							<codemirror
+								v-show="!isPreview && isNoteSelected"
 								:note="selectedNote"
 								:is-full-screen="isFullScreen"
 								:is-preview="isPreview"
@@ -113,30 +112,34 @@
 								<div v-html="preview">
 								</div>
 							</div>
-							<div class="my-internal-browser" v-show="selectedBookmark.name">
-								<browser
-									:bookmark="selectedBookmark"
-									:bookmarks-domains="bookmarksDomains"
-									:send-flash-message="sendFlashMessage"
-									ref="refBrowser">
-								</browser>
-							</div>
-						</div>
-						<div v-else-if="notesHistory && notesHistory.length > 0">
-							<div class="my-splash-page">
-								<welcome-splash
-									:keep-history="keepHistory"
-									:notes="notesHistory"
-									:change-note="changeNote">
-								</welcome-splash>
-							</div>
-						</div>
+						</template>
 					</div>
-					<note-footer v-if="isNoteSelected && !isOutlineSelected"
-						v-show="!isPreview && isToolbarEnabled" ref="refNoteFooter">
+					<note-footer
+						v-if="!isOutlineSelected"
+						v-show="!isPreview && isToolbarEnabled"
+						ref="refNoteFooter">
 					</note-footer>
-					<flashmessage :messages="messages"></flashmessage>
 				</div>
+				<div
+					v-else-if="!selectedNote && !selectedBookmark"
+					v-show="notesHistory && notesHistory.length > 0">
+					<div class="my-splash-page">
+						<welcome-splash
+							:keep-history="keepHistory"
+							:notes="notesHistory"
+							:change-note="changeNote">
+						</welcome-splash>
+					</div>
+				</div>
+				<div v-show="selectedBookmark" class="my-internal-browser">
+					<browser
+						:bookmark="selectedBookmark"
+						:bookmarks-domains="bookmarksDomains"
+						:send-flash-message="sendFlashMessage"
+						ref="refBrowser">
+					</browser>
+				</div>
+				<flashmessage :messages="messages"></flashmessage>
 			</div>
 		</div>
 	</div>

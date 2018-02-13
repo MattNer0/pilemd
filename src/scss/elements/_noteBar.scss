@@ -1,8 +1,8 @@
 .noteBar{
 	position: absolute;
 	top: 0em;
-	right: 1.6em;
-	left: 1.1em;
+	right: 0;
+	left: 0;
 	height: 2em;
 	z-index: 5;
 	padding: 0 1px;
@@ -176,6 +176,7 @@
 .noteBar.footer {
 	top: auto;
 	bottom: -0.1em;
+	height: 1.4em;
 
 	nav {
 		ul {

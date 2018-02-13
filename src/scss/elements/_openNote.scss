@@ -1,24 +1,42 @@
-.CodeMirror,
-.my-editor-preview,
-.my-browser {
+.main-note-container {
+	font-size: 100%;
+	border-left: 2px solid $note-border-color;
+	border-right: 2px solid $note-border-color;
 	margin: 0 auto;
-	padding: 3.4em 6em;
-	border-left: 0.1em solid $note-border-color;
-	border-right: 0.1em solid $note-border-color;
 	width: auto;
-	min-height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height } );
 	min-width: 15em;
-	max-width: 70em;
-	height: auto;
+	max-width: 75em;
 	background-color: $note-background-color;
 	color: $note-text-color;
 	font-family: $main-font-family;
 	line-height: 1.6em;
-	font-size: 110%;
 	font-style: normal;
+	padding: 2.5em 0 1.8em;
+}
+
+.my-editor-preview {
+	padding: 0.9em 6em 2.4em;
+	height: calc( 100vh + #{ $title-bar-border } - #{ $title-bar-height } - #{ $title-bar-height } );
+	overflow-y: scroll;
 
 	p, span {
 		font-size: inherit;
+	}
+}
+
+.my-editor > .codemirror-div {
+	height: 100%;
+}
+
+.my-browser {
+	padding: 0.9em 6em 1.4em;
+	min-height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height } );
+	height: auto;
+}
+
+.CodeMirror {
+	.CodeMirror-sizer > div {
+		padding: 2em 6em;
 	}
 }
 

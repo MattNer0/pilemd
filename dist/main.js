@@ -185,7 +185,7 @@ function makeBackgroundBrowserWindow(callback) {
 	backgroundBrowserWindow = new BrowserWindow({
 		width         : 960,
 		height        : 960,
-		show          : DEBUG,
+		show          : false,
 		skipTaskbar   : true,
 		webPreferences: {
 			devTools            : false,

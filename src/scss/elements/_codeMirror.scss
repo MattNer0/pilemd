@@ -1,18 +1,16 @@
-codemirror {
-	display: block;
-}
-
 .CodeMirror {
 	text-rendering: optimizeSpeed;
 	background-color: $note-background-color;
+	height: 100%;
+}
+
+.CodeMirror .CodeMirror-sizer {
 	background-image: url('../images/notelines.png');
-	background-size: 22px;
+	background-size: 24px;
 	background-position: 1em 1.9em;
 }
 
-.CodeMirror{
-	padding-top: 3.8em;
-
+.CodeMirror {
 	span.cm-piled-header,
 	span.cm-piled-code,
 	span.cm-piled-quote,
@@ -133,22 +131,22 @@ codemirror {
 	}
 }
 
-.CodeMirror-scroll {
+/*.CodeMirror-scroll {
 	overflow: hidden !important;
 	margin: 0;
 	width: auto;
 	min-height: 100%;
 	height: auto;
-}
+}*/
 
-.CodeMirror-sizer {
+/*.CodeMirror-sizer {
 	margin-bottom: 0 !important;
 	border-right-width: 0 !important;
-}
+}*/
 
-.CodeMirror-vscrollbar {
+/*.CodeMirror-vscrollbar {
 	display: none !important;
-}
+}*/
 
 .CodeMirror-focused .CodeMirror-selected { background: #add5ff; }
 

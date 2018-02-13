@@ -78,8 +78,8 @@ var appVue = new Vue({
 		// selected
 		selectedRack        : null,
 		selectedFolder      : null,
-		selectedNote        : {},
-		selectedBookmark    : {},
+		selectedNote        : null,
+		selectedBookmark    : null,
 		noteTabs            : [],
 		// editing
 		editingRack         : null,
@@ -167,6 +167,7 @@ var appVue = new Vue({
 		mainCellClass() {
 			var classes = [ 'font' + this.fontsize ];
 			if (this.noteTabs.length > 1) classes.push('tabs-open')
+			if (this.selectedBookmark) classes.push('browser-open')
 			return classes;
 		}
 	},
@@ -488,31 +489,33 @@ var appVue = new Vue({
 
 			if (this.isNoteSelected) this.saveNote();
 			if (note === null) {
-				this.selectedNote = {};
+				this.selectedNote = null;
 				return;
-			}
-
-			if (this.noteTabs.length > 1) {
-				newtab = true;
-			}
-
-			if (this.noteTabs.indexOf(note) == -1) {
-				if (newtab) {
-					this.noteTabs.push(note);
-				}
-
-				if (!newtab && this.selectedNote && this.selectedNote.title) {
-					var ci = this.noteTabs.indexOf(this.selectedNote);
-					this.noteTabs.splice(ci, 1, note);
-				}
-			}
-
-			if (this.noteTabs.length == 0) {
-				this.noteTabs.push(note);
 			}
 
 			if (note.folder && note.folder instanceof models.Folder) {
 				note.folder.openFolder = true;
+			}
+
+			if (this.isNoteRackSelected) {
+				if (this.noteTabs.length > 1) {
+					newtab = true;
+				}
+
+				if (this.noteTabs.indexOf(note) == -1) {
+					if (newtab) {
+						this.noteTabs.push(note);
+					}
+
+					if (!newtab && this.selectedNote) {
+						var ci = this.noteTabs.indexOf(this.selectedNote);
+						this.noteTabs.splice(ci, 1, note);
+					}
+				}
+
+				if (this.noteTabs.length == 0) {
+					this.noteTabs.push(note);
+				}
 			}
 
 			if (note instanceof models.Outline) {
@@ -520,9 +523,8 @@ var appVue = new Vue({
 				if (this.keepHistory) {
 					libini.pushKey(models.getBaseLibraryPath(), ['history', 'note'], this.selectedNote.relativePath, 5);
 				}
-
 			} else if (this.isNoteRackSelected) {
-				this.selectedBookmark = {};
+				this.selectedBookmark = null;
 				if (!note.body) note.loadBody();
 				if (note.isEncrypted) {
 					var message = 'Insert the secret key to Encrypt and Decrypt this note';
@@ -559,7 +561,7 @@ var appVue = new Vue({
 				}
 
 			} else {
-				this.selectedNote = {};
+				this.selectedNote = null;
 				this.selectedBookmark = note;
 			}
 		},
@@ -603,7 +605,7 @@ var appVue = new Vue({
 			});
 			// we need to close the current selected note if it was from the removed rack.
 			if (this.isNoteSelected && this.selectedNote.data.rack == rack) {
-				this.selectedNote = {};
+				this.selectedNote = null;
 			}
 		},
 		setEditingRack(rack) {
@@ -835,7 +837,7 @@ var appVue = new Vue({
 		 */
 		saveNote: _.debounce(function () {
 			var result;
-			if (this.selectedNote.saveModel) {
+			if (this.selectedNote) {
 				result = this.selectedNote.saveModel();
 			}
 			if (result && result.error && result.path) {
