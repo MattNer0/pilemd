@@ -120,7 +120,7 @@ class Folder extends Model {
 
 	set openFolder(value) {
 		this._openFolder = value;
-		if (value) this.parent.openFolder = value;
+		if (value) this.parent.openFolder = true;
 	}
 
 	toJSON() {

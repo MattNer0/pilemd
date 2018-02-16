@@ -388,7 +388,6 @@ var appVue = new Vue({
 			}
 
 			if (this.notes.length == 1) {
-				this.changeFolder(this.notes[0].data.folder);
 				this.changeNote(this.notes[0]);
 
 			} else if (remote.getGlobal('argv')) {
@@ -396,7 +395,6 @@ var appVue = new Vue({
 				if (argv.length > 1 && path.extname(argv[1]) == '.md' && fs.existsSync(argv[1])) {
 					var openedNote = this.findNoteByPath(argv[1]);
 					if (openedNote) {
-						this.changeFolder(openedNote.data.folder);
 						this.changeNote(openedNote);
 					} else {
 						ipcRenderer.send('console', 'path not valid!');
@@ -570,14 +568,18 @@ var appVue = new Vue({
 		changeNote(note, newtab) {
 			var self = this;
 
-			if (this.isNoteSelected) this.saveNote();
+			if (this.isNoteSelected && this.selectedNote) {
+				this.selectedNote.saveModel();
+			}
+
 			if (note === null) {
 				this.selectedNote = null;
 				return;
 			}
 
 			if (note.folder && note.folder instanceof models.Folder) {
-				note.folder.openFolder = true;
+				note.folder.parent.openFolder = true;
+				if (this.selectedFolder != note.folder) this.changeFolder(note.folder);
 			}
 
 			if (this.isNoteRackSelected) {
