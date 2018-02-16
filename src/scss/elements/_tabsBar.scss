@@ -1,6 +1,6 @@
 .tabs-bar {
-	height: #{ $title-bar-height };
-	background-color: $tabs-background;
+	height: $title-bar-height;
+	background-color: $body-background-note;
 
 	> div {
 		min-width: 15em;
@@ -15,6 +15,7 @@
 		z-index: 6;
 		height: calc( #{ $title-bar-height } - 0.6em );
 		background-color: $tabs-background;
+		opacity: 0.9;
 		display: inline-block;
 		text-align: left;
 		min-width: 5em;
@@ -58,9 +59,10 @@
 
 	.tab.selected {
 		margin-bottom: -2px;
-		margin-top: 0.1em;
+		margin-top: $tab-selected-margin;
 		padding-top: 0.8em;
-		height: calc( 3em - 0.1em);
+		height: #{ $title-bar-height - $tab-selected-margin };
+		opacity: 1.0;
 
 		i.material-icons.close {
 			top: 0.6em;
@@ -75,10 +77,8 @@
 }
 
 .tabs-open {
-	.CodeMirror,
-	.my-editor-preview,
-	.my-browser {
-		min-height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height } - #{ $title-bar-height } );
+	.my-editor-preview {
+		height: calc( 100vh - #{ $title-bar-height * 3 } );
 	}
 	.main-note-container {
 		border-top: 0.15em solid $note-border-color;

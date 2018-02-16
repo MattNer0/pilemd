@@ -310,8 +310,12 @@
 				this.properties_visible = true;
 			},
 			jumpTo(anchor) {
-				var editor = document.querySelector('.my-editor');
-				var pos = document.querySelector('.my-editor #'+anchor);
+				//var editor = document.querySelector('.my-editor');
+				var editor = document.querySelector('.my-editor-preview');
+				var pos = document.querySelector('.my-editor-preview #'+anchor);
+
+				console.log(editor);
+				console.log(editor.offsetTop);
 
 				editor.scrollTop = Math.max(0, pos.offsetTop - pos.clientHeight - 10);
 			}

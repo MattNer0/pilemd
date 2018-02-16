@@ -16,7 +16,7 @@
 
 .my-editor-preview {
 	padding: 0.9em 6em 2.4em;
-	height: calc( 100vh + #{ $title-bar-border } - #{ $title-bar-height } - #{ $title-bar-height } );
+	height: calc( 100vh - #{ $title-bar-height * 2 } );
 	overflow-y: scroll;
 
 	p, span {

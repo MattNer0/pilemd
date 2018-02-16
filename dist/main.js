@@ -292,7 +292,15 @@ function init() {
 	ipcMain.on('loaded-racks', (event, payload) => mainWindow.webContents.send('loaded-racks', payload));
 	ipcMain.on('loaded-folders', (event, payload) => mainWindow.webContents.send('loaded-folders', payload));
 	ipcMain.on('loaded-notes', (event, payload) => mainWindow.webContents.send('loaded-notes', payload));
-	ipcMain.on('loaded-all-notes', (event, payload) => mainWindow.webContents.send('loaded-all-notes', payload));
+	ipcMain.on('loaded-all-notes', (event, payload) => {
+		mainWindow.webContents.send('loaded-all-notes', payload);
+		//start watching file changes
+		//backgroundWindow.webContents.send('loaded-all-notes', payload);
+	});
+
+	/*ipcMain.on('new-note', (event, payload) => mainWindow.webContents.send('new-note', payload));
+	ipcMain.on('change-note', (event, payload) => mainWindow.webContents.send('change-note', payload));
+	ipcMain.on('unlink-note', (event, payload) => mainWindow.webContents.send('unlink-note', payload));*/
 	
 	ipcMain.on('load-page-fail', (event, payload) => mainWindow.webContents.send('load-page-fail', payload));
 	ipcMain.on('load-page-success', (event, payload) => mainWindow.webContents.send('load-page-success', payload));

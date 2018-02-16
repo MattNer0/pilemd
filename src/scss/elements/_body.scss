@@ -52,7 +52,7 @@
 	}
 
 	.tabs-open .main-note-container {
-		height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height } - #{ $title-bar-height } );
+		height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height * 2 } );
 	}
 
 	.sidebar {

@@ -239,10 +239,7 @@ var appVue = new Vue({
 			if (!data) return;
 
 			data.forEach((r) => {
-				var rack = this.racks.filter((rk) => {
-					return rk.path == r.rack;
-				})[0];
-
+				var rack = this.findRackByPath(r.rack);
 				var folders = [];
 				r.folders.forEach((f) => {
 					f.rack = rack;
@@ -297,13 +294,75 @@ var appVue = new Vue({
 			if (!data) return;
 
 			data.forEach((r) => {
-				var rack = this.racks.filter((rk) => {
-					return rk.path == r.rack;
-				})[0];
-
+				var rack = this.findRackByPath(r.rack);
 				loadByParent(r, rack);
 			});
 		});
+
+		/*ipcRenderer.on('new-note', (event, data) => {
+			if (!data) return;
+
+			var note = this.findNoteByPath(data.path);
+			if (note) return;
+
+			var folderPath = path.dirname(data.path);
+			var relativePath = path.relative(models.getBaseLibraryPath(), folderPath);
+			var splitPath = relativePath.split(path.sep);
+			var rackPath = path.join(models.getBaseLibraryPath(), splitPath[0]);
+
+			if (rackPath == folderPath) return;
+
+			var rack = this.findRackByPath(rackPath);
+			var folder = this.findFolderByPath(rack, folderPath);
+
+			switch(data._type) {
+				case 'encrypted':
+					var n = new models.EncryptedNote(data);
+					folder.notes.push(n);
+					this.notes.push(n);
+					break;
+				case 'outline':
+					var n = new models.Outline(data);
+					folder.notes.push(n);
+					this.notes.push(n);
+					break;
+				default:
+					var n = new models.Note(data);
+					folder.notes.push(n);
+					this.notes.push(n);
+					break;
+			}
+		});
+
+		ipcRenderer.on('change-note', (event, data) => {
+			if (!data) return;
+
+			var note = this.findNoteByPath(data.path);
+			if (note && data.body != note.bodyWithMetadata && !note.isEncryptedNote) {
+				note.replaceBody(data.body);
+			}
+		});
+
+		ipcRenderer.on('unlink-note', (event, data) => {
+			if (!data) return;
+
+			var folderPath = path.dirname(data.path);
+			var relativePath = path.relative(models.getBaseLibraryPath(), folderPath);
+			var splitPath = relativePath.split(path.sep);
+			var rackPath = path.join(models.getBaseLibraryPath(), splitPath[0]);
+
+			if (rackPath == folderPath) return;
+
+			var rack = this.findRackByPath(rackPath);
+			var folder = this.findFolderByPath(rack, folderPath);
+			var note = this.findNoteByPath(data.path);
+			
+			var i = this.notes.indexOf(note);
+			this.notes.splice(i, 1);
+
+			var fi = folder.notes.indexOf(note);
+			folder.notes.splice(fi, 1);
+		});*/
 
 		ipcRenderer.on('loaded-all-notes', (event, data) => {
 			if (!data) return;
@@ -420,13 +479,37 @@ var appVue = new Vue({
 		},
 		findNoteByPath(notePath) {
 			if (!notePath) return undefined;
-			var noteData = models.Note.isValidNotePath(notePath);
-			if (noteData && notePath.indexOf(models.getBaseLibraryPath()) == 0) {
-				return this.notes.find((note) => {
-					return note.data.path == notePath;
-				});
+			return this.notes.find((note) => {
+				return note.data.path == notePath;
+			});
+		},
+		findRackByPath(rackPath) {
+			try {
+				return this.racks.filter((rk) => {
+					return rk.path == rackPath;
+				})[0];
+			} catch(e) {
+				console.error(e);
 			}
-			return undefined;
+		},
+		findFolderByPath(rack, folderPath) {
+			try {
+				var folder = rack.folders.filter((f) => {
+					return f.path == folderPath;
+				})[0];
+				if (folder) return folder;
+				var rp = path.relative(rack.path, folderPath);
+				rp = rp.split(path.sep);
+				var parent = rack;
+				for (var i = 0; i < rp.length; i++) {
+					parent = parent.folders.filter((f) => {
+						return f.path == path.join(parent.path, rp[i]);
+					})[0];
+				}
+				return parent;
+			} catch(e) {
+				console.error(e);
+			}
 		},
 		/**
 		 * initialize the width of the left sidebar elements.
@@ -1307,6 +1390,9 @@ var appVue = new Vue({
 		'selectedNote.body': function() {
 			if (this.selectedNote instanceof models.Outline) return;
 			this.saveNote();
+			if (this.selectedNote && this.selectedNote.folder == this.selectedFolder && this.notesDisplayOrder == 'updatedAt') {
+				this.scrollUpScrollbarNotes();
+			}
 		},
 		selectedRack() {
 			this.scrollUpScrollbarNotes();

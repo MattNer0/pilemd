@@ -3,6 +3,7 @@ const { ipcRenderer } = require('electron');
 const downloadHelper = require('./background_tasks/download');
 const libraryHelper = require('./background_tasks/library');
 const initialModels = require('./background_tasks/initialModels');
+//const watcherHelper = require('./background_tasks/watcher');
 
 /**
  * @function logError
@@ -46,9 +47,12 @@ function loadNotes(library, arrayRacks) {
 			ipcRenderer.send('loaded-notes', arrayNotes);
 		}
 	});
-	ipcRenderer.send('loaded-all-notes', allNotes.map((n) => {
-		return n.path.replace(library + '/', '');
-	}));
+	ipcRenderer.send('loaded-all-notes', {
+		library: library,
+		notes: allNotes.map((n) => {
+			return n.path.replace(library + '/', '');
+		})
+	});
 }
 
 /**
@@ -99,4 +103,37 @@ window.onload = function () {
 			logMainProcess(e.message);
 		}
 	});
+	/*ipcRenderer.on('loaded-all-notes', (event, data) => {
+		if (!data) return;
+		watcherHelper.startWatcher(data.library, (err, event, path) => {
+			if (err) {
+				logMainProcess(err);
+				return;
+			}
+
+			switch (event) {
+				case 'add':
+					var nData = libraryHelper.isNoteFile(path);
+					if (nData) {
+						ipcRenderer.send('new-note', libraryHelper.readNote(path, nData));
+					}
+					break;
+				case 'change':
+					var nData = libraryHelper.isNoteFile(path);
+					if (nData) {
+						ipcRenderer.send('change-note', libraryHelper.readNote(path, nData));
+					}
+					break;
+				case 'unlink':
+					ipcRenderer.send('unlink-note', { path: path });
+					break;
+				default:
+					logMainProcess(event + ': ' + path);
+			}
+		});
+	});
+	ipcRenderer.on('unwatch-note', (event, data) => {
+		if (!data) return;
+		watcherHelper.ignorePath(data.path);
+	});*/
 };

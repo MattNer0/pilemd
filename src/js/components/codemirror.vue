@@ -73,9 +73,10 @@
 					theme            : "default",
 					keyMap           : 'piledmap',
 					extraKeys        : {
-						'Ctrl-Y'    : () => { pasteText(cm, this.note) },
-						'Ctrl-V'    : () => { pasteText(cm, this.note) },
-						'Alt-V'     : () => { pasteText(cm, this.note) }
+						'Ctrl-Y'    : () => { pasteText(cm, this.note); },
+						'Ctrl-V'    : () => { pasteText(cm, this.note); },
+						'Alt-V'     : () => { pasteText(cm, this.note); },
+						'Shift-Ctrl-V': () => { this.togglePreview(); }
 					},
 					indentUnit        : 4,
 					smartIndent       : true,

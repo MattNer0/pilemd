@@ -1,5 +1,5 @@
-var fs = require('fs');
-var path = require('path');
+const fs = require('fs');
+const path = require('path');
 
 const libini = require('../utils/libini');
 const Datauri = require('datauri');
@@ -117,39 +117,44 @@ module.exports = {
 			if (fs.existsSync(notePath) && note.charAt(0) != ".") {
 				var noteData = isValidNotePath(notePath);
 				if (noteData) {
-					var body = fs.readFileSync(notePath).toString();
-					switch(noteData.ext) {
-						case '.mdencrypted':
-							valid_notes.push({
-								_type: 'encrypted',
-								name: note,
-								body: body,
-								path: notePath,
-								extension: noteData.ext
-							});
-							break;
-						case '.opml':
-							valid_notes.push({
-								_type: 'outline',
-								name: note,
-								body: body,
-								path: notePath,
-								extension: noteData.ext
-							});
-							break;
-						default:
-							valid_notes.push({
-								_type: 'note',
-								name: note,
-								body: body,
-								path: notePath,
-								extension: noteData.ext
-							});
-							break;
-					}
+					valid_notes.push(this.readNote(notePath, noteData));
 				}
 			}
 		});
 		return valid_notes;
+	},
+	readNote(notePath, noteData) {
+		var note = path.basename(notePath);
+		var body = fs.readFileSync(notePath).toString();
+		switch(noteData.ext) {
+			case '.mdencrypted':
+				return {
+					_type: 'encrypted',
+					name: note,
+					body: body,
+					path: notePath,
+					extension: noteData.ext
+				};
+			case '.opml':
+				return {
+					_type: 'outline',
+					name: note,
+					body: body,
+					path: notePath,
+					extension: noteData.ext
+				};
+			default:
+				return {
+					_type: 'note',
+					name: note,
+					body: body,
+					path: notePath,
+					extension: noteData.ext
+				};
+		}
+	},
+	isNoteFile(filePath) {
+		if (!filePath) return false;
+		return isValidNotePath(filePath);
 	}
 };

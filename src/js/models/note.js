@@ -27,7 +27,6 @@ class Note extends Model {
 		var re = new RegExp('\\' + this._ext + '$');
 
 		this._name = data.name.replace(re, '');
-		this._body = data.body;
 		this._path = data.path;
 		if (data.folder || data.rack) {
 			this.rack = data.rack || data.folder.data.rack;
@@ -39,15 +38,10 @@ class Note extends Model {
 		this._removed = false;
 		this._metadata = {};
 
-		if (!this._body || this._body == '') {
+		if (!data.body || data.body == '') {
 			this._loadedBody = false;
 		} else {
-			this._loadedBody = true;
-
-			if (!this.isEncryptedNote && !this.isOutline) {
-				this.parseMetadata();
-				this.downloadImages();
-			}
+			this.replaceBody(data.body);
 		}
 
 		this.dragHover = false;
@@ -424,15 +418,20 @@ class Note extends Model {
 		if (fs.existsSync(this.path)) {
 			var content = fs.readFileSync(this.path).toString();
 			if (content && content != this._body) {
-				this._body = content;
-
-				if (!this.isEncryptedNote) {
-					this.parseMetadata();
-					this.downloadImages();
-				}
+				this.replaceBody(content);
 			}
 			this._loadedBody = true;
 		}
+	}
+
+	replaceBody(new_body) {
+		this._body = new_body;
+
+		if (!this.isEncryptedNote && !this.isOutline) {
+			this.parseMetadata();
+			this.downloadImages();
+		}
+		this._loadedBody = true;
 	}
 
 	initializeCreationDate() {
