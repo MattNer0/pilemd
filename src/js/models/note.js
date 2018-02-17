@@ -40,6 +40,7 @@ class Note extends Model {
 
 		if (!data.body || data.body == '') {
 			this._loadedBody = false;
+			this._body = '';
 		} else {
 			this.replaceBody(data.body);
 		}
