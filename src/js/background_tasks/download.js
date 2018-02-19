@@ -29,7 +29,7 @@ module.exports = {
 		});
 	},
 	downloadFile(source_url, target_folder, filename) {
-		if (!filename) filename = this.getFileDataFromUrl(source_url).basename;
+		if (!filename) filename = this.getFileDataFromUrl(source_url).cleanname;
 		if (!target_folder || !filename) return;
 
 		var file = path.join(target_folder, filename);

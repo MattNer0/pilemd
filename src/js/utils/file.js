@@ -50,6 +50,22 @@ module.exports = {
 			}
 		}
 	},
+	deleteFolderRecursive(target) {
+		if (!fs.existsSync(target)) {
+			return;
+		}
+
+		if (fs.lstatSync(target).isDirectory()) {
+			var files = fs.readdirSync(target);
+			files.forEach((file, index) => {
+				var curPath = path.join(target, file);
+				this.deleteFolderRecursive(curPath);
+			});
+			fs.rmdirSync(target);
+		} else {
+			fs.unlinkSync(target);
+		}
+	},
 	safeName(name) {
 		return name.replace(/[/\\¥]/g, '-');
 	},
@@ -79,8 +95,6 @@ module.exports = {
 		}
 	},
 	moveFolderRecursiveSync(source, target, new_name) {
-		var files = [];
-
 		if (!fs.existsSync(source)) {
 			return;
 		}
@@ -92,7 +106,7 @@ module.exports = {
 		}
 
 		if (fs.lstatSync(source).isDirectory()) {
-			files = fs.readdirSync(source);
+			var files = fs.readdirSync(source);
 			files.forEach((file) => {
 				var curSource = path.join(source, file);
 				if (fs.lstatSync(curSource).isDirectory()) {
@@ -103,6 +117,9 @@ module.exports = {
 			});
 			fs.rmdirSync(source);
 		}
+	},
+	cleanFileName(name) {
+		return name.replace(/[^\w _-]/g, '').replace(/\s+/g, ' ').substr(0, 40).trim();
 	},
 	copyFileSync(source, target) {
 		fs.writeFileSync(target, fs.readFileSync(source));
@@ -117,6 +134,7 @@ module.exports = {
 		var path_url = url.parse(file_url).pathname;
 		return {
 			basename: path.basename(path_url),
+			cleanname: this.cleanFileName(path.basename(path_url)),
 			extname: path.extname(path_url)
 		};
 	}

@@ -1,5 +1,5 @@
 <template lang="pug">
-	.my-shelf-racks(:class="{'dragginRack' : draggingRack, 'draggingFolder' : draggingFolder}")
+	.my-shelf-racks(:class="{'draggingRack' : draggingRack, 'draggingFolder' : draggingFolder}")
 		.my-shelf-rack(v-if="racksWithFolders.length == 0")
 			h4(@click.prevent.stop="addRack()")
 				i.material-icons.rack-icon add_box
@@ -29,12 +29,12 @@
 				v-show="!draggingRack"
 				:parent-folder="rack"
 				:selected-folder="selectedFolder"
+				:dragging-folder="draggingFolder"
 				:dragging-note="draggingNote"
 				:change-rack="changeRack"
 				:change-folder="changeFolder"
 				:editing-rack="editingRack"
-				:editing-folder="editingFolder"
-				:dragging-folder="draggingFolder")
+				:editing-folder="editingFolder")
 </template>
 
 <script>

@@ -57,11 +57,11 @@
 			'parentFolder'        : Object,
 			'selectedFolder'      : Object,
 			'draggingNote'        : Object,
+			'draggingFolder'      : Object,
 			'changeRack'          : Function,
 			'changeFolder'        : Function,
 			'editingRack'         : String,
-			'editingFolder'       : String,
-			'draggingFolder'      : Object
+			'editingFolder'       : String
 		},
 		data() {
 			return {

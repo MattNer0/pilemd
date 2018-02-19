@@ -149,6 +149,10 @@
 }
 
 .my-shelf-folder {
+	position: relative;
+	padding: 0;
+	margin: 0;
+
 	i {
 		font-size: 100%;
 		margin-top: -0.1em;
@@ -288,7 +292,7 @@
 	color: #fefefe;
 }
 
-.my-shelf-racks.dragginRack, .my-shelf-racks.dragginFolder {
+.my-shelf-racks.draggingRack, .my-shelf-racks.draggingFolder {
 	.rack-object {
 		margin: -0.3em 0 0.3em;
 		padding: 0.6em 0 0.3em 1em;

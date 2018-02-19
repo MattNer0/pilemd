@@ -169,7 +169,7 @@ class Note extends Model {
 	}
 
 	get document_filename() {
-		return this.title ? this.title.replace(/[^\w _-]/g, '').replace(/\s+/g, ' ').substr(0, 40).trim() : '';
+		return this.title ? util_file.cleanFileName(this.title) : '';
 	}
 
 	get body() {
@@ -292,7 +292,7 @@ class Note extends Model {
 						}
 						createdDir = true;
 					}
-					var newStr = '![' + p1 + '](pilemd://' + file_data.basename + ')';
+					var newStr = '![' + p1 + '](pilemd://' + file_data.cleanname + ')';
 					try {
 						if (urlDownloads.indexOf(p2) == -1) {
 							urlDownloads.push(p2);
@@ -325,7 +325,7 @@ class Note extends Model {
 						}
 						createdDir = true;
 					}
-					var newStr = '[' + p1 + ']: pilemd://' + file_data.basename;
+					var newStr = '[' + p1 + ']: pilemd://' + file_data.cleanname;
 					try {
 						if (urlDownloads.indexOf(p2) == -1) {
 							urlDownloads.push(p2);
@@ -507,32 +507,38 @@ class Note extends Model {
 		if (this.document_filename) {
 			var new_path = path.join(outer_folder, this.document_filename) + this._ext;
 
-			if (new_path != this._path) {
-				var num = 1;
-				while (num > 0) {
-					if (fs.existsSync(new_path)) {
-						if (body && body != fs.readFileSync(new_path).toString()) {
-							new_path = path.join(outer_folder, this.document_filename)+num+this._ext;
+			try {
+				// new path
+				if (new_path != this._path) {
+					var num = 1;
+					while (num > 0) {
+						if (fs.existsSync(new_path)) {
+							if (body && body != fs.readFileSync(new_path).toString()) {
+								new_path = path.join(outer_folder, this.document_filename)+num+this._ext;
+							} else {
+								new_path = null;
+								break;
+							}
+							num++;
 						} else {
-							new_path = null;
 							break;
 						}
-						num++;
-					} else {
-						break;
 					}
+	
+					if (new_path) {
+						fs.writeFileSync(new_path, body);
+						util_file.moveFolderRecursiveSync(
+							this.imagePath,
+							path.dirname(new_path),
+							'.' + path.basename(new_path, path.extname(new_path))
+						);
+						this.path = new_path;
+						return { saved: true };
+					}
+					return { saved: false };
 				}
 
-				if (new_path) {
-					fs.writeFileSync(new_path, body);
-					this.path = new_path;
-					return { saved: true };
-				}
-				return { saved: false };
-			}
-
-			try {
-				//fs.accessSync(new_path, fs.constants.R_OK | fs.constants.W_OK );
+				// same path
 				if (!fs.existsSync(new_path) || (body.length > 0 && body != fs.readFileSync(new_path).toString())) {
 					fs.writeFileSync(new_path, body);
 					this.path = new_path;
@@ -551,6 +557,8 @@ class Note extends Model {
 
 	remove() {
 		util_file.deleteFile(this._path);
+		var imgDir = this.imagePath;
+		if (imgDir) util_file.deleteFolderRecursive(imgDir);
 		this._removed = true;
 	}
 
