@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
+const util_file = require('../utils/file');
 const elosenv = require('../utils/elosenv');
 
 class Library {
@@ -38,6 +39,20 @@ class Library {
 			console.warn(e.message);
 		}
 		return p;
+	}
+
+	static moveLibrary(source, target) {
+		if (fs.existsSync(target) && fs.lstatSync(target).isDirectory()) {
+			var files = fs.readdirSync(target);
+			if (files.length > 0) return false;
+		}
+
+		util_file.moveFolderRecursiveSync(
+			source,
+			path.dirname(target),
+			path.basename(target)
+		);
+		return true;
 	}
 }
 

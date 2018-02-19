@@ -55,7 +55,7 @@
 							i.link.material-icons menu
 							.dialog(slot="dropdown"): ul
 								li: a(@click.prevent="menu_openFolder", href="#") Select Library Directory
-								//-li: a(@click.prevent="menu_moveFolder", href="#") Move Library Directory
+								li: a(@click.prevent="menu_moveFolder", href="#") Move Library Directory
 								li: hr
 								li: a(@click.prevent="menu_toggleToolbar()", href="#")
 									i.material-icons(v-if="isToolbarEnabled") check_box

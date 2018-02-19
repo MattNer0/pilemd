@@ -11,9 +11,10 @@ const libini = require('./utils/libini');
 const traymenu = require('./utils/traymenu');
 
 import Vue from 'vue';
+/*
 import VTooltip from 'v-tooltip'
-
 Vue.use(VTooltip);
+*/
 
 var models = require('./models');
 var preview = require('./preview');
@@ -47,7 +48,7 @@ require('../scss/pilemd.scss');
 require('../scss/pilemd-light.scss');
 
 // not to accept image dropping and so on.
-// electron will be show local images without this.
+// electron will show local images without this.
 document.addEventListener('dragover', (e) => {
 	e.preventDefault();
 });
@@ -202,12 +203,18 @@ var appVue = new Vue({
 	mounted() {
 		var self = this;
 		this.$nextTick(() => {
-
 			window.addEventListener('resize', (e) => {
 				e.preventDefault();
 				settings.saveWindowSize();
 				self.update_editor_size();
 			});
+			window.addEventListener('keydown', (e) => {
+				if (e.keyCode == "86" && e.shiftKey && e.ctrlKey && self.isPreview) {
+					e.preventDefault();
+					e.stopPropagation();
+					self.togglePreview();
+				}
+			}, true);
 
 			this.init_sidebar_width();
 			this.update_editor_size();
@@ -689,7 +696,7 @@ var appVue = new Vue({
 				return r == rack;
 			});
 			// we need to close the current selected note if it was from the removed rack.
-			if (this.isNoteSelected && this.selectedNote.data.rack == rack) {
+			if (this.isNoteSelected && this.selectedNote.rack == rack) {
 				this.selectedNote = null;
 			}
 		},
@@ -753,7 +760,7 @@ var appVue = new Vue({
 			});
 			folder.remove(this.notes);
 			// we need to close the current selected note if it was from the removed folder.
-			if(this.isNoteSelected && this.selectedNote.data.folder == folder) {
+			if(this.isNoteSelected && this.selectedNote.folder == folder) {
 				this.selectedNote = {};
 			}
 		},
@@ -1203,26 +1210,24 @@ var appVue = new Vue({
 		},*/
 		moveSync() {
 			var currentPath = models.getBaseLibraryPath();
-			if (!currentPath) {
-				this.$message('error', 'Current Syncing Dir Not found', 5000);
-			}
-			var newPath = dialog.showSaveDialog(remote.getCurrentWindow(), {
-				title: 'Move Sync Folder',
-				defaultPath: path.join(currentPath, 'pmlibrary')
+			var newPaths = dialog.showOpenDialog(remote.getCurrentWindow(), {
+				title: 'Select New Sync Folder',
+				defaultPath: currentPath || '/',
+				properties: ['openDirectory', 'createDirectory', 'promptToCreate']
 			});
-			if (!newPath) {
+			if (!newPaths) {
 				return;
 			}
-			fs.mkdir(newPath, (err) => {
-				if (err) {
-					this.$message('error', 'Folder Already Existed', 5000);
-					return;
-				}
-				// copy files
-				models.copyData(currentPath, newPath);
+			var newPath = newPaths[0];
+
+			// copy files
+			if (models.copyData(currentPath, newPath)) {
 				models.setBaseLibraryPath(newPath);
+				settings.set('baseLibraryPath', newPath);
 				remote.getCurrentWindow().reload();
-			});
+			} else {
+				this.sendFlashMessage(5000, 'error', 'Directory is not Valid');
+			}
 		},
 		openSync() {
 			var currentPath = models.getBaseLibraryPath();
@@ -1330,7 +1335,7 @@ var appVue = new Vue({
 			this.save_editor_size();
 		},
 		updatePreview(no_scroll) {
-			if (this.isPreview && this.selectedNote.data) {
+			if (this.isPreview && this.selectedNote) {
 				this.preview = preview.render(this.selectedNote, this);
 				this.noteHeadings = preview.getHeadings();
 				if (no_scroll === undefined) this.scrollUpScrollbarNote();
@@ -1386,7 +1391,7 @@ var appVue = new Vue({
 			this.noteHeadings = [];
 			if (this.selectedNote instanceof models.Note) {
 				this.updatePreview();
-				this.changeFolder(this.selectedNote.data.folder);
+				this.changeFolder(this.selectedNote.folder);
 			}
 		},
 		'selectedNote.body': function() {

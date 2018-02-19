@@ -45,5 +45,8 @@ module.exports = {
 	},
 	setLibraryToInitial() {
 		baseLibrary.baseLibraryPath = baseLibrary.initialLibrary();
+	},
+	copyData(source, target) {
+		return Library.moveLibrary(source, target);
 	}
 };
