@@ -1,0 +1,21 @@
+{
+	"dest": "releases/linux/installer/",
+	"productName": "PileMd",
+	"name": "pilemd",
+	"genericName": "Text Editor",
+	"description": "PileMd is a Markdown Note App",
+	"productDescription": "PileMd is a Markdown Note App with Beautiful Markdown Editor, Comfortable Notes, and Local File Syncing.",
+	"bin": "PileMd",
+	"icon": {
+		"16x16": "icons/pilemd.iconset/icon_16x16@1x.png",
+		"32x32": "icons/pilemd.iconset/icon_32x32@1x.png",
+		"64x64": "icons/pilemd.iconset/icon_32x32@2x.png",
+		"128x128": "icons/pilemd.iconset/icon_128x128@1x.png",
+		"256x256": "icons/pilemd.iconset/icon_256x256@1x.png",
+		"scalable": "dist/icon.png"
+	},
+	"categories": [ "Utility", "Office" ],
+	"mimeType": [ "text/markdown" ],
+	"desktopTemplate": "src/deb/desktop.ejs",
+	"lintianOverrides": [ "changelog-file-missing-in-native-package" ]
+}

@@ -72,7 +72,7 @@
 									|  Light Theme
 								li: hr
 								//-li: a(@click.prevent="menu_devTools", href="#") Open DevTools
-								li(v-if="isLinux && saveDesktop"): a(@click.prevent="menu_desktopEntry", href="#") Add Desktop Entry
+								//-li(v-if="isLinux && saveDesktop"): a(@click.prevent="menu_desktopEntry", href="#") Add Desktop Entry
 								li: a(@click.prevent="menu_about", href="#") About
 								li: hr
 								li: a(@click.prevent="menu_quit", href="#") Quit
@@ -119,10 +119,10 @@
 				'search'          : "",
 				'menu_visible'    : false,
 				'order_visible'   : false,
-				'saveDesktop'     : true,
+				//'saveDesktop'     : true,
 				'position'        : [ "right", "top", "right", "top" ],
 				'isLinux'         : remote.getGlobal('isLinux'),
-				'desktopEntryPath': path.join(remote.app.getPath('home'), '.local', 'share', 'applications', 'pilemd.desktop')
+				//'desktopEntryPath': path.join(remote.app.getPath('home'), '.local', 'share', 'applications', 'pilemd.desktop')
 			};
 		},
 		components: {
@@ -200,7 +200,7 @@
 					this.toggleToolbar();
 				}, 100);
 			},
-			menu_desktopEntry() {
+			/*menu_desktopEntry() {
 				this.menu_visible = false;
 				setTimeout(() => {
 					if (!fs.existsSync(this.desktopEntryPath)) {
@@ -224,7 +224,7 @@
 						this.saveDesktop = false;
 					}
 				}, 100);
-			},
+			},*/
 			// -----------------------------------------------
 			win_close() {
 				setTimeout(() => {
