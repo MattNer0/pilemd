@@ -72,6 +72,10 @@ class Rack extends Model {
 		return this.uid;
 	}
 
+	get extension() {
+		return false;
+	}
+
 	get rack() {
 		return this;
 	}

@@ -300,8 +300,11 @@ var appVue = new Vue({
 		ipcRenderer.on('loaded-notes', (event, data) => {
 			if (!data) return;
 
+			var rack;
 			data.forEach((r) => {
-				var rack = this.findRackByPath(r.rack);
+				if (!rack || rack.path != r.rack) {
+					rack = this.findRackByPath(r.rack);
+				}
 				loadByParent(r, rack);
 			});
 		});

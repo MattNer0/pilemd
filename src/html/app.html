@@ -120,14 +120,12 @@
 						ref="refNoteFooter">
 					</note-footer>
 				</div>
-				<div
-					v-else-if="!selectedNote && !selectedBookmark"
-					v-show="notesHistory && notesHistory.length > 0">
+				<div v-else-if="!selectedNote && !selectedBookmark">
 					<div class="my-splash-page">
 						<welcome-splash
 							:keep-history="keepHistory"
 							:notes="notesHistory"
-							:change-note="changeNote">
+							:loaded-everything="loadedEverything">
 						</welcome-splash>
 					</div>
 				</div>
