@@ -1,13 +1,10 @@
 .my-shelf-notes {
 	width: auto;
 	height: 100%;
+	height: calc( 100% - 3.5em );
 
 	overflow-y: scroll;
 	white-space: nowrap;
-}
-
-.my-shelf-notes.folder-selected {
-	height: calc( 100% - 3.5em );
 }
 
 .my-notes {

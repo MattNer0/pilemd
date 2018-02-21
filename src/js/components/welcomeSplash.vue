@@ -1,10 +1,6 @@
 <template lang="pug">
 	div
-		.splash-box.small(v-if="!loadedEverything")
-			.title Loading...
-			.load7
-				.loader
-		.splash-box(v-else-if="keepHistory && notes.length > 0")
+		.splash-box(v-if="keepHistory && notes.length > 0")
 			.title Recent Notes
 			ul.list
 				li(v-for="note in notes", v-bind:key="note.uid", v-on:click="selectNote(note)")

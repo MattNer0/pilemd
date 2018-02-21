@@ -10,10 +10,6 @@
 	flex-flow: row nowrap;
 }
 
-.my-main.note_selected{
-	background: $body-background-note;
-}
-
 .outer_wrapper {
 	height: 100%;
 	width: 100%;
@@ -85,6 +81,7 @@
 	}
 
 	.my-editor {
+		background: $body-background-note;
 		width: auto;
 		margin: 0 auto;
 		height: 100%;

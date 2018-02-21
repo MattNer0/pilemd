@@ -377,8 +377,6 @@ var appVue = new Vue({
 		ipcRenderer.on('loaded-all-notes', (event, data) => {
 			if (!data) return;
 
-			this.loadedEverything = true;
-
 			var last_history = libini.readKey(models.getBaseLibraryPath(), 'history');
 			if (last_history && last_history.note.length > 0) {
 				this.notesHistory = this.notes.filter((obj) => {
@@ -413,6 +411,8 @@ var appVue = new Vue({
 			}
 
 			traymenu.init();
+
+			this.loadedEverything = true;
 		});
 
 		ipcRenderer.on('load-page-fail', (event, data) => {
