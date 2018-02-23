@@ -151,6 +151,29 @@
 				rack.sortUpper = false;
 				rack.sortLower = false;
 			},
+			addFolder(rack) {
+				if (!rack) return;
+				var folder;
+				// @todo nested folder
+				if (rack.data.bookmarks) {
+					folder = new models.BookmarkFolder({
+						name    : '',
+						rack    : rack,
+						rackUid : rack.uid,
+						ordering: 0
+					});
+				} else {
+					folder = new models.Folder({
+						name        : '',
+						rack        : rack,
+						parentFolder: undefined,
+						rackUid     : rack.uid,
+						ordering    : 0
+					});
+				}
+				this.$root.addFolderToRack(rack, folder);
+				this.$root.setEditingFolder(folder);
+			},
 			/**
 			 * Handles dropping a rack or a folder inside a rack.
 			 * @param  {Object}  event   drag event

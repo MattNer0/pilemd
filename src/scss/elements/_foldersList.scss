@@ -251,10 +251,6 @@
 	color: $ui-text-color-hover;
 }
 
-.my-shelf-folder.isShelfSelected > .folder-object {
-	color: $folder-selected-color;
-}
-
 .my-shelf-folder .folder-object:hover {
 	background-color: $folder-hover-background;
 	color: $folder-selected-color;
@@ -264,6 +260,10 @@
 	background-color: $folder-selected-background;
 	color: $folder-selected-color;
 	opacity: 1.0;
+
+	input {
+		color: $folder-selected-color;
+	}
 }
 
 .my-shelf-rack.sortUpper:after,
