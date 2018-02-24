@@ -13,7 +13,9 @@
 			@dragleave.stop="rackDragLeave(rack)"
 			@drop.stop="dropToRack($event, rack)"
 			@contextmenu.prevent.stop="rackMenu(rack)")
-			.rack-object(:class="{ 'editing' : editingRack == rack.uid }", @click.prevent.stop="rack.openFolder = !rack.openFolder")
+			.rack-object(
+				:class="{ 'editing' : editingRack == rack.uid, 'dragging' : draggingRack == rack }",
+				@click.prevent.stop="rack.openFolder = !rack.openFolder")
 				i.material-icons.down(v-show="rack.folders.length > 0") arrow_drop_down
 				i.material-icons.rack-icon {{ rack.icon }}
 				a(v-if="editingRack != rack.uid")
@@ -92,7 +94,7 @@
 			classRack(rack) {
 				return {
 					'gotSubfolders': rack.folders && rack.folders.length > 0,
-					'openFolder'   : rack.openFolder,
+					'openFolder'   : rack.openFolder && !this.draggingRack,
 					'sortUpper'    : rack.sortUpper,
 					'sortLower'    : rack.sortLower
 				};
@@ -123,6 +125,7 @@
 			},
 			// Dragging
 			rackDragStart(event, rack) {
+				event.target.classList.remove('openFolder');
 				event.dataTransfer.setDragImage(event.target, 0, 0);
 				this.$root.setDraggingRack(rack);
 			},

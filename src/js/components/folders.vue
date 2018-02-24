@@ -9,7 +9,9 @@
 			@dragleave="folderDragLeave(folder)"
 			@drop="dropToFolder($event, parentFolder, folder)"
 			@contextmenu.prevent.stop="folderMenu(parentFolder, folder)")
-			.folder-object(@click.prevent.stop="selectFolder(folder)")
+			.folder-object(
+				:class="{ 'dragging' : draggingFolder == folder }",
+				@click.prevent.stop="selectFolder(folder)")
 				i.material-icons.down(@click.prevent.stop="folder.openFolder = !folder.openFolder") arrow_drop_down
 				a.my-shelf-folder-name.no-name(v-if="editingFolder != folder.uid")
 					template(v-if="folder.name")
@@ -88,8 +90,9 @@
 					'gotSubfolders'  : folder.folders && folder.folders.length > 0,
 					'openFolder'     : folder.openFolder,
 					'noteDragging'   : this.isDraggingNote,
-					'sortUpper'      : folder.sortUpper,
-					'sortLower'      : folder.sortLower
+					'sortUpper'      : folder.sortUpper && !folder.sortLower,
+					'sortLower'      : folder.sortLower && !folder.sortUpper,
+					'sortInside'     : folder.sortLower && folder.sortUpper
 				};
 			},
 			isRack(folder) {
@@ -149,9 +152,13 @@
 					if (folder != this.draggingFolder) {
 						event.preventDefault();
 						var per = dragging.dragOverPercentage(event.currentTarget, event.clientY);
-						if (per > 0.5) {
+						if (per > 0.6 || folder.openFolder) {
 							folder.sortLower = true;
 							folder.sortUpper = false;
+						} else if (per > 0.4) {
+							folder.sortLower = true;
+							folder.sortUpper = true;
+							if (folder.folders.length > 0) folder.openFolder = true;
 						} else {
 							folder.sortLower = false;
 							folder.sortUpper = true;
@@ -196,25 +203,40 @@
 					var foldersFrom = arr.sortBy(draggingFolder.parent.folders.slice(), 'ordering', true);
 					arr.remove(foldersFrom, (f) => { return f == draggingFolder });
 					draggingFolder.parent.folders = foldersFrom;
-					var foldersTo = arr.sortBy(folder.parent.folders.slice(), 'ordering', true);
 					if (draggingFolder.rack != rack) {
 						draggingFolder.rack = rack;
 					}
-					if (draggingFolder.parentFolder != folder.parentFolder) {
-						draggingFolder.parentFolder = folder.parentFolder;
-					}
-					var i = foldersTo.indexOf(folder);
-					if (folder.sortUpper) {
-						foldersTo.splice(i, 0, draggingFolder);
+					var foldersTo;
+					var findex;
+					if (folder.sortUpper && folder.sortLower) {
+						foldersTo = arr.sortBy(folder.folders.slice(), 'ordering', true);
+						draggingFolder.parentFolder = folder;
+						findex = 0;
 					} else {
-						foldersTo.splice(i+1, 0, draggingFolder);
+						foldersTo = arr.sortBy(folder.parent.folders.slice(), 'ordering', true);
+						if (draggingFolder.parentFolder != folder.parentFolder) {
+							draggingFolder.parentFolder = folder.parentFolder;
+						}
+						findex = foldersTo.indexOf(folder);
 					}
+					if (folder.sortUpper) {
+						foldersTo.splice(findex, 0, draggingFolder);
+					} else {
+						foldersTo.splice(findex + 1, 0, draggingFolder);
+					}
+
 					foldersTo.forEach((f, i) => {
 						f.ordering = i;
 						if(!f.data.bookmarks) f.saveModel();
 					});
 
-					folder.parent.folders = foldersTo;
+					if (folder.sortUpper && folder.sortLower) {
+						folder.folders = foldersTo;
+						folder.openFolder = true;
+					} else {
+						folder.parent.folders = foldersTo;
+					}
+
 					if (rack.data.bookmarks) rack.saveModel();
 
 					folder.sortUpper = false;

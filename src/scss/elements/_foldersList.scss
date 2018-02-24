@@ -14,7 +14,6 @@
 }
 
 .my-shelf-rack {
-	position: relative;
 	padding: 0;
 	margin: 0;
 
@@ -68,10 +67,10 @@
 
 	.rack-object {
 		font-weight: bold;
-		margin: 0.3em 0;
+		margin: 0;
 		padding: 0.3em 0 0.3em 1em;
 		border-bottom: 1px solid $folder-separator;
-		opacity: 0.9;
+		opacity: 1.0;
 
 		i.material-icons.down {
 			top: 0.45em;
@@ -83,12 +82,23 @@
 	}
 
 	.folder-object {
-		margin: 0.1em 0;
+		margin: 0;
 		padding: 0.3em 0 0.3em 1em;
 		font-weight: normal;
 		border-radius: $folder-list-border-radius;
 
 		transition: background-color 200ms;
+	}
+
+	.rack-object.dragging {
+		opacity: 0.5;
+		color: $sidebar-color !important;
+	}
+
+	.folder-object.dragging {
+		opacity: 0.4;
+		color: $sidebar-color !important;
+		background-color: transparent !important;
 	}
 
 	.rack-icon {
@@ -256,6 +266,7 @@
 	color: $folder-selected-color;
 }
 
+.my-shelf-folder.sortInside > .folder-object,
 .my-shelf-folder.isShelfSelected > .folder-object {
 	background-color: $folder-selected-background;
 	color: $folder-selected-color;
@@ -266,33 +277,43 @@
 	}
 }
 
-.my-shelf-rack.sortUpper:after,
+.my-shelf-rack.sortUpper .rack-object:after,
 .my-shelf-folder.sortUpper:after {
 	position: absolute;
-	top: -1px;
+	top: 0px;
 	left: 0;
+	right: 0;
 	width: 100%;
 	height: 2px;
+	z-index: 1;
 	content: "";
 	background-color: $folder-dragdrop-separator;
+	pointer-events: none;
 }
 
-.my-shelf-rack.sortLower:after,
+.my-shelf-rack.sortLower .rack-object:after,
 .my-shelf-folder.sortLower:after {
 	position: absolute;
-	bottom: -1px;
+	bottom: 0px;
 	left: 0;
+	right: 0;
 	width: 100%;
 	height: 2px;
+	z-index: 1;
 	content: "";
 	background-color: $folder-dragdrop-separator;
+	pointer-events: none;
+}
+
+.my-shelf-folder.sortLower.openFolder:after {
+	display: none;
 }
 
 .my-shelf-folder.noteDragging {
 	color: #fefefe;
 }
 
-.my-shelf-racks.draggingRack, .my-shelf-racks.draggingFolder {
+/*.my-shelf-racks.draggingRack, .my-shelf-racks.draggingFolder {
 	.rack-object {
 		margin: -0.3em 0 0.3em;
 		padding: 0.6em 0 0.3em 1em;
@@ -307,4 +328,4 @@
 			margin-top: 0;
 		}
 	}
-}
+}*/
