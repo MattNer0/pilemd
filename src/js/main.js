@@ -27,8 +27,6 @@ const { Menu, MenuItem, dialog } = remote;
 var arr = require('./utils/arr');
 
 // vue.js plugins
-import component_addNote from './components/addNote.vue';
-import component_browser from './components/browser.vue';
 import component_outline from './components/outline.vue';
 import component_codeMirror from './components/codemirror.vue';
 import component_flashmessage from './components/flashmessage.vue';
@@ -39,6 +37,7 @@ import component_noteMenu from './components/noteMenu.vue';
 import component_noteFooter from './components/noteFooter.vue';
 import component_racks from './components/racks.vue';
 import component_notes from './components/notes.vue';
+import component_addNote from './components/addNote.vue';
 import component_welcomeSplash from './components/welcomeSplash.vue';
 import component_titleBar from './components/titleBar.vue';
 import component_tabsBar from './components/tabsBar.vue';
@@ -74,13 +73,11 @@ var appVue = new Vue({
 		preview             : "",
 		racks               : [],
 		notes               : [],
-		bookmarksDomains    : [],
 		notesHistory        : [],
 		// selected
 		selectedRack        : null,
 		selectedFolder      : null,
 		selectedNote        : null,
-		selectedBookmark    : null,
 		noteTabs            : [],
 		// editing
 		editingRack         : null,
@@ -116,7 +113,6 @@ var appVue = new Vue({
 		'handlerStack' : component_handlerStack,
 		'handlerNotes' : component_handlerNotes,
 		'codemirror'   : component_codeMirror,
-		'browser'      : component_browser,
 		'welcomeSplash': component_welcomeSplash,
 		'outline'      : component_outline,
 		'tabsBar'      : component_tabsBar
@@ -143,7 +139,7 @@ var appVue = new Vue({
 		 * @return    {Boolean}    True if note is selected
 		 */
 		isNoteSelected() {
-			if(this.isNoteRackSelected && this.selectedNote instanceof models.Note) return true;
+			if(this.selectedNote instanceof models.Note) return true;
 			return false;
 		},
 		/**
@@ -153,22 +149,12 @@ var appVue = new Vue({
 		 * @return    {Boolean}    True if note is selected
 		 */
 		isOutlineSelected() {
-			if(this.isNoteRackSelected && this.selectedNote instanceof models.Outline) return true;
+			if(this.selectedNote instanceof models.Outline) return true;
 			return false;
-		},
-		/**
-		 * check if the current selected rack is a bookmark rack or not.
-		 * 
-		 * @return    {Boolean}    True if current rack doesn't hold bookmarks.
-		 */
-		isNoteRackSelected() {
-			if(this.selectedFolder instanceof models.BookmarkFolder) return false;
-			return true;
 		},
 		mainCellClass() {
 			var classes = [ 'font' + this.fontsize ];
 			if (this.noteTabs.length > 1) classes.push('tabs-open')
-			if (this.selectedBookmark) classes.push('browser-open')
 			return classes;
 		}
 	},
@@ -226,16 +212,7 @@ var appVue = new Vue({
 
 			var racks = [];
 			data.racks.forEach((r) => {
-				switch(r._type) {
-					case 'separator':
-						break;
-					case 'bookmark':
-						racks.push(new models.BookmarkRack(r));
-						break;
-					default:
-						racks.push(new models.Rack(r));
-						break;
-				}
+				racks.push(new models.Rack(r));
 			});
 
 			this.racks = arr.sortBy(racks.slice(), 'ordering', true);
@@ -309,71 +286,6 @@ var appVue = new Vue({
 			});
 		});
 
-		/*ipcRenderer.on('new-note', (event, data) => {
-			if (!data) return;
-
-			var note = this.findNoteByPath(data.path);
-			if (note) return;
-
-			var folderPath = path.dirname(data.path);
-			var relativePath = path.relative(models.getBaseLibraryPath(), folderPath);
-			var splitPath = relativePath.split(path.sep);
-			var rackPath = path.join(models.getBaseLibraryPath(), splitPath[0]);
-
-			if (rackPath == folderPath) return;
-
-			var rack = this.findRackByPath(rackPath);
-			var folder = this.findFolderByPath(rack, folderPath);
-
-			switch(data._type) {
-				case 'encrypted':
-					var n = new models.EncryptedNote(data);
-					folder.notes.push(n);
-					this.notes.push(n);
-					break;
-				case 'outline':
-					var n = new models.Outline(data);
-					folder.notes.push(n);
-					this.notes.push(n);
-					break;
-				default:
-					var n = new models.Note(data);
-					folder.notes.push(n);
-					this.notes.push(n);
-					break;
-			}
-		});
-
-		ipcRenderer.on('change-note', (event, data) => {
-			if (!data) return;
-
-			var note = this.findNoteByPath(data.path);
-			if (note && data.body != note.bodyWithMetadata && !note.isEncryptedNote) {
-				note.replaceBody(data.body);
-			}
-		});
-
-		ipcRenderer.on('unlink-note', (event, data) => {
-			if (!data) return;
-
-			var folderPath = path.dirname(data.path);
-			var relativePath = path.relative(models.getBaseLibraryPath(), folderPath);
-			var splitPath = relativePath.split(path.sep);
-			var rackPath = path.join(models.getBaseLibraryPath(), splitPath[0]);
-
-			if (rackPath == folderPath) return;
-
-			var rack = this.findRackByPath(rackPath);
-			var folder = this.findFolderByPath(rack, folderPath);
-			var note = this.findNoteByPath(data.path);
-			
-			var i = this.notes.indexOf(note);
-			this.notes.splice(i, 1);
-
-			var fi = folder.notes.indexOf(note);
-			folder.notes.splice(fi, 1);
-		});*/
-
 		ipcRenderer.on('loaded-all-notes', (event, data) => {
 			if (!data) return;
 
@@ -383,16 +295,6 @@ var appVue = new Vue({
 					return last_history.note.indexOf(obj.relativePath) >= 0;
 				});
 				this.notesHistory.reverse();
-			}
-
-			if (this.racks && this.racks.length > 0) {
-				var domain_array = [];
-				this.racks.forEach((r) => {
-					if (r instanceof models.BookmarkRack) {
-						domain_array = domain_array.concat(r.domains());
-					}
-				});
-				this.bookmarksDomains = _.uniq(domain_array);
 			}
 
 			if (this.notes.length == 1) {
@@ -435,32 +337,6 @@ var appVue = new Vue({
 						this.sendFlashMessage(5000, 'error', 'Conversion Failed');
 					}
 					break;
-				case 'bookmark-thumb':
-					var bookmark = this.findBookmarkByUid(JSON.parse(data.bookmark));
-					if (bookmark.name === '') {
-						models.BookmarkFolder.setBookmarkNameUrl(bookmark, data.pageTitle, bookmark.body);
-					}
-					this.sendFlashMessage(3000, 'info', 'Thumbnail saved');
-					models.BookmarkFolder.setBookmarkThumb(bookmark, data.pageCapture);
-					bookmark.rack.saveModel();
-					this.loadingUid = '';
-					break;
-				default:
-					break;
-			}
-		});
-
-		ipcRenderer.on('load-page-favicon', (event, data) => {
-			switch (data.mode) {
-				case 'bookmark-favicon':
-					var bookmark = this.findBookmarkByUid(JSON.parse(data.bookmark));
-					models.BookmarkFolder.setBookmarkIcon(bookmark, data.faviconUrl, data.faviconData);
-					this.loadingUid = '';
-					break;
-				case 'bookmark-thumb':
-					var bookmark = this.findBookmarkByUid(JSON.parse(data.bookmark));
-					models.BookmarkFolder.setBookmarkIcon(bookmark, data.faviconUrl, data.faviconData);
-					break;
 				default:
 					break;
 			}
@@ -479,12 +355,6 @@ var appVue = new Vue({
 		});
 	},
 	methods: {
-		findBookmarkByUid(bookmark) {
-			var rack = arr.findBy(this.racks, 'uid', bookmark.rack);
-			var folder = arr.findBy(rack.folders, 'uid', bookmark.folder);
-			var bookmark = arr.findBy(folder.notes, 'uid', bookmark.uid);
-			return bookmark;
-		},
 		findNoteByPath(notePath) {
 			if (!notePath) return undefined;
 			return this.notes.find((note) => {
@@ -592,25 +462,23 @@ var appVue = new Vue({
 				if (this.selectedFolder != note.folder) this.changeFolder(note.folder);
 			}
 
-			if (this.isNoteRackSelected) {
-				if (this.noteTabs.length > 1) {
-					newtab = true;
-				}
+			if (this.noteTabs.length > 1) {
+				newtab = true;
+			}
 
-				if (this.noteTabs.indexOf(note) == -1) {
-					if (newtab) {
-						this.noteTabs.push(note);
-					}
-
-					if (!newtab && this.selectedNote) {
-						var ci = this.noteTabs.indexOf(this.selectedNote);
-						this.noteTabs.splice(ci, 1, note);
-					}
-				}
-
-				if (this.noteTabs.length == 0) {
+			if (this.noteTabs.indexOf(note) == -1) {
+				if (newtab) {
 					this.noteTabs.push(note);
 				}
+
+				if (!newtab && this.selectedNote) {
+					var ci = this.noteTabs.indexOf(this.selectedNote);
+					this.noteTabs.splice(ci, 1, note);
+				}
+			}
+
+			if (this.noteTabs.length == 0) {
+				this.noteTabs.push(note);
 			}
 
 			if (note instanceof models.Outline) {
@@ -618,8 +486,7 @@ var appVue = new Vue({
 				if (this.keepHistory) {
 					libini.pushKey(models.getBaseLibraryPath(), ['history', 'note'], this.selectedNote.relativePath, 5);
 				}
-			} else if (this.isNoteRackSelected) {
-				this.selectedBookmark = null;
+			} else {
 				if (!note.body) note.loadBody();
 				if (note.isEncrypted) {
 					var message = 'Insert the secret key to Encrypt and Decrypt this note';
@@ -654,10 +521,6 @@ var appVue = new Vue({
 						libini.pushKey(models.getBaseLibraryPath(), ['history', 'note'], this.selectedNote.relativePath, 5);
 					}
 				}
-
-			} else {
-				this.selectedNote = null;
-				this.selectedBookmark = note;
 			}
 		},
 		/**
@@ -745,10 +608,9 @@ var appVue = new Vue({
 			folders.unshift(folder);
 			folders.forEach((f, i) => {
 				f.ordering = i;
-				if (!f.data.bookmarks) f.saveModel();
+				f.saveModel();
 			});
 			rack.folders = folders;
-			if (rack.data.bookmarks) rack.saveModel();
 		},
 		/**
 		 * deletes a folder and its contents from the parent rack.
@@ -982,140 +844,6 @@ var appVue = new Vue({
 			}]);
 		},
 		/**
-		 * add a new bookmark inside a specific folder
-		 * 
-		 * @param {Object}  folder  The folder
-		 * @return {Void} Function doesn't return anything
-		 */
-		addBookmark(folder) {
-			if (!folder) return;
-			var newBookmark = models.BookmarkFolder.newEmptyBookmark(folder);
-			folder.notes.push(newBookmark);
-			this.editBookmark(newBookmark);
-		},
-		/**
-		 * edit bookmark title and url through a popup dialog
-		 * 
-		 * @param {Object}  bookmark  The bookmark
-		 * @return {Void} Function doesn't return anything
-		 */
-		editBookmark(bookmark) {
-			var self = this;
-			this.$refs.dialog.init('Bookmark', '', [{
-				label: 'Cancel',
-				cancel: true,
-				/**
-				 * function called when user click on the 'Cancel' button
-				 * @return {Void} Function doesn't return anything
-				 */
-				cb() {
-					if(bookmark.name === '' && bookmark.body === '') {
-						bookmark.folder.removeNote(bookmark);
-					}
-				}
-			}, {
-				label: 'Ok',
-				/**
-				 * function called when user click on the 'Ok' button
-				 * @param  {Object}  data  Form data object
-				 * @return {Void} Function doesn't return anything
-				 */
-				cb(data) {
-					if(bookmark.body != data.bkurl || !bookmark.attributes['THUMBNAIL']) {
-						models.BookmarkFolder.setBookmarkNameUrl(bookmark, data.bkname, data.bkurl);
-						this.bookmarksDomains.push(models.BookmarkFolder.getDomain({ body: data.bkurl }));
-						self.$nextTick(() => {
-							self.refreshBookmarkThumb(bookmark);
-						});
-					} else {
-						models.BookmarkFolder.setBookmarkNameUrl(bookmark, data.bkname, data.bkurl);
-					}
-					bookmark.rack.saveModel();
-				},
-				/**
-				 * validate the form input data
-				 * @param  {Object}  data  Form data object
-				 * @return {(boolean|string)} If false, the validation was succesful.
-				 *                            If a string value is returned it means that's the name of the field that failed validation.
-				 */
-				validate(data) {
-					var expression = /[-a-zA-Z0-9@:%_+.~#?&=]{2,256}(\.[a-z]{2,4}|:\d+)\b(\/[-a-zA-Z0-9@:%_+.~#?&/=]*)?/gi;
-					var regex = new RegExp(expression);
-					if (data.bkurl.match(regex)) {
-						return false;
-					}
-					/*
-					 * TODO: gonna use this to highlight the wrong field in the dialog form
-					 */
-					return 'bkurl';
-				}
-			}], [{
-				type    : 'text',
-				retValue: bookmark.name,
-				label   : 'Name',
-				name    : 'bkname',
-				required: false
-			},{
-				type    : 'text',
-				retValue: bookmark.body,
-				label   : 'URL',
-				name    : 'bkurl',
-				required: true
-			}]);
-		},
-		/**
-		 * refresh bookmark thumbnail image and icon
-		 * @function refreshBookmarkThumb
-		 * @param {Object}  bookmark  The bookmark
-		 * @return {Void} Function doesn't return anything
-		 */
-		refreshBookmarkThumb(bookmark) {
-			if(!bookmark || !bookmark.body) return;
-			this.loadingUid = bookmark.uid;
-			ipcRenderer.send('load-page', {
-				url           : bookmark.body,
-				mode          : 'bookmark-thumb',
-				bookmark      : JSON.stringify({
-					'uid'   : bookmark.uid,
-					'folder': bookmark.folder.uid,
-					'rack'  : bookmark.rack.uid
-				})
-			});
-		},
-		refreshFavicon(bookmark) {
-			if(!bookmark || !bookmark.body) return;
-			this.loadingUid = bookmark.uid;
-			ipcRenderer.send('load-page', {
-				url           : bookmark.body,
-				mode          : 'bookmark-favicon',
-				bookmark      : JSON.stringify({
-					'uid'   : bookmark.uid,
-					'folder': bookmark.folder.uid,
-					'rack'  : bookmark.rack.uid
-				})
-			});
-		},
-		/**
-		 * refresh bookmark thumbnail using some metadata content
-		 * (og:image, 'shortcut icon' and 'user-profile' img)
-		 * @param {Object}  bookmark  The bookmark
-		 * @return {Void} Function doesn't return anything
-		 */
-		getBookmarkMetaImage(bookmark) {
-			var self = this;
-			console.log('Loading Bookmark page...', bookmark.body);
-			this.loadingUid = bookmark.uid;
-			ipcRenderer.send('load-page', {
-				url           : bookmark.body,
-				mode          : 'bookmark-meta',
-				bookmark      : JSON.stringify({
-					'uid'   : bookmark.uid,
-					'folder': bookmark.folder.uid,
-					'rack'  : bookmark.rack.uid
-				})
-			});
-		},
-		/**
 		 * @description displays an image with the popup dialog
 		 * @param  {String}  url  The image url
 		 * @return {Void} Function doesn't return anything
@@ -1151,12 +879,8 @@ var appVue = new Vue({
 		shelfMenu() {
 			var menu = new Menu();
 			menu.append(new MenuItem({
-				label: 'Add Rack',
+				label: 'Add Folder',
 				click: () => { this.$refs.refRacks.addRack(); }
-			}));
-			menu.append(new MenuItem({
-				label: 'Add Bookmark Rack',
-				click: () => { this.$refs.refRacks.addBookmarkRack(); }
 			}));
 			menu.popup(remote.getCurrentWindow());
 		},

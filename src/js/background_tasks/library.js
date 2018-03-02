@@ -63,18 +63,6 @@ module.exports = {
 							icon         : rack_data.icon || '',
 							path         : rackPath
 						});
-					} else if (rackStat.isFile()) {
-						var rackExt = path.extname(rack);
-						if (rackExt == '.html') {
-							var body = fs.readFileSync(rackPath).toString();
-							valid_racks.push({
-								_type    : 'bookmark',
-								name     : rack,
-								body     : body,
-								path     : rackPath,
-								extension: rackExt
-							});
-						}
 					}
 				}
 			}

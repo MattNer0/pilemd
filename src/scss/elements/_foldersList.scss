@@ -8,6 +8,7 @@
 	font-weight: 200;
 	width: auto;
 	height: 100%;
+	height: calc( 100% - 3em );
 
 	overflow-y: scroll;
 	white-space: nowrap;
@@ -105,7 +106,7 @@
 		font-size: 100%;
 		margin-right: 0.2em;
 		vertical-align: middle;
-		color: $sidebar-color;
+		color: inherit;
 		opacity: 0.8;
 		z-index: 1;
 	}
@@ -208,9 +209,13 @@
 .my-shelf-rack.openFolder {
 	> .my-shelf-folders {
 		display: block;
+		padding-bottom: 0.3em;
+		border-bottom: 1px solid $folder-separator;
 	}
 
 	> .rack-object {
+		border-bottom: 0;
+		
 		i.material-icons.down {
 			transform: rotate(0deg);
 		}
@@ -257,10 +262,7 @@
 	}
 }
 
-.my-shelf-folder:hover > .folder-object {
-	color: $ui-text-color-hover;
-}
-
+.my-shelf-rack .rack-object:hover,
 .my-shelf-folder .folder-object:hover {
 	background-color: $folder-hover-background;
 	color: $folder-selected-color;

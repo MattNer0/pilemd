@@ -1,6 +1,6 @@
 <template lang="pug">
-	.my-notes(:class="{ 'my-bookmarks': bookmarksList }")
-		.my-separator(v-if="selectedRack", v-for="separated in notesFiltered", v-bind:key="separated.dateStr", :class="{'my-bookmark-separator': bookmarksList}")
+	.my-notes
+		.my-separator(v-if="selectedRack", v-for="separated in notesFiltered", v-bind:key="separated.dateStr")
 			.my-separator-date {{ separated.dateStr }}
 			.my-notes-note(v-for="note in separated.notes",
 				track-by="uid",
@@ -9,34 +9,21 @@
 				@contextmenu.prevent.stop="noteMenu(note)",
 				@dragstart.stop="noteDragStart($event, note)",
 				@dragend.stop="noteDragEnd()",
-				@dragover="noteDragOver($event, note)"
-				@dragleave.stop="noteDragLeave(note)"
-				@drop.stop="dropToNote($event, note)"
 				:class="{'my-notes-note-selected': selectedNote === note, 'sortUpper': note.sortUpper, 'sortLower': note.sortLower}",
 				draggable="true")
-				template(v-if="bookmarksList && note.attributes")
-					h5.my-notes-note-title(:title="note.name")
-						img.favicon(v-if="note.attributes.ICON", :src="note.attributes.ICON")
-						| {{ note.name }}
-					.my-notes-note-image(:title="note.name")
-						img(:src="note.attributes.THUMBNAIL")
-						.loading-bookmark(v-show="note.uid == loadingUid")
-							i.material-icons cached
-					.my-notes-note-body(:title="note.body")
-						| {{ note.body }}
-				template(v-else-if="!bookmarksList")
-					h5.my-notes-note-title(v-if="note.title")
-						i.material-icons(v-if="note.isEncryptedNote && note.isEncrypted") lock
-						i.material-icons(v-else-if="note.isEncryptedNote && !note.isEncrypted") lock_open
-						i.material-icons(v-else) description
-						| {{ note.title }}
-					h5.my-notes-note-title(v-else)
-						i.material-icons description
-						| No Title
-					.my-notes-note-image(v-if="note.img")
-						img(:src="note.img")
-					.my-notes-note-body(v-if="!note.img && note.body.length != 0")
-						| {{ note.bodyWithoutTitle | truncate(80) }}
+
+				h5.my-notes-note-title(v-if="note.title")
+					i.material-icons(v-if="note.isEncryptedNote && note.isEncrypted") lock
+					i.material-icons(v-else-if="note.isEncryptedNote && !note.isEncrypted") lock_open
+					i.material-icons(v-else) description
+					| {{ note.title }}
+				h5.my-notes-note-title(v-else)
+					i.material-icons description
+					| No Title
+				.my-notes-note-image(v-if="note.img")
+					img(:src="note.img")
+				.my-notes-note-body(v-if="!note.img && note.body.length != 0")
+					| {{ note.bodyWithoutTitle | truncate(80) }}
 
 </template>
 
@@ -64,7 +51,6 @@
 	export default {
 		name: 'notes',
 		props: {
-			'bookmarksList'       : Boolean,
 			'notesDisplayOrder'   : String,
 			'notes'               : Array,
 			'originalNotes'       : Array,
@@ -72,14 +58,9 @@
 			'selectedRack'        : Object,
 			'selectedFolder'      : Object,
 			'draggingNote'        : Object,
-			'loadingUid'          : String,
 			'toggleFullScreen'    : Function,
 			'changeNote'          : Function,
-			'setDraggingNote'     : Function,
-			'editBookmark'        : Function,
-			'refreshBookmarkThumb': Function,
-			'refreshFavicon'      : Function,
-			'getBookmarkMetaImage': Function
+			'setDraggingNote'     : Function
 		},
 		data() {
 			return {
@@ -97,15 +78,9 @@
 			selectNote(note, newtab) {
 				this.changeNote(note, newtab);
 			},
-			openExternalUrl(bookmark) {
-				electron.shell.openExternal(bookmark.body);
-			},
 			selectNoteAndWide(note) {
 				this.changeNote(note);
 				this.toggleFullScreen();
-			},
-			addBookmark() {
-				this.$root.addBookmark(this.selectedFolder);
 			},
 			removeNote(note) {
 				var dialog_options = {
@@ -115,13 +90,8 @@
 					cancelId : 1
 				};
 
-				if(this.bookmarksList){
-					dialog_options.title = 'Remove Bookmark';
-					dialog_options.message = 'Are you sure you want to remove this bookmark?\n\nTitle: ' + note.name + '\nLink: ' + note.body;
-				} else {
-					dialog_options.title = 'Remove Note';
-					dialog_options.message = 'Are you sure you want to remove this note?\n\nTitle: ' + note.title + '\nContent: ' + note.bodyWithoutTitle.replace('\n', ' ').slice(0, 100) + '...';
-				}
+				dialog_options.title = 'Remove Note';
+				dialog_options.message = 'Are you sure you want to remove this note?\n\nTitle: ' + note.title + '\nContent: ' + note.bodyWithoutTitle.replace('\n', ' ').slice(0, 100) + '...';
 
 				dialog.showMessageBox(remote.getCurrentWindow(), dialog_options, (btn) => {
 					if (btn == 0) {
@@ -131,19 +101,14 @@
 						}
 						var index = this.originalNotes.indexOf(note);
 						if(index >= 0) this.originalNotes.splice(index, 1);
-						if(this.selectedFolder.data.bookmarks) {
-							this.selectedFolder.removeNote(note);
+						note.remove();
+						if(note.data.folder.notes.length == 0) {
+							this.changeNote(null);
+						} else if (this.notes.length > 1) {
+							this.changeNote(Note.beforeNote(this.notes.slice(), note, this.notesDisplayOrder));
 						} else {
-							note.remove();
-							if(note.data.folder.notes.length == 0) {
-								this.changeNote(null);
-							} else if (this.notes.length > 1) {
-								this.changeNote(Note.beforeNote(this.notes.slice(), note, this.notesDisplayOrder));
-							} else {
-								this.changeNote(Note.beforeNote(this.originalNotes.slice(), note, this.notesDisplayOrder));
-							}
+							this.changeNote(Note.beforeNote(this.originalNotes.slice(), note, this.notesDisplayOrder));
 						}
-						console.log('note removed');
 					}
 				});
 			},
@@ -155,50 +120,10 @@
 			noteDragEnd() {
 				this.setDraggingNote(null);
 			},
-			noteDragOver(event, note) {
-				if (this.draggingNote && this.draggingNote.folder && this.draggingNote.folder.data.bookmarks) {
-					event.preventDefault();
-					var per = dragging.dragOverPercentage(event.currentTarget, event.clientY);
-					if (per > 0.5) {
-						note.sortLower = true;
-						note.sortUpper = false;
-					} else {
-						note.sortLower = false;
-						note.sortUpper = true;
-					}
-				}
-			},
-			noteDragLeave(note) {
-				note.dragHover = false;
-				note.sortUpper = false;
-				note.sortLower = false;
-			},
-			dropToNote(event, note) {
-				if (this.draggingNote && this.draggingNote.folder.data.bookmarks && note.folder.data.bookmarks) {
-					var notes = this.notes.slice();
-					arr.remove(notes, (r) => {return r == this.draggingNote});
-					var i = notes.indexOf(note);
-					if (note.sortUpper) {
-						notes.splice(i, 0, this.draggingNote);
-					} else {
-						notes.splice(i+1, 0, this.draggingNote);
-					}
-					this.draggingNote.folder.notes = notes;
-					this.draggingNote.rack.saveModel();
-					this.setDraggingNote(null);
-					note.dragHover = false;
-					note.sortUpper = false;
-					note.sortLower = false;
-				}
-			},
 			// Electron methods
 			copyNoteBody(note) {
 				electron.clipboard.writeText(note.bodyWithDataURL);
 				this.$root.sendFlashMessage(1000, 'info', 'Copied Markdown to clipboard');
-			},
-			copyBookmarkUrl(bookmark) {
-				electron.clipboard.writeText(bookmark.body);
-				this.$root.sendFlashMessage(1000, 'info', 'Copied Url to clipboard');
 			},
 			copyNoteHTML(note) {
 				electron.clipboard.writeText(marked(note.body));
@@ -244,57 +169,27 @@
 			noteMenu(note) {
 				var menu = new Menu();
 
-				if (this.bookmarksList) {
-					menu.append(new MenuItem({label: 'Open Url', click: () => {this.selectNote(note)}}));
-					menu.append(new MenuItem({label: 'Open Url External', click: () => {this.openExternalUrl(note)}}));
-					menu.append(new MenuItem({label: 'Copy to clipboard', click: () => {this.copyBookmarkUrl(note)}}));
-					menu.append(new MenuItem({type: 'separator'}));
-					menu.append(new MenuItem({
-						label: 'Edit Bookmark',
-						click: () => {this.editBookmark(note)},
-						enabled: this.loadingUid === ''
-					}));
-					menu.append(new MenuItem({type: 'separator'}));
-					menu.append(new MenuItem({
-						label: 'Refresh Favicon',
-						click: () => {this.refreshFavicon(note)},
-						enabled: this.loadingUid === ''
-					}));
-					menu.append(new MenuItem({
-						label: 'Refresh Thumbnail',
-						click: () => {this.refreshBookmarkThumb(note)},
-						enabled: this.loadingUid === ''
-					}));
-					menu.append(new MenuItem({
-						label: 'Use Shortcut Icon',
-						click: () => {this.getBookmarkMetaImage(note)},
-						enabled: this.loadingUid === ''
-					}));
-					menu.append(new MenuItem({type: 'separator'}));
-					menu.append(new MenuItem({label: 'Delete Bookmark', click: () => {this.removeNote(note)}}));
+				menu.append(new MenuItem({label: 'Open Note', click: () => {this.selectNote(note)}}));
+				menu.append(new MenuItem({label: 'Open Note in new Tab', click: () => {this.selectNote(note, true)}}));
+				menu.append(new MenuItem({type: 'separator'}));
+				if (note.isOutline) {
+					menu.append(new MenuItem({label: 'Copy to clipboard (Plain)', click: () => {this.copyOutlinePLain(note)}}));
+					menu.append(new MenuItem({label: 'Copy to clipboard (OPML)', click: () => {this.copyOutlineOPML(note)}}));
 				} else {
-					menu.append(new MenuItem({label: 'Open Note', click: () => {this.selectNote(note)}}));
-					menu.append(new MenuItem({label: 'Open Note in new Tab', click: () => {this.selectNote(note, true)}}));
-					menu.append(new MenuItem({type: 'separator'}));
-					if (note.isOutline) {
-						menu.append(new MenuItem({label: 'Copy to clipboard (Plain)', click: () => {this.copyOutlinePLain(note)}}));
-						menu.append(new MenuItem({label: 'Copy to clipboard (OPML)', click: () => {this.copyOutlineOPML(note)}}));
-					} else {
-						menu.append(new MenuItem({label: 'Copy to clipboard (Markdown)', click: () => {this.copyNoteBody(note)}}));
-						menu.append(new MenuItem({label: 'Copy to clipboard (HTML)', click: () => {this.copyNoteHTML(note)}}));
-					}
-					menu.append(new MenuItem({type: 'separator'}));
-					menu.append(new MenuItem({
-						label: 'Show this note in folder',
-						click: () => {
-							electron.shell.showItemInFolder(note.data.path);
-						}
-					}));
-					menu.append(new MenuItem({type: 'separator'}));
-					menu.append(new MenuItem({label: 'Export this note...', click: () => {this.exportNoteDiag(note)}}));
-					menu.append(new MenuItem({type: 'separator'}));
-					menu.append(new MenuItem({label: 'Delete note', click: () => {this.removeNote(note)}}));
+					menu.append(new MenuItem({label: 'Copy to clipboard (Markdown)', click: () => {this.copyNoteBody(note)}}));
+					menu.append(new MenuItem({label: 'Copy to clipboard (HTML)', click: () => {this.copyNoteHTML(note)}}));
 				}
+				menu.append(new MenuItem({type: 'separator'}));
+				menu.append(new MenuItem({
+					label: 'Show this note in folder',
+					click: () => {
+						electron.shell.showItemInFolder(note.data.path);
+					}
+				}));
+				menu.append(new MenuItem({type: 'separator'}));
+				menu.append(new MenuItem({label: 'Export this note...', click: () => {this.exportNoteDiag(note)}}));
+				menu.append(new MenuItem({type: 'separator'}));
+				menu.append(new MenuItem({label: 'Delete note', click: () => {this.removeNote(note)}}));
 
 				menu.popup(remote.getCurrentWindow());
 			}

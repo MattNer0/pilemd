@@ -88,11 +88,7 @@ module.exports = {
 		var note_array = [];
 		if (folder.notes) {
 			for (var i = 0; i < folder.notes.length; i++) {
-				if (folder.data.bookmarks) {
-					note_array.push(this.oneBookmarkMenuItem(folder.notes[i]));
-				} else {
-					note_array.push(this.oneNoteMenuItem(folder.notes[i], note_cb));
-				}
+				note_array.push(this.oneNoteMenuItem(folder.notes[i], note_cb));
 			}
 		}
 
@@ -101,14 +97,6 @@ module.exports = {
 			submenu: note_array.length > 0 ? note_array : undefined,
 			click: function() {
 				if (rackfolder_cb) rackfolder_cb(folder);
-			}
-		};
-	},
-	oneBookmarkMenuItem(bookmark) {
-		return {
-			label: bookmark.name,
-			click: function() {
-				electron.shell.openExternal(bookmark.body);
 			}
 		};
 	},

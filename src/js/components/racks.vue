@@ -1,42 +1,40 @@
 <template lang="pug">
-	.my-shelf-racks(:class="{'draggingRack' : draggingRack, 'draggingFolder' : draggingFolder}")
-		.my-shelf-rack(v-if="racksWithFolders.length == 0")
-			h4(@click.prevent.stop="addRack()")
-				i.material-icons.rack-icon add_box
-				a Add Rack
-		.my-shelf-rack(v-for="rack in racksWithFolders"
-			:class="classRack(rack)"
-			:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
-			@dragstart.stop="rackDragStart($event, rack)"
-			@dragend.stop="rackDragEnd()"
-			@dragover="rackDragOver($event, rack)"
-			@dragleave.stop="rackDragLeave(rack)"
-			@drop.stop="dropToRack($event, rack)"
-			@contextmenu.prevent.stop="rackMenu(rack)")
-			.rack-object(
-				:class="{ 'editing' : editingRack == rack.uid, 'dragging' : draggingRack == rack }",
-				@click.prevent.stop="rack.openFolder = !rack.openFolder")
-				i.material-icons.down(v-show="rack.folders.length > 0") arrow_drop_down
-				i.material-icons.rack-icon {{ rack.icon }}
-				a(v-if="editingRack != rack.uid")
-					| {{ rack.name }}
-				input(v-if="editingRack == rack.uid"
-					v-model="rack.name"
-					v-focus="editingRack == rack.uid"
-					@blur="doneRackEdit(rack)"
-					@keyup.enter="doneRackEdit(rack)"
-					@keyup.esc="doneRackEdit(rack)")
-			
-			folders(v-if="rack.folders.length > 0",
-				v-show="!draggingRack"
-				:parent-folder="rack"
-				:selected-folder="selectedFolder"
-				:dragging-folder="draggingFolder"
-				:dragging-note="draggingNote"
-				:change-rack="changeRack"
-				:change-folder="changeFolder"
-				:editing-rack="editingRack"
-				:editing-folder="editingFolder")
+	.my-shelf
+		.my-shelf-wrapper
+			.my-shelf-racks(:class="{ 'draggingRack' : this.draggingRack, 'draggingFolder' : this.draggingFolder }")
+				.my-shelf-rack(v-for="rack in racksWithFolders"
+					:class="classRack(rack)"
+					:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
+					@dragstart.stop="rackDragStart($event, rack)"
+					@dragend.stop="rackDragEnd()"
+					@dragover="rackDragOver($event, rack)"
+					@dragleave.stop="rackDragLeave(rack)"
+					@drop.stop="dropToRack($event, rack)"
+					@contextmenu.prevent.stop="rackMenu(rack)")
+					.rack-object(
+						:class="{ 'editing' : editingRack == rack.uid, 'dragging' : draggingRack == rack }",
+						@click="rack.openFolder = !rack.openFolder")
+						i.material-icons.down(v-show="rack.folders.length > 0") arrow_drop_down
+						i.material-icons.rack-icon {{ rack.icon }}
+						a(v-if="editingRack != rack.uid")
+							| {{ rack.name }}
+						input(v-if="editingRack == rack.uid"
+							v-model="rack.name"
+							v-focus="editingRack == rack.uid"
+							@blur="doneRackEdit(rack)"
+							@keyup.enter="doneRackEdit(rack)"
+							@keyup.esc="doneRackEdit(rack)")
+					
+					folders(v-if="rack.folders.length > 0",
+						v-show="!draggingRack"
+						:parent-folder="rack"
+						:selected-folder="selectedFolder"
+						:dragging-folder="draggingFolder"
+						:dragging-note="draggingNote"
+						:change-rack="changeRack"
+						:change-folder="changeFolder"
+						:editing-rack="editingRack"
+						:editing-folder="editingFolder")
 </template>
 
 <script>
@@ -99,24 +97,14 @@
 					'sortLower'    : rack.sortLower
 				};
 			},
-			addRack() {
+			/*addRack() {
 				var rack = new models.Rack({
 					name: "",
 					ordering: 0
 				});
 				this.$root.addRack(rack);
 				this.$root.setEditingRack(rack);
-			},
-			addBookmarkRack() {
-				var rack = new models.BookmarkRack({
-					name     : "",
-					path     : "",
-					extension: ".html",
-					ordering : 0
-				});
-				this.$root.addRack(rack);
-				this.$root.setEditingRack(rack);
-			},
+			},*/
 			doneRackEdit(rack) {
 				if (!this.editingRack) { return }
 				rack.saveModel();
@@ -158,22 +146,13 @@
 				if (!rack) return;
 				var folder;
 				// @todo nested folder
-				if (rack.data.bookmarks) {
-					folder = new models.BookmarkFolder({
-						name    : '',
-						rack    : rack,
-						rackUid : rack.uid,
-						ordering: 0
-					});
-				} else {
-					folder = new models.Folder({
-						name        : '',
-						rack        : rack,
-						parentFolder: undefined,
-						rackUid     : rack.uid,
-						ordering    : 0
-					});
-				}
+				folder = new models.Folder({
+					name        : '',
+					rack        : rack,
+					parentFolder: undefined,
+					rackUid     : rack.uid,
+					ordering    : 0
+				});
 				this.$root.addFolderToRack(rack, folder);
 				this.$root.setEditingFolder(folder);
 			},
@@ -197,10 +176,9 @@
 					folders.unshift(draggingFolder);
 					folders.forEach((f) => {
 						f.ordering += 1;
-						if (!f.data.bookmarks) f.saveModel();
+						f.saveModel();
 					});
 					rack.folders = folders;
-					if (rack.data.bookmarks) rack.saveModel();
 					rack.dragHover = false;
 					this.$root.setDraggingFolder();
 				} else if (this.draggingRack && this.draggingRack != rack) {
@@ -248,49 +226,41 @@
 			},*/
 			rackMenu(rack) {
 				var menu = new Menu();
-				if (!rack.data.separator) {
-					menu.append(new MenuItem({
-						label: 'Rename Rack',
-						click: () => {
-							this.$root.setEditingRack(rack);
-						}
-					}));
-					/*menu.append(new MenuItem({
-						label: 'Set Rack Thumbnail',
-						click: () => {
-							this.selectRackThumbnail(rack);
-						}
-					}));*/
-					
-					menu.append(new MenuItem({
-						label: 'Add Folder',
-						click: () => {
-							this.addFolder(rack)
-						}
-					}));
-				}
-				
-				menu.append(new MenuItem({
-					label: 'Add Rack',
+
+				/*menu.append(new MenuItem({
+					label: 'Set Rack Thumbnail',
 					click: () => {
-						this.addRack();
+						this.selectRackThumbnail(rack);
+					}
+				}));*/
+
+				menu.append(new MenuItem({
+					label: 'Rename Folder',
+					click: () => {
+						this.$root.setEditingRack(rack);
 					}
 				}));
 				menu.append(new MenuItem({
-					label: 'Add Bookmark Rack',
+					label: 'Add Subfolder',
 					click: () => {
-						this.addBookmarkRack();
+						this.addFolder(rack)
 					}
 				}));
 				menu.append(new MenuItem({type: 'separator'}));
 				menu.append(new MenuItem({
-					label: rack.data.separator ? 'Delete Separator' : 'Delete Rack',
+					label: 'Delete Folder',
 					click: () => {
 						if (confirm('Delete Rack "' + rack.name + '" and its content?')) {
 							this.$root.removeRack(rack);
 						}
 					}
 				}));
+				/*menu.append(new MenuItem({
+					label: 'Add New Folder',
+					click: () => {
+						this.addRack();
+					}
+				}));*/
 				menu.popup(remote.getCurrentWindow());
 			}
 		}

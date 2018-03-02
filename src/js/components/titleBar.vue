@@ -6,14 +6,10 @@
 					span(v-if="!enabled")
 						i.material-icons folder
 						| PileMd Library
-					span(v-else-if="enabledBookmark")
-						i.material-icons chevron_right
-						|  {{ bookmark.name }}
-					template(v-else)
-						span(v-for="(path, index) in selectionPath")
-							i.material-icons(v-if="index == 0") folder
-							i.material-icons(v-else) chevron_right
-							|  {{ path }}
+					span(v-else, v-for="(path, index) in selectionPath")
+						i.material-icons(v-if="index == 0") folder
+						i.material-icons(v-else) chevron_right
+						|  {{ path }}
 			.spacer
 				nav: ul
 					li
@@ -31,16 +27,16 @@
 									| Sort by Creation Date
 								span.sub-text(v-if="notesDisplayOrder == 'title'")
 									| Sort by Title
-							.dialog(slot="dropdown"): ul
-								li: a(@click.prevent="menu_changeOrder('updatedAt')", href="#")
+							.dialog(slot="dropdown"): ul(@click.prevent.stop="")
+								li: a(@click.prevent.stop="menu_changeOrder('updatedAt')", href="#")
 									i.material-icons(v-if="notesDisplayOrder == 'updatedAt'") radio_button_checked
 									i.material-icons.faded(v-else) radio_button_unchecked
 									|  Sort by Update Date
-								li: a(@click.prevent="menu_changeOrder('createdAt')", href="#")
+								li: a(@click.prevent.stop="menu_changeOrder('createdAt')", href="#")
 									i.material-icons(v-if="notesDisplayOrder == 'createdAt'") radio_button_checked
 									i.material-icons.faded(v-else) radio_button_unchecked
 									|  Sort by Creation Date
-								li: a(@click.prevent="menu_changeOrder('title')", href="#")
+								li: a(@click.prevent.stop="menu_changeOrder('title')", href="#")
 									i.material-icons(v-if="notesDisplayOrder == 'title'") radio_button_checked
 									i.material-icons.faded(v-else) radio_button_unchecked
 									|  Sort by Title
@@ -53,29 +49,29 @@
 					li.has-sub(@click="menu_visible = !menu_visible")
 						dropdown(:visible="menu_visible", :position="position", v-on:clickout="menu_visible = false")
 							i.link.material-icons menu
-							.dialog(slot="dropdown"): ul
-								li: a(@click.prevent="menu_openFolder", href="#") Select Library Directory
-								li: a(@click.prevent="menu_moveFolder", href="#") Move Library Directory
+							.dialog(slot="dropdown"): ul(@click.prevent.stop="")
+								li: a(@click.prevent.stop="menu_openFolder", href="#") Select Library Directory
+								li: a(@click.prevent.stop="menu_moveFolder", href="#") Move Library Directory
 								li: hr
-								li: a(@click.prevent="menu_toggleToolbar()", href="#")
+								li: a(@click.prevent.stop="menu_toggleToolbar()", href="#")
 									i.material-icons(v-if="isToolbarEnabled") check_box
 									i.material-icons.faded(v-else) check_box_outline_blank
 									|  Show Note Toolbar
 								li: hr
-								li: a(@click.prevent="menu_changeTheme('dark')", href="#")
+								li: a(@click.prevent.stop="menu_changeTheme('dark')", href="#")
 									i.material-icons(v-if="selectedTheme == 'dark'") radio_button_checked
 									i.material-icons.faded(v-else) radio_button_unchecked
 									|  Dark Theme
-								li: a(@click.prevent="menu_changeTheme('light')", href="#")
+								li: a(@click.prevent.stop="menu_changeTheme('light')", href="#")
 									i.material-icons(v-if="selectedTheme == 'light'") radio_button_checked
 									i.material-icons.faded(v-else) radio_button_unchecked
 									|  Light Theme
 								li: hr
 								//-li: a(@click.prevent="menu_devTools", href="#") Open DevTools
 								//-li(v-if="isLinux && saveDesktop"): a(@click.prevent="menu_desktopEntry", href="#") Add Desktop Entry
-								li: a(@click.prevent="menu_about", href="#") About
+								li: a(@click.prevent.stop="menu_about", href="#") About
 								li: hr
-								li: a(@click.prevent="menu_quit", href="#") Quit
+								li: a(@click.prevent.stop="menu_quit", href="#") Quit
 			.spacer
 				.system-icon.minimize(@click="win_min")
 					i.material-icons remove
@@ -99,7 +95,6 @@
 		name: 'titleBar',
 		props: {
 			'note'              : Object,
-			'bookmark'          : Object,
 			'selectedRack'      : Object,
 			'selectedFolder'    : Object,
 			'isFullScreen'      : Boolean,
@@ -132,9 +127,6 @@
 			enabled() {
 				return this.selectedRack || this.selectedFolder || (this.note && this.note.title);
 			},
-			enabledBookmark() {
-				return this.bookmark && this.bookmark.name;
-			},
 			topLevel() {
 				if (this.note && this.note.title) return this.note;
 				if (this.selectedFolder) return this.selectedFolder;
@@ -157,15 +149,11 @@
 			},
 			menu_openFolder() {
 				this.menu_visible = false;
-				setTimeout(() => {
-					this.openSync();
-				}, 100);
+				this.openSync();
 			},
 			menu_moveFolder() {
 				this.menu_visible = false;
-				setTimeout(() => {
-					this.moveSync();
-				}, 100);
+				this.moveSync();
 			},
 			menu_devTools() {
 				this.menu_visible = false;
@@ -174,21 +162,15 @@
 			},
 			menu_about() {
 				this.menu_visible = false;
-				setTimeout(() => {
-					this.openAbout();
-				}, 100);
+				this.openAbout();
 			},
 			menu_changeTheme(value) {
 				this.menu_visible = false;
-				setTimeout(() => {
-					this.changeTheme(value);
-				}, 100);
+				this.changeTheme(value);
 			},
 			menu_changeOrder(value) {
 				this.order_visible = false;
-				setTimeout(() => {
-					this.changeDisplayOrder(value);
-				}, 100);
+				this.changeDisplayOrder(value);
 			},
 			menu_quit() {
 				this.menu_visible = false;
@@ -196,9 +178,7 @@
 			},
 			menu_toggleToolbar() {
 				this.menu_visible = false;
-				setTimeout(() => {
-					this.toggleToolbar();
-				}, 100);
+				this.toggleToolbar();
 			},
 			/*menu_desktopEntry() {
 				this.menu_visible = false;
@@ -227,26 +207,20 @@
 			},*/
 			// -----------------------------------------------
 			win_close() {
-				setTimeout(() => {
-					var win = remote.getCurrentWindow();
-					win.hide();
-				}, 100);
+				var win = remote.getCurrentWindow();
+				win.hide();
 			},
 			win_max() {
-				setTimeout(() => {
-					var win = remote.getCurrentWindow();
-					if(win.isMaximized()){
-						win.unmaximize();
-					} else {
-						win.maximize();
-					}
-				}, 100);
+				var win = remote.getCurrentWindow();
+				if(win.isMaximized()){
+					win.unmaximize();
+				} else {
+					win.maximize();
+				}
 			},
 			win_min() {
-				setTimeout(() => {
-					var win = remote.getCurrentWindow();
-					win.minimize();
-				}, 100);
+				var win = remote.getCurrentWindow();
+				win.minimize();
 			}
 		},
 		watch: {

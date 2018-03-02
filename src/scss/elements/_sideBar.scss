@@ -1,0 +1,139 @@
+.sidebar {
+	.sidebar-menu {
+		border: 1px dashed $sidebar-color;
+		border-radius: $note-list-border-radius;
+		color: $sidebar-color;
+		background: transparent;
+		position: static;
+		/*height: 2.3em;*/
+		padding: 0.4em;
+		margin: 0.25em;
+
+		> span, > span span {
+			display: block;
+			position: static;
+		}
+
+		.link {
+			cursor: pointer;
+			-webkit-user-select: none;
+
+			.material-icons {
+				vertical-align: middle;
+				margin-top: -0.2em;
+				font-size: 100%;
+			}
+		}
+
+		i {
+			-webkit-user-select: none;
+		}
+
+		h5 {
+			padding-top: 0.2em;
+
+			.material-icons {
+				vertical-align: middle;
+				margin-top: 0.1em;
+				font-size: 120%;
+			}
+		}
+	}
+
+	.sidebar-menu.icon {
+		padding: 0 0.3em;
+		height: 100%;
+		cursor: pointer;
+
+		span {
+			display: inline-block;
+		}
+
+		i {
+			opacity: 0.4;
+			font-size: 140%;
+			margin-top: 0.3em;
+		}
+	}
+
+	.sidebar-menu.icon.active {
+		i {
+			opacity: 1.0;
+		}
+	}
+
+	.sidebar-menu:hover {
+		border: 1px dashed $sidebar-color;
+		background-color: $note-list-background-hover;
+		color: $note-list-text-color-hover;
+	}
+
+	.my-dropdown-dd {
+		z-index: 10;
+		min-width: 12em;
+	}
+
+	.dialog ul {
+		list-style: none;
+		border: 1px solid $resize-panel-handler;
+		background: $title-bar-background;
+		margin: 0.2em;
+		padding: 0;
+
+		li > a, li > div {
+			color: $sidebar-color;
+			box-sizing: border-box;
+			display: block;
+			padding: 0.34em 1.0em 0.2em 0.5em;
+			line-height: 1.8em;
+			height: 100%;
+			text-align: left;
+			outline: none;
+			text-decoration: none;
+			transition: all .25s ease;
+			-webkit-user-select: none;
+
+			i {
+				vertical-align: middle;
+				font-size: 120%;
+			}
+		}
+
+		li {
+			hr {
+				margin: 1.5em 0.5em 1.5em;
+				border: 1px solid $resize-panel-handler;
+			}
+
+			hr + span {
+				display: block;
+				margin: -2.3em 1em 0;
+				text-align: center;
+				color: $sidebar-color;
+			}
+		}
+
+		li:hover > a,
+		li:hover > div {
+			background-color: $note-list-background-hover !important;
+			color: $note-list-text-color-hover;
+			cursor: pointer;
+		}
+	}
+
+	/*.sidebar-bar {
+		color: $sidebar-color;
+		border: 1px dashed $sidebar-color;
+		border-radius: $note-list-border-radius;
+		margin: 0.25em;
+		display: flex;
+		align-items: stretch;
+		justify-content: space-between;
+
+		.sidebar-menu {
+			display: inline-block;
+			margin: 0;
+			border: 0;
+		}
+	}*/
+}

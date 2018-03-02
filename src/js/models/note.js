@@ -44,10 +44,6 @@ class Note extends Model {
 		} else {
 			this.replaceBody(data.body);
 		}
-
-		this.dragHover = false;
-		this.sortUpper = false;
-		this.sortLower = false;
 	}
 
 	get updatedAt() {

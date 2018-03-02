@@ -11,7 +11,7 @@
 			@contextmenu.prevent.stop="folderMenu(parentFolder, folder)")
 			.folder-object(
 				:class="{ 'dragging' : draggingFolder == folder }",
-				@click.prevent.stop="selectFolder(folder)")
+				@click="selectFolder(folder)")
 				i.material-icons.down(@click.prevent.stop="folder.openFolder = !folder.openFolder") arrow_drop_down
 				a.my-shelf-folder-name.no-name(v-if="editingFolder != folder.uid")
 					template(v-if="folder.name")
@@ -110,22 +110,13 @@
 				var folder;
 				if (!parent) parent = this.parentFolder;
 				// @todo nested folder
-				if (parent.data.bookmarks) {
-					folder = new models.BookmarkFolder({
-						name    : '',
-						rack    : parent.rack,
-						rackUid : parent.rackUid,
-						ordering: 0
-					});
-				} else {
-					folder = new models.Folder({
-						name        : '',
-						rack        : parent.rack,
-						parentFolder: parent instanceof models.Folder ? parent : undefined,
-						rackUid     : parent.rackUid,
-						ordering    : 0
-					});
-				}
+				folder = new models.Folder({
+					name        : '',
+					rack        : parent.rack,
+					parentFolder: parent instanceof models.Folder ? parent : undefined,
+					rackUid     : parent.rackUid,
+					ordering    : 0
+				});
 				this.$root.addFolderToRack(parent, folder);
 				if (parent instanceof models.Folder) {
 					parent.openFolder = true;
@@ -227,7 +218,7 @@
 
 					foldersTo.forEach((f, i) => {
 						f.ordering = i;
-						if(!f.data.bookmarks) f.saveModel();
+						f.saveModel();
 					});
 
 					if (folder.sortUpper && folder.sortLower) {
@@ -236,8 +227,6 @@
 					} else {
 						folder.parent.folders = foldersTo;
 					}
-
-					if (rack.data.bookmarks) rack.saveModel();
 
 					folder.sortUpper = false;
 					folder.sortLower = false;
@@ -253,36 +242,26 @@
 					}
 				}));
 				menu.append(new MenuItem({
-					label: 'Add Folder',
+					label: 'Add Subfolder',
 					click: () => {
 						this.addFolder(folder);
 					}
 				}));
 				menu.append(new MenuItem({type: 'separator'}));
-				if (rack.data.bookmarks) {
-					menu.append(new MenuItem({
-						label: 'Add Bookmark',
-						click: () => {
-							this.changeFolder(folder);
-							this.$root.addBookmark(folder);
-						}
-					}));
-				} else {
-					menu.append(new MenuItem({
-						label: 'Add Note',
-						click: () => {
-							this.changeFolder(folder);
-							this.$root.addNote();
-						}
-					}));
-					menu.append(new MenuItem({
-						label: 'Add Encrypted Note',
-						click: () => {
-							this.changeFolder(folder);
-							this.$root.addEncryptedNote();
-						}
-					}));
-				}
+				menu.append(new MenuItem({
+					label: 'Add Note',
+					click: () => {
+						this.changeFolder(folder);
+						this.$root.addNote();
+					}
+				}));
+				menu.append(new MenuItem({
+					label: 'Add Encrypted Note',
+					click: () => {
+						this.changeFolder(folder);
+						this.$root.addEncryptedNote();
+					}
+				}));
 				menu.append(new MenuItem({type: 'separator'}));
 				menu.append(new MenuItem({
 					label: 'Delete Folder',

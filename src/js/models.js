@@ -15,11 +15,9 @@ const OutNode = NoteModels.OutNode;
 
 const FolderModels = require('./models/folder')(baseLibrary);
 const Folder = FolderModels.Folder;
-const BookmarkFolder = FolderModels.BookmarkFolder;
 
 const RackModels = require('./models/rack')(baseLibrary);
 const Rack = RackModels.Rack;
-const BookmarkRack = RackModels.BookmarkRack;
 
 module.exports = {
 	Image         : Image,
@@ -27,9 +25,7 @@ module.exports = {
 	EncryptedNote : EncryptedNote,
 	Outline       : Outline,
 	Folder        : Folder,
-	BookmarkFolder: BookmarkFolder,
 	Rack          : Rack,
-	BookmarkRack  : BookmarkRack,
 	getBaseLibraryPath() {
 		return baseLibrary.baseLibraryPath;
 	},

@@ -1,7 +1,6 @@
 <main id="main-editor">
 	<title-bar
 		:note="selectedNote"
-		:bookmark="selectedBookmark"
 		:selected-rack="selectedRack"
 		:selected-folder="selectedFolder"
 		:toggle-full-screen="toggleFullScreen"
@@ -19,23 +18,19 @@
 	<div class="my-main">
 		<div class="outer_wrapper">
 			<div class="sidebar">
-				<div v-show="loadedRack" class="cell-container" ref="sidebarFolders">
-					<div class="my-shelf" @contextmenu="shelfMenu()">
-						<div class="my-shelf-wrapper">
-							<racks
-								:racks="racks"
-								:selected-folder="selectedFolder"
-								:dragging-note="draggingNote"
-								:change-rack="changeRack"
-								:change-folder="changeFolder"
-								:editing-rack="editingRack"
-								:editing-folder="editingFolder"
-								:dragging-rack="draggingRack"
-								:dragging-folder="draggingFolder"
-								ref="refRacks">
-							</racks>
-						</div>
-					</div>
+				<div v-show="loadedRack" class="cell-container" ref="sidebarFolders" @contextmenu="shelfMenu()">
+					<racks
+						:racks="racks"
+						:selected-folder="selectedFolder"
+						:dragging-note="draggingNote"
+						:change-rack="changeRack"
+						:change-folder="changeFolder"
+						:editing-rack="editingRack"
+						:editing-folder="editingFolder"
+						:dragging-rack="draggingRack"
+						:dragging-folder="draggingFolder"
+						ref="refRacks">
+					</racks>
 				</div>
 				<handler-stack
 					v-show="loadedRack"
@@ -44,14 +39,12 @@
 					ref="refHandleStack">
 				</handler-stack>
 				<div v-show="selectedFolder" class="cell-container" ref="sidebarNotes">
-					<add-note v-if="selectedFolder"
-						:notes-list="isNoteRackSelected"
+					<add-note
 						:selected-folder="selectedFolder"
 						:selected-rack="selectedRack">
 					</add-note>
 					<div class="my-shelf-notes" ref="refNotes">
 						<notes
-							:bookmarks-list="!isNoteRackSelected"
 							:notes="filteredNotes"
 							:toggle-full-screen="toggleFullScreen"
 							:original-notes="notes"
@@ -61,12 +54,7 @@
 							:dragging-note="draggingNote"
 							:change-note="changeNote"
 							:set-dragging-note="setDraggingNote"
-							:notes-display-order="notesDisplayOrder"
-							:refresh-bookmark-thumb="refreshBookmarkThumb"
-							:refresh-favicon="refreshFavicon"
-							:get-bookmark-meta-image="getBookmarkMetaImage"
-							:edit-bookmark="editBookmark"
-							:loading-uid="loadingUid">
+							:notes-display-order="notesDisplayOrder">
 						</notes>
 					</div>
 				</div>
@@ -122,7 +110,7 @@
 						ref="refNoteFooter">
 					</note-footer>
 				</div>
-				<div v-else-if="!selectedNote && !selectedBookmark">
+				<div v-else-if="!selectedNote">
 					<div class="my-splash-page">
 						<div v-show="!loadedEverything">
 							<div class="splash-box small">
@@ -137,14 +125,6 @@
 							:loaded-everything="loadedEverything">
 						</welcome-splash>
 					</div>
-				</div>
-				<div v-show="selectedBookmark" class="my-internal-browser">
-					<browser
-						:bookmark="selectedBookmark"
-						:bookmarks-domains="bookmarksDomains"
-						:send-flash-message="sendFlashMessage"
-						ref="refBrowser">
-					</browser>
 				</div>
 				<flashmessage :messages="messages"></flashmessage>
 			</div>

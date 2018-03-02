@@ -14,12 +14,6 @@ module.exports = function(Vue) {
 				notes  : []
 			}];
 		}
-		if (notes[0].folder && notes[0].folder.data.bookmarks) {
-			return [{
-				dateStr: '',
-				notes  : notes
-			}];
-		}
 		if (property == 'title') {
 			return [{
 				dateStr: '',
