@@ -33,9 +33,8 @@
 - added more items to the right click menu in preview mode (toggle, copy, etc.)
 - checkbox display and interaction in preview mode
 - style changes all around for the heck of it
-- choose between three different themes (original,light,dark)
+- choose between different themes (light,dark)
 - **encrypted** notes (password protected)
-- store bookmarks .html files and display link thumbnails
 
 ## Run (development)
 
@@ -45,10 +44,23 @@ npm run build
 npm run start
 ```
 
+or
+
+```
+npm install
+npm run develop
+```
+
 ## Build (production)
 
 ```
 npm run linux
+```
+
+or
+
+```
+npm run linux && npm run deb64
 ```
 
 or
