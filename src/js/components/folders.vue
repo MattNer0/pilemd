@@ -181,7 +181,7 @@
 					// Dropping note to folder
 					folder.dragHover = false;
 					var note = this.draggingNote;
-					arr.remove(note.data.folder.notes, (n) => {return n == note});
+					arr.remove(note.folder.notes, (n) => {return n == note});
 					note.folder = folder;
 					folder.notes.unshift(note);
 					note.saveModel();

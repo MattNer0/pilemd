@@ -21,6 +21,9 @@
 				<div v-show="loadedRack" class="cell-container" ref="sidebarFolders" @contextmenu="shelfMenu()">
 					<racks
 						:racks="racks"
+						:selected-rack="selectedRack"
+						:show-all="showAll"
+						:show-favorites="showFavorites"
 						:selected-folder="selectedFolder"
 						:dragging-note="draggingNote"
 						:change-rack="changeRack"
@@ -38,12 +41,13 @@
 					:sidebar-drag-end="sidebarDragEnd"
 					ref="refHandleStack">
 				</handler-stack>
-				<div v-show="selectedFolder" class="cell-container" ref="sidebarNotes">
+				<div v-show="selectedFolder || showAll || showFavorites" class="cell-container" ref="sidebarNotes">
 					<add-note
+						v-show="selectedFolder"
 						:selected-folder="selectedFolder"
 						:selected-rack="selectedRack">
 					</add-note>
-					<div class="my-shelf-notes" ref="refNotes">
+					<div class="my-shelf-notes" :class="{ 'all-notes': showAll, 'favorite-notes': showFavorites }" ref="refNotes">
 						<notes
 							:notes="filteredNotes"
 							:toggle-full-screen="toggleFullScreen"

@@ -7,6 +7,10 @@
 	white-space: nowrap;
 }
 
+.my-shelf-notes.all-notes, .my-shelf-notes.favorite-notes {
+	height: 100%;
+}
+
 .my-notes {
 	box-sizing: border-box;
 	width: 100%;

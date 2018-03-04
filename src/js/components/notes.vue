@@ -172,6 +172,18 @@
 				menu.append(new MenuItem({label: 'Open Note', click: () => {this.selectNote(note)}}));
 				menu.append(new MenuItem({label: 'Open Note in new Tab', click: () => {this.selectNote(note, true)}}));
 				menu.append(new MenuItem({type: 'separator'}));
+				if (note.starred) {
+					menu.append(new MenuItem({label: 'Remove from Favorites', click: () => {
+						note.starred = false;
+						note.saveModel();
+					}}));
+				} else {
+					menu.append(new MenuItem({label: 'Add to Favorites', click: () => {
+						note.starred = true;
+						note.saveModel();
+					}}));
+				}
+				menu.append(new MenuItem({type: 'separator'}));
 				if (note.isOutline) {
 					menu.append(new MenuItem({label: 'Copy to clipboard (Plain)', click: () => {this.copyOutlinePLain(note)}}));
 					menu.append(new MenuItem({label: 'Copy to clipboard (OPML)', click: () => {this.copyOutlineOPML(note)}}));

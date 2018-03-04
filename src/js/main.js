@@ -78,6 +78,8 @@ var appVue = new Vue({
 		selectedRack        : null,
 		selectedFolder      : null,
 		selectedNote        : null,
+		showAll             : false,
+		showFavorites       : false,
 		noteTabs            : [],
 		// editing
 		editingRack         : null,
@@ -126,8 +128,12 @@ var appVue = new Vue({
 		filteredNotes() {
 			if (this.selectedFolder) {
 				return searcher.searchNotes(this.search, this.selectedFolder.notes);
-			//} else if (this.selectedRack) {
-			//	return searcher.searchNotes(this.search, this.selectedRack.notes);
+			} else if (this.selectedRack && this.showAll) {
+				return searcher.searchNotes(this.search, this.selectedRack.allnotes);
+			} else if (this.selectedRack && this.showFavorites) {
+				return searcher.searchNotes(this.search, this.selectedRack.allnotes.filter(function(obj) {
+					return obj.starred;
+				}));
 			} else {
 				return [];
 			}
@@ -265,7 +271,6 @@ var appVue = new Vue({
 
 			folder.notes = notes;
 			self.notes = notes.concat(self.notes);
-			rack.notes = notes.concat(rack.notes);
 
 			if (obj.subnotes && obj.subnotes.length > 0) {
 				obj.subnotes.forEach((r) => {	
@@ -430,15 +435,31 @@ var appVue = new Vue({
 				this.selectedRack = rack;
 				this.selectedFolder = null;
 				this.editingRack = null;
+				this.editingFolder = null;
+				this.showAll = false;
+				this.showFavorites = false;
 			} else {
 				this.changeFolder(rack);
 			}
 		},
-		changeFolder(folder) {
+		changeFolder(folder, weak) {
+			if (weak && folder && (this.showAll || this.showFavorites) && this.selectedRack == folder.rack) return;
 			if (this.selectedFolder === null && folder) this.update_editor_size();
+			this.editingFolder = null;
 			if (folder) this.selectedRack = folder.rack;
 			this.selectedFolder = folder;
-			this.editingFolder = null;
+			this.showAll = false;
+			this.showFavorites = false;
+		},
+		showAllRack(rack) {
+			this.changeRack(rack);
+			this.showAll = true;
+			this.update_editor_size();
+		},
+		showFavoritesRack(rack) {
+			this.changeRack(rack);
+			this.showFavorites = true;
+			this.update_editor_size();
 		},
 		/**
 		 * event called when a note is selected.
@@ -459,7 +480,9 @@ var appVue = new Vue({
 
 			if (note.folder && note.folder instanceof models.Folder) {
 				note.folder.parent.openFolder = true;
-				if (this.selectedFolder != note.folder) this.changeFolder(note.folder);
+				if (this.selectedFolder != note.folder) {
+					this.changeFolder(note.folder, true);
+				}
 			}
 
 			if (this.noteTabs.length > 1) {
@@ -626,7 +649,7 @@ var appVue = new Vue({
 			folder.remove(this.notes);
 			// we need to close the current selected note if it was from the removed folder.
 			if(this.isNoteSelected && this.selectedNote.folder == folder) {
-				this.selectedNote = {};
+				this.selectedNote = null;
 			}
 		},
 		/**
@@ -704,21 +727,12 @@ var appVue = new Vue({
 			var newNote = models.Note.newEmptyNote(currFolder);
 			if (newNote) {
 				if (this.search.length > 0) this.search = '';
-				if (currFolder.data.rack && currFolder.data.rack.notes) {
-					currFolder.data.rack.notes.unshift(newNote);
-				}
-				if (currFolder.notes) currFolder.notes.unshift(newNote);
+				currFolder.notes.unshift(newNote);
 				this.notes.unshift(newNote);
 				this.isPreview = false;
 				this.changeNote(newNote);
 			} else {
-				var message;
-				if(this.racks.length > 0){
-					message = 'You must select Rack and Folder first!';
-				} else {
-					message = 'You must create a Folder first!';
-				}
-				this.$refs.dialog.init('Error', message, [{ label: 'Ok' }]);
+				this.$refs.dialog.init('Error', 'You must select a Folder first!', [{ label: 'Ok' }]);
 			}
 			return newNote;
 		},
@@ -729,21 +743,12 @@ var appVue = new Vue({
 			var newOutline = models.Outline.newEmptyOutline(currFolder);
 			if (newOutline) {
 				if (this.search.length > 0) this.search = '';
-				if (currFolder.data.rack && currFolder.data.rack.notes) {
-					currFolder.data.rack.notes.unshift(newOutline);
-				}
-				if (currFolder.notes) currFolder.notes.unshift(newOutline);
+				currFolder.notes.unshift(newOutline);
 				this.notes.unshift(newOutline);
 				this.isPreview = false;
 				this.changeNote(newOutline);
 			} else {
-				var message;
-				if(this.racks.length > 0){
-					message = 'You must select Rack and Folder first!';
-				} else {
-					message = 'You must create a Folder first!';
-				}
-				this.$refs.dialog.init('Error', message, [{ label: 'Ok' }]);
+				this.$refs.dialog.init('Error', 'You must select a Folder first!', [{ label: 'Ok' }]);
 			}
 			return newOutline;
 		},
@@ -759,20 +764,13 @@ var appVue = new Vue({
 			var newNote = models.EncryptedNote.newEmptyNote(currFolder);
 			if (newNote) {
 				if (this.search.length > 0) this.search = '';
-				if (currFolder.data.rack && currFolder.data.rack.notes) currFolder.data.rack.notes.unshift(newNote);
-				if (currFolder.notes) currFolder.notes.unshift(newNote);
+				currFolder.notes.unshift(newNote);
 				this.notes.unshift(newNote);
 				this.isPreview = false;
 				this.changeNote(newNote);
 				newNote.saveModel();
 			} else {
-				var message;
-				if(this.racks.length > 0){
-					message = 'You must select Rack and Folder first!';
-				} else {
-					message = 'You must create a Folder first!';
-				}
-				this.$refs.dialog.init('Error', message, [{ label: 'Ok' }]);
+				this.$refs.dialog.init('Error', 'You must select a Folder first!', [{ label: 'Ok' }]);
 			}
 		},
 		/*addNotes(noteTexts) {
@@ -1067,6 +1065,7 @@ var appVue = new Vue({
 				this.noteHeadings = preview.getHeadings();
 				if (no_scroll === undefined) this.scrollUpScrollbarNote();
 			} else {
+				this.noteHeadings = [];
 				this.preview = '';
 			}
 		},
@@ -1115,10 +1114,8 @@ var appVue = new Vue({
 			}
 		},
 		selectedNote() {
-			this.noteHeadings = [];
 			if (this.selectedNote instanceof models.Note) {
 				this.updatePreview();
-				this.changeFolder(this.selectedNote.folder);
 			}
 		},
 		'selectedNote.body': function() {

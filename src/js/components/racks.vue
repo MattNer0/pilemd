@@ -1,7 +1,7 @@
 <template lang="pug">
 	.my-shelf
 		.my-shelf-wrapper
-			.my-shelf-racks(:class="{ 'draggingRack' : this.draggingRack, 'draggingFolder' : this.draggingFolder }")
+			.my-shelf-racks(:class="{ 'draggingRack' : draggingRack, 'draggingFolder' : draggingFolder }")
 				.my-shelf-rack(v-for="rack in racksWithFolders"
 					:class="classRack(rack)"
 					:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
@@ -24,6 +24,21 @@
 							@blur="doneRackEdit(rack)"
 							@keyup.enter="doneRackEdit(rack)"
 							@keyup.esc="doneRackEdit(rack)")
+					
+					.my-shelf-folders(v-if="rack.folders.length > 0")
+						.my-shelf-folder(
+							v-if="rack.folders.length > 1",
+							@contextmenu.prevent.stop="",
+							:class="{ 'isShelfSelected': selectedRack == rack && showAll }")
+							.folder-object(@click="selectAll(rack)", :class="{ 'dragging' : draggingFolder }")
+								i.material-icons view_list
+								|  All
+						.my-shelf-folder(
+							@contextmenu.prevent.stop="",
+							:class="{ 'isShelfSelected': selectedRack == rack && showFavorites }")
+							.folder-object(@click="selectFavorites(rack)", :class="{ 'dragging' : draggingFolder }")
+								i.material-icons star
+								|  Favorites
 					
 					folders(v-if="rack.folders.length > 0",
 						v-show="!draggingRack"
@@ -60,6 +75,9 @@
 		name: 'racks',
 		props: {
 			'racks'               : Array,
+			'selectedRack'        : Object,
+			'showAll'             : Boolean,
+			'showFavorites'       : Boolean,
 			'selectedFolder'      : Object,
 			'draggingNote'        : Object,
 			'changeRack'          : Function,
@@ -202,6 +220,12 @@
 					event.preventDefault();
 					event.stopPropagation();
 				}
+			},
+			selectAll(rack) {
+				this.$root.showAllRack(rack);
+			},
+			selectFavorites(rack) {
+				this.$root.showFavoritesRack(rack);
 			},
 			/*selectRackThumbnail(rack) {
 				try {

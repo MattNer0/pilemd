@@ -56,6 +56,10 @@
 			margin: 0 0.7em;
 			opacity: 0.3;
 		}
+
+		nav {
+			-webkit-app-region: no-drag;
+		}
 	}
 
 	nav {
@@ -106,11 +110,14 @@
 		}
 	}
 
+	.spacer.system-icons {
+		-webkit-app-region: no-drag;
+	}
+
 	.system-icon {
-		margin-right: 4px;
-		padding: 0 6px;
-		height: 1.8em;
-		width: 1.8em;
+		margin-right: 0.2em;
+		padding: 0.2em;
+		height: $title-bar-height;
 
 		align-items: center;
 		display: inline-flex;
@@ -118,26 +125,32 @@
 		transition: .3s cubic-bezier(.25,.8,.25,1);
 		vertical-align: middle;
 
-		-webkit-app-region: no-drag;
 		-webkit-user-select: none;
 		cursor: pointer;
+
+		i {
+			width: 1em;
+			height: 1em;
+			padding: 0.3em 0.2em 0.2em;
+			border-radius: 1em;
+		}
+	}
+
+	.system-icon.minimize i {
+		padding-top: 0.8em;
+	}
+
+	.system-icon.close-icon {
+		margin-right: 0;
 	}
 
 	.system-icon:hover {
 		color: $title-bar-color-hover;
 	}
 
-	.system-icon.close-icon {
-		border-radius: 1em;
-	}
-
-	.system-icon.close-icon:hover {
+	.system-icon.close-icon:hover i {
 		background-color: $title-bar-close-button;
 		color: $title-bar-background;
-	}
-
-	.system-icon.minimize .material-icons {
-		padding-top: 0.5em;
 	}
 
 	.my-dropdown-dd {

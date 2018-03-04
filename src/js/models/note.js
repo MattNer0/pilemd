@@ -62,6 +62,14 @@ class Note extends Model {
 		this.setMetadata('createdAt', value);
 	}
 
+	get starred() {
+		return this._metadata.starred && this._metadata.starred == 'true';
+	}
+
+	set starred(value) {
+		this.setMetadata('starred', String(value).toLowerCase());
+	}
+
 	get data() {
 		return _.assign(super.data, {
 			body: this._body,

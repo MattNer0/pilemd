@@ -88,6 +88,14 @@ class Folder extends Model {
 		return fs.existsSync(this._path);
 	}
 
+	get allnotes() {
+		var all_notes = this.notes.slice();
+		this.folders.forEach((folder) => {
+			all_notes = all_notes.concat(folder.allnotes);
+		});
+		return all_notes;
+	}
+
 	set parent(f) {
 		if (!f) {
 			return;

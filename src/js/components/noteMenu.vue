@@ -101,7 +101,10 @@
 							hr
 							form.new-metadata-form(@submit="newMetadata")
 								table(@click.prevent.stop="")
-									tr(v-for="metakey in note.metadataKeys" v-if="metakey != 'createdAt' && metakey != 'updatedAt' && note.metadata[metakey]")
+									tr(
+										v-for="metakey in note.metadataKeys"
+										v-if="metakey != 'createdAt' && metakey != 'updatedAt' && metakey != 'starred' && note.metadata[metakey]"
+									)
 										td: strong {{ metakey }}
 										td.right: span {{ note.metadata[metakey] }}
 									tr

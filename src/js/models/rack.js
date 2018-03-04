@@ -30,7 +30,6 @@ class Rack extends Model {
 		this._openFolder = false;
 
 		this.folders = [];
-		this.notes = [];
 	}
 
 	get data() {
@@ -57,6 +56,14 @@ class Rack extends Model {
 		if (newValue != this._path) {
 			this._path = newValue;
 		}
+	}
+
+	get allnotes() {
+		var all_notes = [];
+		this.folders.forEach((folder) => {
+			all_notes = all_notes.concat(folder.allnotes);
+		});
+		return all_notes;
 	}
 
 	get relativePath() {

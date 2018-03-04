@@ -72,7 +72,7 @@
 								li: a(@click.prevent.stop="menu_about", href="#") About
 								li: hr
 								li: a(@click.prevent.stop="menu_quit", href="#") Quit
-			.spacer
+			.spacer.system-icons
 				.system-icon.minimize(@click="win_min")
 					i.material-icons remove
 				.system-icon(@click="win_max")
