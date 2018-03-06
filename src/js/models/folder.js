@@ -3,6 +3,8 @@ const path = require('path');
 
 const moment = require('moment');
 
+const searcher = require('../searcher');
+
 const arr = require('../utils/arr');
 const util_file = require('../utils/file');
 
@@ -94,6 +96,10 @@ class Folder extends Model {
 			all_notes = all_notes.concat(folder.allnotes);
 		});
 		return all_notes;
+	}
+
+	searchnotes(search) {
+		return searcher.searchNotes(search, this.notes);
 	}
 
 	set parent(f) {

@@ -13,10 +13,13 @@
 			.spacer
 				nav: ul
 					li
-						a(@click.prevent="toggleFullScreen", href="#"): span
-							i.material-icons(v-if="isFullScreen") fullscreen_exit
-							i.material-icons(v-else) fullscreen
-							|  Toggle Sidebar
+						a(@click.prevent="focus_input"): span
+							i.material-icons search
+							| Search
+					li
+						.my-search(:class="{ 'search-open': search.length > 0 || openSearch }")
+							input#search-bar(ref="searchinput", v-model="search", type="text")
+							i.material-icons(v-show="search", @click="clear_search") clear
 					li.has-sub(@click="order_visible = !order_visible")
 						dropdown(:visible="order_visible", :position="position", v-on:clickout="order_visible = false")
 							span.link
@@ -40,12 +43,13 @@
 									i.material-icons(v-if="notesDisplayOrder == 'title'") radio_button_checked
 									i.material-icons.faded(v-else) radio_button_unchecked
 									|  Sort by Title
+					li
+						a(@click.prevent="toggleFullScreen", href="#"): span
+							i.material-icons(v-if="isFullScreen") fullscreen_exit
+							i.material-icons(v-else) fullscreen
+							|  Toggle Sidebar
 			.spacer.right-align
 				nav: ul
-					li: div.my-search(:class="{ 'search-open': search.length > 0 }")
-						i.material-icons(@click.prevent="focus_input") search
-						input#search-bar(ref="searchinput", v-model="search", type="text")
-						i.material-icons(v-show="search", @click="clear_search") clear
 					li.has-sub(@click="menu_visible = !menu_visible")
 						dropdown(:visible="menu_visible", :position="position", v-on:clickout="menu_visible = false")
 							i.link.material-icons menu
@@ -117,6 +121,7 @@
 				//'saveDesktop'     : true,
 				'position'        : [ "right", "top", "right", "top" ],
 				'isLinux'         : remote.getGlobal('isLinux'),
+				'openSearch'      : false
 				//'desktopEntryPath': path.join(remote.app.getPath('home'), '.local', 'share', 'applications', 'pilemd.desktop')
 			};
 		},
@@ -145,7 +150,9 @@
 				this.search = "";
 			},
 			focus_input() {
-				this.$refs.searchinput.focus();
+				if (!this.openSearch) this.$refs.searchinput.focus();
+				this.openSearch = !this.openSearch;
+				if (this.search) this.openSearch = true;
 			},
 			menu_openFolder() {
 				this.menu_visible = false;

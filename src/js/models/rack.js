@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const _ = require('lodash');
+const searcher = require('../searcher');
 
 const libini = require('../utils/libini');
 const util_file = require('../utils/file');
@@ -64,6 +65,21 @@ class Rack extends Model {
 			all_notes = all_notes.concat(folder.allnotes);
 		});
 		return all_notes;
+	}
+
+	get starrednotes() {
+		return this.allnotes.filter(function(obj) {
+			return obj.starred;
+		});
+	}
+	
+
+	searchnotes(search) {
+		return searcher.searchNotes(search, this.allnotes);
+	}
+
+	searchstarrednotes(search) {
+		return searcher.searchNotes(search, this.starrednotes);
 	}
 
 	get relativePath() {

@@ -18,7 +18,10 @@
 						| {{ folder.name }}
 					template(v-else)
 						| No Title
-					span.my-shelf-folder-badge(v-show="folder.notes.length > 0")
+					span.my-shelf-folder-badge(v-if="search", v-show="folder.searchnotes(search).length > 0")
+						| {{ folder.searchnotes(search).length }} 
+						i.material-icons description
+					span.my-shelf-folder-badge(v-else, v-show="folder.notes.length > 0")
 						| {{ folder.notes.length }} 
 						i.material-icons description
 					span.my-shelf-folder-badge(v-show="folder.folders.length > 0")
@@ -39,7 +42,8 @@
 					:change-folder="changeFolder"
 					:editing-rack="editingRack"
 					:editing-folder="editingFolder"
-					:dragging-folder="draggingFolder")
+					:dragging-folder="draggingFolder"
+					:search="search")
 </template>
 
 <script>
@@ -63,7 +67,8 @@
 			'changeRack'          : Function,
 			'changeFolder'        : Function,
 			'editingRack'         : String,
-			'editingFolder'       : String
+			'editingFolder'       : String,
+			'search'              : String
 		},
 		data() {
 			return {

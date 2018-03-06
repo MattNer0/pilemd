@@ -131,9 +131,7 @@ var appVue = new Vue({
 			} else if (this.selectedRack && this.showAll) {
 				return searcher.searchNotes(this.search, this.selectedRack.allnotes);
 			} else if (this.selectedRack && this.showFavorites) {
-				return searcher.searchNotes(this.search, this.selectedRack.allnotes.filter(function(obj) {
-					return obj.starred;
-				}));
+				return searcher.searchNotes(this.search, this.selectedRack.starrednotes);
 			} else {
 				return [];
 			}

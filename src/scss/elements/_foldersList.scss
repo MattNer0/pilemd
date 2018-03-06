@@ -186,6 +186,20 @@
 	}
 }
 
+.my-shelf-folder.my-all, .my-shelf-folder.my-favorites {
+	.folder-object {
+		padding: 0.4em 0 0.4em 0.9em;
+	}
+
+	a > i {
+		margin-top: -0.2em;
+	}
+
+	.my-shelf-folder-badge {
+		margin-top: -0.2em;
+	}
+}
+
 .my-shelf-rack.gotSubfolders > .rack-object,
 .my-shelf-folder.gotSubfolders > .folder-object {
 	i.material-icons.down {
@@ -209,11 +223,11 @@
 .my-shelf-rack.openFolder {
 	> .my-shelf-folders {
 		display: block;
-		padding-bottom: 0.3em;
 	}
 
 	> .my-shelf-folders:last-child {
 		border-bottom: 1px solid $folder-separator;
+		padding-bottom: 0.3em;
 	}
 
 	> .rack-object {

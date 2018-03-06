@@ -160,32 +160,19 @@ nav > ul {
 		input::-webkit-input-placeholder {
 			color: $action-bar-color;
 		}
-	
-		input:focus {
-			outline: none;
-			width: 250px;
-
-			background-color: $address-bar-background;
-			color: $title-bar-color-hover;
-			border: 1px solid $app-border;
-			border-radius: $address-bar-border-radius;
-			padding: 0.3em 2em 0.3em 0.4em;
-			margin: -0.3em 0.2em 0;
-		}
 	}
 
-	.my-search.search-open {
-		input {
-			outline: none;
-			width: 250px;
+	.my-search input:focus,
+	.my-search.search-open input {
+		outline: none;
+		width: 18em;
 
-			background-color: $address-bar-background;
-			color: $title-bar-color-hover;
-			border: 1px solid $app-border;
-			border-radius: $address-bar-border-radius;
-			padding: 0.3em 2em 0.3em 0.4em;
-			margin: -0.3em 0.2em 0;
-		}
+		background-color: $address-bar-background;
+		color: $title-bar-color-hover;
+		border: 1px solid $app-border;
+		border-radius: $address-bar-border-radius;
+		padding: 0.3em 2em 0.3em 0.4em;
+		margin: 0.1em 0 0;
 	}
 }
 

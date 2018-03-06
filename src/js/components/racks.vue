@@ -26,19 +26,35 @@
 							@keyup.esc="doneRackEdit(rack)")
 					
 					.my-shelf-folders(v-if="rack.folders.length > 0")
-						.my-shelf-folder(
-							v-if="rack.folders.length > 1",
+						.my-shelf-folder.my-all(
+							v-if="rack.folders.length > 1 && rack.allnotes.length > 0",
 							@contextmenu.prevent.stop="",
 							:class="{ 'isShelfSelected': selectedRack == rack && showAll }")
 							.folder-object(@click="selectAll(rack)", :class="{ 'dragging' : draggingFolder }")
-								i.material-icons view_list
-								|  All
-						.my-shelf-folder(
+								a.my-shelf-folder-name
+									i.material-icons view_list
+									|  All
+									span.my-shelf-folder-badge(v-if="search", v-show="rack.searchnotes(search).length > 0")
+										| {{ rack.searchnotes(search).length }} 
+										i.material-icons description
+									span.my-shelf-folder-badge(v-else)
+										| {{ rack.allnotes.length }} 
+										i.material-icons description
+
+						.my-shelf-folder.my-favorites(
 							@contextmenu.prevent.stop="",
+							v-if="rack.starrednotes.length > 0"
 							:class="{ 'isShelfSelected': selectedRack == rack && showFavorites }")
 							.folder-object(@click="selectFavorites(rack)", :class="{ 'dragging' : draggingFolder }")
-								i.material-icons star
-								|  Favorites
+								a.my-shelf-folder-name
+									i.material-icons star
+									|  Favorites
+									span.my-shelf-folder-badge(v-if="search", v-show="rack.searchstarrednotes(search).length > 0")
+										| {{ rack.searchstarrednotes(search).length }} 
+										i.material-icons description
+									span.my-shelf-folder-badge(v-else)
+										| {{ rack.starrednotes.length }} 
+										i.material-icons description
 					
 					folders(v-if="rack.folders.length > 0",
 						v-show="!draggingRack"
@@ -49,7 +65,8 @@
 						:change-rack="changeRack"
 						:change-folder="changeFolder"
 						:editing-rack="editingRack"
-						:editing-folder="editingFolder")
+						:editing-folder="editingFolder"
+						:search="search")
 </template>
 
 <script>
@@ -85,7 +102,8 @@
 			'editingRack'         : String,
 			'editingFolder'       : String,
 			'draggingRack'        : Object,
-			'draggingFolder'      : Object
+			'draggingFolder'      : Object,
+			'search'              : String
 		},
 		directives: {
 			focus(element) {
