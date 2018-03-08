@@ -10,7 +10,7 @@
 			@drop="dropToFolder($event, parentFolder, folder)"
 			@contextmenu.prevent.stop="folderMenu(parentFolder, folder)")
 			.folder-object(
-				:class="{ 'dragging' : draggingFolder == folder }",
+				:class="classFolderObject(folder)",
 				@click="selectFolder(folder)")
 				i.material-icons.down(@click.prevent.stop="folder.openFolder = !folder.openFolder") arrow_drop_down
 				a.my-shelf-folder-name.no-name(v-if="editingFolder != folder.uid")
@@ -100,6 +100,12 @@
 					'sortInside'     : folder.sortLower && folder.sortUpper
 				};
 			},
+			classFolderObject(folder) {
+				return {
+					'dragging'   : this.draggingFolder == folder,
+					'no-results' : !this.draggingFolder && !this.draggingNote && this.search && folder.searchnotes(this.search).length == 0
+				};
+			},
 			isRack(folder) {
 				return folder instanceof models.Rack;
 			},
@@ -109,6 +115,7 @@
 				this.changeFolder(folder);
 			},
 			selectFolder(folder) {
+				folder.openFolder = true;
 				this.changeFolder(folder);
 			},
 			addFolder(parent) {

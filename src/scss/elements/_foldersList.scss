@@ -53,7 +53,7 @@
 	i.material-icons.down {
 		position: absolute;
 		left: 0;
-		top: 0.5em;
+		top: 0.7em;
 		display: none;
 		cursor: pointer;
 		margin: 0;
@@ -63,18 +63,20 @@
 		font-size: 100%;
 		line-height: 1em;
 		outline: none;
-		transition: transform .4s;
+		transition: all .4s;
 	}
 
 	.rack-object {
 		font-weight: bold;
 		margin: 0;
-		padding: 0.3em 0 0.3em 1em;
+		padding: 0.5em 0 0.4em 1em;
 		border-bottom: 1px solid $folder-separator;
 		opacity: 1.0;
 
+		transition: background-color 200ms;
+
 		i.material-icons.down {
-			top: 0.45em;
+			top: 0.65em;
 		}
 
 		input {
@@ -84,7 +86,7 @@
 
 	.folder-object {
 		margin: 0;
-		padding: 0.3em 0 0.3em 1em;
+		padding: 0.5em 0 0.4em 1em;
 		font-weight: normal;
 		border-radius: $folder-list-border-radius;
 
@@ -100,6 +102,10 @@
 		opacity: 0.4;
 		color: $sidebar-color !important;
 		background-color: transparent !important;
+	}
+
+	.folder-object.no-results {
+		opacity: 0.5;
 	}
 
 	.rack-icon {
@@ -216,6 +222,7 @@
 	> .folder-object {
 		i.material-icons.down {
 			transform: rotate(0deg);
+			left: 0.1em;
 		}
 	}
 }
@@ -235,6 +242,8 @@
 		
 		i.material-icons.down {
 			transform: rotate(0deg);
+			top: 0.7em;
+			left: 0.1em;
 		}
 	}
 }
