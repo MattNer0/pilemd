@@ -1,4 +1,4 @@
-const chokidar = require("chokidar");
+/*const chokidar = require("chokidar");
 
 var watcher;
 module.exports = {
@@ -38,3 +38,4 @@ module.exports = {
 		}
 	}
 };
+*/

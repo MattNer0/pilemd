@@ -19,17 +19,20 @@ var webpackPlugins = [
 
 if (isProduction) {
 	webpackPlugins.push(new UglifyJSPlugin({
-		ie8: false,
-		ecma: 8,
 		parallel: true,
-		output: {
-			comments: false,
-			beautify: false
-		},
+		uglifyOptions: {
+			ie8: false,
+			ecma: 8,
+			output: {
+				comments: false,
+				beautify: false
+			},
+		}
 	}));
 }
 
 module.exports = {
+	mode: isProduction ? 'production' : 'development',
 	entry: {
 		app: './src/js/main.js',
 		background: './src/js/background.js',
@@ -46,7 +49,7 @@ module.exports = {
 		}
 	},
 	module: {
-		loaders: [
+		rules: [
 			{
 				test: /\.js$/,
 				loader: 'babel-loader',
@@ -63,19 +66,32 @@ module.exports = {
 			},
 			{
 				test: /\.(png|woff|woff2|ttf)$/,
-				loader: 'url-loader?limit=100000'
+				loader: 'url-loader',
+				options: {
+					'limit' : 100000
+				}
 			},
 			{
 				test: /\.html$/,
-				loader: 'html-loader?attrs=false'
+				loader: 'html-loader',
+				options: {
+					'attrs' : false
+				}
 			},
 			{
 				test: /\.css$/,
-				loader: 'style-loader!css-loader'
+				use: [
+					'style-loader',
+					'css-loader'
+				]
 			},
 			{
 				test: /\.scss$/,
-				loader: 'style-loader!css-loader!sass-loader'
+				use: [
+					'style-loader',
+					'css-loader',
+					'sass-loader'
+				]
 			}
 		]
 	},

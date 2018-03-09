@@ -18,6 +18,9 @@
 		border-radius: $splash-border-radius;
 		padding: 1em 1em 0.6em;
 
+		max-height: 70vh;
+		overflow: auto;
+
 		.title {
 			font-size: 150%;
 			text-align: center;

@@ -412,7 +412,7 @@ class Note extends Model {
 			this._body = this.bodyWithoutMetadata;
 		}
 
-		if(!this._metadata.createdAt) {
+		if (!this._metadata.createdAt || !this._metadata.updatedAt) {
 			this.initializeCreationDate();
 		}
 	}
@@ -449,6 +449,7 @@ class Note extends Model {
 				this._metadata.updatedAt = moment(noteStat.mtime).format('YYYY-MM-DD HH:mm:ss');
 			}
 		}
+		this.saveModel();
 	}
 
 	update(data) {

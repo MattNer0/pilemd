@@ -292,12 +292,10 @@ var appVue = new Vue({
 		ipcRenderer.on('loaded-all-notes', (event, data) => {
 			if (!data) return;
 
-			var last_history = libini.readKey(models.getBaseLibraryPath(), 'history');
-			if (last_history && last_history.note.length > 0) {
-				this.notesHistory = this.notes.filter((obj) => {
-					return last_history.note.indexOf(obj.relativePath) >= 0;
-				});
-				this.notesHistory.reverse();
+			if (this.keepHistory) {
+				this.notesHistory = arr.sortBy(this.notes.filter(function(obj) {
+					return !obj.isEncrypted;
+				}), 'updatedAt').slice(0,10);
 			}
 
 			if (this.notes.length == 1) {
@@ -504,9 +502,6 @@ var appVue = new Vue({
 
 			if (note instanceof models.Outline) {
 				this.selectedNote = note;
-				if (this.keepHistory) {
-					libini.pushKey(models.getBaseLibraryPath(), ['history', 'note'], this.selectedNote.relativePath, 5);
-				}
 			} else {
 				if (!note.body) note.loadBody();
 				if (note.isEncrypted) {
@@ -538,9 +533,6 @@ var appVue = new Vue({
 					}]);
 				} else {
 					this.selectedNote = note;
-					if (this.keepHistory) {
-						libini.pushKey(models.getBaseLibraryPath(), ['history', 'note'], this.selectedNote.relativePath, 5);
-					}
 				}
 			}
 		},
@@ -796,19 +788,18 @@ var appVue = new Vue({
 			if (result && result.error && result.path) {
 				this.sendFlashMessage(5000, 'error', result.error);
 			} else if(result && result.saved) {
-				if (this.keepHistory && this.selectedNote.relativePath) {
-					libini.pushKey(models.getBaseLibraryPath(), ['history', 'note'], this.selectedNote.relativePath, 5);
-				}
 				this.sendFlashMessage(1000, 'info', 'Note saved');
 			}
 		}, 500),
 		addNoteFromUrl() {
+			var self = this;
 			this.$refs.dialog.init('Note', '', [{
 				label: 'Cancel',
 				cancel: true,
 			}, {
 				label: 'Ok',
 				cb(data) {
+					self.sendFlashMessage(1000, 'info', 'Loading page...');
 					ipcRenderer.send('load-page', {
 						url           : data.pageurl,
 						mode          : 'note-from-url',
@@ -1106,10 +1097,6 @@ var appVue = new Vue({
 		},
 		keepHistory() {
 			settings.set('keepHistory', this.keepHistory);
-			if (!this.keepHistory) {
-				this.notesHistory = [];
-				models.resetHistory();
-			}
 		},
 		selectedNote() {
 			if (this.selectedNote instanceof models.Note) {

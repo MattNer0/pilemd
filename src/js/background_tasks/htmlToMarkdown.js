@@ -1,4 +1,32 @@
-const toMarkdown = require('to-markdown');
+const TurndownService = require("turndown");
+const gfm = require("turndown-plugin-gfm").gfm;
+
+var turndownService = new TurndownService.default({
+	hr: "---",
+	headingStyle: "atx",
+	bulletListMarker: "*",
+	codeBlockStyle: "fenced"
+});
+
+turndownService.use(gfm);
+turndownService.addRule('article', {
+	filter: ['span', 'article'],
+	replacement: function(content) {
+		return content;
+	}
+});
+turndownService.addRule('div', {
+	filter: ['div'],
+	replacement: function(content) {
+		return '\n' + content + '\n';
+	}
+});
+turndownService.addRule('script', {
+	filter: ['script', 'noscript', 'form', 'nav', 'iframe', 'input'],
+	replacement: function(content) {
+		return '';
+	}
+});
 
 module.exports = {
 
@@ -18,25 +46,7 @@ module.exports = {
 	},
 
 	convert(html_source, page_url, page_title) {
-		var new_md = toMarkdown(html_source, {
-			gfm: true,
-			converters: [{
-				filter: ['span', 'article'],
-				replacement: function(content) {
-					return content;
-				}
-			},{
-				filter: 'div',
-				replacement: function(content) {
-					return '\n' + content + '\n';
-				}
-			},{
-				filter: ['script', 'noscript', 'form', 'nav', 'iframe', 'input'],
-				replacement: function() {
-					return '';
-				}
-			}]
-		});
+		var new_md = turndownService.turndown(html_source);
 		new_md = new_md.replace(/\n+/gi, '\n');
 		new_md = new_md.replace(/(!\[\]\(.+?\))(\s*\1+)/gi, '$1');
 		new_md = new_md.replace(/(\[!\[.*?\].+?\]\(.+?\))/gi, '\n$1\n');
