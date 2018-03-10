@@ -24,7 +24,8 @@ var searcher = require('./searcher');
 const { ipcRenderer, remote, clipboard, shell } = require('electron');
 const { Menu, MenuItem, dialog } = remote;
 
-var arr = require('./utils/arr');
+const arr = require('./utils/arr');
+const elosenv = require('./utils/elosenv');
 
 // vue.js plugins
 import component_outline from './components/outline.vue';
@@ -181,7 +182,7 @@ var appVue = new Vue({
 			ipcRenderer.send('load-racks', { library: models.getBaseLibraryPath() });
 
 		} else {
-			console.error('Couldn\'t open library directory.\nPath: '+models.getBaseLibraryPath());
+			elosenv.console.error("Couldn't open library directory. Path: " + models.getBaseLibraryPath());
 			setTimeout(() => {
 				this.$refs.dialog.init('Error', 'Couldn\'t open library directory.\nPath: '+models.getBaseLibraryPath(), [{
 					label: 'Ok',
@@ -292,7 +293,9 @@ var appVue = new Vue({
 		ipcRenderer.on('loaded-all-notes', (event, data) => {
 			if (!data) return;
 
-			if (this.keepHistory) {
+			elosenv.console.log("Loaded all notes in the library.");
+
+			if (this.keepHistory && this.notes.length > 1) {
 				this.notesHistory = arr.sortBy(this.notes.filter(function(obj) {
 					return !obj.isEncrypted;
 				}), 'updatedAt').slice(0,10);
@@ -308,7 +311,7 @@ var appVue = new Vue({
 					if (openedNote) {
 						this.changeNote(openedNote);
 					} else {
-						ipcRenderer.send('console', 'path not valid!');
+						elosenv.console.error("Path not valid");
 					}
 				}
 			}
@@ -368,7 +371,8 @@ var appVue = new Vue({
 					return rk.path == rackPath;
 				})[0];
 			} catch(e) {
-				console.error(e);
+				elosenv.console.warn("Couldn't find rack by path \""+rackPath+"\"");
+				return null;
 			}
 		},
 		findFolderByPath(rack, folderPath) {
@@ -387,7 +391,8 @@ var appVue = new Vue({
 				}
 				return parent;
 			} catch(e) {
-				console.error(e);
+				elosenv.console.warn("Couldn't find folder by path \""+folderPath+"\"");
+				return null;
 			}
 		},
 		/**

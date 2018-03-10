@@ -157,6 +157,40 @@
 		color: $title-bar-background;
 	}
 
+	.spacer.system-icons.darwin {
+		order: -1;
+		display: flex;
+
+		.system-icon {
+			border-radius: 100%;
+			width: 1.1em;
+			height: 1.1em;
+			margin-right: 0.4em;
+			margin-left: 0.4em;
+			background-color: #44CA45;
+		}
+		i.material-icons {
+			opacity: 0;
+			background-color: transparent !important;
+			color: #444 !important;
+		}
+		.system-icon:hover i.material-icons {
+			opacity: 1.0;
+		}
+		.system-icon.close-icon {
+			order: -1;
+			padding-top: 0.3em;
+			background-color: #F55D5C;
+		}
+		.system-icon.minimize {
+			background-color: #F8BC3A;
+		}
+	}
+
+	.spacer.right-align.darwin > nav > ul:after {
+		display: none;
+	}
+
 	.my-dropdown-dd {
 		-webkit-app-region: no-drag;
 		z-index: 100;

@@ -34,7 +34,7 @@ module.exports = {
 		return path;
 	},
 	doesLibraryExists() {
-		return baseLibrary.doesLibraryExists();
+		return baseLibrary.baseLibraryPath && baseLibrary.doesLibraryExists();
 	},
 	resetHistory() {
 		libini.removeKey(baseLibrary.baseLibraryPath, 'history');

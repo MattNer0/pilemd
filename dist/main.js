@@ -122,7 +122,9 @@ function makeMainWindow() {
 	});
 
 	global.appIcon = appIcon;
+	global.isDarwin = process.platform == 'darwin';
 	global.isLinux = process.platform == 'linux';
+	global.isDebug = DEBUG;
 	global.argv = process.argv;
 
 	// open the DevTools.

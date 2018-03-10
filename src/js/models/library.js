@@ -1,3 +1,5 @@
+const remote = require('electron').remote;
+
 const fs = require('fs');
 const path = require('path');
 
@@ -27,16 +29,32 @@ class Library {
 	}
 
 	initialLibrary() {
-		var p = path.join(elosenv.workingDirectory(), 'library');
+
+		function homeLibrary() {
+			var p;
+			if (elosenv.isDarwin()) {
+				p = path.join(elosenv.documentsPath(), "library");
+			} else {
+				p = path.join(elosenv.homePath(), "library");
+			}
+			return p;
+		}
+
+		var p = path.join(elosenv.workingDirectory(), "library");
 		try {
+			if (p.indexOf("/node_modules/electron/") >= 0) p = homeLibrary();
+			if (!fs.existsSync(p)) fs.mkdirSync(p);
 			fs.accessSync(p, fs.W_OK | fs.R_OK);
 		} catch (e) {
-			p = path.join(elosenv.homePath(), 'library');
-		}
-		try {
-			if (!fs.existsSync(p)) fs.mkdirSync(p);
-		} catch (e) {
-			console.warn(e.message);
+			elosenv.console.warn(e.message);
+			p = homeLibrary();
+			try {
+				if (!fs.existsSync(p)) fs.mkdirSync(p);
+				fs.accessSync(p, fs.W_OK | fs.R_OK);
+			} catch (e) {
+				p = null;
+				elosenv.console.warn(e.message);
+			}
 		}
 		return p;
 	}

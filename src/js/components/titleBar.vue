@@ -48,7 +48,7 @@
 							i.material-icons(v-if="isFullScreen") fullscreen_exit
 							i.material-icons(v-else) fullscreen
 							|  Toggle Sidebar
-			.spacer.right-align
+			.spacer.right-align(:class="{ 'darwin': isDarwin }")
 				nav: ul
 					li.has-sub(@click="menu_visible = !menu_visible")
 						dropdown(:visible="menu_visible", :position="position", v-on:clickout="menu_visible = false")
@@ -76,7 +76,7 @@
 								li: a(@click.prevent.stop="menu_about", href="#") About
 								li: hr
 								li: a(@click.prevent.stop="menu_quit", href="#") Quit
-			.spacer.system-icons
+			.spacer.system-icons(:class="{ 'darwin': isDarwin }")
 				.system-icon.minimize(@click="win_min")
 					i.material-icons remove
 				.system-icon(@click="win_max")
@@ -92,6 +92,8 @@
 
 	const fs = require('fs');
 	const path = require('path');
+
+	const elosenv = require('../utils/elosenv');
 
 	import myDropdown from 'vue-my-dropdown';
 
@@ -115,14 +117,13 @@
 		},
 		data: function() {
 			return {
-				'search'          : "",
-				'menu_visible'    : false,
-				'order_visible'   : false,
-				//'saveDesktop'     : true,
-				'position'        : [ "right", "top", "right", "top" ],
-				'isLinux'         : remote.getGlobal('isLinux'),
-				'openSearch'      : false
-				//'desktopEntryPath': path.join(remote.app.getPath('home'), '.local', 'share', 'applications', 'pilemd.desktop')
+				'search'       : "",
+				'menu_visible' : false,
+				'order_visible': false,
+				'position'     : [ "right", "top", "right", "top" ],
+				'isLinux'      : elosenv.isLinux(),
+				'isDarwin'     : elosenv.isDarwin(),
+				'openSearch'   : false
 			};
 		},
 		components: {
@@ -187,31 +188,6 @@
 				this.menu_visible = false;
 				this.toggleToolbar();
 			},
-			/*menu_desktopEntry() {
-				this.menu_visible = false;
-				setTimeout(() => {
-					if (!fs.existsSync(this.desktopEntryPath)) {
-						var exe = remote.app.getPath('exe');
-						var body = "[Desktop Entry]\n" +
-									"Encoding=UTF-8\n" +
-									"Version=1.0\n" +
-									"Name=" + remote.app.getName() + "\n" +
-									"Comment=Markdown Note-taking App\n" +
-									"Exec=" + exe + " %u\n" +
-									"Icon=" + path.join(path.dirname(exe),'resources','icon.png') + "\n" +
-									"Terminal=false\n" +
-									"StartupWMClass=" + remote.app.getName() + "\n" +
-									"Type=Application\n" +
-									"MimeType=text/markdown;\n" +
-									"Categories=Office;Utility;";
-						fs.writeFileSync(this.desktopEntryPath, body);
-						// desktop entry created
-					} else {
-						// desktop exists already
-						this.saveDesktop = false;
-					}
-				}, 100);
-			},*/
 			// -----------------------------------------------
 			win_close() {
 				var win = remote.getCurrentWindow();

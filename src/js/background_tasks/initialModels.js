@@ -32,10 +32,10 @@ function makeInitialNotes(folderPath) {
  */
 function makeInitialFolders(rackpath) {
 
-	var folder1Path = path.join(library, 'Todo');
+	var folder1Path = path.join(rackpath, 'Todo');
 	if (!fs.existsSync(folder1Path)) fs.mkdirSync(folder1Path);
 
-	var folder2Path = path.join(library, 'Meeting');
+	var folder2Path = path.join(rackpath, 'Meeting');
 	if (!fs.existsSync(folder2Path)) fs.mkdirSync(folder2Path);
 
 	return [folder1Path, folder2Path];

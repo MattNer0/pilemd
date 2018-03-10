@@ -1,10 +1,12 @@
-const electron = require('electron');
-const remote = electron.remote;
+const { ipcRenderer, remote } = require('electron');
 const path = require('path');
 
 module.exports = {
 	homePath() {
 		return remote.app.getPath('home');
+	},
+	documentsPath() {
+		return remote.app.getPath('documents');
 	},
 	appDataPath() {
 		return remote.app.getPath('appData');
@@ -18,5 +20,25 @@ module.exports = {
 	workingDirectory() {
 		var exe = remote.app.getPath('exe');
 		return path.dirname(exe);
+	},
+	isDarwin() {
+		return remote.getGlobal("isDarwin");
+	},
+	isLinux() {
+		return remote.getGlobal("isLinux");
+	},
+	isDebug() {
+		return remote.getGlobal("isDebug");
+	},
+	console: {
+		log(message) {
+			ipcRenderer.send("console", "[LOG] " + message);
+		},
+		warn(message) {
+			ipcRenderer.send("console", "[WARN] " + message);
+		},
+		error(message) {
+			ipcRenderer.send("console", "[ERROR] " + message);
+		}
 	}
 };
