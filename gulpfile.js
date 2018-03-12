@@ -18,7 +18,7 @@ var BASE_OPTION = {
 	ignore: '(icons|releases|.idea.*|README\.md|\.DS_Store|env|gulpfile\.js|webpack\.config\.js|\.gitignore|\.gjslintrc)',
 	asar: true,
 	prune: true,
-	extraResource: './dist/icon.png'
+	extraResource: ['./dist/icon.png','./dist/tray.png']
 };
 
 gulp.task('electron-darwin', function(done) {

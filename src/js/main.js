@@ -477,6 +477,8 @@ var appVue = new Vue({
 			if (note === null) {
 				this.selectedNote = null;
 				return;
+			} else if (note == this.selectedNote) {
+				return;
 			}
 
 			if (note.folder && note.folder instanceof models.Folder) {
@@ -490,7 +492,9 @@ var appVue = new Vue({
 				newtab = true;
 			}
 
-			if (this.noteTabs.indexOf(note) == -1) {
+			if (this.noteTabs.length == 0) {
+				this.noteTabs.push(note);
+			} else if (this.noteTabs.indexOf(note) == -1) {
 				if (newtab) {
 					this.noteTabs.push(note);
 				}
@@ -499,10 +503,6 @@ var appVue = new Vue({
 					var ci = this.noteTabs.indexOf(this.selectedNote);
 					this.noteTabs.splice(ci, 1, note);
 				}
-			}
-
-			if (this.noteTabs.length == 0) {
-				this.noteTabs.push(note);
 			}
 
 			if (note instanceof models.Outline) {

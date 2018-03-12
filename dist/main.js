@@ -97,7 +97,7 @@ function makeMainWindow() {
 	mainWindow.loadURL('file://' + __dirname + '/index.html');
 	mainWindow.setContentProtection(true);
 
-	appIcon = new Tray(__dirname + '/icon.png');
+	appIcon = new Tray(__dirname + '/tray.png');
 	var contextMenu = Menu.buildFromTemplate([{
 		label: 'Show App',
 		click() {

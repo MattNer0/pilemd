@@ -66,6 +66,7 @@
 
 		ul {
 			-webkit-font-smoothing: antialiased;
+			-webkit-app-region: no-drag;
 			list-style: none;
 
 			li {
@@ -73,7 +74,6 @@
 			}
 
 			li > a, li > div, li > span {
-				-webkit-app-region: no-drag;
 				font-size: inherit;
 			}
 
@@ -83,6 +83,8 @@
 		}
 
 		> ul {
+			height: calc( #{ $title-bar-height } - #{ $title-bar-border } );
+
 			> li > a, > li > div, > li > span {
 				padding-top: 0.8em;
 				padding-bottom: 0.6em;

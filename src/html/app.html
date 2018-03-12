@@ -64,7 +64,7 @@
 					</div>
 				</div>
 				<handler-notes
-					v-show="selectedFolder"
+					v-show="selectedFolder || showAll || showFavorites"
 					:sidebar-drag="sidebarDrag"
 					:sidebar-drag-end="sidebarDragEnd"
 					ref="refHandleNote">
