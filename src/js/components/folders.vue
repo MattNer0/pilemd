@@ -115,8 +115,11 @@
 				this.changeFolder(folder);
 			},
 			selectFolder(folder) {
-				folder.openFolder = true;
-				this.changeFolder(folder);
+				if (this.selectedFolder == folder) {
+					folder.openFolder = !folder.openFolder;
+				} else {
+					this.changeFolder(folder);
+				}
 			},
 			addFolder(parent) {
 				var folder;

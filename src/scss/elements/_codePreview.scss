@@ -232,4 +232,14 @@
 	p[contenteditable="true"] {
 		outline: none;
 	}
+
+	.footnotes-sep {
+		margin-top: 3em;
+		opacity: 0.5;
+	}
+
+	section.footnotes {
+		font-size: 90%;
+		opacity: 0.8;
+	}
 }
