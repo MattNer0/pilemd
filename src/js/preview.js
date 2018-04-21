@@ -118,6 +118,7 @@ renderer.link = function(href, title, text) {
 };
 
 function parseFootnotes(text) {
+	text = text + "\n";
 	var clean_text = text.replace(/^[ \t]*(\[\^\w+\]\s*:\s*.+?)\n/gm, function(x) {
 		var match = (/\[\^(\w+)\]\s*:\s*(.+)/gm).exec(x);
 		var new_footnote = {
