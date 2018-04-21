@@ -55,6 +55,14 @@
 	require('codemirror/mode/meta');
 	require('../codemirror/piledmap');
 
+	function countWords(text) {
+		text = text.replace(/\[[\w\s]+?\]/g, " ").replace(/[^\w\-’'"_]/g, " ").replace(/[\s\r\n]+/g, " ").replace(/\s\W\s/g, " ");
+		var words = text.split(" ").filter((str) => {
+			return str.length > 0
+		});
+		return words.length;
+	}
+
 	export default {
 		name: 'codemirror',
 		props: {
@@ -193,6 +201,16 @@
 						this.$root.$refs.refNoteFooter.row = c.line;
 						this.$root.$refs.refNoteFooter.column = c.ch;
 						this.$root.$refs.refNoteFooter.selection = sel.length;
+						if (sel.length == 0)
+							this.$root.$refs.refNoteFooter.wordscount = countWords(cm.getValue());
+						else
+							this.$root.$refs.refNoteFooter.wordscount = countWords(sel);
+					}
+				});
+
+				cm.on('swapDoc', (cm, old_doc) => {
+					if (this.$root.$refs.refNoteFooter) {
+						this.$root.$refs.refNoteFooter.wordscount = countWords(cm.getValue());
 					}
 				});
 
@@ -214,12 +232,14 @@
 					if (doc) {
 						if(doc.cm) doc.cm = null;
 						cm.swapDoc(doc);
-						if (this.$root.$refs.refNoteFooter) {
-							this.$root.$refs.refNoteFooter.row = 0;
-							this.$root.$refs.refNoteFooter.column = 0;
-							this.$root.$refs.refNoteFooter.selection = 0;
-						}
 					}
+
+					if (this.$root.$refs.refNoteFooter) {
+						this.$root.$refs.refNoteFooter.row = 0;
+						this.$root.$refs.refNoteFooter.column = 0;
+						this.$root.$refs.refNoteFooter.selection = 0;
+					}
+
 				}, { immediate: true });
 			});
 		},
