@@ -101,6 +101,7 @@
 			'changeFolder'        : Function,
 			'editingRack'         : String,
 			'editingFolder'       : String,
+			'originalNameRack'    : String,
 			'draggingRack'        : Object,
 			'draggingFolder'      : Object,
 			'search'              : String
@@ -133,16 +134,19 @@
 					'sortLower'    : rack.sortLower
 				};
 			},
-			/*addRack() {
-				var rack = new models.Rack({
-					name: "",
-					ordering: 0
-				});
-				this.$root.addRack(rack);
-				this.$root.setEditingRack(rack);
-			},*/
 			doneRackEdit(rack) {
 				if (!this.editingRack) { return }
+				if (rack.name.length == 0) {
+					if (this.originalNameRack.length > 0) {
+						rack.name = this.originalNameRack;
+					} else if (rack.folders.length > 0) {
+						rack.name = "new rack";
+					} else {
+						this.$root.removeRack(rack);
+						this.$root.setEditingRack(null);
+						return;
+					}
+				}
 				rack.saveModel();
 				this.$root.setEditingRack(null);
 				this.changeRack(rack);
@@ -275,24 +279,35 @@
 						this.selectRackThumbnail(rack);
 					}
 				}));*/
-
 				menu.append(new MenuItem({
-					label: 'Rename Folder',
+					label: 'Add new top-level folder',
+					click: () => {
+						var rack = new models.Rack({
+							name: "",
+							ordering: 0
+						});
+						this.$root.addRack(rack);
+						this.$root.setEditingRack(rack);
+					}
+				}));
+				menu.append(new MenuItem({type: 'separator'}));
+				menu.append(new MenuItem({
+					label: 'Rename folder',
 					click: () => {
 						this.$root.setEditingRack(rack);
 					}
 				}));
 				menu.append(new MenuItem({
-					label: 'Add Subfolder',
+					label: 'Add subfolder',
 					click: () => {
-						this.addFolder(rack)
+						this.addFolder(rack);
 					}
 				}));
 				menu.append(new MenuItem({type: 'separator'}));
 				menu.append(new MenuItem({
-					label: 'Delete Folder',
+					label: 'Delete folder',
 					click: () => {
-						if (confirm('Delete Rack "' + rack.name + '" and its content?')) {
+						if (confirm('Delete folder "' + rack.name + '" and its content?')) {
 							this.$root.removeRack(rack);
 						}
 					}

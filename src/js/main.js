@@ -85,6 +85,7 @@ var appVue = new Vue({
 		// editing
 		editingRack         : null,
 		editingFolder       : null,
+		originalNameRack    : "",
 		// dragging
 		draggingRack        : null,
 		draggingFolder      : null,
@@ -437,6 +438,7 @@ var appVue = new Vue({
 				this.selectedFolder = null;
 				this.editingRack = null;
 				this.editingFolder = null;
+				this.originalNameRack = "";
 				this.showAll = false;
 				this.showFavorites = false;
 			} else {
@@ -587,8 +589,10 @@ var appVue = new Vue({
 		setEditingRack(rack) {
 			if (rack) {
 				this.editingRack = rack.uid;
+				this.originalNameRack = rack.name;
 			} else {
 				this.editingRack = null;
+				this.originalNameRack = "";
 			}
 		},
 		setEditingFolder(folder) {
@@ -872,7 +876,14 @@ var appVue = new Vue({
 			var menu = new Menu();
 			menu.append(new MenuItem({
 				label: 'Add Folder',
-				click: () => { this.$refs.refRacks.addRack(); }
+				click: () => {
+					var rack = new models.Rack({
+						name: "",
+						ordering: 0
+					});
+					this.addRack(rack);
+					this.setEditingRack(rack);
+				}
 			}));
 			menu.popup(remote.getCurrentWindow());
 		},

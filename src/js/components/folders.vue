@@ -251,27 +251,27 @@
 			folderMenu(rack, folder) {
 				var menu = new Menu();
 				menu.append(new MenuItem({
-					label: 'Rename Folder',
+					label: 'Rename folder',
 					click: () => {
 						this.$root.setEditingFolder(folder);
 					}
 				}));
 				menu.append(new MenuItem({
-					label: 'Add Subfolder',
+					label: 'Add subfolder',
 					click: () => {
 						this.addFolder(folder);
 					}
 				}));
 				menu.append(new MenuItem({type: 'separator'}));
 				menu.append(new MenuItem({
-					label: 'Add Note',
+					label: 'Add note',
 					click: () => {
 						this.changeFolder(folder);
 						this.$root.addNote();
 					}
 				}));
 				menu.append(new MenuItem({
-					label: 'Add Encrypted Note',
+					label: 'Add encrypted note',
 					click: () => {
 						this.changeFolder(folder);
 						this.$root.addEncryptedNote();
@@ -279,9 +279,9 @@
 				}));
 				menu.append(new MenuItem({type: 'separator'}));
 				menu.append(new MenuItem({
-					label: 'Delete Folder',
+					label: 'Delete folder',
 					click: () => {
-						if (confirm('Delete Folder "' + folder.name + '" and its content?')) {
+						if (confirm('Delete folder "' + folder.name + '" and its content?')) {
 							this.changeRack(rack);
 							this.$root.deleteFolder(folder);
 						}
