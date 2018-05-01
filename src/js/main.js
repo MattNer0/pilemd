@@ -11,10 +11,6 @@ const libini = require('./utils/libini');
 const traymenu = require('./utils/traymenu');
 
 import Vue from 'vue';
-/*
-import VTooltip from 'v-tooltip'
-Vue.use(VTooltip);
-*/
 
 var models = require('./models');
 var preview = require('./preview');
@@ -25,6 +21,7 @@ const { ipcRenderer, remote, clipboard, shell } = require('electron');
 const { Menu, MenuItem, dialog } = remote;
 
 const arr = require('./utils/arr');
+const theme = require('./utils/theme');
 const elosenv = require('./utils/elosenv');
 
 // vue.js plugins
@@ -45,7 +42,6 @@ import component_tabsBar from './components/tabsBar.vue';
 
 // loading CSSs
 require('../scss/pilemd.scss');
-require('../scss/pilemd-light.scss');
 
 // not to accept image dropping and so on.
 // electron will show local images without this.
@@ -56,6 +52,8 @@ document.addEventListener('drop', (e) => {
 	e.preventDefault();
 	e.stopPropagation();
 });
+
+theme.load("dark");
 
 var settings_baseLibraryPath = settings.get('baseLibraryPath');
 if(settings_baseLibraryPath) models.setBaseLibraryPath(settings_baseLibraryPath);
@@ -68,7 +66,6 @@ var appVue = new Vue({
 		loadedRack          : false,
 		isFullScreen        : false,
 		isPreview           : false,
-		selectedTheme       : settings.getSmart('theme', 'dark'),
 		isToolbarEnabled    : settings.getSmart('toolbarNote', true),
 		keepHistory         : settings.getSmart('keepHistory', true),
 		preview             : "",
@@ -210,7 +207,6 @@ var appVue = new Vue({
 
 			this.init_sidebar_width();
 			this.update_editor_size();
-			this.changeTheme(this.selectedTheme);
 		});
 
 		ipcRenderer.on('loaded-racks', (event, data) => {
@@ -991,29 +987,6 @@ var appVue = new Vue({
 			}]);
 		},
 		/**
-		 * change the application theme.
-		 * @function changeTheme
-		 * @param  {String}  value  The theme name
-		 * @return {Void} Function doesn't return anything
-		 */
-		changeTheme(value) {
-			var allowedThemes = ['light', 'dark'];
-			if (allowedThemes.indexOf(value) >= 0) {
-				this.selectedTheme = value;
-				settings.set('theme', value);
-
-				var body = document.querySelector('body');
-				switch (value) {
-					case 'light':
-						body.classList.add('light-theme');
-						break;
-					default:
-						body.classList.remove('light-theme');
-						break;
-				}
-			}
-		},
-		/**
 		 * change how notes are sorted in the sidebar
 		 * @function changeDisplayOrder
 		 * @param  {String}  value   The sort by field
@@ -1090,19 +1063,11 @@ var appVue = new Vue({
 				widthTotalLeft += cellsLeft[i].offsetWidth;
 			}
 
-			var mybrowser = document.querySelector('.main-cell-container .my-browser');
-
 			if (this.isFullScreen) {
 				document.querySelector('.sidebar').style.left = '-' + widthTotalLeft + 'px';
-				if (mybrowser) mybrowser.style.width = '100vw';
 				widthTotalLeft = 0;
 			} else {
 				document.querySelector('.sidebar').style.left = '';
-				if (mybrowser) {
-					setTimeout(() => {
-						if (mybrowser) mybrowser.style.width = 'calc( 100vw - ' + widthTotalLeft + 'px )';
-					}, 200);
-				}
 			}
 			document.querySelector('.main-cell-container').style.marginLeft = widthTotalLeft + 'px';
 		}, 100)

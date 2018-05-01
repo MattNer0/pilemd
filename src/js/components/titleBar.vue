@@ -62,15 +62,6 @@
 									i.material-icons.faded(v-else) check_box_outline_blank
 									|  Show Note Toolbar
 								li: hr
-								li: a(@click.prevent.stop="menu_changeTheme('dark')", href="#")
-									i.material-icons(v-if="selectedTheme == 'dark'") radio_button_checked
-									i.material-icons.faded(v-else) radio_button_unchecked
-									|  Dark Theme
-								li: a(@click.prevent.stop="menu_changeTheme('light')", href="#")
-									i.material-icons(v-if="selectedTheme == 'light'") radio_button_checked
-									i.material-icons.faded(v-else) radio_button_unchecked
-									|  Light Theme
-								li: hr
 								//-li: a(@click.prevent="menu_devTools", href="#") Open DevTools
 								//-li(v-if="isLinux && saveDesktop"): a(@click.prevent="menu_desktopEntry", href="#") Add Desktop Entry
 								li: a(@click.prevent.stop="menu_about", href="#") About
@@ -105,14 +96,12 @@
 			'selectedFolder'    : Object,
 			'isFullScreen'      : Boolean,
 			'isToolbarEnabled'  : Boolean,
-			'selectedTheme'     : String,
 			'notesDisplayOrder' : String,
 			'toggleFullScreen'  : Function,
 			'toggleToolbar'     : Function,
 			'openSync'          : Function,
 			'moveSync'          : Function,
 			'openAbout'         : Function,
-			'changeTheme'       : Function,
 			'changeDisplayOrder': Function
 		},
 		data: function() {
@@ -171,10 +160,6 @@
 			menu_about() {
 				this.menu_visible = false;
 				this.openAbout();
-			},
-			menu_changeTheme(value) {
-				this.menu_visible = false;
-				this.changeTheme(value);
 			},
 			menu_changeOrder(value) {
 				this.order_visible = false;

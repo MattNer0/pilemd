@@ -1,6 +1,5 @@
 .tabs-bar {
 	height: $title-bar-height;
-	background-color: $body-background-note;
 
 	> div {
 		min-width: 15em;
@@ -14,7 +13,6 @@
 		position: relative;
 		z-index: 6;
 		height: calc( #{ $title-bar-height } - 0.6em );
-		background-color: $tabs-background;
 		opacity: 0.9;
 		display: inline-block;
 		text-align: left;
@@ -22,7 +20,6 @@
 		max-width: 15em;
 		padding: 0.5em 1.8em 0 0.5em;
 		margin: 0.6em 0 0;
-		border: 2px solid $note-border-color;
 		border-bottom: 0;
 		vertical-align: bottom;
 		cursor: pointer;
@@ -53,10 +50,6 @@
 		margin-left: -2px;
 	}
 
-	.tab.selected, .tab:hover {
-		background-color: $tab-selected-background;
-	}
-
 	.tab.selected {
 		margin-bottom: -2px;
 		margin-top: $tab-selected-margin;
@@ -81,7 +74,6 @@
 		height: calc( 100vh - #{ $title-bar-height * 3 } - 0.5em );
 	}
 	.main-note-container {
-		border-top: 0.15em solid $note-border-color;
 		margin-top: 0;
 	}
 }

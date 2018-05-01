@@ -1,6 +1,5 @@
 .CodeMirror {
 	text-rendering: optimizeSpeed;
-	background-color: $note-background-color;
 	height: 100%;
 }
 
@@ -131,23 +130,6 @@
 	}
 }
 
-/*.CodeMirror-scroll {
-	overflow: hidden !important;
-	margin: 0;
-	width: auto;
-	min-height: 100%;
-	height: auto;
-}*/
-
-/*.CodeMirror-sizer {
-	margin-bottom: 0 !important;
-	border-right-width: 0 !important;
-}*/
-
-/*.CodeMirror-vscrollbar {
-	display: none !important;
-}*/
-
 .CodeMirror-focused .CodeMirror-selected { background: #add5ff; }
 
 .CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: #add5ff; }
@@ -160,7 +142,6 @@
 	position: absolute;
 	left: 0;
 	top: 0;
-	background: $title-bar-background;
 	width: 100%;
 	padding: 0.4em;
 	line-height: 1.5em;

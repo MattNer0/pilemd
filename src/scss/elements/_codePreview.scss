@@ -94,12 +94,6 @@
 			}
 		}
 
-		li.checkbox.checkbox-checked {
-			label, strong, span, a {
-				color: $note-checkbox-selected;
-			}
-		}
-
 		li.new-todo-form{
 			padding: 0.45em 0 0.4em 0.5em;
 			position: relative;

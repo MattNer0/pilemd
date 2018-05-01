@@ -5,6 +5,8 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 var isProduction = process.env.NODE_ENV === undefined || process.env.NODE_ENV === 'production';
 
+const { VueLoaderPlugin } = require('vue-loader')
+
 var webpackPlugins = [
 	new webpack.DefinePlugin({
 		ENV: JSON.stringify(process.env.NODE_ENV || 'production')
@@ -14,6 +16,7 @@ var webpackPlugins = [
 		'fs',
 		'datauri'
 	]),
+	new VueLoaderPlugin(),
 	new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
 ];
 
@@ -51,18 +54,17 @@ module.exports = {
 	module: {
 		rules: [
 			{
+				test: /\.vue$/,
+				loader: 'vue-loader'
+			},
+			{
+				test: /\.pug$/,
+				loader: 'pug-plain-loader'
+			},
+			{
 				test: /\.js$/,
 				loader: 'babel-loader',
 				exclude: /(node_modules|dist)/
-			},
-			{
-				test: /\.vue$/,
-				loader: 'vue-loader',
-				options: {
-					loaders: {
-						js: 'babel-loader'
-					}
-				}
 			},
 			{
 				test: /\.(png|woff|woff2|ttf)$/,
@@ -88,7 +90,7 @@ module.exports = {
 			{
 				test: /\.scss$/,
 				use: [
-					'style-loader',
+					'vue-style-loader',
 					'css-loader',
 					'sass-loader'
 				]

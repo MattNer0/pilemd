@@ -1,11 +1,8 @@
 .title-bar-spacing {
-	background-color: $resize-panel-handler;
 	height: $title-bar-border;
 }
 
 .title-bar {
-	background-color: $title-bar-background;
-	color: $title-bar-color;
 	width: 100%;
 	height: calc( #{ $title-bar-height } - #{ $title-bar-border } );
 
@@ -52,7 +49,6 @@
 			content: "";
 			height: 1em;
 			width: 1px;
-			border-right: 2px solid $title-bar-color;
 			margin: 0 0.7em;
 			opacity: 0.3;
 		}
@@ -98,9 +94,6 @@
 
 	.address-bar {
 		margin-left: 0.28em;
-		background-color: $address-bar-background;
-		color: $address-bar-color;
-		border: 1px solid $app-border;
 		border-radius: $address-bar-border-radius;
 		padding: 0.3em 2em 0.3em 0.4em;
 
@@ -148,15 +141,6 @@
 
 	.system-icon.close-icon {
 		margin-right: 0;
-	}
-
-	.system-icon:hover {
-		color: $title-bar-color-hover;
-	}
-
-	.system-icon.close-icon:hover i {
-		background-color: $title-bar-close-button;
-		color: $title-bar-background;
 	}
 
 	.spacer.system-icons.darwin {

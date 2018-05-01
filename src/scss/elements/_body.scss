@@ -55,7 +55,6 @@
 		position: absolute;
 		top: 0;
 		z-index: 10;
-		background-color: $sidebar-background;
 
 		.cell-container {
 			float: left;
@@ -74,14 +73,12 @@
 
 	.resize-handler {
 		float: left;
-		background: $resize-panel-handler;
 		height: calc( 100vh - 2.5em );
 		width: 4px;
 		cursor: col-resize;
 	}
 
 	.my-editor {
-		background: $body-background-note;
 		width: auto;
 		margin: 0 auto;
 		height: 100%;

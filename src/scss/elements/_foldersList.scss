@@ -3,8 +3,6 @@
 }
 
 .my-shelf {
-	color: $sidebar-color;
-
 	font-weight: 200;
 	width: auto;
 	height: 100%;
@@ -21,7 +19,6 @@
 	.rack-object,
 	.folder-object {
 		position: relative;
-		color: $sidebar-color;
 		text-align: left;
 		font-size: 110%;
 		line-height: 1.4em;
@@ -40,7 +37,6 @@
 			padding: 0;
 			margin: 0;
 			background: transparent;
-			color: $sidebar-color;
 			outline: none;
 			border: 0;
 		}
@@ -70,7 +66,6 @@
 		font-weight: bold;
 		margin: 0;
 		padding: 0.5em 0 0.4em 1em;
-		border-bottom: 1px solid $folder-separator;
 		opacity: 1.0;
 
 		transition: background-color 200ms;
@@ -95,12 +90,10 @@
 
 	.rack-object.dragging {
 		opacity: 0.5;
-		color: $sidebar-color !important;
 	}
 
 	.folder-object.dragging {
 		opacity: 0.4;
-		color: $sidebar-color !important;
 		background-color: transparent !important;
 	}
 
@@ -123,7 +116,6 @@
 	display: inline-block;
 	vertical-align: middle;
 	text-align: center;
-	color: $folder-badge-color;
 	font-size: 80%;
 	line-height: 1.4em;
 	padding: 0 0.2em 0 0.3em;
@@ -135,7 +127,6 @@
 .my-shelf-folder-badge:before {
 	content: "";
 	position: absolute;
-	background-color: $folder-badge-background;
 	height: 1.4em;
 	border-radius: 10em;
 	z-index: -1;
@@ -233,7 +224,6 @@
 	}
 
 	> .my-shelf-folders:last-child {
-		border-bottom: 1px solid $folder-separator;
 		padding-bottom: 0.3em;
 	}
 
@@ -253,8 +243,6 @@
 	height: 3.5em;
 
 	.my-shelf-folder {
-		border: 1px dashed $sidebar-color;
-		color: $sidebar-color;
 		background: transparent;
 		position: static;
 		margin: 0.3em;
@@ -279,30 +267,12 @@
 	.my-shelf-folder-name {
 		display: block;
 		padding-top: 0.3em;
-	}
-
-	.my-shelf-folder:hover {
-		border: 1px dashed $sidebar-color;
-		background-color: $note-list-background-hover;
-		color: $note-list-text-color-hover;
-	}
-}
-
-.my-shelf-rack .rack-object:hover,
-.my-shelf-folder .folder-object:hover {
-	background-color: $folder-hover-background;
-	color: $folder-selected-color;
+	}	
 }
 
 .my-shelf-folder.sortInside > .folder-object,
 .my-shelf-folder.isShelfSelected > .folder-object {
-	background-color: $folder-selected-background;
-	color: $folder-selected-color;
 	opacity: 1.0;
-
-	input {
-		color: $folder-selected-color;
-	}
 }
 
 .my-shelf-rack.sortUpper .rack-object:after,
@@ -315,7 +285,6 @@
 	height: 2px;
 	z-index: 1;
 	content: "";
-	background-color: $folder-dragdrop-separator;
 	pointer-events: none;
 }
 
@@ -329,7 +298,6 @@
 	height: 2px;
 	z-index: 1;
 	content: "";
-	background-color: $folder-dragdrop-separator;
 	pointer-events: none;
 }
 

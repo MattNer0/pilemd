@@ -11,7 +11,7 @@ var settings_filename = 'pilemdConfig.json';
 var settings_path;
 
 module.exports = {
-    init(filename) {
+	init(filename) {
 		if (filename) settings_filename = filename;
 		settings_path = path.join(elosenv.userDataPath(), settings_filename);
 		if (!fs.existsSync(settings_path)) {

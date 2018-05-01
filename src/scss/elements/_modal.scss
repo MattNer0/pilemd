@@ -30,7 +30,6 @@
 		max-width: 45em;
 		margin: 0 auto;
 		padding: 1em;
-		background-color: $note-background-color;
 		border-radius: 2px;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
 		transition: all .2s ease;
@@ -70,7 +69,6 @@
 	.modal-field-label + input {
 		width: 100%;
 		border-radius: 0.4em;
-		border: 0.1em solid $resize-panel-handler;
 		outline: none;
 		padding: 0.5em;
 	}
@@ -100,9 +98,6 @@
 	}
 
 	.modal-button {
-		background-color: $main-background-color;
-		color: $ui-text-color-hover;
-		
 		float: right;
 		margin: 0.1em;
 		height: 2em;
@@ -116,11 +111,6 @@
 		font-weight: bold;
 		padding: 0.3em;
 		cursor: pointer;
-	}
-
-	.modal-button:hover {
-		background-color: $ui-text-background-hover;
-		color: $ui-text-color-selected;
 	}
 
 	.modal-enter, .modal-leave-active {

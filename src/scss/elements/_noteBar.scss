@@ -1,4 +1,4 @@
-.noteBar{
+.noteBar {
 	position: absolute;
 	top: 0em;
 	right: 0;
@@ -12,22 +12,15 @@
 	}
 
 	.properties-dialog, .table-dialog, .headings-dialog {
-		background: $note-background-color;
 		padding: 0.3em;
 		border-radius: 0.3em;
-		border: 1px solid $note-bar-text-color;
 		cursor: default;
 	}
 
 	.headings-dialog {
 		a {
 			display: block;
-			color: $note-bar-text-color;
 			cursor: pointer;
-		}
-
-		a:hover {
-			color: $note-text-color;
 		}
 
 		a.h {
@@ -56,7 +49,6 @@
 		table {
 			width: 100%;
 			min-width: 14em;
-			color: $note-bar-text-color;
 
 			td.right {
 				text-align: right;
@@ -64,7 +56,6 @@
 		}
 
 		table.select-table-size {
-			border: 1px solid $note-bar-text-color;
 			opacity: 0.6;
 			width: auto;
 			min-width: 0;
@@ -72,15 +63,9 @@
 			td {
 				width: 0.5em;
 				height: 0.5em;
-				border: 1px solid $note-bar-text-color;
-			}
-
-			td.selected {
-				background: $ui-text-background-hover;
 			}
 
 			td:hover {
-				background: $ui-text-background-hover;
 				cursor: pointer;
 			}
 		}
@@ -98,7 +83,6 @@
 			padding: 0.5em 0 0;
 			margin-left: 0.2em;
 			margin-right: 0.2em;
-			background: $note-background-color;
 			width: calc( 100% - 0.4em );
 
 			li {
@@ -111,11 +95,6 @@
 
 				> a, > div {
 					padding: 0 0.5em;
-					color: $note-bar-text-color;
-				}
-
-				hr {
-					border: 1px solid $note-bar-text-color;
 				}
 
 				ul {
@@ -123,7 +102,6 @@
 					width: auto;
 					min-width: 4.4em;
 					border-radius: 0.3em;
-					border: 1px solid $note-bar-text-color;
 
 					li > a, li > div {
 						border: none !important;
@@ -149,13 +127,6 @@
 
 			li > div span {
 				display: block;
-			}
-
-			li:hover {
-				> a, > div {
-					background: $note-background-color !important;
-					color: $note-text-color;
-				}
 			}
 		}
 

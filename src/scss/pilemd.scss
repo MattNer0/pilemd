@@ -1,93 +1,20 @@
 $main-font-size: 14px;
 $main-font-family: "Roboto";
 
-$app-border: #22252c;
-$resize-panel-handler: #2e323c;
-
-$body-background-color: #404552;
-$main-background-color: #404552;
-
-/* title bar */
 $title-bar-height: 3em;
 $title-bar-border: 1px;
-$title-bar-background: #303641;
-$title-bar-color: #90949b;
-$title-bar-color-hover: #b0b9c6;
-$title-bar-close-button: #cc575d;
 
-$address-bar-color: #7e8383;
-$address-bar-background: #414a59;
-$address-bar-background: #414a59;
 $address-bar-border-radius: 0.2em;
 
-/* action bar */
 $action-bar-height: 2em;
-$action-bar-background: #373d48;
-$action-bar-color: #7e8383;
-$action-bar-submenu-background: #383c4a;
 
-/* sidebar */
-$sidebar-background: #373d48;
-$sidebar-color: #949ba6;
-
-/* tabs */
-$tabs-background: #f5f6f7;
-$tab-selected-background: #fff;
 $tab-selected-margin: 0.3em;
 
-/* splash */
-$splash-background: #373d48;
-$splash-border-radius: 0.2em;
-$splash-color: #949ba6;
-$splash-hover-color: #ffffff;
-$splash-hover-background: #445e7d;
-$splash-hr: #2e323c;
-
-/* folder */
-
 $folder-list-border-radius: 0.2em;
-$rack-background: #303641;
-$folder-hover-background: #445e7d;
-$folder-selected-background: #5294e2;
-$folder-selected-color: #ffffff;
-$folder-dragdrop-separator: #5294e2;
-$folder-badge-background: #2e323c;
-$folder-badge-color: #adacac;
-$folder-separator: #4b535d;
 
-/* notes list */
+$splash-border-radius: 0.2em;
+
 $note-list-border-radius: 0.2em;
-$note-list-background: transparent;
-$note-list-background-hover: #445e7d;
-$note-list-background-selected: #5294e2;
-$note-list-text-color: #949ba6;
-$note-list-text-color-hover: #ffffff;
-$note-list-text-color-selected: #ffffff;
-$note-list-body-color: #858585;
-$note-list-body-color-selected: #d2d2d2;
-$note-separator-line: #36393e;
-
-/* note */
-$body-background-note: #404552;
-$note-background-color: #ffffff;
-
-$note-border-color: #ababab;
-$note-text-color: #333;
-$note-header1-color: #3f51b5;
-$note-bold-color: #000;
-$note-bar-text-color: #7a7a7b;
-$note-checkbox-selected: #BBBBBB;
-
-/* dark theme */
-$ui-text-color: #7a7a7b;
-$ui-text-color-hover: #b9bbbe;
-$ui-text-color-dim: #848487;
-$ui-text-background-hover: #36393f;
-$ui-text-color-selected: #ffffff;
-$ui-text-background-selected: #42464d;
-$scrollbar-track-background: rgba(255, 255, 255, 0.1);
-$scrollbar-thumb: #333;
-$scrollbar-thumb-border: #444;
 
 @font-face {
 	font-family: 'Roboto';
@@ -109,17 +36,12 @@ $scrollbar-thumb-border: #444;
 	src: local('Roboto'), local('Roboto-Regular'), url(../fonts/Roboto/Roboto-Regular.woff2) format('woff2');
 }
 
-html {
-	border: 1px solid $app-border;
-}
-
 body {
 	margin: 0;
 	padding: 0;
 	font-family: $main-font-family;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
-	background: $body-background-color;
 }
 
 html, body, h1, h2, h3, h4, h5, p, span, input, textarea {

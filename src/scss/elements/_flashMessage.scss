@@ -11,8 +11,6 @@
 }
 
 .flashmessage-message {
-	border-bottom: 2px solid $ui-text-color;
-	color: $ui-text-color;
 	padding: 0.5em;
 	margin: 0.5em;
 	transition: all 0.3s ease;
@@ -26,10 +24,6 @@
 		background-color: transparent;
 		text-decoration: none;
 	}
-}
-
-.flashmessage-message:hover a{
-	color: $ui-text-color-hover;
 }
 
 .flashmessage-message-enter, .flashmessage-message-leave-active {
