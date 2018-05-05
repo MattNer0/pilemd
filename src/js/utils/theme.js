@@ -73,6 +73,12 @@ function style_object(obj) {
 				"& .sidebar" : {
 					backgroundColor: obj["sidebar-background"]
 				},
+				"& .fixed-sidebar" : {
+					backgroundColor: obj["sidebar-background"],
+					"& .cell-container" : {
+						borderRight: "0.3em solid "+obj["resize-panel-handler"]
+					}
+				},
 				"& .resize-handler" : {
 					background: obj["resize-panel-handler"]
 				},
@@ -123,7 +129,11 @@ function style_object(obj) {
 					}
 				},
 				"& .rack-object" : {
-					borderBottom: "1px solid "+obj["folder-separator"]
+					//borderBottom: "1px solid "+obj["folder-separator"],
+					"& a" : {
+						color: obj["sidebar-background"],
+						textShadow: "2px 2px "+obj["sidebar-color"]+", -2px -2px "+obj["sidebar-color"]+", -2px 2px "+obj["sidebar-color"]+", 2px -2px "+obj["sidebar-color"]
+					}
 				},
 				"& .rack-object.dragging, .folder-object.dragging" : {
 					color: obj["sidebar-color"]+" !important"
@@ -153,12 +163,15 @@ function style_object(obj) {
 				backgroundColor: obj["folder-hover-background"],
 				color: obj["folder-selected-color"]
 			},
-			".my-shelf-folder.sortInside > .folder-object, .my-shelf-folder.isShelfSelected > .folder-object" : {
+			".my-shelf-folder.sortInside > .folder-object, .my-shelf-folder.isShelfSelected > .folder-object, .my-shelf-rack.isShelfSelected > .rack-object" : {
 				backgroundColor: obj["folder-selected-background"],
 				color: obj["folder-selected-color"],
 				"& input" : {
 					color: obj["folder-selected-color"]
 				}
+			},
+			".my-shelf-rack .rack-object:hover a, .my-shelf-rack.isShelfSelected > .rack-object a" : {
+				textShadow: "2px 2px "+obj["folder-selected-color"]+", -2px -2px "+obj["folder-selected-color"]+", -2px 2px "+obj["folder-selected-color"]+", 2px -2px "+obj["folder-selected-color"]
 			},
 			".my-shelf-rack.sortUpper .rack-object:after, .my-shelf-folder.sortUpper:after" : {
 				backgroundColor: obj["folder-dragdrop-separator"]
@@ -256,6 +269,9 @@ function style_object(obj) {
 				}
 			},
 			".sidebar" : {
+				"& .my-shelf-folder-bucket" : {
+					borderBottom: "1px dashed "+obj["ui-text-color-dim"]
+				},
 				"& .sidebar-menu" : {
 					border: "1px dashed "+obj["sidebar-color"],
 					color: obj["sidebar-color"]
@@ -283,31 +299,18 @@ function style_object(obj) {
 					}
 				}
 			},
-			".my-splash-page": {
-				"& .splash-box" : {
-					color: obj["splash-color"],
-					background: obj["splash-background"],
-
-					"& hr" : {
-						background: obj["splash-hr"]
-					},
-					"& ul.list li:hover" : {
-						backgroundColor: obj["splash-hover-background"],
-						color: obj["splash-hover-color"]
-					}
-				}
-			},
-			".load7 .loader" : {
-				color: obj["splash-color"]
-			},
 			".tabs-bar" : {
 				backgroundColor: obj["body-background-note"],
 				"& .tab" : {
 					backgroundColor: obj["tabs-background"],
-					border: "2px solid "+obj["note-border-color"]
+					border: "2px solid "+obj["note-border-color"],
+					borderBottom: obj["tabs-background"]
 				},
 				"& .tab.selected, .tab:hover" : {
 					backgroundColor: obj["tab-selected-background"]
+				},
+				"& .tab.selected" : {
+					borderBottom: obj["tab-selected-background"]
 				}
 			},
 			".tabs-open .main-note-container" : {

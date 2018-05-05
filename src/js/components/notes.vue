@@ -1,6 +1,6 @@
 <template lang="pug">
 	.my-notes
-		.my-separator(v-if="selectedRack", v-for="separated in notesFiltered", v-bind:key="separated.dateStr")
+		.my-separator(v-for="separated in notesFiltered", v-bind:key="separated.dateStr")
 			.my-separator-date {{ separated.dateStr }}
 			.my-notes-note(v-for="note in separated.notes",
 				track-by="uid",

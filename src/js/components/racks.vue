@@ -86,8 +86,6 @@
 
 	const models = require('../models');
 
-	import component_folders from './folders.vue';
-
 	export default {
 		name: 'racks',
 		props: {
@@ -185,7 +183,6 @@
 			addFolder(rack) {
 				if (!rack) return;
 				var folder;
-				// @todo nested folder
 				folder = new models.Folder({
 					name        : '',
 					rack        : rack,

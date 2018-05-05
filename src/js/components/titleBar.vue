@@ -43,7 +43,7 @@
 									i.material-icons(v-if="notesDisplayOrder == 'title'") radio_button_checked
 									i.material-icons.faded(v-else) radio_button_unchecked
 									|  Sort by Title
-					li
+					//-li
 						a(@click.prevent="toggleFullScreen", href="#"): span
 							i.material-icons(v-if="isFullScreen") fullscreen_exit
 							i.material-icons(v-else) fullscreen
@@ -94,10 +94,8 @@
 			'note'              : Object,
 			'selectedRack'      : Object,
 			'selectedFolder'    : Object,
-			'isFullScreen'      : Boolean,
 			'isToolbarEnabled'  : Boolean,
 			'notesDisplayOrder' : String,
-			'toggleFullScreen'  : Function,
 			'toggleToolbar'     : Function,
 			'openSync'          : Function,
 			'moveSync'          : Function,

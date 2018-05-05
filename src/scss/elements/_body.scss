@@ -51,23 +51,36 @@
 		height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height * 2 } - 0.5em );
 	}
 
-	.sidebar {
+	.sidebar, .fixed-sidebar {
 		position: absolute;
 		top: 0;
 		z-index: 10;
 
 		.cell-container {
 			float: left;
+			overflow: hidden;
 		}
 	}
 
 	.sidebar {
 		left: 0;
+		margin-left: 4.2em;
 		transition: left 400ms;
+	}
+
+	.fixed-sidebar {
+		left: 0;
+		width: 4.2em;
+		z-index: 11;
+
+		.cell-container {
+			width: 100%;
+		}
 	}
 
 	.sidebar:after {
 		content: "";
+		display: block;
 		clear: both;
 	}
 

@@ -73,6 +73,16 @@ class Rack extends Model {
 		});
 	}
 	
+	get shorten() {
+		var splitName = this.name.split(" ");
+		if (splitName.length == 0) {
+			return "??";
+		} else if (splitName.length == 1) {
+			return this.name.slice(0,2);
+		} else {
+			return splitName[0].slice(0,1)+splitName[1].slice(0,1);
+		}
+	}
 
 	searchnotes(search) {
 		return searcher.searchNotes(search, this.allnotes);
@@ -114,7 +124,7 @@ class Rack extends Model {
 		if (this._icon) {
 			return this._icon;
 		} else {
-			return 'folder';
+			return 'delete';
 		}
 	}
 

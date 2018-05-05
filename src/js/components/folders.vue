@@ -2,7 +2,7 @@
 	.my-shelf-folders(v-if="parentFolder && parentFolder.folders && parentFolder.folders.length > 0")
 		.my-shelf-folder(v-for="folder in parentFolder.folders"
 			:class="classFolder(folder)"
-			:draggable="editingFolder === null && editingRack === null ? 'true' : 'false'"
+			:draggable="editingFolder === null && editingBucket === null ? 'true' : 'false'"
 			@dragstart.stop="folderDragStart($event, parentFolder, folder)"
 			@dragend.stop="folderDragEnd(folder)"
 			@dragover.stop="folderDragOver($event, folder)"
@@ -38,9 +38,9 @@
 					:parent-folder="folder"
 					:selected-folder="selectedFolder"
 					:dragging-note="draggingNote"
-					:change-rack="changeRack"
+					:change-bucket="changeBucket"
 					:change-folder="changeFolder"
-					:editing-rack="editingRack"
+					:editing-bucket="editingBucket"
 					:editing-folder="editingFolder"
 					:dragging-folder="draggingFolder"
 					:search="search")
@@ -64,9 +64,9 @@
 			'selectedFolder'      : Object,
 			'draggingNote'        : Object,
 			'draggingFolder'      : Object,
-			'changeRack'          : Function,
+			'changeBucket'        : Function,
 			'changeFolder'        : Function,
-			'editingRack'         : String,
+			'editingBucket'       : String,
 			'editingFolder'       : String,
 			'search'              : String
 		},
@@ -119,6 +119,9 @@
 					folder.openFolder = !folder.openFolder;
 				} else {
 					this.changeFolder(folder);
+					if (!folder.openFolder) {
+						folder.openFolder = true;
+					}
 				}
 			},
 			addFolder(parent) {
@@ -248,7 +251,7 @@
 					this.$root.setDraggingFolder();
 				}
 			},
-			folderMenu(rack, folder) {
+			folderMenu(bucket, folder) {
 				var menu = new Menu();
 				menu.append(new MenuItem({
 					label: 'Rename folder',
@@ -282,7 +285,7 @@
 					label: 'Delete folder',
 					click: () => {
 						if (confirm('Delete folder "' + folder.name + '" and its content?')) {
-							this.changeRack(rack);
+							this.changeBucket(bucket);
 							this.$root.deleteFolder(folder);
 						}
 					}

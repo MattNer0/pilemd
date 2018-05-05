@@ -5,9 +5,11 @@
 
 	overflow-y: scroll;
 	white-space: nowrap;
+
+	margin-right: -0.5em;
 }
 
-.my-shelf-notes.all-notes, .my-shelf-notes.favorite-notes {
+.my-shelf-notes.expand-notes {
 	height: 100%;
 }
 

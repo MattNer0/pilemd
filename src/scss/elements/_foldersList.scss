@@ -1,19 +1,44 @@
-.my-shelf-racks {
-	cursor: default;
+.my-shelf-buckets, .my-shelf-folders {
+	padding: 0 0.2em;
+}
+
+.my-shelf-buckets:first-child {
+	margin-bottom: 0.1em;
 }
 
 .my-shelf {
 	font-weight: 200;
 	width: auto;
 	height: 100%;
-	height: calc( 100% - 3em );
-
 	overflow-y: scroll;
+	margin-right: -0.5em;
 	white-space: nowrap;
 }
 
+.my-shelf-folder-bucket {
+	font-size: 110%;
+	line-height: 1.4em;
+	text-align: center;
+	padding: 0.4em 0.2em 0.3em;
+	font-weight: bold;
+
+	> i.material-icons {
+		font-size: 140%;
+		vertical-align: middle;
+		margin-top: -0.2em;
+		margin-left: -0.2em;
+		margin-right: 0.2em;
+	}
+}
+
+.my-shelf-rack.disabled {
+	opacity: 0.7;
+	pointer-events: none;
+}
+
 .my-shelf-rack {
-	padding: 0;
+	width: 100%;
+	padding: 0.2em 0;
 	margin: 0;
 
 	.rack-object,
@@ -44,12 +69,16 @@
 
 	.rack-object a {
 		display: inline-block;
+		font-size: 140%;
+		line-height: 2em;
+		position: relative;
+		z-index: 1;
 	}
 
 	i.material-icons.down {
 		position: absolute;
-		left: 0;
-		top: 0.7em;
+		left: -0.1em;
+		top: 0.5em;
 		display: none;
 		cursor: pointer;
 		margin: 0;
@@ -65,14 +94,15 @@
 	.rack-object {
 		font-weight: bold;
 		margin: 0;
-		padding: 0.5em 0 0.4em 1em;
+		padding: 0.5em 0.2em 0.4em 0.2em;
+		border-radius: $folder-list-border-radius;
 		opacity: 1.0;
 
 		transition: background-color 200ms;
 
-		i.material-icons.down {
-			top: 0.65em;
-		}
+		text-align: center;
+		height: 3em;
+		width: 100%;
 
 		input {
 			font-weight: bold;
@@ -81,7 +111,7 @@
 
 	.folder-object {
 		margin: 0;
-		padding: 0.3em 0 0.3em 1em;
+		padding: 0.3em 0.2em 0.3em 0.7em;
 		font-weight: normal;
 		border-radius: $folder-list-border-radius;
 
@@ -102,12 +132,18 @@
 	}
 
 	.rack-icon {
-		font-size: 100%;
-		margin-right: 0.2em;
+		display: block;
+		font-size: 300%;
 		vertical-align: middle;
 		color: inherit;
 		opacity: 0.8;
-		z-index: 1;
+		z-index: 0;
+		position: absolute;
+		left: 0;
+		right: 0;
+		text-align: center;
+		top: 0;
+		bottom: 0;
 	}
 }
 
@@ -139,20 +175,9 @@
 	display: block;
 }
 
-.my-shelf-folders {
-	height: 100%;
-}
-
 .my-shelf-folders .my-shelf-folders {
 	background-color: rgba(0,0,0,0.05);
 	padding-left: 1em;
-}
-
-.my-shelf-rack .my-shelf-folders {
-	padding-left: 1em;
-}
-
-.my-shelf-folders {
 	display: none;
 }
 
@@ -184,9 +209,6 @@
 }
 
 .my-shelf-folder.my-all, .my-shelf-folder.my-favorites {
-	.folder-object {
-		padding: 0.4em 0 0.4em 0.9em;
-	}
 
 	a > i {
 		margin-top: -0.2em;
@@ -197,7 +219,6 @@
 	}
 }
 
-.my-shelf-rack.gotSubfolders > .rack-object,
 .my-shelf-folder.gotSubfolders > .folder-object {
 	i.material-icons.down {
 		display: inline-block;
@@ -213,27 +234,6 @@
 	> .folder-object {
 		i.material-icons.down {
 			transform: rotate(0deg);
-			left: 0.1em;
-		}
-	}
-}
-
-.my-shelf-rack.openFolder {
-	> .my-shelf-folders {
-		display: block;
-	}
-
-	> .my-shelf-folders:last-child {
-		padding-bottom: 0.3em;
-	}
-
-	> .rack-object {
-		border-bottom: 0;
-		
-		i.material-icons.down {
-			transform: rotate(0deg);
-			top: 0.7em;
-			left: 0.1em;
 		}
 	}
 }

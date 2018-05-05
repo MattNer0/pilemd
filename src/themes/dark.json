@@ -28,13 +28,6 @@
 	"tab-selected-background": "#fff",
 	"tab-selected-margin": "0.3em",
 
-	"splash-background": "#373d48",
-	"splash-border-radius": "0.2em",
-	"splash-color": "#949ba6",
-	"splash-hover-color": "#ffffff",
-	"splash-hover-background": "#445e7d",
-	"splash-hr": "#2e323c",
-
 	"folder-list-border-radius": "0.2em",
 	"rack-background": "#303641",
 	"folder-hover-background": "#445e7d",
