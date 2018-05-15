@@ -1,13 +1,13 @@
-const fs = require('fs');
-const path = require('path');
+import fs from "fs";
+import path from "path";
 
-const _ = require('lodash');
-const searcher = require('../searcher');
+import _ from "lodash";
+import searcher from "../searcher";
 
-const libini = require('../utils/libini');
-const util_file = require('../utils/file');
+import libini from "../utils/libini";
+import util_file from "../utils/file";
 
-const Model = require('./baseModel');
+import Model from "./baseModel";
 
 var Library;
 
@@ -17,6 +17,7 @@ class Rack extends Model {
 		super(data);
 
 		this.name = data.name.replace(/^\d+\. /, "") || '';
+		this.previousName = this.name;
 
 		this.ordering = data.ordering || 0;
 
@@ -30,6 +31,8 @@ class Rack extends Model {
 
 		this._openFolder = false;
 
+		this.hideLabel = data.hide_label || false;
+
 		this.folders = [];
 	}
 
@@ -42,13 +45,17 @@ class Rack extends Model {
 		});
 	}
 
+	get fsName() {
+		return this.name ? this.name.replace(/[^\w _-]/g, '') : "";
+	}
+
 	get path() {
-		if (this._path && fs.existsSync(this._path)) {
+		if (this.previousName == this.name && this._path && fs.existsSync(this._path)) {
 			return this._path;
 		}
 		var new_path = path.join(
 			Library.baseLibraryPath,
-			this.data.fsName
+			this.fsName
 		);
 		return new_path;
 	}
@@ -162,16 +169,21 @@ class Rack extends Model {
 		libini.writeKeyByIni(this._path, '.rack.ini', 'ordering', this.ordering);
 	}
 
+	saveIni() {
+		if (this._icon == "delete") this._icon = undefined;
+		libini.writeMultipleKeysByIni(this._path, '.rack.ini', ['ordering', 'hidelabel','icon'], [this.ordering, this.hideLabel, this._icon]);
+	}
+
 	saveModel() {
-		if (!this.name || !this.uid) {
+		if (!this.name || !this.uid || this.name.length == 0) {
 			return;
 		}
 
-		var new_path = this.path; //path.join(Library.baseLibraryPath, this.data.fsName);
+		var new_path = this.path; //path.join(Library.baseLibraryPath, this.fsName);
 		if (new_path != this._path || !fs.existsSync(new_path)) {
 			try {
 				if (this._path && fs.existsSync(this._path)) {
-					util_file.moveFolderRecursiveSync(this._path, Library.baseLibraryPath, this.data.fsName);
+					util_file.moveFolderRecursiveSync(this._path, Library.baseLibraryPath, this.fsName);
 				} else {
 					fs.mkdirSync(new_path);
 				}
@@ -180,11 +192,12 @@ class Rack extends Model {
 				return console.error(e);
 			}
 		}
-		this.saveOrdering();
+		this.saveIni();
+		this.previousName = this.name;
 	}
 }
 
-module.exports = function(library) {
+export default function(library) {
     Library = library;
 	return { Rack : Rack };
 };

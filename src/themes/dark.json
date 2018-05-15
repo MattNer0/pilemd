@@ -5,18 +5,13 @@
 	"body-background-color": "#404552",
 	"main-background-color": "#404552",
 
-	"title-bar-height": "3em",
-	"title-bar-border": "1px",
 	"title-bar-background": "#303641",
 	"title-bar-color": "#90949b",
 	"title-bar-color-hover": "#b0b9c6",
 	"title-bar-close-button": "#cc575d",
 
-	"address-bar-color": "#7e8383",
 	"address-bar-background": "#414a59",
-	"address-bar-border-radius": "0.2em",
 
-	"action-bar-height": "2em",
 	"action-bar-background": "#373d48",
 	"action-bar-color": "#7e8383",
 	"action-bar-submenu-background": "#383c4a",
@@ -26,9 +21,7 @@
 
 	"tabs-background": "#f5f6f7",
 	"tab-selected-background": "#fff",
-	"tab-selected-margin": "0.3em",
 
-	"folder-list-border-radius": "0.2em",
 	"rack-background": "#303641",
 	"folder-hover-background": "#445e7d",
 	"folder-selected-background": "#5294e2",
@@ -38,7 +31,6 @@
 	"folder-badge-color": "#adacac",
 	"folder-separator": "#4b535d",
 
-	"note-list-border-radius": "0.2em",
 	"note-list-background": "transparent",
 	"note-list-background-hover": "#445e7d",
 	"note-list-background-selected": "#5294e2",

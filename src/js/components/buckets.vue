@@ -14,32 +14,27 @@
 				:class="{ 'editing' : editingBucket == bucket.uid, 'dragging' : draggingBucket == bucket }",
 				@click="selectBucket(bucket)")
 				i.material-icons.rack-icon {{ bucket.icon }}
-				a(v-if="editingBucket != bucket.uid")
+				a(v-if="editingBucket != bucket.uid && !bucket.hideLabel")
 					| {{ bucket.shorten }}
 				input(v-if="editingBucket == bucket.uid"
 					v-model="bucket.name"
 					v-focus="editingBucket == bucket.uid"
-					@blur="doneRackEdit(bucket)"
-					@keyup.enter="doneRackEdit(bucket)"
-					@keyup.esc="doneRackEdit(bucket)")
+					@blur="doneRackEdit(bucket, false)"
+					@keyup.enter="doneRackEdit(bucket, false)"
+					@keyup.esc="doneRackEdit(bucket, true)")
 </template>
 
 <script>
-	const remote = require('electron').remote;
+	import { remote } from "electron";
 	const { Menu, MenuItem, dialog } = remote;
-
-	var fs = require('fs');
-	var path = require('path');
-
-	const Vue = require('vue');
-
-	const arr = require('../utils/arr');
-	const dragging = require('../utils/dragging');
-	const filehelper = require('../utils/file');
-
-	const Datauri = require('datauri');
-
-	const models = require('../models');
+	import fs from "fs";
+	import path from "path";
+	import Vue from "vue";
+	import arr from "../utils/arr";
+	import dragging from "../utils/dragging";
+	import filehelper from "../utils/file";
+	import Datauri from "datauri";
+	import models from "../models";
 
 	export default {
 		name: 'buckets',
@@ -67,9 +62,6 @@
 		computed: {
 			bucketsWithFolders() {
 				return this.buckets.sort(function(a, b) { return a.ordering - b.ordering });
-			},
-			isDraggingNote() {
-				return !!this.draggingNote;
 			}
 		},
 		methods: {
@@ -77,57 +69,62 @@
 				if (bucket) {
 					return {
 						'isShelfSelected': (this.selectedBucket == bucket && !this.isDraggingNote) || bucket.dragHover,
-						'sortUpper'    : bucket.sortUpper,
-						'sortLower'    : bucket.sortLower
+						'sortUpper'      : bucket.sortUpper,
+						'sortLower'      : bucket.sortLower
 					};
 				}
 			},
-			doneRackEdit(rack) {
+			doneRackEdit(bucket, undo) {
 				if (!this.editingBucket) { return }
-				if (rack.name.length == 0) {
-					if (this.originalNameBucket.length > 0) {
-						rack.name = this.originalNameBucket;
-					} else if (rack.folders.length > 0) {
-						rack.name = "new rack";
+				if (bucket.name.length == 0) {
+					if (this.originalNameBucket && this.originalNameBucket.length > 0) {
+						bucket.name = this.originalNameBucket;
+					} else if (bucket.folders.length > 0) {
+						bucket.name = "new bucket";
 					} else {
-						this.$root.removeRack(rack);
+						this.$root.removeRack(bucket);
 						this.$root.setEditingRack(null);
 						return;
 					}
+				} else if (undo) {
+					if (this.originalNameBucket && this.originalNameBucket.length > 0) {
+						bucket.name = this.originalNameBucket;
+					}
 				}
-				rack.saveModel();
+				bucket.saveModel();
 				this.$root.setEditingRack(null);
-				this.changeBucket(rack);
+				if (this.selectedBucket != bucket) this.changeBucket(bucket);
 			},
 			// Dragging
-			rackDragStart(event, rack) {
+			rackDragStart(event, bucket) {
 				event.dataTransfer.setDragImage(event.target, 0, 0);
-				this.$root.setDraggingRack(rack);
+				this.$root.setDraggingRack(bucket);
 			},
 			rackDragEnd() {
 				this.$root.setDraggingRack();
 				this.changeBucket(null);
 			},
-			rackDragOver(event, rack) {
+			rackDragOver(event, bucket) {
+				event.preventDefault();
 				if (this.draggingFolder) {
-					event.preventDefault();
-					rack.dragHover = true;
-				} else if (this.draggingBucket && this.draggingBucket != rack) {
-					event.preventDefault();
+					bucket.dragHover = true;
+				} else if (this.draggingBucket && this.draggingBucket != bucket) {
 					var per = dragging.dragOverPercentage(event.currentTarget, event.clientY);
 					if (per > 0.5) {
-						rack.sortLower = true;
-						rack.sortUpper = false;
+						bucket.sortLower = true;
+						bucket.sortUpper = false;
 					} else {
-						rack.sortLower = false;
-						rack.sortUpper = true;
+						bucket.sortLower = false;
+						bucket.sortUpper = true;
 					}
+				} else if (this.draggingNote) {
+					if (this.selectedBucket != bucket) this.selectBucket(bucket);
 				}
 			},
-			rackDragLeave(rack) {
-				rack.dragHover = false;
-				rack.sortUpper = false;
-				rack.sortLower = false;
+			rackDragLeave(bucket) {
+				bucket.dragHover = false;
+				bucket.sortUpper = false;
+				bucket.sortLower = false;
 			},
 			addFolder(rack) {
 				if (!rack) return;
@@ -177,9 +174,11 @@
 					} else {
 						new_buckets.splice(i+1, 0, this.draggingBucket);
 					}
-					new_buckets.forEach((r, i) => {
-						r.ordering = i;
-						r.saveModel();
+					new_buckets.forEach((r, ib) => {
+						if (r.ordering != ib+1) {
+							r.ordering = ib+1;
+							r.saveOrdering();
+						}
 					});
 					this.$root.setDraggingRack();
 					rack.sortUpper = false;
@@ -190,7 +189,7 @@
 				}
 			},
 			selectBucket(bucket) {
-				this.$root.changeRack(bucket);
+				this.$root.changeRack(bucket, true);
 			},
 			/*selectRackThumbnail(rack) {
 				try {
@@ -244,6 +243,25 @@
 					label: 'Add subfolder',
 					click: () => {
 						this.addFolder(bucket);
+					}
+				}));
+				menu.append(new MenuItem({type: 'separator'}));
+				menu.append(new MenuItem({
+					type: 'radio',
+					label: 'Show Label',
+					checked: !bucket.hideLabel,
+					click: () => {
+						bucket.hideLabel = false;
+						bucket.saveModel();
+					}
+				}));
+				menu.append(new MenuItem({
+					type: 'radio',
+					label: 'Hide Label',
+					checked: bucket.hideLabel,
+					click: () => {
+						bucket.hideLabel = true;
+						bucket.saveModel();
 					}
 				}));
 				menu.append(new MenuItem({type: 'separator'}));

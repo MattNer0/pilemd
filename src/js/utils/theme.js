@@ -1,7 +1,7 @@
-var fs = require('fs');
+import fs from "fs";
 
-const jss = require('jss').default
-const jss_preset_default = require('jss-preset-default').default;
+import jss from "jss";
+import jss_preset_default from "jss-preset-default";
 
 jss.setup(jss_preset_default());
 
@@ -37,13 +37,13 @@ function style_object(obj) {
 				"& li > a, li > div" : {
 					color: obj["action-bar-color"]
 				},
-				"li.has-sub, li .my-search input, li .my-search input::-webkit-input-placeholder" : {
+				"li.has-sub" : {
 					color: obj["action-bar-color"]
 				},
 				"& li:hover > a, li:hover > div" : {
 					color: obj["title-bar-color-hover"]
 				},
-				"& li.has-sub:hover, li:hover .my-search input, li:hover .my-search input::-webkit-input-placeholder" : {
+				"& li.has-sub:hover" : {
 					color: obj["title-bar-color-hover"]
 				},
 				"& li hr" : {
@@ -51,22 +51,6 @@ function style_object(obj) {
 				},
 				"& li.has-sub > span:hover .link.material-icons" : {
 					color: obj["title-bar-color-hover"]
-				},
-				"& .my-search" : {
-					"& .material-icons:last-child" : {
-						backgroundColor: obj["address-bar-background"]
-					},
-					"& input[type=text]" : {
-						color: obj["action-bar-color"]
-					},
-					"& input::-webkit-input-placeholder" : {
-						color: obj["action-bar-color"]
-					}
-				},
-				"& .my-search input:focus, .my-search.search-open input" : {
-					backgroundColor: obj["address-bar-background"],
-					color: obj["title-bar-color-hover"],
-					border: "1px solid "+obj["app-border"]
 				}
 			},
 			".outer_wrapper" : {
@@ -79,11 +63,30 @@ function style_object(obj) {
 						borderRight: "0.3em solid "+obj["resize-panel-handler"]
 					}
 				},
+				"& .search-container" : {
+					borderRight: "0.3em solid "+obj["resize-panel-handler"]
+				},
 				"& .resize-handler" : {
 					background: obj["resize-panel-handler"]
 				},
 				"& .my-editor" : {
 					background: obj["body-background-note"]
+				}
+			},
+			".my-search" : {
+				"& .material-icons:last-child" : {
+					backgroundColor: obj["address-bar-background"]
+				},
+				"& input" : {
+					backgroundColor: obj["address-bar-background"],
+					border: "1px solid "+obj["app-border"],
+					color: obj["action-bar-color"]
+				},
+				"& input::-webkit-input-placeholder" : {
+					color: obj["action-bar-color"]
+				},
+				"& input:focus" : {
+					color: obj["title-bar-color-hover"]
 				}
 			},
 			".CodeMirror" : {
@@ -123,16 +126,21 @@ function style_object(obj) {
 			},
 			".my-shelf-rack" : {
 				"& .rack-object, .folder-object" : {
-					color: obj["sidebar-color"],
+					color: obj["sidebar-color"]
+				},
+				"& .folder-object" : {
 					"& input" : {
 						color: obj["sidebar-color"]
 					}
 				},
 				"& .rack-object" : {
-					//borderBottom: "1px solid "+obj["folder-separator"],
 					"& a" : {
 						color: obj["sidebar-background"],
 						textShadow: "2px 2px "+obj["sidebar-color"]+", -2px -2px "+obj["sidebar-color"]+", -2px 2px "+obj["sidebar-color"]+", 2px -2px "+obj["sidebar-color"]
+					},
+					"& input" : {
+						color: obj["sidebar-background"],
+						backgroundColor: obj["sidebar-color"]
 					}
 				},
 				"& .rack-object.dragging, .folder-object.dragging" : {
@@ -168,6 +176,11 @@ function style_object(obj) {
 				color: obj["folder-selected-color"],
 				"& input" : {
 					color: obj["folder-selected-color"]
+				}
+			},
+			".my-shelf-rack.isShelfSelected > .rack-object" : {
+				"& input" : {
+					backgroundColor: obj["folder-selected-background"],
 				}
 			},
 			".my-shelf-rack .rack-object:hover a, .my-shelf-rack.isShelfSelected > .rack-object a" : {
@@ -333,10 +346,9 @@ function style_object(obj) {
 					backgroundColor: obj["title-bar-close-button"],
 					color: obj["title-bar-background"]
 				},
-				"& .address-bar" : {
-					backgroundColor: obj["address-bar-background"],
-					color: obj["address-bar-color"],
-					border: "1px solid "+obj["app-border"]
+				"& a.menu-icon:hover" : {
+					backgroundColor: obj["folder-hover-background"],
+					color: obj["folder-selected-color"]
 				}
 			}
 		}
@@ -344,7 +356,7 @@ function style_object(obj) {
 	return styles;
 }
 
-module.exports = {
+export default {
 	load(theme_name) {
 		var theme_object = require.context(
 			"../../themes",

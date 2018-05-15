@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from "fs";
+import path from "path";
 
 /**
  * @function makeInitialNotes
@@ -69,7 +69,7 @@ function initialSetup(library) {
 	return makeInitialRacks(library);
 }
 
-module.exports = {
+export default {
 	makeInitialNotes  : makeInitialNotes,
 	makeInitialFolders: makeInitialFolders,
 	makeInitialRacks  : makeInitialRacks,

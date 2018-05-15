@@ -10,6 +10,23 @@
 	padding: 2.5em 0 1.8em;
 }
 
+.outer_wrapper .cell-container.main-cell-container.full-note {
+	padding-left: 0em;
+	padding-right: 0em;
+
+	.main-note-container {
+		max-width: 100%;
+		margin: 0 auto;
+		border-bottom: 0;
+		border-left: 0;
+		border-right: 0;
+	}
+
+	.noteBar nav, .tabs-bar > div {
+		max-width: 100%;
+	}
+}
+
 .my-editor-preview {
 	padding: 0.9em 4em 2.4em;
 	height: calc( 100vh - #{ $title-bar-height * 2 } - 1em );

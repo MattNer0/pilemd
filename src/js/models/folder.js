@@ -1,14 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-
-const moment = require('moment');
-
-const searcher = require('../searcher');
-
-const arr = require('../utils/arr');
-const util_file = require('../utils/file');
-
-const Model = require('./baseModel');
+import fs from "fs";
+import path from "path";
+import moment from "moment";
+import searcher from "../searcher";
+import arr from "../utils/arr";
+import util_file from "../utils/file";
+import Model from "./baseModel";
 
 var Library;
 
@@ -195,7 +191,7 @@ class Folder extends Model {
 	}
 }
 
-module.exports = function(library) {
+export default function(library) {
     Library = library;
 	return { Folder : Folder };
 };

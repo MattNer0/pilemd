@@ -6,6 +6,10 @@
 	margin-bottom: 0.1em;
 }
 
+.my-shelf-buckets:last-child {
+	padding-bottom: 0.5em;
+}
+
 .my-shelf {
 	font-weight: 200;
 	width: auto;
@@ -20,6 +24,7 @@
 	line-height: 1.4em;
 	text-align: center;
 	padding: 0.4em 0.2em 0.3em;
+	margin-bottom: 0.7em;
 	font-weight: bold;
 
 	> i.material-icons {
@@ -72,6 +77,16 @@
 		font-size: 140%;
 		line-height: 2em;
 		position: relative;
+		z-index: 1;
+	}
+
+	.rack-object input {
+		width: 100%;
+		margin-top: 0.8em;
+		opacity: 1.0;
+		position: relative;
+		padding-left: 0.2em;
+		padding-right: 0.2em;
 		z-index: 1;
 	}
 

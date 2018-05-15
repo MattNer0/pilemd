@@ -1,7 +1,7 @@
-const TurndownService = require("turndown");
-const gfm = require("turndown-plugin-gfm").gfm;
+import TurndownService from "turndown";
+import { gfm } from "turndown-plugin-gfm";
 
-var turndownService = new TurndownService.default({
+var turndownService = new TurndownService({
 	hr: "---",
 	headingStyle: "atx",
 	bulletListMarker: "*",
@@ -28,7 +28,7 @@ turndownService.addRule('script', {
 	}
 });
 
-module.exports = {
+export default {
 
 	parseScript() {
 		var elements = [

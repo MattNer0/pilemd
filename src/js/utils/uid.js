@@ -8,7 +8,7 @@ function s4() {
 		.substring(1);
 }
 
-module.exports = {
+export default {
 	guid() {
 		return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
 			s4() + '-' + s4() + s4() + s4();

@@ -1,8 +1,18 @@
-const fs = require('fs');
-const path = require('path');
+import fs from "fs";
+import path from "path";
 
-const libini = require('../utils/libini');
-const Datauri = require('datauri');
+import { ipcRenderer } from "electron";
+import libini from "../utils/libini";
+import Datauri from "datauri";
+
+/**
+ * @function logError
+ * @param  {type} message {description}
+ * @return {type} {description}
+ */
+function logMainProcess(message) {
+	ipcRenderer.send('console', message);
+}
 
 function dataImage(path) {
 	return Datauri.sync(path);
@@ -38,12 +48,13 @@ function readRackData(rack_path) {
 	return libini.readIniFile(rack_path, '.rack.ini');
 }
 
-module.exports = {
+export default {
+
 	readRacks(library) {
 		var valid_racks = [];
 		if (fs.existsSync(library)) {
 			var racks = fs.readdirSync(library);
-			for (var ri = 0; ri<racks.length; ri++) {
+			for (var ri = 0; ri < racks.length; ri++) {
 				var rack = racks[ri];
 				var rackPath = path.join(library, rack);
 
@@ -59,7 +70,8 @@ module.exports = {
 						valid_racks.push({
 							_type        : 'rack',
 							name         : rack,
-							ordering     : rack_data.ordering || valid_racks.length,
+							hide_label   : rack_data.hidelabel,
+							ordering     : rack_data.ordering ? parseInt(rack_data.ordering) : ri+1,
 							icon         : rack_data.icon || '',
 							path         : rackPath
 						});
@@ -91,7 +103,7 @@ module.exports = {
 			}
 			return valid_folders;
 		} catch(err) {
-			console.error(err);
+			logMainProcess(err);
 			return [];
 		}
 	},

@@ -3,11 +3,17 @@
 		:note="selectedNote"
 		:selected-rack="selectedRack"
 		:selected-folder="selectedFolder"
+		:show-all="showAll"
+		:show-favorites="showFavorites"
+		:show-history="showHistory"
+		:show-search="showSearch"
 		:toggle-toolbar="toggleToolbar"
+		:toggle-full-width="toggleFullWidth"
 		:open-sync="openSync"
 		:move-sync="moveSync"
 		:open-about="openAbout"
 		:is-toolbar-enabled="isToolbarEnabled"
+		:is-full-width-note="isFullWidthNote"
 		:notes-display-order="notesDisplayOrder"
 		:change-display-order="changeDisplayOrder">
 	</title-bar>
@@ -41,6 +47,27 @@
 				</div>
 			</div>
 			<div class="sidebar">
+				<div v-show="showSearch" class="cell-container search-container" ref="sidebarSearch">
+					<div class="my-shelf">
+						<div class="my-shelf-rack">
+							<search-bar
+								:search="search">
+							</search-bar>
+							<folders
+								v-if="searchRack"
+								:parent-folder="searchRack"
+								:selected-folder="selectedFolder"
+								:dragging-folder="draggingFolder"
+								:dragging-note="draggingNote"
+								:change-bucket="changeRack"
+								:change-folder="changeFolder"
+								:editing-bucket="editingRack"
+								:editing-folder="editingFolder"
+								:search="search">
+							</folders>
+						</div>
+					</div>
+				</div>
 				<div v-show="selectedRack" class="cell-container" ref="sidebarFolders" @contextmenu="foldersMenu()">
 					<div class="my-shelf">
 						<div class="my-shelf-rack">
@@ -75,16 +102,18 @@
 				</handler-stack>
 				<div v-show="selectedFolder || showAll || showFavorites || showHistory" class="cell-container" ref="sidebarNotes">
 					<add-note
-						v-show="selectedFolder"
+						v-show="selectedFolder && !showSearch"
 						:selected-folder="selectedFolder"
 						:selected-rack="selectedRack">
 					</add-note>
-					<div class="my-shelf-notes" :class="{ 'expand-notes': showAll || showFavorites || showHistory }" ref="refNotes">
+					<div class="my-shelf-notes" :class="{ 'expand-notes': showAll || showFavorites || showHistory || showSearch }" ref="refNotes">
 						<notes
-							v-show="selectedRack || showHistory"
+							v-show="selectedRack || showHistory || showSearch"
 							:notes="filteredNotes"
 							:toggle-full-screen="toggleFullScreen"
 							:original-notes="notes"
+							:show-history="showHistory"
+							:show-search="showSearch"
 							:selected-note="selectedNote"
 							:selected-rack="selectedRack"
 							:selected-folder="selectedFolder"

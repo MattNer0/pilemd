@@ -1,7 +1,7 @@
 <template lang="pug">
 	.my-shelf-folders(v-if="bucket.folders.length > 0")
 		.my-shelf-folder-bucket(@contextmenu.prevent.stop="")
-			i.material-icons delete
+			//-i.material-icons delete
 			| {{ bucket.name }}
 		.my-shelf-folder.my-all(
 			v-if="bucket.folders.length > 1 && bucket.allnotes.length > 0",

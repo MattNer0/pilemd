@@ -1,16 +1,15 @@
-const fs = require('fs');
-const path = require('path');
+import fs from "fs";
+import path from "path";
 
-const electron = require('electron');
-const remote = electron.remote;
+import { remote } from 'electron';
 
-const elosenv = require('./elosenv');
+import elosenv from "./elosenv";
 
 var settings_data = {};
 var settings_filename = 'pilemdConfig.json';
 var settings_path;
 
-module.exports = {
+export default {
 	init(filename) {
 		if (filename) settings_filename = filename;
 		settings_path = path.join(elosenv.userDataPath(), settings_filename);
@@ -21,6 +20,7 @@ module.exports = {
 		try {
 			settings_data = JSON.parse(fs.readFileSync(settings_path));
 		} catch (e) {
+			console.error(e);
 			settings_data = {};
 		}
 	},
@@ -35,9 +35,13 @@ module.exports = {
 
 	set(key, value) {
 		settings_data[key] = value;
-		fs.writeFile(settings_path, JSON.stringify(settings_data), (err) => {
-			if (err) console.log(err);
-		});
+		if (settings_path) {
+			try {
+				fs.writeFileSync(settings_path, JSON.stringify(settings_data, null, 2));
+			} catch (e) {
+				console.error(e);
+			}
+		}
 	},
 
 	loadWindowSize() {
@@ -52,19 +56,26 @@ module.exports = {
 	saveWindowSize() {
 		var win = remote.getCurrentWindow();
 		var current_size = win.getSize();
+		var current_bounds = win.getBounds();
 
 		if (win.isMaximized()) {
 			settings_data['screen_maximized'] = true;
 			settings_data['screen_width'] = current_size[0];
 			settings_data['screen_height'] = current_size[1];
+			settings_data['screen_x'] = current_bounds.x;
+			settings_data['screen_y'] = current_bounds.y;
 		} else {
 			settings_data['screen_maximized'] = false;
 			settings_data['screen_width'] = current_size[0];
 			settings_data['screen_height'] = current_size[1];
+			settings_data['screen_x'] = current_bounds.x;
+			settings_data['screen_y'] = current_bounds.y;
 		}
 
-		fs.writeFile(settings_path, JSON.stringify(settings_data), (err) => {
-			if (err) console.log(err);
-		});
+		try {
+			fs.writeFileSync(settings_path, JSON.stringify(settings_data, null, 2));
+		} catch (e) {
+			console.error(e);
+		}
 	}
 };

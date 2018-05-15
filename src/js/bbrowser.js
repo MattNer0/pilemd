@@ -1,7 +1,7 @@
-const { ipcRenderer } = require('electron');
+import { ipcRenderer } from "electron";
 
-const htmlToMarkdown = require('./background_tasks/htmlToMarkdown');
-const downloadHelper = require('./background_tasks/download');
+import htmlToMarkdown from "./background_tasks/htmlToMarkdown";
+import downloadHelper from "./background_tasks/download";
 
 /**
  * @function logError
@@ -44,6 +44,9 @@ window.onload = function () {
 
 	webviewEl.addEventListener('dom-ready', (e) => {
 		try {
+			if (webviewEl.isLoading() && webviewEl.isWaitingForResponse()) {
+				return;
+			}
 			switch (webviewEl.title) {
 				case 'note-from-url':
 					webviewEl.getWebContents().executeJavaScript(htmlToMarkdown.parseScript(), (result) => {

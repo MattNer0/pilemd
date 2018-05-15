@@ -49,7 +49,7 @@
 </template>
 
 <script>
-	const autosize = require('autosize');
+	import autosize from "autosize";
 
 	export default {
 		name: 'node',

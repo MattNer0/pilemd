@@ -1,25 +1,27 @@
-const path = require('path');
+import path from "path";
+import libini from "./utils/libini";
 
-const libini = require('./utils/libini');
-
-const Library = require('./models/library');
+import Library from "./models/library";
 var baseLibrary = new Library();
 
-const Image = require('./models/image')(baseLibrary);
+import ImageBldr from "./models/image";
+import NoteBldr from "./models/note";
+import FolderBldr from "./models/folder";
+import RackBldr from "./models/rack";
 
-const NoteModels = require('./models/note')(baseLibrary);
+const Image = ImageBldr(baseLibrary);
+const NoteModels = NoteBldr(baseLibrary);
+const FolderModels = FolderBldr(baseLibrary);
+const RackModels = RackBldr(baseLibrary);
+
 const Note = NoteModels.Note;
 const EncryptedNote = NoteModels.EncryptedNote;
 const Outline = NoteModels.Outline;
 const OutNode = NoteModels.OutNode;
-
-const FolderModels = require('./models/folder')(baseLibrary);
 const Folder = FolderModels.Folder;
-
-const RackModels = require('./models/rack')(baseLibrary);
 const Rack = RackModels.Rack;
 
-module.exports = {
+export default {
 	Image         : Image,
 	Note          : Note,
 	EncryptedNote : EncryptedNote,

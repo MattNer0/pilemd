@@ -1,31 +1,31 @@
-const path = require('path');
-const fs = require('fs');
+import path from "path";
+import fs from "fs";
 
-const _ = require('lodash');
+import _ from "lodash";
 
-var settings = require('./utils/settings');
+import settings from "./utils/settings";
 settings.init();
 settings.loadWindowSize();
 
-const libini = require('./utils/libini');
-const traymenu = require('./utils/traymenu');
+import libini from "./utils/libini";
+import traymenu from "./utils/traymenu";
 
 import Vue from 'vue';
 
 import VTooltip from 'v-tooltip'
 Vue.use(VTooltip);
 
-var models = require('./models');
-var preview = require('./preview');
-var searcher = require('./searcher');
+import models from "./models";
+import preview from "./preview";
+import searcher from "./searcher";
 
 // electron things
-const { ipcRenderer, remote, clipboard, shell } = require('electron');
+import { ipcRenderer, remote, clipboard, shell } from "electron";
 const { Menu, MenuItem, dialog } = remote;
 
-const arr = require('./utils/arr');
-const theme = require('./utils/theme');
-const elosenv = require('./utils/elosenv');
+import arr from "./utils/arr";
+import theme from "./utils/theme";
+import elosenv from "./utils/elosenv";
 
 // vue.js plugins
 import component_outline from './components/outline.vue';
@@ -44,9 +44,10 @@ import component_notes from './components/notes.vue';
 import component_addNote from './components/addNote.vue';
 import component_titleBar from './components/titleBar.vue';
 import component_tabsBar from './components/tabsBar.vue';
+import component_searchBar from './components/searchBar.vue';
 
 // loading CSSs
-require('../scss/pilemd.scss');
+import "../scss/pilemd.scss";
 
 // not to accept image dropping and so on.
 // electron will show local images without this.
@@ -61,53 +62,51 @@ document.addEventListener('drop', (e) => {
 theme.load("dark");
 
 var settings_baseLibraryPath = settings.get('baseLibraryPath');
-if(settings_baseLibraryPath) models.setBaseLibraryPath(settings_baseLibraryPath);
+if (settings_baseLibraryPath) models.setBaseLibraryPath(settings_baseLibraryPath);
 
 var appVue = new Vue({
 	el: '#main-editor',
 	template: require('../html/app.html'),
 	data: {
-		loadedEverything    : false,
-		loadedRack          : false,
-		isFullScreen        : false,
-		isPreview           : false,
-		isToolbarEnabled    : settings.getSmart('toolbarNote', true),
-		keepHistory         : settings.getSmart('keepHistory', true),
-		preview             : "",
-		racks               : [],
-		notes               : [],
-		notesHistory        : [],
-		// selected
-		selectedRack        : null,
-		selectedFolder      : null,
-		selectedNote        : null,
-		showHistory         : false,
-		showSearch          : false,
-		showAll             : false,
-		showFavorites       : false,
-		noteTabs            : [],
-		// editing
-		editingRack         : null,
-		editingFolder       : null,
-		originalNameRack    : "",
-		// dragging
-		draggingRack        : null,
-		draggingFolder      : null,
-		draggingNote        : null,
-		search              : '',
-		loadingUid          : '',
-		allDragHover        : false,
-		messages            : [],
-		noteHeadings        : [],
-		modalShow           : false,
-		modalTitle          : 'title',
-		modalDescription    : 'description',
-		modalPrompts        : [],
-		modalOkcb           : null,
-		racksWidth          : settings.getSmart('racksWidth', 180),
-		notesWidth          : settings.getSmart('notesWidth', 180),
-		fontsize            : settings.getSmart('fontsize', 15),
-		notesDisplayOrder   : 'updatedAt',
+		loadedEverything : false,
+		loadedRack       : false,
+		isFullScreen     : false,
+		isPreview        : false,
+		isToolbarEnabled : settings.getSmart('toolbarNote', true),
+		isFullWidthNote  : settings.getSmart('fullWidthNote', true),
+		keepHistory      : settings.getSmart('keepHistory', true),
+		preview          : "",
+		racks            : [],
+		notes            : [],
+		notesHistory     : [],
+		selectedRack     : null,
+		selectedFolder   : null,
+		selectedNote     : null,
+		showHistory      : false,
+		showSearch       : false,
+		showAll          : false,
+		showFavorites    : false,
+		noteTabs         : [],
+		editingRack      : null,
+		editingFolder    : null,
+		originalNameRack : "",
+		draggingRack     : null,
+		draggingFolder   : null,
+		draggingNote     : null,
+		search           : '',
+		loadingUid       : '',
+		allDragHover     : false,
+		messages         : [],
+		noteHeadings     : [],
+		modalShow        : false,
+		modalTitle       : 'title',
+		modalDescription : 'description',
+		modalPrompts     : [],
+		modalOkcb        : null,
+		racksWidth       : settings.getSmart('racksWidth', 200),
+		notesWidth       : settings.getSmart('notesWidth', 200),
+		fontsize         : settings.getSmart('fontsize', 15),
+		notesDisplayOrder: 'updatedAt',
 	},
 	components: {
 		'flashmessage'  : component_flashmessage,
@@ -119,6 +118,7 @@ var appVue = new Vue({
 		'modal'         : component_modal,
 		'addNote'       : component_addNote,
 		'titleBar'      : component_titleBar,
+		'searchBar'     : component_searchBar,
 		'noteMenu'      : component_noteMenu,
 		'noteFooter'    : component_noteFooter,
 		'handlerStack'  : component_handlerStack,
@@ -146,6 +146,25 @@ var appVue = new Vue({
 				return [];
 			}
 		},
+		searchRack() {
+			if (this.search && this.racks.length > 0) {
+				var meta_rack = {
+					folders: []
+				};
+
+				this.racks.forEach((r) => {
+					r.folders.forEach((f) => {
+						if (f.searchnotes(this.search).length > 0) {
+							meta_rack.folders.push(f);
+						}
+					});
+				});
+
+				return meta_rack;
+			}
+
+			return null;
+		},
 		/**
 		 * check if the title attribute is defined to see
 		 * if the 'selectedNote' is really a note object or just an empty object
@@ -153,7 +172,7 @@ var appVue = new Vue({
 		 * @return    {Boolean}    True if note is selected
 		 */
 		isNoteSelected() {
-			if(this.selectedNote instanceof models.Note) return true;
+			if (this.selectedNote instanceof models.Note) return true;
 			return false;
 		},
 		/**
@@ -168,7 +187,8 @@ var appVue = new Vue({
 		},
 		mainCellClass() {
 			var classes = [ 'font' + this.fontsize ];
-			if (this.noteTabs.length > 1) classes.push('tabs-open')
+			if (this.noteTabs.length > 1) classes.push('tabs-open');
+			if (this.isFullWidthNote) classes.push('full-note');
 			return classes;
 		}
 	},
@@ -205,7 +225,6 @@ var appVue = new Vue({
 		this.$nextTick(() => {
 			window.addEventListener('resize', (e) => {
 				e.preventDefault();
-				settings.saveWindowSize();
 				self.update_editor_size();
 			});
 			window.addEventListener('keydown', (e) => {
@@ -217,7 +236,6 @@ var appVue = new Vue({
 			}, true);
 
 			this.init_sidebar_width();
-			this.update_editor_size();
 		});
 
 		ipcRenderer.on('loaded-racks', (event, data) => {
@@ -229,6 +247,14 @@ var appVue = new Vue({
 			});
 
 			this.racks = arr.sortBy(racks.slice(), 'ordering', true);
+
+			this.racks.forEach((r, i) => {
+				if (r.ordering != i+1) {
+					r.ordering = i+1;
+					r.saveOrdering();
+				}
+			});
+
 			this.loadedRack = true;
 		});
 
@@ -409,6 +435,9 @@ var appVue = new Vue({
 		 * @return {Void} Function doesn't return anything
 		 */
 		init_sidebar_width() {
+			this.racksWidth = Math.min(this.racksWidth, this.notesWidth);
+			this.notesWidth = this.racksWidth;
+
 			var handlerStack = document.getElementById('handlerStack');
 			if (handlerStack) handlerStack.previousElementSibling.style.width = this.racksWidth + 'px';
 			this.$refs.refHandleStack.checkWidth(this.racksWidth);
@@ -416,6 +445,10 @@ var appVue = new Vue({
 			var handlerNotes = document.getElementById('handlerNotes');
 			if (handlerNotes) handlerNotes.previousElementSibling.style.width = this.notesWidth + 'px';
 			this.$refs.refHandleNote.checkWidth(this.notesWidth);
+
+			this.$nextTick(() => {
+				this.update_editor_size();
+			});
 		},
 		/**
 		 * scrolls to the top of the notes sidebar.
@@ -439,72 +472,90 @@ var appVue = new Vue({
 			});
 		},
 		openHistory() {
-			var history_state = this.showHistory;
-			this.changeRack(null);
-			this.showSearch = false;
-			this.showHistory = !history_state;
-			if (this.isFullScreen) {
-				this.isFullScreen = false;
+			if (this.showHistory) {
+				this.toggleFullScreen();
+			} else {
+				this.changeRack(null);
+				this.showSearch = false;
 				this.showHistory = true;
+				this.setFullScreen(false);
+				this.update_editor_size();
 			}
-			this.update_editor_size();
 		},
 		openSearch() {
-			var search_state = this.showSearch;
-			this.changeRack(null);
-			this.showHistory = false;
-			this.showSearch = !search_state;
-			if (this.isFullScreen) {
-				this.isFullScreen = false;
+			if (this.showSearch) {
+				this.toggleFullScreen();
+			} else {
+				this.changeRack(null);
+				this.showHistory = false;
 				this.showSearch = true;
+				this.setFullScreen(false);
+				this.update_editor_size();
+
+				this.$nextTick(() => {
+					var searchInput = document.getElementById('search-bar');
+					searchInput.focus();
+				});
 			}
-			this.update_editor_size();
 		},
-		changeRack(rack) {
+		changeRack(rack, from_sidebar) {
 			var should_update_size = false;
+			var same_rack = false;
 
 			if (this.selectedRack === null && rack) should_update_size = true;
 			else if (this.selectedFolder !== null && rack) should_update_size = true;
 
-			if (this.selectedRack == rack && !this.isFullScreen) {
-				rack = null;
+			if (this.selectedRack == rack && rack !== null) {
+				same_rack = true;
 				should_update_size = true;
 			}
 			
 			if (this.selectedNote && this.selectedNote.rack == rack) {
+				if (from_sidebar && rack instanceof models.Rack) {
+					this.selectedRack = rack;
+					this.showHistory = false;
+					this.showSearch = false;
+				}
 				this.changeFolder(this.selectedNote.folder);
 			} else if (rack === null || rack instanceof models.Rack) {
 				this.selectedRack = rack;
-				this.selectedFolder = null;
 				this.editingRack = null;
 				this.editingFolder = null;
 				this.originalNameRack = "";
+
 				this.showHistory = false;
 				this.showSearch = false;
-				this.showAll = false;
-				this.showFavorites = false;
 
+				if (!same_rack) {
+					this.selectedFolder = null;
+					this.showAll = false;
+					this.showFavorites = false;
+				}
 			} else {
 				this.changeFolder(rack);
-			}
-
-			if (rack !== null && this.isFullScreen) {
-				this.isFullScreen = false;
-				should_update_size = true;
 			}
 
 			if (should_update_size) {
 				this.update_editor_size();
 			}
+
+			if (same_rack) {
+				this.$nextTick(() => {
+					this.toggleFullScreen();
+				});
+			} else {
+				this.setFullScreen(false);
+			}
 		},
 		changeFolder(folder, weak) {
 			if (weak && folder && (this.showAll || this.showFavorites) && this.selectedRack == folder.rack) return;
 			if (this.selectedFolder === null && folder) this.update_editor_size();
+			this.editingRack = null;
 			this.editingFolder = null;
-			if (folder) this.selectedRack = folder.rack;
-			this.selectedFolder = folder;
-			this.showHistory = false;
-			this.showSearch = false;
+			this.originalNameRack = "";
+
+			if (folder && !this.showSearch && !this.showHistory) this.selectedRack = folder.rack;
+			if (!this.showHistory) this.selectedFolder = folder;
 			this.showAll = false;
 			this.showFavorites = false;
 		},
@@ -552,9 +603,9 @@ var appVue = new Vue({
 				this.selectedNote = null;
 				return;
 			} else if (note == this.selectedNote) {
-				if (this.selectedRack === null) this.changeFolder(note.folder);
+				if (this.selectedRack === null && !this.showSearch) this.changeFolder(note.folder);
 				else if (!this.isFullScreen) {
-					this.isFullScreen = true;
+					this.setFullScreen(true);
 					this.update_editor_size();
 				}
 				return;
@@ -744,13 +795,20 @@ var appVue = new Vue({
 		 * @return {Void} Function doesn't return anything
 		 */
 		toggleFullScreen() {
-			this.isFullScreen = !this.isFullScreen;
+			this.setFullScreen(!this.isFullScreen);
+		},
+		setFullScreen(value) {
+			this.isFullScreen = value;
 			settings.set('vue_isFullScreen', this.isFullScreen);
 			this.update_editor_size();
 		},
 		toggleToolbar() {
 			this.isToolbarEnabled = !this.isToolbarEnabled;
 			settings.set('toolbarNote', this.isToolbarEnabled);
+		},
+		toggleFullWidth() {
+			this.isFullWidthNote = !this.isFullWidthNote;
+			settings.set('fullWidthNote', this.isFullWidthNote);
 		},
 		/**
 		 * @description toggles markdown note preview.
@@ -1134,6 +1192,8 @@ var appVue = new Vue({
 			settings.set('racksWidth', this.racksWidth);
 			this.notesWidth = parseInt(this.$refs.sidebarNotes.style.width.replace('px','')) || 180;
 			settings.set('notesWidth', this.notesWidth);
+
+			console.log(this.racksWidth, this.notesWidth);
 		},
 		sidebarDrag() {
 			this.update_editor_size();
@@ -1150,6 +1210,15 @@ var appVue = new Vue({
 			} else {
 				this.noteHeadings = [];
 				this.preview = '';
+			}
+		},
+		closingWindow(quit) {
+			settings.saveWindowSize();
+			if (quit) {
+				remote.app.quit();
+			} else {
+				var win = remote.getCurrentWindow();
+				win.hide();
 			}
 		},
 		/**
@@ -1194,6 +1263,9 @@ var appVue = new Vue({
 					this.$refs.refCodeMirror.refreshCM();
 				});
 			}
+		},
+		showSearch() {
+			this.search = "";
 		},
 		keepHistory() {
 			settings.set('keepHistory', this.keepHistory);

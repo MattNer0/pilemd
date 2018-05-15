@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from "fs";
+import path from "path";
 
 var Library;
 
@@ -103,7 +103,7 @@ class Image {
 	}
 }
 
-module.exports = function(library) {
+export default function(library) {
 	Library = library;
 	return Image;
 };

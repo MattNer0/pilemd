@@ -1,72 +1,32 @@
 <template lang="pug">
 	.title-bar-container
-		.title-bar(:class="{ 'open-dropdown' : menu_visible || order_visible }")
+		.title-bar
+			.spacer(:class="{ 'darwin': isDarwin }")
+				nav: ul
+					li
+						a.menu-icon(@click.prevent="open_main_menu", href="#"): span
+							i.material-icons menu
 			.spacer
 				.address-bar
-					span(v-if="!enabled")
+					span
 						i.material-icons folder
 						| PileMd Library
-					span(v-else, v-for="(path, index) in selectionPath")
-						i.material-icons(v-if="index == 0") folder
-						i.material-icons(v-else) chevron_right
+					span(v-if="showHistory && !selectedFolder && !note")
+						i.material-icons chevron_right
+						| History
+					span(v-if="showSearch && !selectedFolder && !note")
+						i.material-icons chevron_right
+						| Search
+					span(v-if="enabled", v-for="(path, index) in selectionPath")
+						i.material-icons chevron_right
 						|  {{ path }}
-			.spacer
-				nav: ul
-					li
-						a(@click.prevent="focus_input"): span
-							i.material-icons search
-							| Search
-					li
-						.my-search(:class="{ 'search-open': search.length > 0 || openSearch }")
-							input#search-bar(ref="searchinput", v-model="search", type="text")
-							i.material-icons(v-show="search", @click="clear_search") clear
-					li.has-sub(@click="order_visible = !order_visible")
-						dropdown(:visible="order_visible", :position="position", v-on:clickout="order_visible = false")
-							span.link
-								i.material-icons sort
-								span.sub-text(v-if="notesDisplayOrder == 'updatedAt'")
-									| Sort by Update Date
-								span.sub-text(v-if="notesDisplayOrder == 'createdAt'")
-									| Sort by Creation Date
-								span.sub-text(v-if="notesDisplayOrder == 'title'")
-									| Sort by Title
-							.dialog(slot="dropdown"): ul(@click.prevent.stop="")
-								li: a(@click.prevent.stop="menu_changeOrder('updatedAt')", href="#")
-									i.material-icons(v-if="notesDisplayOrder == 'updatedAt'") radio_button_checked
-									i.material-icons.faded(v-else) radio_button_unchecked
-									|  Sort by Update Date
-								li: a(@click.prevent.stop="menu_changeOrder('createdAt')", href="#")
-									i.material-icons(v-if="notesDisplayOrder == 'createdAt'") radio_button_checked
-									i.material-icons.faded(v-else) radio_button_unchecked
-									|  Sort by Creation Date
-								li: a(@click.prevent.stop="menu_changeOrder('title')", href="#")
-									i.material-icons(v-if="notesDisplayOrder == 'title'") radio_button_checked
-									i.material-icons.faded(v-else) radio_button_unchecked
-									|  Sort by Title
-					//-li
-						a(@click.prevent="toggleFullScreen", href="#"): span
-							i.material-icons(v-if="isFullScreen") fullscreen_exit
-							i.material-icons(v-else) fullscreen
-							|  Toggle Sidebar
-			.spacer.right-align(:class="{ 'darwin': isDarwin }")
-				nav: ul
-					li.has-sub(@click="menu_visible = !menu_visible")
-						dropdown(:visible="menu_visible", :position="position", v-on:clickout="menu_visible = false")
-							i.link.material-icons menu
-							.dialog(slot="dropdown"): ul(@click.prevent.stop="")
-								li: a(@click.prevent.stop="menu_openFolder", href="#") Select Library Directory
-								li: a(@click.prevent.stop="menu_moveFolder", href="#") Move Library Directory
-								li: hr
-								li: a(@click.prevent.stop="menu_toggleToolbar()", href="#")
-									i.material-icons(v-if="isToolbarEnabled") check_box
-									i.material-icons.faded(v-else) check_box_outline_blank
-									|  Show Note Toolbar
-								li: hr
-								//-li: a(@click.prevent="menu_devTools", href="#") Open DevTools
-								//-li(v-if="isLinux && saveDesktop"): a(@click.prevent="menu_desktopEntry", href="#") Add Desktop Entry
-								li: a(@click.prevent.stop="menu_about", href="#") About
-								li: hr
-								li: a(@click.prevent.stop="menu_quit", href="#") Quit
+					span(v-if="showAll && !selectedFolder && !note")
+						i.material-icons chevron_right
+						| All Notes
+					span(v-if="showFavorites && !selectedFolder && !note")
+						i.material-icons chevron_right
+						| Favorite Notes
+			//-.spacer.right-align
 			.spacer.system-icons(:class="{ 'darwin': isDarwin }")
 				.system-icon.minimize(@click="win_min")
 					i.material-icons remove
@@ -78,15 +38,14 @@
 </template>
 
 <script>
-	const remote = require('electron').remote;
-	const models = require('../models');
+	import { remote } from "electron";
+	const { Menu, MenuItem } = remote;
 
-	const fs = require('fs');
-	const path = require('path');
-
-	const elosenv = require('../utils/elosenv');
-
-	import myDropdown from 'vue-my-dropdown';
+	import models from "../models";
+	import fs from "fs";
+	import path from "path";
+	import elosenv from "../utils/elosenv";
+	import Vue from "vue";
 
 	export default {
 		name: 'titleBar',
@@ -95,8 +54,14 @@
 			'selectedRack'      : Object,
 			'selectedFolder'    : Object,
 			'isToolbarEnabled'  : Boolean,
+			'isFullWidthNote'   : Boolean,
+			'showAll'           : Boolean,
+			'showFavorites'     : Boolean,
+			'showHistory'       : Boolean,
+			'showSearch'        : Boolean,
 			'notesDisplayOrder' : String,
 			'toggleToolbar'     : Function,
+			'toggleFullWidth'   : Function,
 			'openSync'          : Function,
 			'moveSync'          : Function,
 			'openAbout'         : Function,
@@ -104,17 +69,9 @@
 		},
 		data: function() {
 			return {
-				'search'       : "",
-				'menu_visible' : false,
-				'order_visible': false,
-				'position'     : [ "right", "top", "right", "top" ],
 				'isLinux'      : elosenv.isLinux(),
-				'isDarwin'     : elosenv.isDarwin(),
-				'openSearch'   : false
+				'isDarwin'     : elosenv.isDarwin()
 			};
-		},
-		components: {
-			'dropdown': myDropdown
 		},
 		computed: {
 			enabled() {
@@ -134,47 +91,102 @@
 			}
 		},
 		methods: {
-			clear_search() {
-				this.search = "";
-			},
-			focus_input() {
-				if (!this.openSearch) this.$refs.searchinput.focus();
-				this.openSearch = !this.openSearch;
-				if (this.search) this.openSearch = true;
-			},
-			menu_openFolder() {
-				this.menu_visible = false;
-				this.openSync();
-			},
-			menu_moveFolder() {
-				this.menu_visible = false;
-				this.moveSync();
-			},
-			menu_devTools() {
-				this.menu_visible = false;
-				var win = remote.getCurrentWindow();
-				win.webContents.openDevTools();
-			},
-			menu_about() {
-				this.menu_visible = false;
-				this.openAbout();
-			},
-			menu_changeOrder(value) {
-				this.order_visible = false;
-				this.changeDisplayOrder(value);
-			},
-			menu_quit() {
-				this.menu_visible = false;
-				remote.app.quit();
-			},
-			menu_toggleToolbar() {
-				this.menu_visible = false;
-				this.toggleToolbar();
+			open_main_menu() {
+				var menu = new Menu();
+
+				menu.append(new MenuItem({
+					label: 'Select Library Directory',
+					click: () => {
+						this.openSync();
+					}
+				}));
+				menu.append(new MenuItem({
+					label: 'Move Library Directory',
+					click: () => {
+						this.moveSync();
+					}
+				}));
+				menu.append(new MenuItem({type: 'separator'}));
+
+				menu.append(new MenuItem({
+					type: 'radio',
+					label: 'Sort by Update Date',
+					checked: this.notesDisplayOrder == 'updatedAt',
+					click: () => {
+						this.changeDisplayOrder('updatedAt');
+					}
+				}));
+				menu.append(new MenuItem({
+					type: 'radio',
+					label: 'Sort by Creation Date',
+					checked: this.notesDisplayOrder == 'createdAt',
+					click: () => {
+						this.changeDisplayOrder('createdAt');
+					}
+				}));
+				menu.append(new MenuItem({
+					type: 'radio',
+					label: 'Sort by Title',
+					checked: this.notesDisplayOrder == 'title',
+					click: () => {
+						this.changeDisplayOrder('title');
+					}
+				}));
+				menu.append(new MenuItem({type: 'separator'}));
+
+				menu.append(new MenuItem({
+					type: 'checkbox',
+					label: 'Show Note Toolbar',
+					checked: this.isToolbarEnabled,
+					click: () => {
+						this.toggleToolbar();
+					}
+				}));
+				menu.append(new MenuItem({
+					type: 'checkbox',
+					label: 'Show Note Full Width',
+					checked: this.isFullWidthNote,
+					click: () => {
+						this.toggleFullWidth();
+					}
+				}));
+				menu.append(new MenuItem({
+					label: 'Reset Sidebar Width',
+					click: () => {
+						this.$root.racksWidth = 200;
+						this.$root.notesWidth = 200;
+						this.$root.init_sidebar_width();
+						Vue.nextTick(() => {
+							this.$root.save_editor_size();
+						});
+					}
+				}));
+				menu.append(new MenuItem({type: 'separator'}));
+
+				menu.append(new MenuItem({
+					label: 'About',
+					click: () => {
+						this.openAbout();
+					}
+				}));
+				menu.append(new MenuItem({type: 'separator'}));
+
+				menu.append(new MenuItem({
+					label: 'Quit',
+					click: () => {
+						this.$root.closingWindow(true);
+					}
+				}));
+
+				menu.popup({
+					window: remote.getCurrentWindow(),
+					x: 5,
+					y: 5
+				});
 			},
 			// -----------------------------------------------
 			win_close() {
-				var win = remote.getCurrentWindow();
-				win.hide();
+				this.$root.closingWindow(false);
 			},
 			win_max() {
 				var win = remote.getCurrentWindow();
@@ -187,11 +199,6 @@
 			win_min() {
 				var win = remote.getCurrentWindow();
 				win.minimize();
-			}
-		},
-		watch: {
-			search() {
-				this.$parent.search = this.search;
 			}
 		}
 	}

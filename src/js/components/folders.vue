@@ -2,7 +2,7 @@
 	.my-shelf-folders(v-if="parentFolder && parentFolder.folders && parentFolder.folders.length > 0")
 		.my-shelf-folder(v-for="folder in parentFolder.folders"
 			:class="classFolder(folder)"
-			:draggable="editingFolder === null && editingBucket === null ? 'true' : 'false'"
+			:draggable="editingFolder === null && editingBucket === null && parentFolder.uid ? 'true' : 'false'"
 			@dragstart.stop="folderDragStart($event, parentFolder, folder)"
 			@dragend.stop="folderDragEnd(folder)"
 			@dragover.stop="folderDragOver($event, folder)"
@@ -47,15 +47,13 @@
 </template>
 
 <script>
-	const remote = require('electron').remote;
+	import { remote } from "electron";
+	import Vue from "vue";
+	import arr from "../utils/arr";
+	import dragging from "../utils/dragging";
+	import models from "../models";
+
 	const { Menu, MenuItem } = remote;
-
-	const Vue = require('vue');
-
-	const arr = require('../utils/arr');
-	const dragging = require('../utils/dragging');
-
-	const models = require('../models');
 
 	export default {
 		name: 'folders',
@@ -152,10 +150,13 @@
 				this.draggingFolderParent = null;
 			},
 			folderDragOver(event, folder) {
-				if (this.draggingNote && this.draggingNote.folder.uid != folder.uid) {
-					event.stopPropagation();
-					event.preventDefault();
-					folder.dragHover = true;
+				if (this.draggingNote) {
+					if (this.draggingNote.folder.uid != folder.uid) {
+						event.stopPropagation();
+						event.preventDefault();
+						folder.dragHover = true;
+					}
+					folder.openFolder = true;
 				} else if (this.draggingFolder) {
 					event.stopPropagation();
 					if (folder != this.draggingFolder) {
@@ -252,6 +253,8 @@
 				}
 			},
 			folderMenu(bucket, folder) {
+				if (!bucket.uid) return;
+
 				var menu = new Menu();
 				menu.append(new MenuItem({
 					label: 'Rename folder',

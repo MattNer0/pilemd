@@ -10,7 +10,7 @@ var backgroundWindow = null;
 var backgroundBrowserWindow = null;
 var appIcon = null;
 
-var DEBUG = true;
+var DEBUG = false;
 
 // support for portable mode
 app.setPath(
@@ -58,6 +58,9 @@ function makeMainWindow() {
 	var WINDOW_X;
 	var WINDOW_Y;
 
+	var WINDOW_RECT_X = settings_data['screen_x'];
+	var WINDOW_RECT_Y = settings_data['screen_y'];
+
 	if (process.platform == 'linux') {
 		let bounds = electron.screen.getPrimaryDisplay().bounds;
 		WINDOW_X = bounds.x + ((bounds.width - WINDOW_WIDTH) / 2);
@@ -71,8 +74,8 @@ function makeMainWindow() {
 		height           : WINDOW_HEIGHT,
 		x                : WINDOW_X,
 		y                : WINDOW_Y,
-		minWidth         : 400,
-		minHeight        : 400,
+		minWidth         : 768,
+		minHeight        : 432,
 		center           : WINDOW_CENTER,
 		title            : 'PileMd',
 		backgroundColor  : '#36393e',
@@ -145,6 +148,14 @@ function makeMainWindow() {
 
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show();
+		if (WINDOW_RECT_X !== undefined && WINDOW_RECT_Y !== undefined) {
+			mainWindow.setBounds({
+				x: WINDOW_RECT_X,
+				y: WINDOW_RECT_Y,
+				width: WINDOW_WIDTH,
+				height: WINDOW_HEIGHT
+			});
+		}
 		mainWindow.focus();
 	});
 }
@@ -190,7 +201,7 @@ function makeBackgroundBrowserWindow(callback) {
 		show          : false,
 		skipTaskbar   : true,
 		webPreferences: {
-			devTools            : false,
+			devTools            : DEBUG,
 			webgl               : false,
 			webaudio            : false,
 			backgroundThrottling: true
@@ -280,6 +291,10 @@ function init() {
 			backgroundBrowserWindow.webContents.send('load-page', payload);
 		} else {
 			makeBackgroundBrowserWindow(() => {
+				if (DEBUG) {
+					backgroundBrowserWindow.show();
+					backgroundBrowserWindow.webContents.openDevTools();
+				}
 				backgroundBrowserWindow.webContents.send('load-page', payload);
 			});
 		}

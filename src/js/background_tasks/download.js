@@ -1,9 +1,9 @@
-var fs = require('fs');
-var path = require('path');
-var url = require('url');
-var http = require('http');
+import fs from "fs";
+import path from "path";
+import url from "url";
+import http from "http";
 
-module.exports = {
+export default {
 	getFileDataFromUrl(file_url) {
 		var path_url = url.parse(file_url).pathname;
 		return {

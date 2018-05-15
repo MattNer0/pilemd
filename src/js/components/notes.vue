@@ -28,25 +28,26 @@
 </template>
 
 <script>
-	const marked = require('marked');
-	const fs = require('fs');
-	const Vue = require('vue');
+	import marked from "marked";
+	import fs from "fs";
+	import Vue from "vue";
 
-	const fileUtils = require('../utils/file');
-
-	const arr = require('../utils/arr');
-	const dragging = require('../utils/dragging');
+	import fileUtils from "../utils/file";
+	import arr from "../utils/arr";
+	import dragging from "../utils/dragging";
 
 	// Electron things
-	const electron = require('electron');
-	const remote = electron.remote;
+	import { remote, clipboard, shell } from "electron";
 	const { Menu, MenuItem, dialog } = remote;
 
-	const models = require('../models');
+	import models from "../models";
 	const Note = models.Note;
 
-	Vue.use(require('../filters/truncate'));
-	Vue.use(require('../filters/dateSplitted'));
+	import truncate from "../filters/truncate";
+	import dateSplitted from "../filters/dateSplitted";
+
+	Vue.use(truncate);
+	Vue.use(dateSplitted);
 
 	export default {
 		name: 'notes',
@@ -60,7 +61,9 @@
 			'draggingNote'        : Object,
 			'toggleFullScreen'    : Function,
 			'changeNote'          : Function,
-			'setDraggingNote'     : Function
+			'setDraggingNote'     : Function,
+			'showHistory'         : Boolean,
+			'showSearch'          : Boolean
 		},
 		data() {
 			return {
@@ -101,14 +104,14 @@
 						}
 						var index = this.originalNotes.indexOf(note);
 						if(index >= 0) this.originalNotes.splice(index, 1);
-						note.remove();
-						if(note.data.folder.notes.length == 0) {
-							this.changeNote(null);
+						if (this.notes.length == 1) {
+							this.changeNote(this.notes[0]);
 						} else if (this.notes.length > 1) {
 							this.changeNote(Note.beforeNote(this.notes.slice(), note, this.notesDisplayOrder));
 						} else {
-							this.changeNote(Note.beforeNote(this.originalNotes.slice(), note, this.notesDisplayOrder));
+							this.changeNote(null);
 						}
+						note.remove();
 					}
 				});
 			},
@@ -120,28 +123,26 @@
 			noteDragEnd() {
 				this.setDraggingNote(null);
 			},
-			// Electron methods
 			copyNoteBody(note) {
-				electron.clipboard.writeText(note.bodyWithDataURL);
+				clipboard.writeText(note.bodyWithDataURL);
 				this.$root.sendFlashMessage(1000, 'info', 'Copied Markdown to clipboard');
 			},
 			copyNoteHTML(note) {
-				electron.clipboard.writeText(marked(note.body));
+				clipboard.writeText(marked(note.body));
 				this.$root.sendFlashMessage(1000, 'info', 'Copied HTML to clipboard');
 			},
 			copyOutlinePLain(note) {
 				if (note.isOutline) {
-					electron.clipboard.writeText(note.bodyWithoutMetadata);
+					clipboard.writeText(note.bodyWithoutMetadata);
 					this.$root.sendFlashMessage(1000, 'info', 'Copied Text Plain to clipboard');
 				}
 			},
 			copyOutlineOPML(note) {
 				if (note.isOutline) {
-					electron.clipboard.writeText(note.compileOutlineBody());
+					clipboard.writeText(note.compileOutlineBody());
 					this.$root.sendFlashMessage(1000, 'info', 'Copied Text Plain to clipboard');
 				}
 			},
-			// Electron
 			exportNoteDiag(note) {
 				var filename = fileUtils.safeName(note.title) + '.md';
 				if (note.isOutline) {
@@ -169,9 +170,33 @@
 			noteMenu(note) {
 				var menu = new Menu();
 
-				menu.append(new MenuItem({label: 'Open Note', click: () => {this.selectNote(note)}}));
-				menu.append(new MenuItem({label: 'Open Note in new Tab', click: () => {this.selectNote(note, true)}}));
-				menu.append(new MenuItem({type: 'separator'}));
+				if (this.selectedNote && this.selectedNote == note) {
+					menu.append(new MenuItem({label: 'Close Note', click: () => {this.selectNote(null)}}));
+					menu.append(new MenuItem({type: 'separator'}));
+				} else {
+					menu.append(new MenuItem({label: 'Open Note', click: () => {this.selectNote(note)}}));
+					menu.append(new MenuItem({label: 'Open Note in new Tab', click: () => {this.selectNote(note, true)}}));
+					menu.append(new MenuItem({type: 'separator'}));
+				}
+
+				if (this.showHistory) {
+					menu.append(new MenuItem({label: 'Open and Close History', click: () => {
+						this.$root.changeRack(note.rack, true);
+						this.selectNote(note);
+						this.$root.isFullScreen = false;
+					}}));
+					menu.append(new MenuItem({type: 'separator'}));
+				}
+
+				if (this.showSearch) {
+					menu.append(new MenuItem({label: 'Open and Close Search', click: () => {
+						this.$root.changeRack(note.rack, true);
+						this.selectNote(note);
+						this.$root.isFullScreen = false;
+					}}));
+					menu.append(new MenuItem({type: 'separator'}));
+				}
+
 				if (note.starred) {
 					menu.append(new MenuItem({label: 'Remove from Favorites', click: () => {
 						note.starred = false;
@@ -195,7 +220,7 @@
 				menu.append(new MenuItem({
 					label: 'Show this note in folder',
 					click: () => {
-						electron.shell.showItemInFolder(note.data.path);
+						shell.showItemInFolder(note.data.path);
 					}
 				}));
 				menu.append(new MenuItem({type: 'separator'}));

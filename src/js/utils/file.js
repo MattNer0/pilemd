@@ -1,8 +1,8 @@
-var fs = require('fs');
-var path = require('path');
-var url = require('url');
+import fs from "fs";
+import path from "path";
+import url from "url";
 
-const electron = require('electron');
+import electron from 'electron';
 
 /**
  * copy source file into the target directory.
@@ -42,7 +42,7 @@ function moveFileSync(source, target) {
 	fs.renameSync(source, targetFile);
 }
 
-module.exports = {
+export default {
 	deleteFile(path) {
 		if (path && fs.existsSync(path)) {
 			if (!electron.shell.moveItemToTrash(path)) {

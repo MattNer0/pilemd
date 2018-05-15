@@ -2,9 +2,9 @@
  * module to render HTML for preview
  */
 
-const marked = require('marked');
-const _ = require('lodash');
-const highlightjs = require('highlight.js');
+import marked from "marked";
+import _ from "lodash";
+import highlightjs from "highlight.js";
 
 highlightjs.configure({
 	useBR: true
@@ -207,7 +207,7 @@ function clickCheckbox(vue, note, index, el) {
 	};
 }
 
-module.exports = {
+export default {
 	/**
 	 * @function render
 	 * @param {Object} note Selected note

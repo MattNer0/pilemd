@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const ini = require('ini');
+import fs from "fs";
+import path from "path";
+import ini from "ini";
 
 function iniPath(library_path, fileName) {
 	if (!fileName) fileName = '.library.ini';
@@ -25,11 +25,10 @@ function readKeyByIni(library_path, fileName, key) {
 	}
 }
 
-function writeKeyByIni(library_path, fileName, key, value) {
-	var config = readIni(library_path, fileName);
+function writeOneKey(config, key, value) {
 	if (typeof key === 'string') {
 		if (value === undefined) {
-			delete config[key];
+			if (config[key]) delete config[key];
 		} else {
 			config[key] = value;
 		}
@@ -41,10 +40,16 @@ function writeKeyByIni(library_path, fileName, key, value) {
 			config[key[0]][key[1]] = value;
 		}
 	}
+	return config;
+}
+
+function writeKeyByIni(library_path, fileName, key, value) {
+	var config = readIni(library_path, fileName);
+	config = writeOneKey(config, key, value);
 	fs.writeFileSync(iniPath(library_path, fileName), ini.stringify(config));
 }
 
-module.exports = {
+export default {
 	readKey(library_path, key) {
 		return readKeyByIni(library_path, '.library.ini', key);
 	},
@@ -85,6 +90,18 @@ module.exports = {
 	},
 	removeKey(library_path, key) {
 		this.writeKey(library_path, key, undefined);
+	},
+	removeKeyByIni(library_path, fileName, key) {
+		this.writeKeyByIni(library_path, fileName, key, undefined);
+	},
+	writeMultipleKeysByIni(library_path, fileName, keys, values) {
+		if (keys.length == values.length) {
+			var config = readIni(library_path, fileName);
+			for (var i=0; i<keys.length; i++) {
+				config = writeOneKey(config, keys[i], values[i]);
+			}
+			fs.writeFileSync(iniPath(library_path, fileName), ini.stringify(config));
+		}
 	},
 	readKeyByIni: readKeyByIni,
 	writeKeyByIni: writeKeyByIni,

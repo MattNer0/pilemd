@@ -1,11 +1,11 @@
-const electron = require('electron');
+import electron from "electron";
 const Menu = electron.remote.Menu;
 
 var mainWindow = null;
 var appIcon = null;
 var menu_array = [];
 
-module.exports = {
+export default {
 	init() {
 		mainWindow = electron.remote.getCurrentWindow();
 		appIcon = electron.remote.getGlobal('appIcon');

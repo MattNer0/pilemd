@@ -47,8 +47,16 @@
 		height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height } - 1em );
 	}
 
+	.full-note .main-note-container {
+		height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height } );
+	}
+
 	.tabs-open .main-note-container {
 		height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height * 2 } - 0.5em );
+	}
+
+	.full-note.tabs-open .main-note-container {
+		height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height * 2 } );
 	}
 
 	.sidebar, .fixed-sidebar {

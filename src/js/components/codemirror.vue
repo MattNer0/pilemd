@@ -3,24 +3,24 @@
 </template>
 
 <script>
-	const fs = require('fs');
-	const path = require('path');
+	import fs from "fs";
+	import path from "path";
 
-	const _ = require('lodash');
+	import _ from "lodash";
 
 	const Image = require('../models').Image;
 
-	const electron = require('electron');
+	import electron from "electron";
 	const { remote, shell, clipboard } = electron;
 	const { Menu, MenuItem } = remote;
 
-	const { copyText, cutText, pasteText, selectAllText } = require('../codemirror/elutils');
+	import { copyText, cutText, pasteText, selectAllText } from "../codemirror/elutils";
 
 	const IMAGE_TAG_TEMP = _.template('![<%- filename %>](<%- fileurl %>)\n');
 
 	require('codemirror/lib/codemirror.css');
 
-	const CodeMirror = require('codemirror');
+	import CodeMirror from "codemirror";
 
 	require('codemirror/addon/search/searchcursor');
 	require('../codemirror/piledsearch');

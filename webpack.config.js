@@ -13,7 +13,13 @@ var webpackPlugins = [
 	}),
 	new webpack.ExternalsPlugin('commonjs', [
 		'electron',
+		'lodash',
 		'fs',
+		'path',
+		'jss',
+		'highlight.js',
+		'marked',
+		'moment',
 		'datauri'
 	]),
 	new VueLoaderPlugin(),

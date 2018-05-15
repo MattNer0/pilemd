@@ -1,7 +1,7 @@
-const { ipcRenderer, remote } = require('electron');
-const path = require('path');
+import { ipcRenderer, remote } from "electron";
+import path from "path";
 
-module.exports = {
+export default {
 	homePath() {
 		return remote.app.getPath('home');
 	},

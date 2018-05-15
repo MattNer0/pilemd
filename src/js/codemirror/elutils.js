@@ -1,5 +1,5 @@
-const { clipboard } = require('electron');
-const _ = require('lodash');
+import { clipboard } from "electron";
+import _ from "lodash";
 const Image = require('../models').Image;
 const temp_IMAGE_TAG = _.template('![<%- filename %>](<%- fileurl %>)\n');
 
@@ -172,10 +172,4 @@ function selectAllText(cm) {
 	cm.execCommand('selectAll');
 }
 
-module.exports = {
-	killLine     : killLine,
-	copyText     : copyText,
-	cutText      : cutText,
-	pasteText    : pasteText,
-	selectAllText: selectAllText
-};
+export { killLine, copyText, cutText, pasteText, selectAllText };

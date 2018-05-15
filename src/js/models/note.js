@@ -1,19 +1,13 @@
-const fs = require('fs');
-const path = require('path');
-
-const { ipcRenderer } = require('electron');
-
-const encrypt = require('encryptjs');
-
-const moment = require('moment');
-const _ = require('lodash');
-
-const arr = require('../utils/arr');
-const util_file = require('../utils/file');
-
-const opml = require('../utils/opml');
-
-const Model = require('./baseModel');
+import fs from "fs";
+import path from "path";
+import { ipcRenderer } from "electron";
+import encrypt from "encryptjs";
+import moment from "moment";
+import _ from "lodash";
+import arr from "../utils/arr";
+import util_file from "../utils/file";
+import opml from "../utils/opml";
+import Model from "./baseModel";
 
 var Library;
 var Image;
@@ -1018,9 +1012,11 @@ class OutNode extends Model {
 	}
 }
 
-module.exports = function(library) {
+import ImageBldr from "./image";
+
+export default function(library) {
 	Library = library;
-	Image = require('./image')(library);
+	Image = ImageBldr(library);
 	return {
 		Note         : Note,
 		EncryptedNote: EncryptedNote,

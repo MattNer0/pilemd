@@ -14,8 +14,6 @@
 </template>
 
 <script>
-	const remote = require('electron').remote;
-
 	export default {
 		name: 'noteMenu',
 		data() {

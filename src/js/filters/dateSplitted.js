@@ -1,12 +1,11 @@
-const moment = require('moment');
-
-const arr = require('../utils/arr');
+import moment from "moment";
+import arr from "../utils/arr";
 
 const TODAY_TEXT = 'Today';
 const YESTERDAY_TEXT = 'Yesterday';
 const WEEK_AGO_TEXT = 'A Week Ago';
 
-module.exports = function(Vue) {
+export default function(Vue) {
 	Vue.filter('dateSeparated', function(notes, property) {
 		if (notes.length == 0) {
 			return [{

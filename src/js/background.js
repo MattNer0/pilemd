@@ -1,9 +1,8 @@
-const { ipcRenderer } = require('electron');
+import { ipcRenderer } from "electron";
 
-const downloadHelper = require('./background_tasks/download');
-const libraryHelper = require('./background_tasks/library');
-const initialModels = require('./background_tasks/initialModels');
-//const watcherHelper = require('./background_tasks/watcher');
+import downloadHelper from "./background_tasks/download";
+import libraryHelper from "./background_tasks/library";
+import initialModels from "./background_tasks/initialModels";
 
 /**
  * @function logError
@@ -103,37 +102,4 @@ window.onload = function () {
 			logMainProcess(e.message);
 		}
 	});
-	/*ipcRenderer.on('loaded-all-notes', (event, data) => {
-		if (!data) return;
-		watcherHelper.startWatcher(data.library, (err, event, path) => {
-			if (err) {
-				logMainProcess(err);
-				return;
-			}
-
-			switch (event) {
-				case 'add':
-					var nData = libraryHelper.isNoteFile(path);
-					if (nData) {
-						ipcRenderer.send('new-note', libraryHelper.readNote(path, nData));
-					}
-					break;
-				case 'change':
-					var nData = libraryHelper.isNoteFile(path);
-					if (nData) {
-						ipcRenderer.send('change-note', libraryHelper.readNote(path, nData));
-					}
-					break;
-				case 'unlink':
-					ipcRenderer.send('unlink-note', { path: path });
-					break;
-				default:
-					logMainProcess(event + ': ' + path);
-			}
-		});
-	});
-	ipcRenderer.on('unwatch-note', (event, data) => {
-		if (!data) return;
-		watcherHelper.ignorePath(data.path);
-	});*/
 };

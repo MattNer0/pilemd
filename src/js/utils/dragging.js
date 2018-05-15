@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 	dragOverPercentage(element, clientY) {
 		var rect = element.getBoundingClientRect();
 		return (clientY - rect.top) / (rect.bottom - rect.top);

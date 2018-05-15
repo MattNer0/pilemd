@@ -1,7 +1,4 @@
-const elutils = require('./elutils');
-const copyText = elutils.copyText;
-const cutText = elutils.cutText;
-const killLine = elutils.killLine;
+import { copyText, cutText, killLine } from "./elutils";
 
 const TODO_REGEXP = /^( *)((\*|-) \[( |x)] )(.*)$/;
 const LI_REGEXP = /^( *)((\*|-) )(.*)$/;

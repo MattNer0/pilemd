@@ -1,6 +1,6 @@
 <template lang="pug">
-	.my-shelf-buckets(v-if="buckets.length > 0")
-		.my-shelf-rack(
+	.my-shelf-buckets(v-if="buckets.length > 0", @contextmenu.prevent.stop="")
+		//-.my-shelf-rack(
 			:class="{ 'disabled' : selectedBucket === null && !showHistory && !showSearch }"
 			v-tooltip="{ 'content': 'Toggle Sidebar', 'placement': 'left' }")
 			.rack-object(@click="toggleFullScreen()")
@@ -16,7 +16,6 @@
 			v-tooltip="{ 'content': 'History', 'placement': 'left' }")
 			.rack-object(@click="openHistory()")
 				i.material-icons.rack-icon history
-		
 </template>
 
 <script>

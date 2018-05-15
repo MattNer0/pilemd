@@ -1,7 +1,6 @@
-const xmldoc = require("xmldoc");
-const moment = require('moment');
-
-const uid = require('./uid');
+import xmldoc from "xmldoc";
+import moment from "moment";
+import uid from "./uid";
 
 String.prototype.formatUnicorn = String.prototype.formatUnicorn || function() {
 	var str = this.toString();
@@ -17,7 +16,7 @@ String.prototype.formatUnicorn = String.prototype.formatUnicorn || function() {
 	return str;
 };
 
-module.exports = {
+export default {
 
 	parseFile(file_content, outline_obj) {
 		var self = this;

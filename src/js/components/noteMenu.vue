@@ -129,8 +129,7 @@
 </template>
 
 <script>
-	const remote = require('electron').remote;
-
+	import { remote } from "electron";
 	import myDropdown from 'vue-my-dropdown';
 
 	export default {

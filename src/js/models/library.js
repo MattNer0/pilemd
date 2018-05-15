@@ -1,10 +1,10 @@
-const remote = require('electron').remote;
+import { remote } from "electron";
 
-const fs = require('fs');
-const path = require('path');
+import fs from "fs";
+import path from "path";
 
-const util_file = require('../utils/file');
-const elosenv = require('../utils/elosenv');
+import util_file from "../utils/file";
+import elosenv from "../utils/elosenv";
 
 class Library {
 	constructor (path) {
@@ -74,4 +74,4 @@ class Library {
 	}
 }
 
-module.exports = Library;
+export default Library;

@@ -20,9 +20,7 @@
 
 <script>
 	import VuePassword from 'vue-password';
-
-	const electron = require('electron');
-	const remote = electron.remote;
+	import { remote } from "electron";
 
 	export default {
 		name: 'modal',

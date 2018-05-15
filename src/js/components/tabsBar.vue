@@ -8,7 +8,7 @@
 </template>
 
 <script>
-	const models = require('../models');
+	import models from "../models";
 
 	export default {
 		name: 'tabsBar',

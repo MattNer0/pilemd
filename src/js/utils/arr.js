@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 	/**
 	 * sort array by a certain key
 	 * @param  {Array}    objs      Array of objects

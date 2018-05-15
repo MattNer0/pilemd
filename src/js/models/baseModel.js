@@ -1,4 +1,4 @@
-const uid = require('../utils/uid');
+import uid from "../utils/uid";
 
 class Model {
 	constructor(data) {
@@ -22,4 +22,4 @@ class Model {
 	}
 }
 
-module.exports = Model;
+export default Model;

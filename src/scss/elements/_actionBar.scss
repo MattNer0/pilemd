@@ -68,9 +68,7 @@ nav > ul {
 
 	li > a,
 	li > div,
-	li.has-sub,
-	li .my-search input,
-	li .my-search input::-webkit-input-placeholder {
+	li.has-sub {
 		cursor: pointer;
 	}
 
@@ -80,11 +78,12 @@ nav > ul {
 
 	li.has-sub {
 		user-select: none;
+		width: 100%;
 
-		.link.material-icons {
-			color: inherit;
-			font-size: 150%;
-			vertical-align: middle;
+		> span {
+			padding-left: 0;
+			padding-right: 0;
+			text-align: center;
 		}
 
 		.link > .material-icons {
@@ -109,44 +108,39 @@ nav > ul {
 			margin: 0.4em 0;
 		}
 	}
-
-	.my-search {
-
-		.material-icons {
-			font-size: 150%;
-			vertical-align: middle;
-		}
-
-		.material-icons:last-child {
-			margin-left: -1.4em;
-		}
-
-		input[type=text] {
-			display: inline-block;
-			vertical-align: middle;
-			font-size: 14px;
-			line-height: 1.0em;
-			background-color: transparent;
-			border: none;
-			outline: none;
-			margin: 0;
-			padding: 0.3em 0 0.3em 0;
-
-			width: 0px;
-			transition: width 200ms, margin 200ms;
-		}
-	}
-
-	.my-search input:focus,
-	.my-search.search-open input {
-		outline: none;
-		width: 18em;
-		border-radius: $address-bar-border-radius;
-		padding: 0.3em 2em 0.3em 0.4em;
-		margin: 0.1em 0 0;
-	}
 }
 
 .right-align nav > ul {
 	justify-content: flex-end;
+}
+
+.my-search {
+	padding: 0 0.5em;
+	text-align: center;
+
+	.material-icons {
+		font-size: 150%;
+		vertical-align: middle;
+	}
+
+	.material-icons:last-child {
+		margin-left: -1.4em;
+		cursor: pointer;
+	}
+
+	input[type=text] {
+		display: inline-block;
+		vertical-align: middle;
+		text-align: left;
+		font-size: 15px;
+		line-height: 1.2em;
+		outline: none;
+
+		width: 186px;
+		transition: width 200ms, margin 200ms;
+
+		border-radius: $address-bar-border-radius;
+		padding: 0.4em 2em 0.4em 0.4em;
+		margin: 0.2em 0 0.3em;
+	}
 }

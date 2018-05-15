@@ -1,5 +1,5 @@
-const _ = require('lodash');
-const models = require('./models');
+import _ from "lodash";
+import models from "./models";
 
 /**
  * @function allWords
@@ -17,7 +17,7 @@ function allWords(text, words) {
 	}));
 }
 
-module.exports = {
+export default {
 	/**
 	 * @function searchNotes
 	 * @param {Object} selectedRackOrFolder Current selected rack or folder
