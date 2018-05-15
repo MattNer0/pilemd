@@ -59,8 +59,6 @@ document.addEventListener('drop', (e) => {
 	e.stopPropagation();
 });
 
-theme.load("dark");
-
 var settings_baseLibraryPath = settings.get('baseLibraryPath');
 if (settings_baseLibraryPath) models.setBaseLibraryPath(settings_baseLibraryPath);
 
@@ -75,6 +73,7 @@ var appVue = new Vue({
 		isToolbarEnabled : settings.getSmart('toolbarNote', true),
 		isFullWidthNote  : settings.getSmart('fullWidthNote', true),
 		keepHistory      : settings.getSmart('keepHistory', true),
+		currentTheme     : settings.getJSON('theme', "dark"),
 		preview          : "",
 		racks            : [],
 		notes            : [],
@@ -190,6 +189,10 @@ var appVue = new Vue({
 			if (this.noteTabs.length > 1) classes.push('tabs-open');
 			if (this.isFullWidthNote) classes.push('full-note');
 			return classes;
+		},
+		currentThemeAsString() {
+			if (typeof this.currentTheme == "string") return this.currentTheme;
+			return "custom";
 		}
 	},
 	created() {
@@ -222,6 +225,9 @@ var appVue = new Vue({
 	},
 	mounted() {
 		var self = this;
+
+		theme.load(this.currentTheme);
+
 		this.$nextTick(() => {
 			window.addEventListener('resize', (e) => {
 				e.preventDefault();
@@ -1080,6 +1086,34 @@ var appVue = new Vue({
 			}));
 			menu.popup(remote.getCurrentWindow());
 		},
+		loadThemeFromFile() {
+			var themePath = dialog.showOpenDialog(remote.getCurrentWindow(), {
+				title: 'Import Theme',
+				filters: [{
+					name: 'Theme',
+					extensions: ['json']
+				}],
+				properties: ['openFile']
+			});
+			if (!themePath || themePath.length == 0) {
+				return;
+			}
+
+			themePath = themePath[0];
+
+			try {
+				var themeJson = JSON.parse(fs.readFileSync(themePath, 'utf8'));
+				var themeKeys = theme.keys();
+				var intersectionKeys = _.intersection(themeKeys, Object.keys(themeJson));
+				if (intersectionKeys.length == themeKeys.length) {
+					this.currentTheme = themeJson;
+				} else {
+					console.error("wrong keys");
+				}
+			} catch(e) {
+				console.error(e);
+			}
+		},
 		/*importNotes() {
 			var notePaths = dialog.showOpenDialog(remote.getCurrentWindow(), {
 				title: 'Import Note',
@@ -1263,6 +1297,10 @@ var appVue = new Vue({
 					this.$refs.refCodeMirror.refreshCM();
 				});
 			}
+		},
+		currentTheme() {
+			theme.load(this.currentTheme);
+			settings.set('theme', this.currentTheme);
 		},
 		showSearch() {
 			this.search = "";

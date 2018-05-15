@@ -62,6 +62,7 @@
 			'notesDisplayOrder' : String,
 			'toggleToolbar'     : Function,
 			'toggleFullWidth'   : Function,
+			'currentTheme'      : String,
 			'openSync'          : Function,
 			'moveSync'          : Function,
 			'openAbout'         : Function,
@@ -93,6 +94,31 @@
 		methods: {
 			open_main_menu() {
 				var menu = new Menu();
+				var themes_submenu = new Menu();
+
+				themes_submenu.append(new MenuItem({
+					type: 'checkbox',
+					label: 'Dark',
+					checked: this.currentTheme == 'dark',
+					click: () => {
+						this.$root.currentTheme = "dark";
+					}
+				}));
+				themes_submenu.append(new MenuItem({
+					type: 'checkbox',
+					label: 'Arc Dark',
+					checked: this.currentTheme == 'arc-dark',
+					click: () => {
+						this.$root.currentTheme = "arc-dark";
+					}
+				}));
+				menu.append(new MenuItem({type: 'separator'}));
+				themes_submenu.append(new MenuItem({
+					label: 'Load Custom Theme',
+					click: () => {
+						this.$root.loadThemeFromFile();
+					}
+				}));
 
 				menu.append(new MenuItem({
 					label: 'Select Library Directory',
@@ -160,6 +186,12 @@
 							this.$root.save_editor_size();
 						});
 					}
+				}));
+				menu.append(new MenuItem({type: 'separator'}));
+
+				menu.append(new MenuItem({
+					label: 'Themes',
+					submenu: themes_submenu
 				}));
 				menu.append(new MenuItem({type: 'separator'}));
 

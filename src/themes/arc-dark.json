@@ -1,12 +1,12 @@
 {
 	"app-border": "#22252c",
 
-	"resize-panel-handler": "#383838",
-	"folder-badge-background": "#383838",
+	"resize-panel-handler": "#2e323c",
+	"folder-badge-background": "#2e323c",
 
-	"main-background-color": "#1e1e1e",
+	"main-background-color": "#404552",
 
-	"title-bar-background": "#1e1e1e",
+	"title-bar-background": "#303641",
 
 	"title-bar-color": "#90949b",
 	"title-bar-color-hover": "#b0b9c6",
@@ -14,8 +14,8 @@
 
 	"search-bar-background": "#414a59",
 
-	"sidebar-background": "#252526",
-	"fixed-sidebar-background": "#333333",
+	"sidebar-background": "#373d48",
+	"fixed-sidebar-background": "#373d48",
 
 	"action-bar-color": "#7e8383",
 	"action-bar-submenu-background": "#383c4a",
@@ -25,8 +25,9 @@
 	"tabs-background": "#f5f6f7",
 	"tab-selected-background": "#fff",
 	
-	"sidebar-background-hover": "#3f3f46",
-	"sidebar-background-selected": "#007acc",
+	"sidebar-background-hover": "#445e7d",
+
+	"sidebar-background-selected": "#5294e2",
 
 	"folder-selected-color": "#ffffff",
 	
@@ -50,7 +51,7 @@
 	"note-bar-text-color": "#7a7a7b",
 	"note-checkbox-selected": "#BBBBBB",
 
-	"ui-text-color": "#adadad",
+	"ui-text-color": "#7a7a7b",
 	"ui-text-color-hover": "#b9bbbe",
 	"ui-text-color-dim": "#848487",
 	"ui-text-background-hover": "#36393f",

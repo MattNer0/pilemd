@@ -33,6 +33,20 @@ export default {
 		return typeof settings_data[key] == typeof default_value ? settings_data[key] : default_value;
 	},
 
+	getJSON(key, default_value) {
+		var value = settings_data[key];
+		if (value && typeof value == "string") {
+			try {
+				return JSON.parse(value);
+			} catch(e) {
+				return value;
+			}
+		} else if (value) {
+			return value;
+		}
+		return default_value;
+	},
+
 	set(key, value) {
 		settings_data[key] = value;
 		if (settings_path) {

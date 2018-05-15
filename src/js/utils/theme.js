@@ -12,7 +12,7 @@ function style_object(obj) {
 				border: "1px solid "+obj["app-border"]
 			},
 			"body" : {
-				background: obj["body-background-color"]
+				background: obj["main-background-color"]
 			},
 			"::-webkit-scrollbar-thumb" : {
 				backgroundColor: obj["scrollbar-thumb"],
@@ -58,10 +58,7 @@ function style_object(obj) {
 					backgroundColor: obj["sidebar-background"]
 				},
 				"& .fixed-sidebar" : {
-					backgroundColor: obj["sidebar-background"],
-					"& .cell-container" : {
-						borderRight: "0.3em solid "+obj["resize-panel-handler"]
-					}
+					backgroundColor: obj["fixed-sidebar-background"]
 				},
 				"& .search-container" : {
 					borderRight: "0.3em solid "+obj["resize-panel-handler"]
@@ -70,15 +67,15 @@ function style_object(obj) {
 					background: obj["resize-panel-handler"]
 				},
 				"& .my-editor" : {
-					background: obj["body-background-note"]
+					background: obj["main-background-color"]
 				}
 			},
 			".my-search" : {
 				"& .material-icons:last-child" : {
-					backgroundColor: obj["address-bar-background"]
+					backgroundColor: obj["search-bar-background"]
 				},
 				"& input" : {
-					backgroundColor: obj["address-bar-background"],
+					backgroundColor: obj["search-bar-background"],
 					border: "1px solid "+obj["app-border"],
 					color: obj["action-bar-color"]
 				},
@@ -163,16 +160,16 @@ function style_object(obj) {
 				},
 				"& .my-shelf-folder:hover" : {
 					border: "1px dashed "+obj["sidebar-color"],
-					backgroundColor: obj["note-list-background-hover"],
+					backgroundColor: obj["sidebar-background-hover"],
 					color: obj["note-list-text-color-hover"]
 				}
 			},
 			".my-shelf-rack .rack-object:hover, .my-shelf-folder .folder-object:hover" : {
-				backgroundColor: obj["folder-hover-background"],
+				backgroundColor: obj["sidebar-background-hover"],
 				color: obj["folder-selected-color"]
 			},
 			".my-shelf-folder.sortInside > .folder-object, .my-shelf-folder.isShelfSelected > .folder-object, .my-shelf-rack.isShelfSelected > .rack-object" : {
-				backgroundColor: obj["folder-selected-background"],
+				backgroundColor: obj["sidebar-background-selected"],
 				color: obj["folder-selected-color"],
 				"& input" : {
 					color: obj["folder-selected-color"]
@@ -180,17 +177,17 @@ function style_object(obj) {
 			},
 			".my-shelf-rack.isShelfSelected > .rack-object" : {
 				"& input" : {
-					backgroundColor: obj["folder-selected-background"],
+					backgroundColor: obj["sidebar-background-selected"],
 				}
 			},
 			".my-shelf-rack .rack-object:hover a, .my-shelf-rack.isShelfSelected > .rack-object a" : {
 				textShadow: "2px 2px "+obj["folder-selected-color"]+", -2px -2px "+obj["folder-selected-color"]+", -2px 2px "+obj["folder-selected-color"]+", 2px -2px "+obj["folder-selected-color"]
 			},
 			".my-shelf-rack.sortUpper .rack-object:after, .my-shelf-folder.sortUpper:after" : {
-				backgroundColor: obj["folder-dragdrop-separator"]
+				backgroundColor: obj["sidebar-background-selected"]
 			},
 			".my-shelf-rack.sortLower .rack-object:after, .my-shelf-folder.sortLower:after" : {
-				backgroundColor: obj["folder-dragdrop-separator"]
+				backgroundColor: obj["sidebar-background-selected"]
 			},
 			".modal-mask": {
 				"& .modal-container" : {
@@ -262,10 +259,10 @@ function style_object(obj) {
 					}
 				},
 				"& .my-notes-note.sortUpper:after, .my-notes-note.sortLower:after" : {
-					backgroundColor: obj["folder-dragdrop-separator"]
+					backgroundColor: obj["sidebar-background-selected"]
 				},
 				"& .my-notes-note:hover" : {
-					background: obj["note-list-background-hover"],
+					background: obj["sidebar-background-hover"],
 					color: obj["note-list-text-color-hover"],
 
 					"& .my-notes-note-date, .my-notes-note-image, .my-notes-note-body" : {
@@ -273,7 +270,7 @@ function style_object(obj) {
 					}
 				},
 				"& .my-notes-note.my-notes-note-selected" : {
-					background: obj["note-list-background-selected"],
+					background: obj["sidebar-background-selected"],
 					color: obj["note-list-text-color-selected"],
 
 					"& .my-notes-note-date, .my-notes-note-image, .my-notes-note-body" : {
@@ -291,7 +288,7 @@ function style_object(obj) {
 				},
 				"& .sidebar-menu:hover" : {
 					border: "1px dashed "+obj["sidebar-color"],
-					backgroundColor: obj["note-list-background-hover"],
+					backgroundColor: obj["sidebar-background-hover"],
 					color: obj["note-list-text-color-hover"]
 				},
 				"& .dialog ul" : {
@@ -307,13 +304,13 @@ function style_object(obj) {
 						color: obj["sidebar-color"]
 					},
 					"& li:hover > a, li:hover > div" : {
-						backgroundColor: obj["note-list-background-hover"]+" !important",
+						backgroundColor: obj["sidebar-background-hover"]+" !important",
 						color: obj["note-list-text-color-hover"]
 					}
 				}
 			},
 			".tabs-bar" : {
-				backgroundColor: obj["body-background-note"],
+				backgroundColor: obj["main-background-color"],
 				"& .tab" : {
 					backgroundColor: obj["tabs-background"],
 					border: "2px solid "+obj["note-border-color"],
@@ -347,7 +344,7 @@ function style_object(obj) {
 					color: obj["title-bar-background"]
 				},
 				"& a.menu-icon:hover" : {
-					backgroundColor: obj["folder-hover-background"],
+					backgroundColor: obj["sidebar-background-hover"],
 					color: obj["folder-selected-color"]
 				}
 			}
@@ -356,15 +353,43 @@ function style_object(obj) {
 	return styles;
 }
 
+var current_sheet;
+
 export default {
 	load(theme_name) {
+		var theme_object;
+		if (typeof theme_name == "string") {
+			try {
+				theme_object = JSON.parse(theme_name);
+			} catch(e) {
+				theme_object = require.context(
+					"../../themes",
+					false,
+					/\.json$/
+				)("./" + theme_name + ".json");
+			}
+		} else if (typeof theme_name == "object") {
+			theme_object = theme_name;
+		} else {
+			console.warn("theme error");
+			return;
+		}
+
+		if (current_sheet) {
+			current_sheet.detach();
+			current_sheet = null;
+		}
+		
+		current_sheet = jss.createStyleSheet(style_object(theme_object));
+		current_sheet.attach();
+	},
+	keys() {
 		var theme_object = require.context(
 			"../../themes",
 			false,
 			/\.json$/
-		)("./" + theme_name + ".json");
-		
-		var sheet = jss.createStyleSheet(style_object(theme_object));
-		sheet.attach()
+		)("./dark.json");
+
+		return Object.keys(theme_object);
 	}
 };
