@@ -35,6 +35,7 @@ export default {
 			"document.querySelector('article') ? document.querySelector('article').innerHTML",
 			"document.querySelector('#article_item') ? document.querySelector('#article_item').innerHTML",
 			"document.querySelector('*[role=\"article\"]') ? document.querySelector('*[role=\"article\"]').innerHTML",
+			"document.querySelector('*[itemprop=\"articleBody\"]') ? document.querySelector('*[itemprop=\"articleBody\"]').parentNode.innerHTML",
 			"document.querySelector('*[role=\"main\"]') ? document.querySelector('*[role=\"main\"]').innerHTML",
 			"document.querySelector('.post-container') ? document.querySelector('.post-container').innerHTML",
 			"document.querySelector('.content-body') ? document.querySelector('.content-body').innerHTML",
