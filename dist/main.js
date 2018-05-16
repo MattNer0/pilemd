@@ -39,6 +39,10 @@ if (shouldQuit) {
 	app.exit();
 }
 
+if (process.platform == 'linux') {
+	app.disableHardwareAcceleration();
+}
+
 /**
  * @function makeMainWindow
  * @return {Void} Function doesn't return anything
