@@ -400,6 +400,14 @@ var appVue = new Vue({
 			}
 			this.sendFlashMessage(5000, 'error', data.error);
 		});
+
+		ipcRenderer.on('focus', (event, data) => {
+			if (data && data.focus) {
+				document.getElementById('main-editor').classList.remove("blur");
+			} else {
+				document.getElementById('main-editor').classList.add("blur");
+			}
+		});
 	},
 	methods: {
 		findNoteByPath(notePath) {

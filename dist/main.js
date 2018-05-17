@@ -11,7 +11,7 @@ var backgroundBrowserWindow = null;
 var popupWindow = null;
 var appIcon = null;
 
-var DEBUG = true;
+var DEBUG = false;
 
 // support for portable mode
 app.setPath(
@@ -241,6 +241,9 @@ function makePopupWindow(width, height, callback) {
 		minHeight        : 200,
 		center           : true,
 		parent           : mainWindow,
+		modal            : true,
+		alwaysOnTop      : true,
+		fullscreenable   : false,
 		title            : 'PileMd',
 		backgroundColor  : '#36393e',
 		show             : false,
@@ -269,20 +272,25 @@ function makePopupWindow(width, height, callback) {
 		popupWindow = null;
 	});
 
+	popupWindow.on('close', () => {
+		mainWindow.webContents.send('focus', { focus: true });
+	});
+
 	popupWindow.setMenu(null);
 	popupWindow.loadURL('file://' + __dirname + '/popup.html');
-
 	
-		popupWindow.once('ready-to-show', () => {
-			popupWindow.show();
-			popupWindow.focus();
-			if (callback) {
-				callback();
-			}
+	popupWindow.once('ready-to-show', () => {
+		popupWindow.show();
+		popupWindow.focus();
+		if (callback) {
+			callback();
+		}
 
-			// open the DevTools.
-			if (DEBUG) popupWindow.webContents.openDevTools();
-		});
+		mainWindow.webContents.send('focus', { focus: false });
+		
+		// open the DevTools.
+		if (DEBUG) popupWindow.webContents.openDevTools();
+	});
 }
 
 var DARWIN_ALL_CLOSED_MENU;

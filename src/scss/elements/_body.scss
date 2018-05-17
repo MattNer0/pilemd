@@ -3,6 +3,20 @@
 	height: 100%;
 }
 
+#main-editor.blur:after {
+	content: "";
+	cursor: default;
+	display: block;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: #000;
+	z-index: 100;
+	opacity: 0.5;
+}
+
 .my-main {
 	width: 100%;
 	height: calc( 100vh - 1px - #{ $title-bar-border } - #{ $title-bar-height } );
