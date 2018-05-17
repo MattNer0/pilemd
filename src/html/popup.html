@@ -1,0 +1,12 @@
+<main id="main-editor">
+	<title-bar v-if="title"
+		:window-title="title">
+	</title-bar>
+	<div class="my-main">
+		<div class="outer_wrapper">
+			<div class="popup-simple" v-if="type == 'simple'" v-html="message">
+				
+			</div>
+		</div>
+	</div>
+</main>

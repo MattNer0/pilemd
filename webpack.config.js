@@ -43,18 +43,19 @@ if (isProduction) {
 module.exports = {
 	mode: isProduction ? 'production' : 'development',
 	entry: {
-		app: './src/js/main.js',
+		app       : './src/js/main.js',
+		popup     : './src/js/popup.js',
 		background: './src/js/background.js',
-		bbrowser: './src/js/bbrowser.js'
+		bbrowser  : './src/js/bbrowser.js'
 	},
 	output: {
-		path: __dirname + '/dist/build/',
+		path    : __dirname + '/dist/build/',
 		filename: '[name].js'
 	},
 	resolve: {
 		alias: {
-			vue: isProduction ? 'vue/dist/vue.min.js' : 'vue/dist/vue.js',
-			autosize: isProduction ? 'autosize/dist/autosize.min.js' : 'autosize/dist/autosize.js'
+			vue     : isProduction ? 'vue/dist/vue.min.js' : 'vue/dist/vue.js',
+			autosize: isProduction ? 'autosize/dist/autosize.min.js': 'autosize/dist/autosize.js'
 		}
 	},
 	module: {

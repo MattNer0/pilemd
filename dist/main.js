@@ -8,9 +8,10 @@ const { download } = require('electron-dl');
 var mainWindow = null;
 var backgroundWindow = null;
 var backgroundBrowserWindow = null;
+var popupWindow = null;
 var appIcon = null;
 
-var DEBUG = false;
+var DEBUG = true;
 
 // support for portable mode
 app.setPath(
@@ -134,9 +135,6 @@ function makeMainWindow() {
 	global.isDebug = DEBUG;
 	global.argv = process.argv;
 
-	// open the DevTools.
-	if (DEBUG) mainWindow.webContents.openDevTools();
-
 	mainWindow.webContents.on('will-navigate', (e, url) => {
 		e.preventDefault();
 		electron.shell.openExternal(url);
@@ -161,6 +159,9 @@ function makeMainWindow() {
 			});
 		}
 		mainWindow.focus();
+
+		// open the DevTools.
+		if (DEBUG) mainWindow.webContents.openDevTools();
 	});
 }
 
@@ -222,6 +223,66 @@ function makeBackgroundBrowserWindow(callback) {
 	if (callback) {
 		backgroundBrowserWindow.once('ready-to-show', callback);
 	}
+}
+
+/**
+ * @function makePopupWindow
+ * @return {Void} Function doesn't return anything
+ */
+function makePopupWindow(width, height, callback) {
+
+	var wSize = mainWindow.getSize();
+	var wBounds = mainWindow.getBounds();
+
+	var conf = {
+		width            : Math.ceil(wSize[0]*0.6),
+		height           : Math.ceil(wSize[1]*0.6),
+		minWidth         : 320,
+		minHeight        : 200,
+		center           : true,
+		parent           : mainWindow,
+		title            : 'PileMd',
+		backgroundColor  : '#36393e',
+		show             : false,
+		darkTheme        : true,
+		tabbingIdentifier: 'pilemd',
+		frame            : false,
+		webPreferences   : {
+			devTools            : DEBUG,
+			webgl               : false,
+			webaudio            : false,
+			backgroundThrottling: true
+		}
+	};
+	
+	if (height == "small") {
+		conf.height = Math.max(Math.ceil(wSize[1]*0.2), 200);
+		conf.width = Math.max(Math.ceil(wSize[0]*0.4), 320);
+	}
+
+	conf.x = wBounds.x+Math.floor(wBounds.width*0.5)-Math.floor(conf.width*0.5);
+	conf.y = wBounds.y+Math.floor(wBounds.height*0.5)-Math.floor(conf.height*0.5);
+
+	popupWindow = new BrowserWindow(conf);
+
+	popupWindow.on('closed', () => {
+		popupWindow = null;
+	});
+
+	popupWindow.setMenu(null);
+	popupWindow.loadURL('file://' + __dirname + '/popup.html');
+
+	
+		popupWindow.once('ready-to-show', () => {
+			popupWindow.show();
+			popupWindow.focus();
+			if (callback) {
+				callback();
+			}
+
+			// open the DevTools.
+			if (DEBUG) popupWindow.webContents.openDevTools();
+		});
 }
 
 var DARWIN_ALL_CLOSED_MENU;
@@ -295,10 +356,6 @@ function init() {
 			backgroundBrowserWindow.webContents.send('load-page', payload);
 		} else {
 			makeBackgroundBrowserWindow(() => {
-				if (DEBUG) {
-					backgroundBrowserWindow.show();
-					backgroundBrowserWindow.webContents.openDevTools();
-				}
 				backgroundBrowserWindow.webContents.send('load-page', payload);
 			});
 		}
@@ -306,6 +363,16 @@ function init() {
 	
 	ipcMain.on('kill-bbrowser', (event, payload) => {
 		if (backgroundBrowserWindow) backgroundBrowserWindow.close();
+	});
+
+	ipcMain.on('open-popup', (event, payload) => {
+		if (popupWindow) {
+			popupWindow.webContents.send('open-popup', payload);
+		} else {
+			makePopupWindow(payload.width, payload.height, () => {
+				popupWindow.webContents.send('open-popup', payload);
+			});
+		}
 	});
 	
 	

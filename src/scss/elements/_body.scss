@@ -16,6 +16,17 @@
 	position: relative;
 	overflow: hidden;
 
+	.popup-simple {
+		display: flex;
+		height: 100%;
+		width: 100%;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		padding: 1em;
+		font-size: 120%;
+	}
+
 	.cell-container {
 		height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height } );
 		vertical-align: top;

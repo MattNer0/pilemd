@@ -193,6 +193,9 @@ var appVue = new Vue({
 		currentThemeAsString() {
 			if (typeof this.currentTheme == "string") return this.currentTheme;
 			return "custom";
+		},
+		libraryPath() {
+			return models.getBaseLibraryPath();
 		}
 	},
 	created() {
@@ -1177,11 +1180,14 @@ var appVue = new Vue({
 			var message = 'PileMd was originally created by Hiroki KIYOHARA.\n' +
 				'The full list of Authors is available on GitHub.\n\n' +
 				'This Fork with updated components and additional features is maintained by MattNer0.';
-
-			this.$refs.dialog.init('About', message, [{
-				label: 'Ok',
-				cancel: true
-			}]);
+			
+			ipcRenderer.send('open-popup', {
+				type: "simple",
+				theme: this.currentTheme,
+				title: "About",
+				message: message,
+				height: "small"
+			});
 		},
 		/**
 		 * change how notes are sorted in the sidebar

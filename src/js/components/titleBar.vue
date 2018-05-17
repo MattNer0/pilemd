@@ -2,12 +2,15 @@
 	.title-bar-container
 		.title-bar
 			.spacer(:class="{ 'darwin': isDarwin }")
-				nav: ul
+				nav: ul(v-if="!windowTitle")
 					li
 						a.menu-icon(@click.prevent="open_main_menu", href="#"): span
 							i.material-icons menu
+			
 			.spacer
-				.address-bar
+				.address-bar(v-if="windowTitle")
+					span {{ windowTitle }}
+				.address-bar(v-else)
 					span
 						i.material-icons folder
 						| PileMd Library
@@ -27,10 +30,10 @@
 						i.material-icons chevron_right
 						| Favorite Notes
 			//-.spacer.right-align
-			.spacer.system-icons(:class="{ 'darwin': isDarwin }")
-				.system-icon.minimize(@click="win_min")
+			.spacer.system-icons(:class="{ 'darwin': isDarwin, 'popup' : windowTitle }")
+				.system-icon.minimize(@click="win_min", v-if="!windowTitle")
 					i.material-icons remove
-				.system-icon(@click="win_max")
+				.system-icon(@click="win_max", v-if="!windowTitle")
 					i.material-icons check_box_outline_blank
 				.system-icon.close-icon(@click="win_close")
 					i.material-icons close
@@ -41,8 +44,6 @@
 	import { remote } from "electron";
 	const { Menu, MenuItem } = remote;
 
-	import models from "../models";
-	import fs from "fs";
 	import path from "path";
 	import elosenv from "../utils/elosenv";
 	import Vue from "vue";
@@ -63,6 +64,8 @@
 			'toggleToolbar'     : Function,
 			'toggleFullWidth'   : Function,
 			'currentTheme'      : String,
+			'libraryPath'       : String,
+			'windowTitle'       : String,
 			'openSync'          : Function,
 			'moveSync'          : Function,
 			'openAbout'         : Function,
@@ -87,7 +90,7 @@
 			selectionPath() {
 				var p = path.normalize(this.topLevel.path);
 				if (this.note && this.note.title) p = p.replace(this.note.extension, '');
-				p = path.relative(models.getBaseLibraryPath(), p);
+				p = path.relative(this.libraryPath, p);
 				return p.split(path.sep);
 			}
 		},

@@ -347,6 +347,9 @@ function style_object(obj) {
 					backgroundColor: obj["sidebar-background-hover"],
 					color: obj["folder-selected-color"]
 				}
+			},
+			".popup-simple" : {
+				color: obj["ui-text-color-selected"]
 			}
 		}
 	}
