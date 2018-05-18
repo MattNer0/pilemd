@@ -883,7 +883,7 @@ var appVue = new Vue({
 				this.isPreview = false;
 				this.changeNote(newNote);
 			} else {
-				this.$refs.dialog.init('Error', 'You must select a Folder first!', [{ label: 'Ok' }]);
+				this.sendFlashMessage(5000, 'error', 'You must select a Folder!');
 			}
 			return newNote;
 		},
@@ -899,7 +899,7 @@ var appVue = new Vue({
 				this.isPreview = false;
 				this.changeNote(newOutline);
 			} else {
-				this.$refs.dialog.init('Error', 'You must select a Folder first!', [{ label: 'Ok' }]);
+				this.sendFlashMessage(5000, 'error', 'You must select a Folder!');
 			}
 			return newOutline;
 		},
@@ -921,7 +921,7 @@ var appVue = new Vue({
 				this.changeNote(newNote);
 				newNote.saveModel();
 			} else {
-				this.$refs.dialog.init('Error', 'You must select a Folder first!', [{ label: 'Ok' }]);
+				this.sendFlashMessage(5000, 'error', 'You must select a Folder!');
 			}
 		},
 		/*addNotes(noteTexts) {
@@ -964,30 +964,6 @@ var appVue = new Vue({
 				form: "note-url",
 				height: "small"
 			});
-
-			/*var self = this;
-			this.$refs.dialog.init('Note', '', [{
-				label: 'Cancel',
-				cancel: true,
-			}, {
-				label: 'Ok',
-				cb(data) {
-					self.sendFlashMessage(1000, 'info', 'Loading page...');
-					ipcRenderer.send('load-page', {
-						url           : data.pageurl,
-						mode          : 'note-from-url',
-						webpreferences: 'images=no',
-						style         : { height: '10000px' }
-					});
-				},
-				
-			}], [{
-				type    : 'text',
-				retValue: '',
-				label   : 'URL',
-				name    : 'pageurl',
-				required: true
-			}]);*/
 		},
 		/**
 		 * @description displays an image with the popup dialog
