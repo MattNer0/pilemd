@@ -956,7 +956,16 @@ var appVue = new Vue({
 			}
 		}, 500),
 		addNoteFromUrl() {
-			var self = this;
+
+			ipcRenderer.send('open-popup', {
+				type: "input-text",
+				theme: this.currentTheme,
+				title: "New Note From URL",
+				form: "note-url",
+				height: "small"
+			});
+
+			/*var self = this;
 			this.$refs.dialog.init('Note', '', [{
 				label: 'Cancel',
 				cancel: true,
@@ -971,28 +980,14 @@ var appVue = new Vue({
 						style         : { height: '10000px' }
 					});
 				},
-				/**
-				 * @description validate the form input data
-				 * @param   {Object}            data    Form data object
-				 * @return  {(boolean|string)}          If false, the validation was succesful.
-				 *                                      If a string value is returned it means that's the name of the field that failed validation.
-				 */
-				validate(data) {
-					var expression = /[-a-zA-Z0-9@:%_+.~#?&=]{2,256}(\.[a-z]{2,4}|:\d+)\b(\/[-a-zA-Z0-9@:%_+.~#?&/=]*)?/gi;
-					var regex = new RegExp(expression);
-					if (data.pageurl.match(regex)) {
-						return false;
-					}
-					// @todo gonna use this to highlight the wrong field in the dialog form
-					return 'pageurl';
-				}
+				
 			}], [{
 				type    : 'text',
 				retValue: '',
 				label   : 'URL',
 				name    : 'pageurl',
 				required: true
-			}]);
+			}]);*/
 		},
 		/**
 		 * @description displays an image with the popup dialog

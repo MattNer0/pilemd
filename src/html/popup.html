@@ -5,7 +5,13 @@
 	<div class="my-main">
 		<div class="outer_wrapper">
 			<div class="popup-simple" v-if="type == 'simple'" v-html="message">
-				
+			</div>
+			<div class="popup-simple" v-if="type == 'input-text'">
+				<input-text
+					:placeholder="inputPlaceholder"
+					:required="inputRequired"
+					:buttons="inputButtons">
+				</input-text>
 			</div>
 		</div>
 	</div>

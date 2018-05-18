@@ -86,6 +86,14 @@ function style_object(obj) {
 					color: obj["title-bar-color-hover"]
 				}
 			},
+			".my-button button" : {
+				backgroundColor: obj["sidebar-background-hover"],
+				color: obj["folder-selected-color"]
+			},
+			".my-button button:hover" : {
+				backgroundColor: obj["sidebar-background-selected"],
+				color: obj["folder-selected-color"],
+			},
 			".CodeMirror" : {
 				backgroundColor: obj["note-background-color"]
 			},

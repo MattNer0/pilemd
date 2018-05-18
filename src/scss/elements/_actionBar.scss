@@ -144,3 +144,38 @@ nav > ul {
 		margin: 0.2em 0 0.3em;
 	}
 }
+
+.popup-simple {
+	form {
+		width: 100%;
+		padding-left: 2em;
+		padding-right: 2em;
+	}
+
+	.my-search {
+		padding-left: 0;
+		padding-right: 0;
+
+		input[type=text] {
+			width: 100%;
+		}
+	}
+}
+
+.my-buttons {
+	margin-top: 1em;
+	text-align: right;
+
+	.my-button {
+		display: inline-block;
+		margin: 0 0.5em;
+
+		button {
+			border: none;
+			border-radius: 0.3em;
+			cursor: pointer;
+			padding: 0.5em 2em;
+			min-width: 7em;
+		}
+	}
+}
