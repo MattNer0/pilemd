@@ -2,7 +2,7 @@
 	.my-shelf-buckets(:class="{ 'draggingRack' : draggingBucket, 'draggingFolder' : draggingFolder }")
 		.my-shelf-rack(v-for="bucket in bucketsWithFolders"
 			:class="classBucket(bucket)"
-			:draggable="editingFolder === null && editingBucket === null ? 'true' : 'false'"
+			:draggable="editingFolder === null && editingBucket === null && !bucket.trash_bin ? 'true' : 'false'"
 			v-tooltip="{ 'content': bucket.name, 'placement': 'left' }"
 			@dragstart.stop="rackDragStart($event, bucket)"
 			@dragend.stop="rackDragEnd()"
@@ -49,7 +49,8 @@
 			'editingBucket'       : String,
 			'editingFolder'       : String,
 			'originalNameBucket'  : String,
-			'search'              : String
+			'search'              : String,
+			'showHidden'          : Boolean
 		},
 		directives: {
 			focus(element) {
@@ -69,6 +70,7 @@
 				if (bucket) {
 					return {
 						'isShelfSelected': (this.selectedBucket == bucket && !this.isDraggingNote) || bucket.dragHover,
+						'hiddenBucket'   : bucket.hidden && !this.showHidden,
 						'sortUpper'      : bucket.sortUpper,
 						'sortLower'      : bucket.sortLower
 					};
@@ -233,19 +235,21 @@
 					}
 				}));
 				menu.append(new MenuItem({type: 'separator'}));
-				menu.append(new MenuItem({
-					label: 'Rename Bucket',
-					click: () => {
-						this.$root.setEditingRack(bucket);
-					}
-				}));
-				menu.append(new MenuItem({
-					label: 'Add subfolder',
-					click: () => {
-						this.addFolder(bucket);
-					}
-				}));
-				menu.append(new MenuItem({type: 'separator'}));
+				if (!bucket.trash_bin) {
+					menu.append(new MenuItem({
+						label: 'Rename Bucket',
+						click: () => {
+							this.$root.setEditingRack(bucket);
+						}
+					}));
+					menu.append(new MenuItem({
+						label: 'Add subfolder',
+						click: () => {
+							this.addFolder(bucket);
+						}
+					}));
+					menu.append(new MenuItem({type: 'separator'}));
+				}
 				menu.append(new MenuItem({
 					type: 'radio',
 					label: 'Show Label',
@@ -264,15 +268,17 @@
 						bucket.saveModel();
 					}
 				}));
-				menu.append(new MenuItem({type: 'separator'}));
-				menu.append(new MenuItem({
-					label: 'Delete Bucket',
-					click: () => {
-						if (confirm('Delete bucket "' + bucket.name + '" and its content?')) {
-							this.$root.removeRack(bucket);
+				if (!bucket.trash_bin) {
+					menu.append(new MenuItem({type: 'separator'}));
+					menu.append(new MenuItem({
+						label: 'Delete Bucket',
+						click: () => {
+							if (confirm('Delete bucket "' + bucket.name + '" and its content?')) {
+								this.$root.removeRack(bucket);
+							}
 						}
-					}
-				}));
+					}));
+				}
 				menu.popup(remote.getCurrentWindow());
 			}
 		}

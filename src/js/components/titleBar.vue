@@ -60,6 +60,7 @@
 			'showFavorites'     : Boolean,
 			'showHistory'       : Boolean,
 			'showSearch'        : Boolean,
+			'showHidden'        : Boolean,
 			'notesDisplayOrder' : String,
 			'toggleToolbar'     : Function,
 			'toggleFullWidth'   : Function,
@@ -95,8 +96,7 @@
 			}
 		},
 		methods: {
-			open_main_menu() {
-				var menu = new Menu();
+			themes_submenu() {
 				var themes_submenu = new Menu();
 
 				themes_submenu.append(new MenuItem({
@@ -115,13 +115,62 @@
 						this.$root.currentTheme = "arc-dark";
 					}
 				}));
-				menu.append(new MenuItem({type: 'separator'}));
+				themes_submenu.append(new MenuItem({type: 'separator'}));
 				themes_submenu.append(new MenuItem({
 					label: 'Load Custom Theme',
 					click: () => {
 						this.$root.loadThemeFromFile();
 					}
 				}));
+
+				return themes_submenu;
+			},
+			sort_submenu() {
+				var sort_submenu = new Menu();
+
+				sort_submenu.append(new MenuItem({
+					type: 'radio',
+					label: 'Sort by Update Date',
+					checked: this.notesDisplayOrder == 'updatedAt',
+					click: () => {
+						this.changeDisplayOrder('updatedAt');
+					}
+				}));
+				sort_submenu.append(new MenuItem({
+					type: 'radio',
+					label: 'Sort by Creation Date',
+					checked: this.notesDisplayOrder == 'createdAt',
+					click: () => {
+						this.changeDisplayOrder('createdAt');
+					}
+				}));
+				sort_submenu.append(new MenuItem({
+					type: 'radio',
+					label: 'Sort by Title',
+					checked: this.notesDisplayOrder == 'title',
+					click: () => {
+						this.changeDisplayOrder('title');
+					}
+				}));
+
+				return sort_submenu;
+			},
+			buckets_submenu() {
+				var buckets_submenu = new Menu();
+
+				buckets_submenu.append(new MenuItem({
+					type: 'checkbox',
+					label: 'Show Hidden',
+					checked: this.showHidden,
+					click: () => {
+						this.$root.showHidden = !this.showHidden;
+					}
+				}));
+
+				return buckets_submenu;
+			},
+			open_main_menu() {
+				var menu = new Menu();
 
 				menu.append(new MenuItem({
 					label: 'Select Library Directory',
@@ -138,28 +187,12 @@
 				menu.append(new MenuItem({type: 'separator'}));
 
 				menu.append(new MenuItem({
-					type: 'radio',
-					label: 'Sort by Update Date',
-					checked: this.notesDisplayOrder == 'updatedAt',
-					click: () => {
-						this.changeDisplayOrder('updatedAt');
-					}
+					label: 'Buckets List',
+					submenu: this.buckets_submenu()
 				}));
 				menu.append(new MenuItem({
-					type: 'radio',
-					label: 'Sort by Creation Date',
-					checked: this.notesDisplayOrder == 'createdAt',
-					click: () => {
-						this.changeDisplayOrder('createdAt');
-					}
-				}));
-				menu.append(new MenuItem({
-					type: 'radio',
-					label: 'Sort by Title',
-					checked: this.notesDisplayOrder == 'title',
-					click: () => {
-						this.changeDisplayOrder('title');
-					}
+					label: 'Notes Order',
+					submenu: this.sort_submenu()
 				}));
 				menu.append(new MenuItem({type: 'separator'}));
 
@@ -194,7 +227,7 @@
 
 				menu.append(new MenuItem({
 					label: 'Themes',
-					submenu: themes_submenu
+					submenu: this.themes_submenu()
 				}));
 				menu.append(new MenuItem({type: 'separator'}));
 

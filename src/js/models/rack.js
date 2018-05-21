@@ -28,6 +28,8 @@ class Rack extends Model {
 		this.sortLower = false;
 
 		this._icon = data.icon;
+		this._hidden = data.hidden;
+		this.trash_bin = data.trash_bin;
 
 		this._openFolder = false;
 
@@ -39,14 +41,14 @@ class Rack extends Model {
 	get data() {
 		return _.assign(super.data, {
 			name: this.name,
-			fsName: this.name ? this.name.replace(/[^\w _-]/g, '') : '',
+			fsName: this.fsName,
 			ordering: this.ordering,
 			path: this._path,
 		});
 	}
 
 	get fsName() {
-		return this.name ? this.name.replace(/[^\w _-]/g, '') : "";
+		return this.name ? this.name.replace(/[^\w\. _-]/g, '') : "";
 	}
 
 	get path() {
@@ -81,11 +83,13 @@ class Rack extends Model {
 	}
 	
 	get shorten() {
-		var splitName = this.name.split(" ");
+		var name = this.name;
+		if (this.trash_bin) name = name.toUpperCase();
+		var splitName = name.replace(/[\._-]/gi, " ").trim().split(" ");
 		if (splitName.length == 0) {
 			return "??";
 		} else if (splitName.length == 1) {
-			return this.name.slice(0,2);
+			return name.slice(0,2);
 		} else {
 			return splitName[0].slice(0,1)+splitName[1].slice(0,1);
 		}
@@ -97,6 +101,10 @@ class Rack extends Model {
 
 	searchstarrednotes(search) {
 		return searcher.searchNotes(search, this.starrednotes);
+	}
+
+	get hidden() {
+		return this._hidden;
 	}
 
 	get relativePath() {
@@ -133,6 +141,11 @@ class Rack extends Model {
 		} else {
 			return 'delete';
 		}
+	}
+
+	hasFolder(folder_name) {
+		var results = this.folders.filter((f) => { return f.name == folder_name });
+		return results[0];
 	}
 
 	toJSON() {

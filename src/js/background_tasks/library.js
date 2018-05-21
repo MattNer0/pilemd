@@ -58,7 +58,7 @@ export default {
 				var rack = racks[ri];
 				var rackPath = path.join(library, rack);
 
-				if (fs.existsSync(rackPath) && rack.charAt(0) != ".") {
+				if (fs.existsSync(rackPath) && (rack.charAt(0) != "." || rack == ".coon_trash")) {
 					var rackStat = fs.statSync(rackPath);
 					if (rackStat.isDirectory()) {
 						var rack_data = {};
@@ -70,6 +70,8 @@ export default {
 						valid_racks.push({
 							_type        : 'rack',
 							name         : rack,
+							hidden       : rack == ".coon_trash",
+							trash_bin    : rack == ".coon_trash",
 							hide_label   : rack_data.hidelabel,
 							ordering     : rack_data.ordering ? parseInt(rack_data.ordering) : ri+1,
 							icon         : rack_data.icon || '',

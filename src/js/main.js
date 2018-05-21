@@ -74,8 +74,10 @@ var appVue = new Vue({
 		isFullWidthNote  : settings.getSmart('fullWidthNote', true),
 		keepHistory      : settings.getSmart('keepHistory', true),
 		currentTheme     : settings.getJSON('theme', "dark"),
+		showHidden       : false,
 		preview          : "",
 		racks            : [],
+		trash_bucket     : null,
 		notes            : [],
 		notesHistory     : [],
 		selectedRack     : null,
@@ -258,6 +260,9 @@ var appVue = new Vue({
 			this.racks = arr.sortBy(racks.slice(), 'ordering', true);
 
 			this.racks.forEach((r, i) => {
+				if (r.trash_bin) {
+					self.trash_bucket = r;
+				}
 				if (r.ordering != i+1) {
 					r.ordering = i+1;
 					r.saveOrdering();
@@ -794,6 +799,47 @@ var appVue = new Vue({
 			// we need to close the current selected note if it was from the removed folder.
 			if(this.isNoteSelected && this.selectedNote.folder == folder) {
 				this.selectedNote = null;
+			}
+		},
+		deleteNote(note) {
+			if (note.folder && note.folder.notes.length > 0) {
+				var i1 = note.folder.notes.indexOf(note);
+				note.folder.notes.splice(i1, 1);
+			}
+			var i2 = this.notes.indexOf(note);
+			if (i2 >= 0) this.notes.splice(i2, 1);
+
+			if (note.remove()) {
+				if (!this.trash_bucket) {
+					this.trash_bucket = new models.Rack({
+						name: ".coon_trash",
+						path: path.join(
+							settings_baseLibraryPath,
+							".coon_trash"
+						),
+						hidden: true,
+						trash_bin: true,
+						ordering: this.racks.length+1
+					});
+					this.addRack(this.trash_bucket);
+				}
+
+				var new_folder = this.trash_bucket.hasFolder(note.folder.name);
+				if (!new_folder) {
+					// create folder
+					new_folder = new models.Folder({
+						name        : note.folder.name,
+						rack        : this.trash_bucket,
+						parentFolder: undefined,
+						ordering    : 0
+					});
+					this.addFolderToRack(this.trash_bucket, new_folder);
+				}
+
+				note.rack = this.trash_bucket;
+				note.folder = new_folder;
+				note.title = note.title+"_"+note.updatedAt.format('YYYY-MM-DD HH:mm:ss');
+				note.saveModel();
 			}
 		},
 		/**

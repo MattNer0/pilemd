@@ -130,7 +130,6 @@
 					name        : '',
 					rack        : parent.rack,
 					parentFolder: parent instanceof models.Folder ? parent : undefined,
-					rackUid     : parent.rackUid,
 					ordering    : 0
 				});
 				this.$root.addFolderToRack(parent, folder);
@@ -256,34 +255,36 @@
 				if (!bucket.uid) return;
 
 				var menu = new Menu();
-				menu.append(new MenuItem({
-					label: 'Rename folder',
-					click: () => {
-						this.$root.setEditingFolder(folder);
-					}
-				}));
-				menu.append(new MenuItem({
-					label: 'Add subfolder',
-					click: () => {
-						this.addFolder(folder);
-					}
-				}));
-				menu.append(new MenuItem({type: 'separator'}));
-				menu.append(new MenuItem({
-					label: 'Add note',
-					click: () => {
-						this.changeFolder(folder);
-						this.$root.addNote();
-					}
-				}));
-				menu.append(new MenuItem({
-					label: 'Add encrypted note',
-					click: () => {
-						this.changeFolder(folder);
-						this.$root.addEncryptedNote();
-					}
-				}));
-				menu.append(new MenuItem({type: 'separator'}));
+				if (!bucket.trash_bin) {
+					menu.append(new MenuItem({
+						label: 'Rename folder',
+						click: () => {
+							this.$root.setEditingFolder(folder);
+						}
+					}));
+					menu.append(new MenuItem({
+						label: 'Add subfolder',
+						click: () => {
+							this.addFolder(folder);
+						}
+					}));
+					menu.append(new MenuItem({type: 'separator'}));
+					menu.append(new MenuItem({
+						label: 'Add note',
+						click: () => {
+							this.changeFolder(folder);
+							this.$root.addNote();
+						}
+					}));
+					menu.append(new MenuItem({
+						label: 'Add encrypted note',
+						click: () => {
+							this.changeFolder(folder);
+							this.$root.addEncryptedNote();
+						}
+					}));
+					menu.append(new MenuItem({type: 'separator'}));
+				}
 				menu.append(new MenuItem({
 					label: 'Delete folder',
 					click: () => {

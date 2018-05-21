@@ -59,7 +59,7 @@ class Folder extends Model {
 		return {
 			uid: this.uid,
 			name: this.name,
-			fsName: this.name ? this.name.replace(/[^\w _-]/g, '') : '',
+			fsName: this.fsName,
 			ordering: this.ordering,
 			rack: this.rack,
 			path: this._path
@@ -72,8 +72,12 @@ class Folder extends Model {
 		}
 		return path.join(
 			this.parent.path,
-			this.data.fsName
+			this.fsName
 		);
+	}
+
+	get fsName() {
+		return this.name ? this.name.replace(/[^\w\. _-]/g, '') : '';
 	}
 
 	set path(newValue) {
@@ -159,14 +163,14 @@ class Folder extends Model {
 			return;
 		}
 
-		var new_path = path.join(this.parent.path, this.data.fsName);
+		var new_path = path.join(this.parent.path, this.fsName);
 		if (new_path != this._path || !fs.existsSync(new_path)) {
 			try {
 				if (this._path && fs.existsSync(this._path)) {
 					util_file.moveFolderRecursiveSync(
 						this._path,
 						this.parent.path,
-						this.data.fsName
+						this.fsName
 					);
 				} else {
 					fs.mkdirSync(new_path);

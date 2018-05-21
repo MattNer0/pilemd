@@ -11,7 +11,7 @@ var backgroundBrowserWindow = null;
 var popupWindow = null;
 var appIcon = null;
 
-var DEBUG = false;
+var DEBUG = true;
 
 // support for portable mode
 app.setPath(
@@ -147,6 +147,8 @@ function makeMainWindow() {
 		// when you should delete the corresponding element.
 		mainWindow = null;
 	});
+
+	if (DEBUG) mainWindow.webContents.openDevTools();
 
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show();

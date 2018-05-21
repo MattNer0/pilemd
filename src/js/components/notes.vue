@@ -98,12 +98,7 @@
 
 				dialog.showMessageBox(remote.getCurrentWindow(), dialog_options, (btn) => {
 					if (btn == 0) {
-						if (note.data && note.data.folder.notes.length > 0) {
-							var index = note.data.folder.notes.indexOf(note);
-							note.data.folder.notes.splice(index, 1);
-						}
-						var index = this.originalNotes.indexOf(note);
-						if(index >= 0) this.originalNotes.splice(index, 1);
+						this.$root.deleteNote(note);
 						if (this.notes.length == 1) {
 							this.changeNote(this.notes[0]);
 						} else if (this.notes.length > 1) {
@@ -111,7 +106,7 @@
 						} else {
 							this.changeNote(null);
 						}
-						note.remove();
+						
 					}
 				});
 			},

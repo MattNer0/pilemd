@@ -30,7 +30,12 @@ class Note extends Model {
 		this.folder = data.folder;
 		this.doc = null;
 		this._removed = false;
+		this._trashed = false;
 		this._metadata = {};
+
+		if (data.rack && data.rack.trash_bin) {
+			this._trashed = true;
+		}
 
 		if (!data.body || data.body == '') {
 			this._loadedBody = false;
@@ -41,6 +46,9 @@ class Note extends Model {
 	}
 
 	get updatedAt() {
+		if (!this._metadata.updatedAt) {
+			this._metadata.updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');
+		}
 		return moment(this._metadata.updatedAt);
 	}
 
@@ -167,6 +175,9 @@ class Note extends Model {
 	}
 
 	get document_filename() {
+		if (this._trashed) {
+			return util_file.cleanFileName(this._name);
+		}
 		return this.title ? util_file.cleanFileName(this.title) : '';
 	}
 
@@ -198,6 +209,10 @@ class Note extends Model {
 			return this.splitTitleFromBody().title || this._name;
 		}
 		return this._name;
+	}
+
+	set title(newValue) {
+		this._name = newValue;
 	}
 
 	get bodyWithDataURL() {
@@ -555,10 +570,18 @@ class Note extends Model {
 	}
 
 	remove() {
-		util_file.deleteFile(this._path);
-		var imgDir = this.imagePath;
-		if (imgDir) util_file.deleteFolderRecursive(imgDir);
-		this._removed = true;
+		if (this._trashed) {
+			util_file.deleteFile(this._path);
+			this._removed = true;
+			return false;
+		} else {
+			// move to trash bin
+			var imgDir = this.imagePath;
+			if (imgDir) util_file.deleteFolderRecursive(imgDir);
+			this._trashed = true;
+			this._removed = false;
+			return true;
+		}
 	}
 
 	static latestUpdatedNote(notes) {
