@@ -160,11 +160,50 @@
 
 				buckets_submenu.append(new MenuItem({
 					type: 'checkbox',
-					label: 'Show Hidden',
+					label: 'Show Hidden Bucket',
 					checked: this.showHidden,
 					click: () => {
 						this.$root.showHidden = !this.showHidden;
 					}
+				}));
+				buckets_submenu.append(new MenuItem({type: 'separator'}));
+				buckets_submenu.append(new MenuItem({
+					type: 'checkbox',
+					label: 'Show Note Toolbar',
+					checked: this.isToolbarEnabled,
+					click: () => {
+						this.toggleToolbar();
+					}
+				}));
+				buckets_submenu.append(new MenuItem({
+					type: 'checkbox',
+					label: 'Show Note Full Width',
+					checked: this.isFullWidthNote,
+					click: () => {
+						this.toggleFullWidth();
+					}
+				}));
+				buckets_submenu.append(new MenuItem({
+					label: 'Reset Sidebar Width',
+					click: () => {
+						this.$root.racksWidth = 200;
+						this.$root.notesWidth = 200;
+						this.$root.init_sidebar_width();
+						Vue.nextTick(() => {
+							this.$root.save_editor_size();
+						});
+					}
+				}));
+				buckets_submenu.append(new MenuItem({type: 'separator'}));
+				buckets_submenu.append(new MenuItem({
+					label: 'Notes Order',
+					submenu: this.sort_submenu()
+				}));
+
+				buckets_submenu.append(new MenuItem({type: 'separator'}));
+				buckets_submenu.append(new MenuItem({
+					label: 'Themes',
+					submenu: this.themes_submenu()
 				}));
 
 				return buckets_submenu;
@@ -187,47 +226,8 @@
 				menu.append(new MenuItem({type: 'separator'}));
 
 				menu.append(new MenuItem({
-					label: 'Buckets List',
+					label: 'Settings',
 					submenu: this.buckets_submenu()
-				}));
-				menu.append(new MenuItem({
-					label: 'Notes Order',
-					submenu: this.sort_submenu()
-				}));
-				menu.append(new MenuItem({type: 'separator'}));
-
-				menu.append(new MenuItem({
-					type: 'checkbox',
-					label: 'Show Note Toolbar',
-					checked: this.isToolbarEnabled,
-					click: () => {
-						this.toggleToolbar();
-					}
-				}));
-				menu.append(new MenuItem({
-					type: 'checkbox',
-					label: 'Show Note Full Width',
-					checked: this.isFullWidthNote,
-					click: () => {
-						this.toggleFullWidth();
-					}
-				}));
-				menu.append(new MenuItem({
-					label: 'Reset Sidebar Width',
-					click: () => {
-						this.$root.racksWidth = 200;
-						this.$root.notesWidth = 200;
-						this.$root.init_sidebar_width();
-						Vue.nextTick(() => {
-							this.$root.save_editor_size();
-						});
-					}
-				}));
-				menu.append(new MenuItem({type: 'separator'}));
-
-				menu.append(new MenuItem({
-					label: 'Themes',
-					submenu: this.themes_submenu()
 				}));
 				menu.append(new MenuItem({type: 'separator'}));
 

@@ -11,7 +11,7 @@ var backgroundBrowserWindow = null;
 var popupWindow = null;
 var appIcon = null;
 
-var DEBUG = true;
+var DEBUG = false;
 
 // support for portable mode
 app.setPath(
@@ -161,9 +161,6 @@ function makeMainWindow() {
 			});
 		}
 		mainWindow.focus();
-
-		// open the DevTools.
-		if (DEBUG) mainWindow.webContents.openDevTools();
 	});
 }
 
