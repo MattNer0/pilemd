@@ -9,12 +9,12 @@
 		.my-shelf-rack(
 			:class="{ 'isShelfSelected' : showSearch }"
 			v-tooltip="{ 'content': 'Search', 'placement': 'left' }")
-			.rack-object(@click="openSearch()")
+			.rack-object.bucket-special(@click="openSearch()")
 				i.rack-icon.coon-search
 		.my-shelf-rack(
 			:class="{ 'isShelfSelected' : showHistory }"
 			v-tooltip="{ 'content': 'History', 'placement': 'left' }")
-			.rack-object(@click="openHistory()")
+			.rack-object.bucket-special(@click="openHistory()")
 				i.rack-icon.coon-clock
 </template>
 

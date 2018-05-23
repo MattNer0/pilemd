@@ -23,6 +23,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.coon-cylinder:before {
+  content: "\e924";
+}
 .coon-bucket:before {
   content: "\e918";
 }

@@ -122,6 +122,31 @@
 		input {
 			font-weight: bold;
 		}
+
+		i.rack-icon {
+			display: block;
+			font-size: 300%;
+			vertical-align: middle;
+			color: inherit;
+			opacity: 1.0;
+			z-index: 0;
+			position: absolute;
+			left: 0;
+			right: 0;
+			text-align: center;
+			top: 0;
+			bottom: 0;
+		}
+	}
+
+	.rack-object.bucket-special {
+		height: auto;
+		padding: 0.4em 0.2em 0.4em 0.2em;
+
+		i.rack-icon {
+			font-size: 250%;
+			position: static;
+		}
 	}
 
 	.folder-object {
@@ -144,21 +169,6 @@
 
 	.folder-object.no-results {
 		opacity: 0.5;
-	}
-
-	.rack-icon {
-		display: block;
-		font-size: 300%;
-		vertical-align: middle;
-		color: inherit;
-		opacity: 0.8;
-		z-index: 0;
-		position: absolute;
-		left: 0;
-		right: 0;
-		text-align: center;
-		top: 0;
-		bottom: 0;
 	}
 }
 

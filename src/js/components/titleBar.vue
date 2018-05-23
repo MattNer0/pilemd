@@ -5,7 +5,7 @@
 				nav: ul(v-if="!windowTitle")
 					li
 						a.menu-icon(@click.prevent="open_main_menu", href="#"): span
-							i.coon-more-vertical
+							i.coon-menu
 			
 			.spacer
 				.address-bar(v-if="windowTitle")

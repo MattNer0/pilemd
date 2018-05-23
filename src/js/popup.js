@@ -14,6 +14,7 @@ import component_titleBar from './components/titleBar.vue';
 import component_inputText from './components/popupInputText.vue';
 
 // loading CSSs
+import "../fonts/iconcoon.css";
 import "../scss/pilemd.scss";
 
 // not to accept image dropping and so on.
