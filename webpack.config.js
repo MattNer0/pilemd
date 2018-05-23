@@ -74,7 +74,7 @@ module.exports = {
 				exclude: /(node_modules|dist)/
 			},
 			{
-				test: /\.(png|woff|woff2|ttf)$/,
+				test: /\.(png|woff|woff2|ttf|svg)$/,
 				loader: 'url-loader',
 				options: {
 					'limit' : 100000

@@ -106,7 +106,7 @@
 			font-weight: bold;
 		}
 
-		span:first-child > i.material-icons {
+		span:first-child > i {
 			margin-right: 0.2em;
 			display: inline-block;
 			vertical-align: middle;
@@ -160,12 +160,12 @@
 			margin-left: 0.4em;
 			background-color: #44CA45;
 		}
-		i.material-icons {
+		i {
 			opacity: 0;
 			background-color: transparent !important;
 			color: #444 !important;
 		}
-		.system-icon:hover i.material-icons {
+		.system-icon:hover i {
 			opacity: 1.0;
 		}
 		.system-icon.close-icon {

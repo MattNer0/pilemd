@@ -47,6 +47,7 @@ import component_tabsBar from './components/tabsBar.vue';
 import component_searchBar from './components/searchBar.vue';
 
 // loading CSSs
+import "../fonts/iconcoon.css";
 import "../scss/pilemd.scss";
 
 // not to accept image dropping and so on.

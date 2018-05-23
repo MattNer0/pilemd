@@ -13,12 +13,13 @@
 				draggable="true")
 
 				h5.my-notes-note-title(v-if="note.title")
-					i.material-icons(v-if="note.isEncryptedNote && note.isEncrypted") lock
-					i.material-icons(v-else-if="note.isEncryptedNote && !note.isEncrypted") lock_open
-					i.material-icons(v-else) description
+					i.coon-lock(v-if="note.isEncryptedNote && note.isEncrypted")
+					i.coon-unlock(v-else-if="note.isEncryptedNote && !note.isEncrypted")
+					i.coon-file-outline(v-else-if="note.isOutline")
+					i.coon-file-text(v-else)
 					| {{ note.title }}
 				h5.my-notes-note-title(v-else)
-					i.material-icons description
+					i.coon-file-text
 					| No Title
 				.my-notes-note-image(v-if="note.img")
 					img(:src="note.img")

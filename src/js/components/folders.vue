@@ -12,7 +12,7 @@
 			.folder-object(
 				:class="classFolderObject(folder)",
 				@click="selectFolder(folder)")
-				i.material-icons.down(@click.prevent.stop="folder.openFolder = !folder.openFolder") arrow_drop_down
+				i.coon-play-right.down(@click.prevent.stop="folder.openFolder = !folder.openFolder")
 				a.my-shelf-folder-name.no-name(v-if="editingFolder != folder.uid")
 					template(v-if="folder.name")
 						| {{ folder.name }}
@@ -20,13 +20,13 @@
 						| No Title
 					span.my-shelf-folder-badge(v-if="search", v-show="folder.searchnotes(search).length > 0")
 						| {{ folder.searchnotes(search).length }} 
-						i.material-icons description
+						i.coon-file
 					span.my-shelf-folder-badge(v-else, v-show="folder.notes.length > 0")
 						| {{ folder.notes.length }} 
-						i.material-icons description
+						i.coon-file
 					span.my-shelf-folder-badge(v-show="folder.folders.length > 0")
 						| {{ folder.folders.length }} 
-						i.material-icons folder
+						i.coon-folder
 				input(v-if="editingFolder == folder.uid"
 					v-model="folder.name"
 					v-focus="editingFolder == folder.uid"

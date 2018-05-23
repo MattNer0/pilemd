@@ -57,12 +57,12 @@
 		height: #{ $title-bar-height - $tab-selected-margin };
 		opacity: 1.0;
 
-		i.material-icons.close {
+		i.close {
 			top: 0.6em;
 		}
 	}
 
-	i.material-icons {
+	i {
 		font-size: inherit;
 		vertical-align: middle;
 		margin-top: -0.3em;

@@ -13,7 +13,7 @@
 			.rack-object(
 				:class="{ 'editing' : editingBucket == bucket.uid, 'dragging' : draggingBucket == bucket }",
 				@click="selectBucket(bucket)")
-				i.material-icons.rack-icon {{ bucket.icon }}
+				i.rack-icon(:class="'coon-'+bucket.icon")
 				a(v-if="editingBucket != bucket.uid && !bucket.hideLabel")
 					| {{ bucket.shorten }}
 				input(v-if="editingBucket == bucket.uid"

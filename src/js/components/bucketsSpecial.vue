@@ -10,12 +10,12 @@
 			:class="{ 'isShelfSelected' : showSearch }"
 			v-tooltip="{ 'content': 'Search', 'placement': 'left' }")
 			.rack-object(@click="openSearch()")
-				i.material-icons.rack-icon search
+				i.rack-icon.coon-search
 		.my-shelf-rack(
 			:class="{ 'isShelfSelected' : showHistory }"
 			v-tooltip="{ 'content': 'History', 'placement': 'left' }")
 			.rack-object(@click="openHistory()")
-				i.material-icons.rack-icon history
+				i.rack-icon.coon-clock
 </template>
 
 <script>

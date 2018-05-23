@@ -139,7 +139,7 @@ class Rack extends Model {
 		if (this._icon) {
 			return this._icon;
 		} else {
-			return 'delete';
+			return 'bucket';
 		}
 	}
 

@@ -86,7 +86,7 @@ nav > ul {
 			text-align: center;
 		}
 
-		.link > .material-icons {
+		.link > i {
 			margin-right: 0.2em;
 		}
 
@@ -118,12 +118,12 @@ nav > ul {
 	padding: 0 0.5em;
 	text-align: center;
 
-	.material-icons {
+	i {
 		font-size: 150%;
 		vertical-align: middle;
 	}
 
-	.material-icons:last-child {
+	i:last-child {
 		margin-left: -1.4em;
 		cursor: pointer;
 	}

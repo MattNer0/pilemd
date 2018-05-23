@@ -5,38 +5,38 @@
 				nav: ul(v-if="!windowTitle")
 					li
 						a.menu-icon(@click.prevent="open_main_menu", href="#"): span
-							i.material-icons menu
+							i.coon-more-vertical
 			
 			.spacer
 				.address-bar(v-if="windowTitle")
 					span {{ windowTitle }}
 				.address-bar(v-else)
 					span
-						i.material-icons folder
+						i.coon-folder
 						| PileMd Library
 					span(v-if="showHistory && !selectedFolder && !note")
-						i.material-icons chevron_right
+						i.coon-chevron-right
 						| History
 					span(v-if="showSearch && !selectedFolder && !note")
-						i.material-icons chevron_right
+						i.coon-chevron-right
 						| Search
 					span(v-if="enabled", v-for="(path, index) in selectionPath")
-						i.material-icons chevron_right
+						i.coon-chevron-right
 						|  {{ path }}
 					span(v-if="showAll && !selectedFolder && !note")
-						i.material-icons chevron_right
+						i.coon-chevron-right
 						| All Notes
 					span(v-if="showFavorites && !selectedFolder && !note")
-						i.material-icons chevron_right
+						i.coon-chevron-right
 						| Favorite Notes
 			//-.spacer.right-align
 			.spacer.system-icons(:class="{ 'darwin': isDarwin, 'popup' : windowTitle }")
-				.system-icon.minimize(@click="win_min", v-if="!windowTitle")
-					i.material-icons remove
+				.system-icon(@click="win_min", v-if="!windowTitle")
+					i.coon-underscore
 				.system-icon(@click="win_max", v-if="!windowTitle")
-					i.material-icons check_box_outline_blank
+					i.coon-square
 				.system-icon.close-icon(@click="win_close")
-					i.material-icons close
+					i.coon-x
 		.title-bar-spacing
 </template>
 
