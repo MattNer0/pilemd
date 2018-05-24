@@ -1,7 +1,7 @@
 <template lang="pug">
 	.sidebar-menu(@click="open_note_menu", ref="addNote")
 		.link.my-notes-note-title
-			i.material-icons add_circle_outline
+			i.coon-file-plus
 			|  New Note
 </template>
 

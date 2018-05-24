@@ -1,7 +1,7 @@
 <template lang="pug">
 	.my-search
 		input#search-bar(v-model="mysearch", type="text", placeholder="Search...", @keydown.enter.exact.prevent="newSearch")
-		i.material-icons(v-show="mysearch", @click="clear_search") clear
+		i.coon-x-circle(v-show="mysearch", @click="clear_search")
 </template>
 
 <script>

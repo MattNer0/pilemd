@@ -3,20 +3,20 @@
 		nav: ul(:class="{'transparent' : !isPreview && !isToolbarEnabled }")
 			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
 				a(@click="menu_checkMark", href="#", title="Insert Checkbox")
-					i.material-icons done
+					i.coon-check-square
 					|  Checkbox
 			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
 				a(@click="menu_codeBlock", href="#", title="Insert Code block")
-					i.material-icons code
+					i.coon-code
 					|  Code block
 			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
 				a(@click="menu_image", href="#", title="Insert Image from Url")
-					i.material-icons insert_photo
+					i.coon-image
 					|  Image
 			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
 				div: dropdown(:visible="table_visible", :position="position_left", v-on:clickout="table_visible = false")
 					span.link(@click="table_visible = !table_visible", title="Table")
-						i.material-icons border_all
+						i.coon-table
 						|  Table
 					.dialog(slot="dropdown")
 						.table-dialog(@click="close_table")
@@ -30,7 +30,7 @@
 			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': !isPreview || !noteHeadings || noteHeadings.length < 2 }")
 				div: dropdown(:visible="headings_visible", :position="position_left", v-on:clickout="headings_visible = false")
 					span.link(@click="headings_visible = !headings_visible", title="Headers")
-						i.material-icons list
+						i.coon-list
 						|  Headers
 					.dialog(slot="dropdown")
 						.headings-dialog(@click="close_headings")
@@ -39,45 +39,45 @@
 			li.right-align(:class="{ 'entry-hidden': !isToolbarEnabled }")
 				div: dropdown(:visible="fontsize_visible", :position="position_right", v-on:clickout="fontsize_visible = false")
 					span.link(@click="fontsize_visible = !fontsize_visible", title="Font Size")
-						i.material-icons format_size
+						i.coon-size
 					.dialog(slot="dropdown"): ul
 						li: a(@click.prevent="menu_fontsize(10)", href="#")
-							i.material-icons(v-if="fontsize == 10") radio_button_checked
-							i.material-icons.faded(v-else) radio_button_unchecked
+							i.coon-check-circle(v-if="fontsize == 10")
+							i.coon-circle.faded(v-else)
 							|  10
 						li: a(@click.prevent="menu_fontsize(12)", href="#")
-							i.material-icons(v-if="fontsize == 12") radio_button_checked
-							i.material-icons.faded(v-else) radio_button_unchecked
+							i.coon-check-circle(v-if="fontsize == 12")
+							i.coon-circle.faded(v-else)
 							|  12
 						li: a(@click.prevent="menu_fontsize(14)", href="#")
-							i.material-icons(v-if="fontsize == 14") radio_button_checked
-							i.material-icons.faded(v-else) radio_button_unchecked
+							i.coon-check-circle(v-if="fontsize == 14")
+							i.coon-circle.faded(v-else)
 							|  14
 						li: a(@click.prevent="menu_fontsize(15)", href="#")
-							i.material-icons(v-if="fontsize == 15") radio_button_checked
-							i.material-icons.faded(v-else) radio_button_unchecked
+							i.coon-check-circle(v-if="fontsize == 15")
+							i.coon-circle.faded(v-else)
 							|  15
 						li: a(@click.prevent="menu_fontsize(16)", href="#")
-							i.material-icons(v-if="fontsize == 16") radio_button_checked
-							i.material-icons.faded(v-else) radio_button_unchecked
+							i.coon-check-circle(v-if="fontsize == 16")
+							i.coon-circle.faded(v-else)
 							|  16
 						li: a(@click.prevent="menu_fontsize(18)", href="#")
-							i.material-icons(v-if="fontsize == 18") radio_button_checked
-							i.material-icons.faded(v-else) radio_button_unchecked
+							i.coon-check-circle(v-if="fontsize == 18")
+							i.coon-circle.faded(v-else)
 							|  18
 						li: a(@click.prevent="menu_fontsize(20)", href="#")
-							i.material-icons(v-if="fontsize == 20") radio_button_checked
-							i.material-icons.faded(v-else) radio_button_unchecked
+							i.coon-check-circle(v-if="fontsize == 20")
+							i.coon-circle.faded(v-else)
 							|  20
 						li: a(@click.prevent="menu_fontsize(24)", href="#")
-							i.material-icons(v-if="fontsize == 24") radio_button_checked
-							i.material-icons.faded(v-else) radio_button_unchecked
+							i.coon-check-circle(v-if="fontsize == 24")
+							i.coon-circle.faded(v-else)
 							|  24
 			
 			li.right-align(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': !isPreview && !isToolbarEnabled }")
 				div: dropdown(:visible="properties_visible", :position="position_right", v-on:clickout="properties_visible = false")
 					span.link(@click="properties_visible = !properties_visible", title="Properties")
-						i.material-icons info_outline
+						i.coon-info
 					.dialog(slot="dropdown")
 						.properties-dialog(@click="close_properties")
 							table
@@ -123,9 +123,9 @@
 			li.right-align(v-if="isNoteSelected && !isOutlineSelected")
 				a(@click="togglePreview", href="#", title="Preview")
 					template(v-if="isPreview")
-						i.material-icons visibility_off
+						i.coon-eye-off
 					template(v-else)
-						i.material-icons visibility
+						i.coon-eye
 </template>
 
 <script>
@@ -235,6 +235,11 @@
 				this.fontsize_visible = false;
 			},
 			menu_image() {
+				if (this.table_visible) {
+					this.close_table();
+					return;
+				}
+
 				var cm = this.codeMirror();
 				var cursor = cm.getCursor();
 
@@ -257,6 +262,11 @@
 				cm.focus();
 			},
 			menu_codeBlock() {
+				if (this.table_visible) {
+					this.close_table();
+					return;
+				}
+
 				var cm = this.codeMirror();
 				var cursor = cm.getCursor();
 
@@ -280,6 +290,11 @@
 				cm.focus();
 			},
 			menu_checkMark() {
+				if (this.table_visible) {
+					this.close_table();
+					return;
+				}
+
 				var cm = this.codeMirror();
 				var cursor = cm.getCursor();
 				

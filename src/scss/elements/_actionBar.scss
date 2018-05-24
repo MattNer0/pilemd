@@ -117,6 +117,7 @@ nav > ul {
 .my-search {
 	padding: 0 0.5em;
 	text-align: center;
+	position: relative;
 
 	i {
 		font-size: 150%;
@@ -124,8 +125,11 @@ nav > ul {
 	}
 
 	i:last-child {
-		margin-left: -1.4em;
+		position: absolute;
 		cursor: pointer;
+		right: 0.7em;
+		top: 0.37em;
+		z-index: 4;
 	}
 
 	input[type=text] {
@@ -136,11 +140,11 @@ nav > ul {
 		line-height: 1.2em;
 		outline: none;
 
-		width: 186px;
+		width: 100%;
 		transition: width 200ms, margin 200ms;
 
 		border-radius: $address-bar-border-radius;
-		padding: 0.4em 2em 0.4em 0.4em;
+		padding: 0.4em 2.2em 0.4em 0.4em;
 		margin: 0.2em 0 0.3em;
 	}
 }
@@ -158,6 +162,19 @@ nav > ul {
 
 		input[type=text] {
 			width: 100%;
+		}
+
+		i {
+			font-size: 120%;
+			vertical-align: middle;
+		}
+	
+		i:last-child {
+			position: absolute;
+			cursor: pointer;
+			right: 0.4em;
+			top: 0.4em;
+			z-index: 4;
 		}
 	}
 }

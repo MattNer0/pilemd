@@ -22,12 +22,12 @@
 
 		li.checkbox {
 			position: relative;
-			margin: 1em 0 1em 0.4em;
+			margin: 0.5em 0 0.5em 0.4em;
 			padding: 0;
 			list-style: none;
 
 			> label {
-				padding: 0.3em 0 0;
+				padding: 0;
 				min-height: 1.7em;
 				display: block;
 				cursor: pointer;
@@ -55,34 +55,23 @@
 				position: relative;
 				overflow: visible;
 				cursor: pointer;
-				font-size: 170%;
-			}
-
-			input[type=checkbox] + span:before {
-				content: "";
-				position: absolute;
-				top: 0.2em;
-				left: 0;
-				width: 0.7em;
-				height: 0.7em;
-				border-radius: 1em;
-				border: 2px solid #333;
+				font-size: 125%;
 			}
 
 			input[type=checkbox] + span:after {
-				content: "";
+				content: "\e911";
 				position: absolute;
-				font-family: "Material Icons";
-				text-rendering: optimizeLegibility;
-				font-feature-settings: 'liga' 1;
+				font-family: 'iconcoon' !important;
+				speak: none;
 				font-style: normal;
+				font-weight: bold;
+				font-variant: normal;
+				font-size: inherit;
 				text-transform: none;
 				line-height: 1;
 				-webkit-font-smoothing: antialiased;
 				color: #333;
 				text-align: center;
-				font-weight: bold;
-				font-size: 100%;
 				top: 0.1em;
 				left: 0;
 				right: 0.3em;
@@ -90,7 +79,7 @@
 			}
 
 			input[type=checkbox]:checked + span:after {
-				content: "done";
+				content: "\e901";
 			}
 		}
 

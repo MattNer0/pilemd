@@ -2,7 +2,7 @@
 	form(@submit="submitForm($event)")
 		.my-search
 			input#search-bar(v-model="input_data", type="text", :placeholder="placeholder", @keydown.enter.exact.prevent="submitForm($event)")
-			i.material-icons(v-show="input_data", @click="clear_input") clear
+			i.coon-x-circle(v-show="input_data", @click="clear_input")
 		.my-buttons
 			.my-button(v-for="button in buttons")
 				button(type="buttonType(button)", @click="buttonClick($event, button)")

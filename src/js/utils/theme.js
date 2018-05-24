@@ -72,11 +72,15 @@ function style_object(obj) {
 			},
 			".my-search" : {
 				"& i:last-child" : {
-					backgroundColor: obj["search-bar-background"]
+					backgroundColor: obj["search-bar-background"],
+					color: obj["action-bar-color"]
+				},
+				"& i:last-child:hover" : {
+					color: obj["title-bar-color-hover"]
 				},
 				"& input" : {
 					backgroundColor: obj["search-bar-background"],
-					border: "1px solid "+obj["app-border"],
+					border: "1px solid "+obj["search-bar-border"],
 					color: obj["action-bar-color"]
 				},
 				"& input::-webkit-input-placeholder" : {

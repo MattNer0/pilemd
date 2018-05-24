@@ -12,7 +12,8 @@
 	"title-bar-color-hover": "#b0b9c6",
 	"title-bar-close-button": "#cc575d",
 
-	"search-bar-background": "#414a59",
+	"search-bar-background": "#232323",
+	"search-bar-border": "#808080",
 
 	"sidebar-background": "#252526",
 	"fixed-sidebar-background": "#333333",

@@ -2,8 +2,11 @@
 	.tabs-bar(v-if="tabsArray.length > 1")
 		div
 			.tab(v-for="(note, index) in tabsArray", @click.prevent.stop="selectNote(note)", :class="{ 'selected': note == currentNote }")
-				i.material-icons.close(@click.prevent.stop="removeTab(note, index)") close
-				i.material-icons description
+				i.coon-x.close(@click.prevent.stop="removeTab(note, index)")
+				i.coon-lock(v-if="note.isEncryptedNote && note.isEncrypted")
+				i.coon-unlock(v-else-if="note.isEncryptedNote && !note.isEncrypted")
+				i.coon-file-outline(v-else-if="note.isOutline")
+				i.coon-file-text(v-else)
 				|  {{ note.title }}
 </template>
 

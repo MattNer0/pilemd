@@ -18,7 +18,7 @@
 		text-align: left;
 		min-width: 5em;
 		max-width: 15em;
-		padding: 0.5em 1.8em 0 0.5em;
+		padding: 0.5em 2.1em 0 0.5em;
 		margin: 0.6em 0 0;
 		border-bottom: 0;
 		vertical-align: bottom;
@@ -31,18 +31,27 @@
 		-webkit-user-select: none;
 	}
 
-	i.material-icons.close {
+	i {
+		font-size: inherit;
+		vertical-align: middle;
+		display: inline-block;
+		margin-top: -0.3em;
+		font-size: 120%;
+		opacity: 0.8;
+	}
+
+	i.close {
 		position: absolute;
 		top: 0.4em;
 		right: 0.1em;
-		padding: 0.55em 0.3em 0.4em;
+		padding: 0.4em 0.3em 0.4em;
 		border-radius: 1em;
 		opacity: 0.3;
 
 		transition: opacity 200ms;
 	}
 
-	i.material-icons.close:hover {
+	i.close:hover {
 		opacity: 1.0;
 	}
 
@@ -60,12 +69,6 @@
 		i.close {
 			top: 0.6em;
 		}
-	}
-
-	i {
-		font-size: inherit;
-		vertical-align: middle;
-		margin-top: -0.3em;
 	}
 }
 
