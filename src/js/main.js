@@ -1203,16 +1203,11 @@ var appVue = new Vue({
 		 * @return {Void} Function doesn't return anything
 		 */
 		openAbout() {
-			var message = 'PileMd was originally created by Hiroki KIYOHARA.\n' +
-				'The full list of Authors is available on GitHub.\n\n' +
-				'This Fork with updated components and additional features is maintained by MattNer0.';
-			
 			ipcRenderer.send('open-popup', {
-				type: "simple",
+				type: "about",
 				theme: this.currentTheme,
 				title: "About",
-				message: message,
-				height: "small"
+				height: "medium"
 			});
 		},
 		/**

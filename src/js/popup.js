@@ -12,6 +12,7 @@ import theme from "./utils/theme";
 // vue.js plugins
 import component_titleBar from './components/titleBar.vue';
 import component_inputText from './components/popupInputText.vue';
+import component_about from './components/popupAbout.vue';
 
 // loading CSSs
 import "../fonts/iconcoon.css";
@@ -41,7 +42,8 @@ var appVue = new Vue({
 	},
 	components: {
 		'titleBar'      : component_titleBar,
-		'inputText'     : component_inputText
+		'inputText'     : component_inputText,
+		'about'         : component_about
 	},
 	computed: { },
 	created() { },
@@ -57,41 +59,43 @@ var appVue = new Vue({
 			self.type = data.type;
 			self.title = data.title;
 			self.message = data.message ? data.message : "";
-			
-			if (data.type == "input-text") {
-				switch(data.form) {
-					case "note-url":
-						self.inputRequired = true;
-						self.inputPlaceholder = "https://...";
-						self.inputButtons = [{
-							label: "Cancel",
-							type: "close"
-						}, {
-							label: "Ok",
-							type: "submit",
-							validate(data) {
-								var expression = /[-a-zA-Z0-9@:%_+.~#?&=]{2,256}(\.[a-z]{2,4}|:\d+)\b(\/[-a-zA-Z0-9@:%_+.~#?&/=]*)?/gi;
-								var regex = new RegExp(expression);
-								if (data.input_data.match(regex)) {
-									return false;
-								}
-								// @todo gonna use this to highlight the wrong field in the form
-								return 'pageurl';
-							},
-							callback(data) {
-								//self.sendFlashMessage(1000, 'info', 'Loading page...');
-								ipcRenderer.send('load-page', {
-									url           : data.input_data,
-									mode          : 'note-from-url',
-									webpreferences: 'images=no',
-									style         : { height: '10000px' }
-								});
-							},
-						}];
-						break;
-					default:
-						self.closingWindow();
-				}
+
+			switch(data.type) {
+				case "input-text":
+					switch(data.form) {
+						case "note-url":
+							self.inputRequired = true;
+							self.inputPlaceholder = "https://...";
+							self.inputButtons = [{
+								label: "Cancel",
+								type: "close"
+							}, {
+								label: "Ok",
+								type: "submit",
+								validate(data) {
+									var expression = /[-a-zA-Z0-9@:%_+.~#?&=]{2,256}(\.[a-z]{2,4}|:\d+)\b(\/[-a-zA-Z0-9@:%_+.~#?&/=]*)?/gi;
+									var regex = new RegExp(expression);
+									if (data.input_data.match(regex)) {
+										return false;
+									}
+									// @todo gonna use this to highlight the wrong field in the form
+									return 'pageurl';
+								},
+								callback(data) {
+									//self.sendFlashMessage(1000, 'info', 'Loading page...');
+									ipcRenderer.send('load-page', {
+										url           : data.input_data,
+										mode          : 'note-from-url',
+										webpreferences: 'images=no',
+										style         : { height: '10000px' }
+									});
+								},
+							}];
+							break;
+						default:
+							self.closingWindow();
+					}
+					break;
 			}
 		});
 	},

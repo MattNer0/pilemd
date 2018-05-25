@@ -367,7 +367,13 @@ function style_object(obj) {
 				}
 			},
 			".popup-simple" : {
-				color: obj["ui-text-color-selected"]
+				color: obj["ui-text-color-selected"],
+				"& a" : {
+					color: obj["title-bar-color"]
+				},
+				"& a:hover" : {
+					color: obj["folder-selected-color"]
+				}
 			}
 		}
 	}

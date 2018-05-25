@@ -11,7 +11,7 @@ var backgroundBrowserWindow = null;
 var popupWindow = null;
 var appIcon = null;
 
-var DEBUG = true;
+var DEBUG = false;
 
 // support for portable mode
 app.setPath(
@@ -257,9 +257,15 @@ function makePopupWindow(width, height, callback) {
 		}
 	};
 	
-	if (height == "small") {
-		conf.height = Math.max(Math.ceil(wSize[1]*0.2), 200);
-		conf.width = Math.max(Math.ceil(wSize[0]*0.4), 320);
+	switch(height) {
+		case "small":
+			conf.height = Math.max(Math.ceil(wSize[1]*0.2), 200);
+			conf.width = Math.max(Math.ceil(wSize[0]*0.4), 320);
+			break;
+		case "medium":
+			conf.height = Math.max(Math.ceil(wSize[1]*0.3), 300);
+			conf.width = Math.max(Math.ceil(wSize[0]*0.5), 360);
+			break;
 	}
 
 	conf.x = wBounds.x+Math.floor(wBounds.width*0.5)-Math.floor(conf.width*0.5);

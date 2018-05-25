@@ -31,7 +31,7 @@
 		left: -1.2em;
 		background: #FFF;
 		border-radius: 1em;
-		line-height: 0.8em;
+		line-height: 0.75em;
 		width: 1.05em;
 		height: 1.05em;
 		opacity: 0.6;
@@ -73,9 +73,14 @@
 	}
 
 	li > .node-circle:before {
-		content: 'lens';
-		font-family: 'Material Icons';
-		-webkit-font-feature-settings: 'liga';
+		content: "\e925";
+		font-family: 'iconcoon' !important;
+		speak: none;
+		font-style: normal;
+		font-weight: bold;
+		font-variant: normal;
+		text-transform: none;
+		line-height: 1;
 		-webkit-font-smoothing: antialiased;
 		color: #444;
 		font-size: 50%;
