@@ -75,7 +75,7 @@
 	i.down {
 		position: absolute;
 		left: -0.1em;
-		top: 0.5em;
+		top: 0.55em;
 		display: none;
 		cursor: pointer;
 		margin: 0;
@@ -92,14 +92,13 @@
 	.rack-object {
 		font-weight: bold;
 		margin: 0;
-		padding: 0.5em 0.2em 0.4em 0.2em;
+		padding: 0.3em 0.2em;
 		border-radius: $folder-list-border-radius;
 		opacity: 1.0;
 
 		transition: background-color 200ms;
 
 		text-align: center;
-		height: 3.3em;
 		width: 100%;
 
 		input {
@@ -112,35 +111,48 @@
 			z-index: 1;
 		}
 
-		a {
-			display: inline-block;
-			font-size: 140%;
-			line-height: 2.7em;
-			position: relative;
-			z-index: 1;
-		}
-
 		input {
 			font-weight: bold;
 		}
 
+		a {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			box-sizing: border-box;
+			font-size: 150%;
+			line-height: 1em;
+			vertical-align: middle;
+			border-radius: 0.4em;
+			height: 1.8em;
+			width: 1.8em;
+			padding: 0.1em 0 0;
+			margin: 0 auto;
+			text-align: center;
+		}
+
 		i.rack-icon {
 			display: block;
-			font-size: 300%;
+			font-size: 270%;
 			vertical-align: middle;
 			color: inherit;
 			opacity: 1.0;
-			z-index: 0;
-			position: absolute;
-			left: 0;
-			right: 0;
 			text-align: center;
-			top: 0;
-			bottom: 0;
+		}
+
+		i.rack-icon + a {
+			display: block;
+			font-size: 120%;
+			line-height: 1em;
+			padding: 0.1em 0.2em;
+			border-radius: 1em;
+			height: auto;
+			width: auto;
+			margin: -0.5em 0.1em 0;
 		}
 	}
 
-	.rack-object.bucket-special {
+	/*.rack-object.bucket-special {
 		height: auto;
 		padding: 0.4em 0.2em 0.4em 0.2em;
 
@@ -148,7 +160,7 @@
 			font-size: 250%;
 			position: static;
 		}
-	}
+	}*/
 
 	.folder-object {
 		margin: 0;

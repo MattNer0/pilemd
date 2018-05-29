@@ -137,11 +137,7 @@ class Rack extends Model {
 
 	get icon() {
 		if (this.trash_bin) return 'trash-2';
-		if (this._icon) {
-			return this._icon;
-		} else {
-			return 'cylinder';
-		}
+		return this._icon;
 	}
 
 	hasFolder(folder_name) {

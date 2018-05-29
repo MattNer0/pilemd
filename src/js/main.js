@@ -1325,6 +1325,11 @@ var appVue = new Vue({
 				});
 			}
 		},
+		showHidden() {
+			if (!this.showHidden && this.selectedRack !== null && this.selectedRack.hidden) {
+				this.changeRack(null);
+			}
+		},
 		currentTheme() {
 			theme.load(this.currentTheme);
 			settings.set('theme', this.currentTheme);

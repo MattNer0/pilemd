@@ -13,7 +13,7 @@
 			.rack-object(
 				:class="{ 'editing' : editingBucket == bucket.uid, 'dragging' : draggingBucket == bucket }",
 				@click="selectBucket(bucket)")
-				i.rack-icon(:class="'coon-'+bucket.icon")
+				i.rack-icon(:class="'coon-'+bucket.icon", v-if="bucket.icon")
 				a(v-if="editingBucket != bucket.uid && !bucket.hideLabel")
 					| {{ bucket.shorten }}
 				input(v-if="editingBucket == bucket.uid"
@@ -250,26 +250,28 @@
 					}));
 					menu.append(new MenuItem({type: 'separator'}));
 				}
-				menu.append(new MenuItem({
-					type: 'radio',
-					label: 'Show Label',
-					checked: !bucket.hideLabel,
-					click: () => {
-						bucket.hideLabel = false;
-						bucket.saveModel();
-					}
-				}));
-				menu.append(new MenuItem({
-					type: 'radio',
-					label: 'Hide Label',
-					checked: bucket.hideLabel,
-					click: () => {
-						bucket.hideLabel = true;
-						bucket.saveModel();
-					}
-				}));
-				if (!bucket.trash_bin) {
+				if (bucket.icon) {
+					menu.append(new MenuItem({
+						type: 'radio',
+						label: 'Show Label',
+						checked: !bucket.hideLabel,
+						click: () => {
+							bucket.hideLabel = false;
+							bucket.saveModel();
+						}
+					}));
+					menu.append(new MenuItem({
+						type: 'radio',
+						label: 'Hide Label',
+						checked: bucket.hideLabel,
+						click: () => {
+							bucket.hideLabel = true;
+							bucket.saveModel();
+						}
+					}));
 					menu.append(new MenuItem({type: 'separator'}));
+				}
+				if (!bucket.trash_bin) {
 					menu.append(new MenuItem({
 						label: 'Delete Bucket',
 						click: () => {

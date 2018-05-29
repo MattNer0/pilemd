@@ -145,10 +145,7 @@ function style_object(obj) {
 				"& .rack-object" : {
 					"& a" : {
 						color: obj["sidebar-background"],
-						textShadow: "2px 2px "+obj["sidebar-color"]+", -2px -2px "+obj["sidebar-color"]
-							+", -2px 2px "+obj["sidebar-color"]+", 2px -2px "+obj["sidebar-color"]
-							+", 0px -2px "+obj["sidebar-color"]+", 0px 2px "+obj["sidebar-color"]
-							+", -2px 0px "+obj["sidebar-color"]+", 2px 0px "+obj["sidebar-color"]
+						backgroundColor: obj["sidebar-color"]
 					},
 					"& input" : {
 						color: obj["sidebar-background"],
@@ -196,10 +193,7 @@ function style_object(obj) {
 				}
 			},
 			".my-shelf-rack .rack-object:hover a, .my-shelf-rack.isShelfSelected > .rack-object a" : {
-				textShadow: "2px 2px "+obj["folder-selected-color"]+", -2px -2px "+obj["folder-selected-color"]
-					+", -2px 2px "+obj["folder-selected-color"]+", 2px -2px "+obj["folder-selected-color"]
-					+", 0px -2px "+obj["folder-selected-color"]+", 0px 2px "+obj["folder-selected-color"]
-					+", -2px 0px "+obj["folder-selected-color"]+", 2px 0px "+obj["folder-selected-color"]
+				backgroundColor: obj["folder-selected-color"]
 			},
 			".my-shelf-rack.sortUpper .rack-object:after, .my-shelf-folder.sortUpper:after" : {
 				backgroundColor: obj["sidebar-background-selected"]
@@ -297,9 +291,6 @@ function style_object(obj) {
 				}
 			},
 			".sidebar" : {
-				"& .my-shelf-folder-bucket" : {
-					borderBottom: "1px dashed "+obj["ui-text-color-dim"]
-				},
 				"& .sidebar-menu" : {
 					border: "1px dashed "+obj["sidebar-color"],
 					color: obj["sidebar-color"]
