@@ -42,10 +42,10 @@
 		display: inline-block;
 		position: relative;
 		vertical-align: top;
-		margin: 0.3em;
+		margin: 0.3em 0.5em;
 		border-radius: $note-list-border-radius;
 		padding: 0.4em;
-		width: calc( 100% - 0.6em );
+		width: calc( 100% - 1em);
 		line-height: 1.2;
 		-webkit-user-select: none;
 		transition: background 200ms ease, margin 200ms ease, height 200ms ease;

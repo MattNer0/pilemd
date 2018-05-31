@@ -123,7 +123,7 @@
 
 	.resize-handler {
 		float: left;
-		height: calc( 100vh - 2.5em );
+		height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height } );
 		width: 4px;
 		cursor: col-resize;
 	}

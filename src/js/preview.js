@@ -2,13 +2,58 @@
  * module to render HTML for preview
  */
 
-import marked from "marked";
 import _ from "lodash";
-import highlightjs from "highlight.js";
+import hljs from "highlight.js";
 
-highlightjs.configure({
+hljs.configure({
 	useBR: true
 });
+
+const md = require('markdown-it')({
+	html: true,
+	linkify: true,
+	typographer: true,
+	highlight(str, lang) {
+		if (lang && hljs.getLanguage(lang)) {
+			try {
+				return hljs.highlight(lang, str).value;
+			} catch (__) {}
+		}
+		return ''; // use external default escaping
+		//return '<div class="hljs">' + cleanHighlighted(highlightjs.highlightAuto(code, [lang]).value, lang) + '</div>';
+	}
+})
+.use(require('markdown-it-footnote'))
+.use(require('markdown-it-checkbox'))
+.use(require('markdown-it-headinganchor'), {
+	anchorClass: 'pilemd-heading'
+}).use(require('markdown-it-link-attributes'), [{
+	pattern: /^https?:\/\//,
+	attrs: {
+		class: "external-link",
+		onclick: "require('electron').shell.openExternal(this.getAttribute('href'));return false;",
+		onauxclick: "require('electron').shell.openExternal(this.getAttribute('href'));return false;",
+		oncontextmenu: "appVue.contextOnPreviewLink(event, this.getAttribute('href'))"
+	}
+},{
+	pattern: /^ftp:\/\//,
+	attrs: {
+		class: "ftp-link",
+		onclick: "require('electron').shell.openExternal(this.getAttribute('href'));return false;",
+		onauxclick: "require('electron').shell.openExternal(this.getAttribute('href'));return false;",
+		oncontextmenu: "appVue.contextOnPreviewLink(event, this.getAttribute('href'))"
+	}
+},{
+	pattern: /^coon:\/\/library\//,
+	attrs: {
+		class: "library-link",
+		onclick: "appVue.openInternalLink(event, this.getAttribute('href'));return false;",
+		onauxclick: "appVue.openInternalLink(event, this.getAttribute('href'), true);return false;",
+		oncontextmenu: "appVue.contextOnInternalLink(event, this.getAttribute('href'))"
+	}
+}]);
+
+md.linkify.add('coon:', 'http:');
 
 var checkboxes = [];
 var headings = [];
@@ -34,9 +79,14 @@ const temp_ATAG_TO_INTERNAL = _.template('<a href="<%- href %>" title="<%- title
 const temp_FOOTNOTE_TAG = _.template('<sup class="footnote-ref"><a href="#fn<%- num %>" title="<%- title %>" id="fnref<%- num %>">[<%- num %>]</a></sup>');
 const temp_FOOTNOTE_NOTE = _.template('<li id="fn<%- num %>" class="footnote-item"><p><%- content %> <a href="#fnref<%- num %>" class="footnote-backref">↩</a></p></li>');
 
-var renderer = new marked.Renderer();
+var renderer = {}; //new marked.Renderer();
+
+renderer.checkbox = function(checked) {
+	return '<input ' + (checked ? 'checked="" ' : '') + ' type="checkbox" />';
+}
 
 renderer.listitem = function(text) {
+
 	if (/^<p>\s*\[[x ]\]\s*/.test(text)) {
 		text = text.replace(/<[/]{0,1}p>/g, '');
 	}
@@ -71,29 +121,6 @@ renderer.image = function(href, title) {
 		link: href,
 		alt: title || ''
 	});
-};
-
-renderer.heading = function(text, level) {
-	var escapedText = text.toLowerCase().replace(/[^\w]+/g, '-');
-	var duplicateIndex = headings.map(function(h) {
-		return h.text;
-	}).indexOf(escapedText);
-	var duplicateText;
-	if (duplicateIndex === -1) {
-		headings.push({
-			text : escapedText,
-			count: 0
-		});
-	} else {
-		headings[duplicateIndex].count++;
-		duplicateText = escapedText + '-' + headings[duplicateIndex].count;
-	}
-	headings_id.push({
-		id   : 'h_' + (duplicateText || escapedText),
-		text : text,
-		level: level
-	});
-	return '<h' + level + ' id="h_' + (duplicateText || escapedText) + '">' + text + '</h' + level + '>';
 };
 
 renderer.link = function(href, title, text) {
@@ -154,20 +181,6 @@ function addFootnotes(body) {
 	return body;
 }
 
-marked.setOptions({
-	renderer   : renderer,
-	gfm        : true,
-	tables     : true,
-	breaks     : true,
-	pedantic   : false,
-	sanitize   : true,
-	smartLists : true,
-	smartypants: false,
-	highlight(code, lang) {
-		return '<div class="hljs">' + cleanHighlighted(highlightjs.highlightAuto(code, [lang]).value, lang) + '</div>';
-	}
-});
-
 var forEach = function(array, callback, scope) {
 	for (var i = 0; i < array.length; i++) {
 		callback.call(scope, i, array[i]);
@@ -218,19 +231,15 @@ export default {
 		headings = [];
 		checkboxes = [];
 		footnotes = [];
-		headings_id = [];
 
 		var body = parseFootnotes(note.bodyWithDataURL);
-		var p = marked(body);
-		p = addFootnotes(p);
+		var p = md.render(body);
 		vue.$nextTick(() => {
 			forEach(document.querySelectorAll('li.checkbox'), (index, el) => {
 				clickCheckbox(vue, note, index, el);
 			});
 		});
+
 		return p;
-	},
-	getHeadings() {
-		return headings_id;
 	}
 };

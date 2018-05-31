@@ -29,7 +29,6 @@
 </template>
 
 <script>
-	import marked from "marked";
 	import fs from "fs";
 	import Vue from "vue";
 
@@ -40,6 +39,8 @@
 	// Electron things
 	import { remote, clipboard, shell } from "electron";
 	const { Menu, MenuItem, dialog } = remote;
+
+	import preview from "../preview";
 
 	import models from "../models";
 	const Note = models.Note;
@@ -124,7 +125,7 @@
 				this.$root.sendFlashMessage(1000, 'info', 'Copied Markdown to clipboard');
 			},
 			copyNoteHTML(note) {
-				clipboard.writeText(marked(note.body));
+				clipboard.writeText(preview.render(note.body, Vue));
 				this.$root.sendFlashMessage(1000, 'info', 'Copied HTML to clipboard');
 			},
 			copyOutlinePLain(note) {
@@ -138,6 +139,10 @@
 					clipboard.writeText(note.compileOutlineBody());
 					this.$root.sendFlashMessage(1000, 'info', 'Copied Text Plain to clipboard');
 				}
+			},
+			copyNotePath(note) {
+				clipboard.writeText("coon://library/"+encodeURIComponent(note.relativePath));
+				this.$root.sendFlashMessage(1000, 'info', 'Copied Note Path to clipboard');
 			},
 			exportNoteDiag(note) {
 				var filename = fileUtils.safeName(note.title) + '.md';
@@ -204,6 +209,8 @@
 						note.saveModel();
 					}}));
 				}
+				menu.append(new MenuItem({type: 'separator'}));
+				menu.append(new MenuItem({label: 'Copy Internal Link to clipboard', click: () => {this.copyNotePath(note)}}));
 				menu.append(new MenuItem({type: 'separator'}));
 				if (note.isOutline) {
 					menu.append(new MenuItem({label: 'Copy to clipboard (Plain)', click: () => {this.copyOutlinePLain(note)}}));

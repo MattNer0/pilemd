@@ -266,6 +266,7 @@ function style_object(obj) {
 				"& .my-notes-note" : {
 					color: obj["note-list-text-color"],
 					background: obj["note-list-background"],
+
 					"& .my-notes-note-date, .my-notes-note-image, .my-notes-note-body" : {
 						color: obj["note-list-body-color"]
 					}
@@ -274,16 +275,22 @@ function style_object(obj) {
 					backgroundColor: obj["sidebar-background-selected"]
 				},
 				"& .my-notes-note:hover" : {
-					background: obj["sidebar-background-hover"],
+					background: obj["note-list-background-hover"],
 					color: obj["note-list-text-color-hover"],
 
 					"& .my-notes-note-date, .my-notes-note-image, .my-notes-note-body" : {
-						color: obj["note-list-body-color-selected"]
+						color: obj["note-list-body-color-hover"]
 					}
 				},
 				"& .my-notes-note.my-notes-note-selected" : {
 					background: obj["sidebar-background-selected"],
 					color: obj["note-list-text-color-selected"],
+
+					"& .my-notes-note-date, .my-notes-note-image, .my-notes-note-body" : {
+						color: obj["note-list-body-color-selected"]
+					}
+				},
+				"& .my-notes-note.my-notes-note-selected:hover" : {
 
 					"& .my-notes-note-date, .my-notes-note-image, .my-notes-note-body" : {
 						color: obj["note-list-body-color-selected"]

@@ -253,8 +253,18 @@
 			},
 			folderMenu(bucket, folder) {
 				if (!bucket.uid) return;
-
 				var menu = new Menu();
+
+				if (this.selectedFolder == folder) {
+					menu.append(new MenuItem({
+						label: 'Deselect folder',
+						click: () => {
+							this.changeFolder(null);
+						}
+					}));
+					menu.append(new MenuItem({type: 'separator'}));
+				}
+
 				if (!bucket.trash_bin) {
 					menu.append(new MenuItem({
 						label: 'Rename folder',

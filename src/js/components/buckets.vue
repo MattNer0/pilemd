@@ -217,14 +217,18 @@
 			bucketMenu(bucket) {
 				var menu = new Menu();
 
-				/*menu.append(new MenuItem({
-					label: 'Set Bucket Thumbnail',
-					click: () => {
-						this.selectRackThumbnail(bucket);
-					}
-				}));*/
+				if (this.selectedBucket == bucket) {
+					menu.append(new MenuItem({
+						label: 'Deselect bucket',
+						click: () => {
+							this.changeBucket(null);
+						}
+					}));
+					menu.append(new MenuItem({type: 'separator'}));
+				}
+
 				menu.append(new MenuItem({
-					label: 'Add new Bucket',
+					label: 'Add new bucket',
 					click: () => {
 						var bucket = new models.Rack({
 							name: "",
@@ -236,8 +240,14 @@
 				}));
 				menu.append(new MenuItem({type: 'separator'}));
 				if (!bucket.trash_bin) {
+					/*menu.append(new MenuItem({
+						label: 'Set Bucket Thumbnail',
+						click: () => {
+							this.selectRackThumbnail(bucket);
+						}
+					}));*/
 					menu.append(new MenuItem({
-						label: 'Rename Bucket',
+						label: 'Rename bucket',
 						click: () => {
 							this.$root.setEditingRack(bucket);
 						}
@@ -250,10 +260,11 @@
 					}));
 					menu.append(new MenuItem({type: 'separator'}));
 				}
+
 				if (bucket.icon) {
 					menu.append(new MenuItem({
 						type: 'radio',
-						label: 'Show Label',
+						label: 'Show label',
 						checked: !bucket.hideLabel,
 						click: () => {
 							bucket.hideLabel = false;
@@ -262,7 +273,7 @@
 					}));
 					menu.append(new MenuItem({
 						type: 'radio',
-						label: 'Hide Label',
+						label: 'Hide label',
 						checked: bucket.hideLabel,
 						click: () => {
 							bucket.hideLabel = true;
@@ -271,9 +282,10 @@
 					}));
 					menu.append(new MenuItem({type: 'separator'}));
 				}
+
 				if (!bucket.trash_bin) {
 					menu.append(new MenuItem({
-						label: 'Delete Bucket',
+						label: 'Delete bucket',
 						click: () => {
 							if (confirm('Delete bucket "' + bucket.name + '" and its content?')) {
 								this.$root.removeRack(bucket);

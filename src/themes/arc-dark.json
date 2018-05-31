@@ -36,10 +36,12 @@
 	"folder-separator": "#4b535d",
 
 	"note-list-background": "transparent",
+	"note-list-background-hover": "#445e7d",
 	"note-list-text-color": "#949ba6",
 	"note-list-text-color-hover": "#ffffff",
 	"note-list-text-color-selected": "#ffffff",
 	"note-list-body-color": "#858585",
+	"note-list-body-color-hover": "#d2d2d2",
 	"note-list-body-color-selected": "#d2d2d2",
 	"note-separator-line": "#36393e",
 

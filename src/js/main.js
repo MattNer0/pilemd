@@ -99,7 +99,6 @@ var appVue = new Vue({
 		loadingUid       : '',
 		allDragHover     : false,
 		messages         : [],
-		noteHeadings     : [],
 		modalShow        : false,
 		modalTitle       : 'title',
 		modalDescription : 'description',
@@ -1040,6 +1039,41 @@ var appVue = new Vue({
 			}));
 			m.popup(remote.getCurrentWindow());
 		},
+		contextOnInternalLink(e, href) {
+			var self = this;
+			if (e.stopPropagation) {
+				e.stopPropagation();
+			}
+		
+			var m = new Menu();
+			m.append(new MenuItem({
+				label: 'Copy Link',
+				click: function() {
+					clipboard.writeText(href);
+				}
+			}));
+			m.append(new MenuItem({
+				label: 'Open in new tab',
+				click: function() {
+					self.openInternalLink(null, href, true);
+				}
+			}));
+			m.popup(remote.getCurrentWindow());
+		},
+		openInternalLink(e, href, new_tab) {
+			if (e && e.stopPropagation) {
+				e.stopPropagation();
+			}
+			
+			href = href.replace("coon://library/", "");
+			href = decodeURIComponent(href);
+			href = path.join(settings_baseLibraryPath, href);
+		
+			var noteObj = this.findNoteByPath(href);
+			if (noteObj) {
+				this.changeNote(noteObj, new_tab);
+			}
+		},
 		/**
 		 * displays context menu for the list of racks.
 		 * @function backetsMenu
@@ -1266,10 +1300,8 @@ var appVue = new Vue({
 		updatePreview(no_scroll) {
 			if (this.isPreview && this.selectedNote) {
 				this.preview = preview.render(this.selectedNote, this);
-				this.noteHeadings = preview.getHeadings();
 				if (no_scroll === undefined) this.scrollUpScrollbarNote();
 			} else {
-				this.noteHeadings = [];
 				this.preview = '';
 			}
 		},

@@ -2,14 +2,6 @@
 	.noteBar
 		nav: ul(:class="{'transparent' : !isPreview && !isToolbarEnabled }")
 			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
-				a(@click="menu_checkMark", href="#", title="Insert Checkbox")
-					i.coon-check-square
-					|  Checkbox
-			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
-				a(@click="menu_codeBlock", href="#", title="Insert Code block")
-					i.coon-code
-					|  Code block
-			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
 				a(@click="menu_image", href="#", title="Insert Image from Url")
 					i.coon-image
 					|  Image
@@ -26,6 +18,14 @@
 							span(v-if="table_hover_row > 0") {{ table_hover_row }} x {{ table_hover_column }}
 							span(v-else)
 								| Select the Table Size
+			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
+				a(@click="menu_checkMark", href="#", title="Insert Checkbox")
+					i.coon-check-square
+					|  Checkbox
+			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
+				a(@click="menu_codeBlock", href="#", title="Insert Code block")
+					i.coon-code
+					|  Code block
 
 			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': !isPreview || !noteHeadings || noteHeadings.length < 2 }")
 				div: dropdown(:visible="headings_visible", :position="position_left", v-on:clickout="headings_visible = false")
@@ -142,7 +142,6 @@
 			'isNoteSelected'   : Boolean,
 			'isOutlineSelected': Boolean,
 			'fontsize'         : Number,
-			'noteHeadings'     : Array,
 			'togglePreview'    : Function,
 			'sendFlashMessage' : Function
 		},
@@ -159,6 +158,36 @@
 				'position_left': [ "left", "top", "left", "top" ],
 				'position_right': [ "right", "top", "right", "top" ]
 			};
+		},
+		computed: {
+			noteHeadings() {
+
+				function getNodeText(oDiv) {
+					var firstText = "";
+					var whitespace = /^\s*$/;
+					for (var i = 0; i < oDiv.childNodes.length; i++) {
+						var curNode = oDiv.childNodes[i];
+						if (curNode.nodeType === Node.TEXT_NODE && !(whitespace.test(curNode.nodeValue))) {
+							firstText = curNode.nodeValue;
+							break;
+						}
+					}
+					return firstText;
+				}
+
+				if (!this.isPreview) return [];
+				var note_heading = [];
+				var headings = document.querySelectorAll(".my-editor-preview .pilemd-heading");
+				for (var i=0; i<headings.length; i++) {
+					var node = headings[i];
+					note_heading.push({
+						id   : node.getAttribute("name"),
+						text : getNodeText(node.parentNode),
+						level: parseInt(node.parentNode.tagName.replace(/h/i,""))
+					});
+				}
+				return note_heading;
+			}
 		},
 		components: {
 			'dropdown': myDropdown

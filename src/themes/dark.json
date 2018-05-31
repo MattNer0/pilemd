@@ -34,11 +34,13 @@
 	"folder-badge-color": "#adacac",
 	"folder-separator": "#4b535d",
 
-	"note-list-background": "transparent",
-	"note-list-text-color": "#949ba6",
-	"note-list-text-color-hover": "#ffffff",
+	"note-list-background": "#dedede",
+	"note-list-background-hover": "#fff",
+	"note-list-text-color": "#333",
+	"note-list-text-color-hover": "#333",
 	"note-list-text-color-selected": "#ffffff",
 	"note-list-body-color": "#858585",
+	"note-list-body-color-hover": "#858585",
 	"note-list-body-color-selected": "#d2d2d2",
 	"note-separator-line": "#36393e",
 
