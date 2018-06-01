@@ -8,6 +8,7 @@
 			fencedCodeBlocks     : '```',
 			strikethrough        : true,
 			highlightFormatting  : true,
+			xml                  : false,
 			tokenTypeOverrides   : {
 				header       : 'piled-header',
 				code         : 'piled-code',

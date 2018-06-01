@@ -1,5 +1,5 @@
 /*
- * module to render HTML for preview
+ * module to render HTML from Markdown Text for preview
  */
 
 import _ from "lodash";
@@ -9,25 +9,41 @@ hljs.configure({
 	useBR: true
 });
 
-const md = require('markdown-it')({
+import markdownIt from 'markdown-it';
+import markdownItFootnote from 'markdown-it-footnote';
+import markdownItCheckbox from './markdown-it/checkbox';
+import markdownItImage from './markdown-it/image';
+import markdownItHeadingAnchor from 'markdown-it-headinganchor';
+import markdownItLinkAttributes from 'markdown-it-link-attributes';
+
+const md = markdownIt({
 	html: true,
 	linkify: true,
 	typographer: true,
 	highlight(str, lang) {
 		if (lang && hljs.getLanguage(lang)) {
 			try {
-				return hljs.highlight(lang, str).value;
+				//return hljs.highlight(lang, str).value;
+				return '<div class="hljs">' + hljs.highlight(lang, str).value + '</div>';
 			} catch (__) {}
 		}
 		return ''; // use external default escaping
 		//return '<div class="hljs">' + cleanHighlighted(highlightjs.highlightAuto(code, [lang]).value, lang) + '</div>';
 	}
-})
-.use(require('markdown-it-footnote'))
-.use(require('markdown-it-checkbox'))
-.use(require('markdown-it-headinganchor'), {
-	anchorClass: 'pilemd-heading'
-}).use(require('markdown-it-link-attributes'), [{
+});
+
+md.use(markdownItFootnote);
+md.use(markdownItCheckbox, {
+	disabled: true,
+	sourceMap: true,
+	divWrap: true,
+	divClass: 'check',
+	liClass: 'checkbox',
+	liClassChecked: 'checkbox-checked'
+});
+md.use(markdownItImage);
+md.use(markdownItHeadingAnchor, { anchorClass: 'pilemd-heading' });
+md.use(markdownItLinkAttributes, [{
 	pattern: /^https?:\/\//,
 	attrs: {
 		class: "external-link",
@@ -55,130 +71,10 @@ const md = require('markdown-it')({
 
 md.linkify.add('coon:', 'http:');
 
-var checkboxes = [];
-var headings = [];
-var headings_id = [];
-var footnotes = [];
-
-const temp_CHECKBOX = _.template('<li class="checkbox <%- checked ? \'checkbox-checked\' : \'\' %>"><label>' +
-	'<span><input data-value="<%- data %>" type="checkbox" <%- checked ? \'checked\' : \'\' %> /><span></span></span> <%= text %>' +
-	'</label></li>');
-
-const temp_IMGTAG = _.template('<a href="#" onclick="appVue.openImg(\'<%- link %>\'); return false">' +
-	'<img src="<%- link %>" alt="<%- alt %>" />' +
-	'</a>');
-
-const temp_ATAG_TO_EXTERNAL = _.template('<a href="<%- href %>" title="<%- title %>" ' +
-	'onclick="require(\'electron\').shell.openExternal(\'<%- href %>\'); ' +
-	'return false;"' +
-	'oncontextmenu="appVue.contextOnPreviewLink(event, \'<%- href %>\')">' +
-	'<%= text %>' +
-	'</a>');
-
-const temp_ATAG_TO_INTERNAL = _.template('<a href="<%- href %>" title="<%- title %>"><%= text %></a>');
-const temp_FOOTNOTE_TAG = _.template('<sup class="footnote-ref"><a href="#fn<%- num %>" title="<%- title %>" id="fnref<%- num %>">[<%- num %>]</a></sup>');
-const temp_FOOTNOTE_NOTE = _.template('<li id="fn<%- num %>" class="footnote-item"><p><%- content %> <a href="#fnref<%- num %>" class="footnote-backref">↩</a></p></li>');
-
-var renderer = {}; //new marked.Renderer();
-
-renderer.checkbox = function(checked) {
-	return '<input ' + (checked ? 'checked="" ' : '') + ' type="checkbox" />';
-}
-
-renderer.listitem = function(text) {
-
-	if (/^<p>\s*\[[x ]\]\s*/.test(text)) {
-		text = text.replace(/<[/]{0,1}p>/g, '');
-	}
-
-	if (/^\s*\[[x ]\]\s*/.test(text)) {
-		var clean_text = text.replace(/^\s*\[ \]\s*/, '').replace(/^\s*\[x\]\s*/, '');
-		var escapedText = clean_text.toLowerCase().replace(/[^\w]+/g, '-');
-		var duplicateIndex = checkboxes.map(function(h) {
-			return h.text;
-		}).indexOf(escapedText);
-		var duplicateText;
-		if (duplicateIndex === -1) {
-			checkboxes.push({
-				text: escapedText,
-				count: 0
-			});
-		} else {
-			checkboxes[duplicateIndex].count++;
-			duplicateText = escapedText + '-' + checkboxes[duplicateIndex].count;
-		}
-		return temp_CHECKBOX({
-			checked: (/^\s*\[x\]\s*/.test(text)),
-			data: (duplicateText || escapedText),
-			text: clean_text
-		});
-	}
-	return '<li>' + text + '</li>';
-};
-
-renderer.image = function(href, title) {
-	return temp_IMGTAG({
-		link: href,
-		alt: title || ''
-	});
-};
-
-renderer.link = function(href, title, text) {
-	if (href.indexOf('http') == 0) {
-		return temp_ATAG_TO_EXTERNAL({
-			href: href,
-			title: title,
-			text: text
-		});
-	}
-	if (text[0] == "^" && href.match(/fn_\d+/i)) {
-		var match = (/fn_(\d+)/i).exec(href);
-		var footnote = footnotes[parseInt(match[1]-1)];
-		footnote.matched = true;
-		return temp_FOOTNOTE_TAG(footnote);
-	}
-	return temp_ATAG_TO_INTERNAL({
-		href: href,
-		title: title,
-		text: text
-	});
-};
-
-function parseFootnotes(text) {
-	text = text + "\n";
-	var clean_text = text.replace(/^[ \t]*(\[\^\w+\]\s*:\s*.+?)\n/gm, function(x) {
-		var match = (/\[\^(\w+)\]\s*:\s*(.+)/gm).exec(x);
-		var new_footnote = {
-			num: footnotes.length + 1,
-			title: match[1],
-			content: match[2],
-			matched: false
-		};
-		footnotes.push(new_footnote);
-		var y = "[^"+new_footnote.title+"]: fn_"+new_footnote.num+"\n";
-		return y;
-	});
-	return clean_text;
-}
-
 function cleanHighlighted(value, lang) {
 	value = value.replace(/\n/g, '<br/>');
 	value = value.replace(/    /g, '&nbsp;&nbsp;&nbsp;&nbsp;');
 	return value;
-}
-
-function addFootnotes(body) {
-	footnotes = footnotes.filter(function(obj) {
-		return obj.matched;
-	});
-	if (footnotes.length > 0) {
-		body += '<hr class="footnotes-sep"><section class="footnotes"><ol class="footnotes-list">';
-		for(var i=0; i<footnotes.length;i++) {
-			body += temp_FOOTNOTE_NOTE(footnotes[i]);
-		}
-		body += '</ol></section>';
-	}
-	return body;
 }
 
 var forEach = function(array, callback, scope) {
@@ -228,12 +124,7 @@ export default {
 	 * @return {String} Html version of note content
 	 */
 	render(note, vue) {
-		headings = [];
-		checkboxes = [];
-		footnotes = [];
-
-		var body = parseFootnotes(note.bodyWithDataURL);
-		var p = md.render(body);
+		var p = md.render(note.bodyWithDataURL);
 		vue.$nextTick(() => {
 			forEach(document.querySelectorAll('li.checkbox'), (index, el) => {
 				clickCheckbox(vue, note, index, el);

@@ -1,7 +1,7 @@
 {
 	"name": "pilemd",
 	"productName": "PileMd",
-	"version": "0.16.2",
+	"version": "0.16.3",
 	"description": "",
 	"main": "./dist/main.js",
 	"dependencies": {
@@ -26,7 +26,6 @@
 		"markdown-table": "^1.1.1",
 		"markdown-it": "8.4.1",
 		"markdown-it-footnote": "3.0.1",
-		"markdown-it-checkbox": "1.1.0",
 		"markdown-it-headinganchor": "1.3.0",
 		"markdown-it-link-attributes": "2.1.0",
 		"moment": "^2.22.1",
