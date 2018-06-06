@@ -329,17 +329,15 @@ function style_object(obj) {
 				}
 			},
 			".tabs-bar" : {
-				backgroundColor: obj["main-background-color"],
-				"& .tab" : {
+				"& .tab:after" : {
 					backgroundColor: obj["tabs-background"],
-					border: "2px solid "+obj["note-border-color"],
-					borderBottom: obj["tabs-background"]
+					borderColor: obj["note-border-color"]
 				},
-				"& .tab.selected, .tab:hover" : {
+				"& .tab.selected:after, .tab:hover:after" : {
 					backgroundColor: obj["tab-selected-background"]
 				},
-				"& .tab.selected" : {
-					borderBottom: obj["tab-selected-background"]
+				"& .tab.selected:after" : {
+					backgroundColor: obj["tab-selected-background"]
 				}
 			},
 			".title-bar-spacing" : {

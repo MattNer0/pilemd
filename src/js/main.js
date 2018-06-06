@@ -615,7 +615,7 @@ var appVue = new Vue({
 		 * @param  {Object}  note  selected note
 		 * @return {Void} Function doesn't return anything
 		 */
-		changeNote(note, newtab) {
+		changeNote(note, newtab, from_sidebar) {
 			var self = this;
 
 			if (this.isNoteSelected && this.selectedNote && this.selectedNote != note) {
@@ -627,7 +627,7 @@ var appVue = new Vue({
 				return;
 			} else if (note == this.selectedNote) {
 				if (this.selectedRack === null && !this.showSearch) this.changeFolder(note.folder);
-				else if (!this.isFullScreen) {
+				else if (!this.isFullScreen && from_sidebar) {
 					this.setFullScreen(true);
 					this.update_editor_size();
 				}

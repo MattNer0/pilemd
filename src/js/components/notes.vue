@@ -6,6 +6,7 @@
 				track-by="uid",
 				@click="selectNote(note)",
 				@dblclick="selectNoteAndWide(note)",
+				v-on:auxclick.stop.prevent="selectNote(note, true)"
 				@contextmenu.prevent.stop="noteMenu(note)",
 				@dragstart.stop="noteDragStart($event, note)",
 				@dragend.stop="noteDragEnd()",
@@ -81,11 +82,15 @@
 		},
 		methods: {
 			selectNote(note, newtab) {
-				this.changeNote(note, newtab);
+				this.changeNote(note, newtab, true);
 			},
 			selectNoteAndWide(note) {
-				this.changeNote(note);
-				this.toggleFullScreen();
+				if (this.selectedNote != note) {
+					this.changeNote(note, false, true);
+					this.toggleFullScreen();
+				} else {
+					this.changeNote(note, false, true);
+				}
 			},
 			removeNote(note) {
 				var dialog_options = {
