@@ -2,7 +2,7 @@
 	.my-shelf-buckets(:class="{ 'draggingRack' : draggingBucket, 'draggingFolder' : draggingFolder }")
 		.my-shelf-rack(v-for="bucket in bucketsWithFolders"
 			:class="classBucket(bucket)"
-			:draggable="editingFolder === null && editingBucket === null && !bucket.trash_bin ? 'true' : 'false'"
+			:draggable="editingFolder === null && !bucket.trash_bin ? 'true' : 'false'"
 			v-tooltip="{ 'content': bucket.name, 'placement': 'left' }"
 			@dragstart.stop="rackDragStart($event, bucket)"
 			@dragend.stop="rackDragEnd()"
@@ -11,17 +11,16 @@
 			@drop.stop="dropToRack($event, bucket)"
 			@contextmenu.prevent.stop="bucketMenu(bucket)")
 			.rack-object(
-				:class="{ 'editing' : editingBucket == bucket.uid, 'dragging' : draggingBucket == bucket }",
+				:class="{ 'dragging' : draggingBucket == bucket }",
 				@click="selectBucket(bucket)")
 				i.rack-icon(:class="'coon-'+bucket.icon", v-if="bucket.icon")
-				a(v-if="editingBucket != bucket.uid && !bucket.hideLabel")
+				a(v-if="!bucket.hideLabel")
 					| {{ bucket.shorten }}
-				input(v-if="editingBucket == bucket.uid"
-					v-model="bucket.name"
-					v-focus="editingBucket == bucket.uid"
-					@blur="doneRackEdit(bucket, false)"
-					@keyup.enter="doneRackEdit(bucket, false)"
-					@keyup.esc="doneRackEdit(bucket, true)")
+		
+		.my-shelf-rack(v-tooltip="{ 'content': 'New bucket', 'placement': 'left' }")
+			.rack-object.bucket-special(@click="newBucket()")
+				span
+					i.rack-icon.coon-plus
 </template>
 
 <script>
@@ -46,7 +45,6 @@
 			'draggingFolder'      : Object,
 			'draggingNote'        : Object,
 			'changeBucket'        : Function,
-			'editingBucket'       : String,
 			'editingFolder'       : String,
 			'originalNameBucket'  : String,
 			'search'              : String,
@@ -76,7 +74,7 @@
 					};
 				}
 			},
-			doneRackEdit(bucket, undo) {
+			/*doneRackEdit(bucket, undo) {
 				if (!this.editingBucket) { return }
 				if (bucket.name.length == 0) {
 					if (this.originalNameBucket && this.originalNameBucket.length > 0) {
@@ -96,7 +94,7 @@
 				bucket.saveModel();
 				this.$root.setEditingRack(null);
 				if (this.selectedBucket != bucket) this.changeBucket(bucket);
-			},
+			},*/
 			// Dragging
 			rackDragStart(event, bucket) {
 				event.dataTransfer.setDragImage(event.target, 0, 0);
@@ -193,6 +191,14 @@
 			selectBucket(bucket) {
 				this.$root.changeRack(bucket, true);
 			},
+			newBucket() {
+				var bucket = new models.Rack({
+					name: "",
+					ordering: 0
+				});
+				this.$root.addRack(bucket);
+				this.$root.setEditingRack(bucket);
+			},
 			/*selectRackThumbnail(rack) {
 				try {
 					var filePath = dialog.showOpenDialog(remote.getCurrentWindow(), {
@@ -238,12 +244,7 @@
 				menu.append(new MenuItem({
 					label: 'Add new bucket',
 					click: () => {
-						var bucket = new models.Rack({
-							name: "",
-							ordering: 0
-						});
-						this.$root.addRack(bucket);
-						this.$root.setEditingRack(bucket);
+						this.newBucket();
 					}
 				}));
 				menu.append(new MenuItem({type: 'separator'}));

@@ -1,5 +1,5 @@
 <template lang="pug">
-	.my-shelf-folders(v-if="bucket.folders.length > 0")
+	.my-shelf-folders
 		.my-shelf-folder-bucket(@contextmenu.prevent.stop="")
 			| {{ bucket.name }}
 		.my-shelf-folder.my-all(
@@ -19,7 +19,7 @@
 
 		.my-shelf-folder.my-favorites(
 			@contextmenu.prevent.stop="",
-			v-if="bucket.starrednotes.length > 0"
+			v-if="bucket.folders.length > 0 && bucket.starrednotes.length > 0"
 			:class="{ 'isShelfSelected': showFavorites }")
 			.folder-object(@click="selectFavorites(bucket)", :class="{ 'dragging' : draggingFolder }")
 				a.my-shelf-folder-name

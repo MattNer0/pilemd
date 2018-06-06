@@ -20,7 +20,11 @@
 		props: {
 			'required'     : Boolean,
 			'placeholder'  : String,
-			'buttons'      : Array
+			'buttons'      : Array,
+			'defaultData'      : String
+		},
+		mounted() {
+			this.input_data = this.defaultData;
 		},
 		computed: {
 			formData() {

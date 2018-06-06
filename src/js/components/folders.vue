@@ -2,7 +2,7 @@
 	.my-shelf-folders(v-if="parentFolder && parentFolder.folders && parentFolder.folders.length > 0")
 		.my-shelf-folder(v-for="folder in parentFolder.folders"
 			:class="classFolder(folder)"
-			:draggable="editingFolder === null && editingBucket === null && parentFolder.uid ? 'true' : 'false'"
+			:draggable="editingFolder === null && parentFolder.uid ? 'true' : 'false'"
 			@dragstart.stop="folderDragStart($event, parentFolder, folder)"
 			@dragend.stop="folderDragEnd(folder)"
 			@dragover.stop="folderDragOver($event, folder)"
@@ -40,7 +40,6 @@
 					:dragging-note="draggingNote"
 					:change-bucket="changeBucket"
 					:change-folder="changeFolder"
-					:editing-bucket="editingBucket"
 					:editing-folder="editingFolder"
 					:dragging-folder="draggingFolder"
 					:search="search")
@@ -64,7 +63,6 @@
 			'draggingFolder'      : Object,
 			'changeBucket'        : Function,
 			'changeFolder'        : Function,
-			'editingBucket'       : String,
 			'editingFolder'       : String,
 			'search'              : String
 		},

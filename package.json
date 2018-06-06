@@ -1,7 +1,7 @@
 {
 	"name": "pilemd",
 	"productName": "PileMd",
-	"version": "0.16.5",
+	"version": "0.16.6",
 	"description": "",
 	"main": "./dist/main.js",
 	"dependencies": {

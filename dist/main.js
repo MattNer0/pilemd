@@ -11,7 +11,7 @@ var backgroundBrowserWindow = null;
 var popupWindow = null;
 var appIcon = null;
 
-var DEBUG = true;
+var DEBUG = false;
 
 // support for portable mode
 app.setPath(
@@ -268,6 +268,12 @@ function makePopupWindow(width, height, callback) {
 			break;
 	}
 
+	switch(width) {
+		case "small":
+			conf.width = Math.max(Math.ceil(wSize[0]*0.3), 320);
+			break;
+	}
+
 	conf.x = wBounds.x+Math.floor(wBounds.width*0.5)-Math.floor(conf.width*0.5);
 	conf.y = wBounds.y+Math.floor(wBounds.height*0.5)-Math.floor(conf.height*0.5);
 
@@ -409,7 +415,8 @@ function init() {
 	ipcMain.on('load-page-finish', (event, payload) => mainWindow.webContents.send('load-page-finish', payload));
 
 	ipcMain.on('download-files-failed', (event, payload) => mainWindow.webContents.send('download-files-failed', payload));
-	
+
+	ipcMain.on('bucket-rename', (event, payload) => mainWindow.webContents.send('bucket-rename', payload));
 	
 	ipcMain.on('console', (event, payload) => {
 		console.log(payload);

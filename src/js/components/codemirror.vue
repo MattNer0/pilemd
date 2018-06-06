@@ -233,7 +233,7 @@
 						// New doc
 						doc = new CodeMirror.Doc(value.body, 'piledmd');
 						value.doc = doc;
-						cm.focus();
+						//cm.focus();
 					}
 					this.$nextTick(() => { cm.refresh(); });
 					setTimeout(() => { cm.refresh(); }, 100);
@@ -331,7 +331,7 @@
 					this.$nextTick(() => {
 						setTimeout(() => {
 							this.refreshCM();
-							this.cm.focus();
+							//this.cm.focus();
 						}, 300);
 					});
 				}
@@ -340,7 +340,7 @@
 				if (!this.isPreview) {
 					this.$nextTick(() => {
 						this.refreshCM();
-						this.cm.focus();
+						//this.cm.focus();
 					});
 				}
 			},

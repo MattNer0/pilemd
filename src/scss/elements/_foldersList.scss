@@ -152,15 +152,24 @@
 		}
 	}
 
-	/*.rack-object.bucket-special {
-		height: auto;
-		padding: 0.4em 0.2em 0.4em 0.2em;
+	.rack-object.bucket-special {
 
-		i.rack-icon {
-			font-size: 250%;
-			position: static;
+		span {
+			display: block;
+			border: 0.1em dashed;
+			height: 1.8em;
+			width: 1.8em;
+			font-size: 122.8%;
+			margin: 0 auto;
+			padding: 0.1em;
+			border-radius: 0.3em;
+
+			i.rack-icon {
+				font-size: 170%;
+				position: static;
+			}
 		}
-	}*/
+	}
 
 	.folder-object {
 		margin: 0;

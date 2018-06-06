@@ -89,7 +89,7 @@ var appVue = new Vue({
 		showAll          : false,
 		showFavorites    : false,
 		noteTabs         : [],
-		editingRack      : null,
+		editingBucket    : null,
 		editingFolder    : null,
 		originalNameRack : "",
 		draggingRack     : null,
@@ -407,6 +407,15 @@ var appVue = new Vue({
 			this.sendFlashMessage(5000, 'error', data.error);
 		});
 
+		ipcRenderer.on('bucket-rename', (event, data) => {
+			if (data && data.bucket_uid && this.editingBucket && this.editingBucket.uid == data.bucket_uid && data.name) {
+				this.editingBucket.name = data.name;
+				this.editingBucket.saveModel();
+				if (this.selectedBucket != this.editingBucket) this.changeRack(this.editingBucket, true);
+				this.editingBucket = null;
+			}
+		});
+
 		ipcRenderer.on('focus', (event, data) => {
 			if (data && data.focus) {
 				document.getElementById('main-editor').classList.remove("blur");
@@ -542,7 +551,6 @@ var appVue = new Vue({
 				this.changeFolder(this.selectedNote.folder);
 			} else if (rack === null || rack instanceof models.Rack) {
 				this.selectedRack = rack;
-				this.editingRack = null;
 				this.editingFolder = null;
 				this.originalNameRack = "";
 
@@ -573,7 +581,6 @@ var appVue = new Vue({
 		changeFolder(folder, weak) {
 			if (weak && folder && (this.showAll || this.showFavorites) && this.selectedRack == folder.rack) return;
 			if (this.selectedFolder === null && folder) this.update_editor_size();
-			this.editingRack = null;
 			this.editingFolder = null;
 			this.originalNameRack = "";
 
@@ -586,7 +593,6 @@ var appVue = new Vue({
 			//this.changeRack(rack);
 
 			this.selectedFolder = null;
-			this.editingRack = null;
 			this.editingFolder = null;
 			this.originalNameRack = "";
 			this.showHistory = false;
@@ -600,7 +606,6 @@ var appVue = new Vue({
 			//this.changeRack(rack);
 
 			this.selectedFolder = null;
-			this.editingRack = null;
 			this.editingFolder = null;
 			this.originalNameRack = "";
 			this.showHistory = false;
@@ -620,6 +625,10 @@ var appVue = new Vue({
 
 			if (this.isNoteSelected && this.selectedNote && this.selectedNote != note) {
 				this.selectedNote.saveModel();
+			}
+
+			if (note !== null && from_sidebar && this.draggingNote) {
+				this.draggingNote = false;
 			}
 
 			if (note === null) {
@@ -737,13 +746,23 @@ var appVue = new Vue({
 				this.selectedNote = null;
 			}
 		},
-		setEditingRack(rack) {
-			if (rack) {
-				this.editingRack = rack.uid;
-				this.originalNameRack = rack.name;
+		setEditingRack(bucket) {
+			if (bucket) {
+
+				this.editingBucket = bucket;
+
+				ipcRenderer.send('open-popup', {
+					type: "input-text",
+					theme: this.currentTheme,
+					title: "Rename Bucket",
+					form: "bucket-name",
+					bucket: bucket.name,
+					bucket_uid: bucket.uid,
+					height: "small",
+					width: "small"
+				});
 			} else {
-				this.editingRack = null;
-				this.originalNameRack = "";
+				this.editingBucket = null;
 			}
 		},
 		setEditingFolder(folder) {
@@ -1003,7 +1022,6 @@ var appVue = new Vue({
 			}
 		}, 500),
 		addNoteFromUrl() {
-
 			ipcRenderer.send('open-popup', {
 				type: "input-text",
 				theme: this.currentTheme,

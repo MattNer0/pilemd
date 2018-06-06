@@ -37,6 +37,7 @@ var appVue = new Vue({
 		title            : "",
 		message          : "",
 		inputPlaceholder : "",
+		inputDefault     : "",
 		inputRequired    : true,
 		inputButtons     : []
 	},
@@ -66,6 +67,7 @@ var appVue = new Vue({
 						case "note-url":
 							self.inputRequired = true;
 							self.inputPlaceholder = "https://...";
+							self.inputDefault = "";
 							self.inputButtons = [{
 								label: "Cancel",
 								type: "close"
@@ -88,6 +90,32 @@ var appVue = new Vue({
 										mode          : 'note-from-url',
 										webpreferences: 'images=no',
 										style         : { height: '10000px' }
+									});
+								},
+							}];
+							break;
+						case "bucket-name":
+							self.inputRequired = true;
+							self.inputPlaceholder = "Bucket Name";
+							self.inputDefault = data.bucket;
+							self.inputButtons = [{
+								label: "Cancel",
+								type: "close"
+							}, {
+								label: "Ok",
+								type: "submit",
+								validate(form) {
+									if (form.input_data.length > 0) {
+										return false;
+									}
+									// @todo gonna use this to highlight the wrong field in the form
+									return 'bucket';
+								},
+								callback(form) {
+									//self.sendFlashMessage(1000, 'info', 'Loading page...');
+									ipcRenderer.send('bucket-rename', {
+										name       : form.input_data,
+										bucket_uid : data.bucket_uid
 									});
 								},
 							}];
