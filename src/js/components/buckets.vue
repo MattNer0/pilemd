@@ -225,6 +225,14 @@
 						}
 					}));
 					menu.append(new MenuItem({type: 'separator'}));
+				} else {
+					menu.append(new MenuItem({
+						label: 'Select bucket',
+						click: () => {
+							this.changeBucket(bucket, true);
+						}
+					}));
+					menu.append(new MenuItem({type: 'separator'}));
 				}
 
 				menu.append(new MenuItem({

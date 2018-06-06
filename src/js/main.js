@@ -190,6 +190,7 @@ var appVue = new Vue({
 			var classes = [ 'font' + this.fontsize ];
 			if (this.noteTabs.length > 1) classes.push('tabs-open');
 			if (this.isFullWidthNote) classes.push('full-note');
+			if (this.isNoteSelected || this.isOutlineSelected) classes.push('note-open');
 			return classes;
 		},
 		currentThemeAsString() {

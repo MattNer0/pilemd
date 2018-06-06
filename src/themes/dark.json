@@ -46,6 +46,10 @@
 
 	"note-background-color": "#ffffff",
 
+	"note-container-background-color": "#aaaaaa",
+	"note-bar-color": "#555555",
+	"note-bar-color-hover": "#333333",
+
 	"note-border-color": "#ababab",
 	"note-text-color": "#333",
 	"note-header1-color": "#3f51b5",

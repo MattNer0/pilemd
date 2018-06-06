@@ -140,18 +140,19 @@
 					:current-note="selectedNote"
 					:tabs-array="noteTabs"
 				></tabs-bar>
+				<note-menu
+					v-if="isNoteSelected || isOutlineSelected"
+					:note="selectedNote"
+					:is-full-screen="isFullScreen"
+					:is-toolbar-enabled="isToolbarEnabled"
+					:is-note-selected="isNoteSelected"
+					:is-outline-selected="isOutlineSelected"
+					:is-preview="isPreview"
+					:fontsize="fontsize"
+					:toggle-preview="togglePreview"
+					:send-flash-message="sendFlashMessage">
+				</note-menu>
 				<div v-if="isNoteSelected || isOutlineSelected" class="main-note-container">
-					<note-menu
-						:note="selectedNote"
-						:is-full-screen="isFullScreen"
-						:is-toolbar-enabled="isToolbarEnabled"
-						:is-note-selected="isNoteSelected"
-						:is-outline-selected="isOutlineSelected"
-						:is-preview="isPreview"
-						:fontsize="fontsize"
-						:toggle-preview="togglePreview"
-						:send-flash-message="sendFlashMessage">
-					</note-menu>
 					<div class="my-editor" ref="myEditor">
 						<outline
 							v-if="isOutlineSelected"
@@ -173,12 +174,12 @@
 							</div>
 						</template>
 					</div>
-					<note-footer
-						v-if="!isOutlineSelected"
-						v-show="!isPreview && isToolbarEnabled"
-						ref="refNoteFooter">
-					</note-footer>
 				</div>
+				<note-footer
+					v-if="isNoteSelected && !isOutlineSelected"
+					v-show="!isPreview && isToolbarEnabled"
+					ref="refNoteFooter">
+				</note-footer>
 				<flashmessage :messages="messages"></flashmessage>
 			</div>
 		</div>

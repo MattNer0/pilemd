@@ -2,12 +2,12 @@
 	.noteBar
 		nav: ul(:class="{'transparent' : !isPreview && !isToolbarEnabled }")
 			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
-				a(@click="menu_image", href="#", title="Insert Image from Url")
+				a(@click="menu_image", href="#")
 					i.coon-image
 					|  Image
 			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
 				div: dropdown(:visible="table_visible", :position="position_left", v-on:clickout="table_visible = false")
-					span.link(@click="table_visible = !table_visible", title="Table")
+					span.link(@click="table_visible = !table_visible")
 						i.coon-table
 						|  Table
 					.dialog(slot="dropdown")
@@ -19,17 +19,17 @@
 							span(v-else)
 								| Select the Table Size
 			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
-				a(@click="menu_checkMark", href="#", title="Insert Checkbox")
+				a(@click="menu_checkMark", href="#")
 					i.coon-check-square
 					|  Checkbox
 			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': isPreview || !isToolbarEnabled }")
-				a(@click="menu_codeBlock", href="#", title="Insert Code block")
+				a(@click="menu_codeBlock", href="#")
 					i.coon-code
 					|  Code block
 
 			li(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': !isPreview || !noteHeadings || noteHeadings.length < 2 }")
 				div: dropdown(:visible="headings_visible", :position="position_left", v-on:clickout="headings_visible = false")
-					span.link(@click="headings_visible = !headings_visible", title="Headers")
+					span.link(@click="headings_visible = !headings_visible")
 						i.coon-list
 						|  Headers
 					.dialog(slot="dropdown")
@@ -38,9 +38,10 @@
 
 			li.right-align(:class="{ 'entry-hidden': !isToolbarEnabled }")
 				div: dropdown(:visible="fontsize_visible", :position="position_right", v-on:clickout="fontsize_visible = false")
-					span.link(@click="fontsize_visible = !fontsize_visible", title="Font Size")
+					span.link(@click="fontsize_visible = !fontsize_visible")
 						i.coon-size
-					.dialog(slot="dropdown"): ul
+						|  Text Size
+					.dialog(slot="dropdown"): ul.fontsize-dialog
 						li: a(@click.prevent="menu_fontsize(10)", href="#")
 							i.coon-check-circle(v-if="fontsize == 10")
 							i.coon-circle.faded(v-else)
@@ -74,10 +75,11 @@
 							i.coon-circle.faded(v-else)
 							|  24
 			
-			li.right-align(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': !isPreview && !isToolbarEnabled }")
+			li.right-align(v-if="isNoteSelected && !isOutlineSelected", :class="{ 'entry-hidden': !isToolbarEnabled }")
 				div: dropdown(:visible="properties_visible", :position="position_right", v-on:clickout="properties_visible = false")
-					span.link(@click="properties_visible = !properties_visible", title="Properties")
+					span.link(@click="properties_visible = !properties_visible")
 						i.coon-info
+						|  Properties
 					.dialog(slot="dropdown")
 						.properties-dialog(@click="close_properties")
 							table
@@ -124,8 +126,10 @@
 				a(@click="togglePreview", href="#", title="Preview")
 					template(v-if="isPreview")
 						i.coon-eye-off
+						|  Hide Preview
 					template(v-else)
 						i.coon-eye
+						|  Show Preview
 </template>
 
 <script>

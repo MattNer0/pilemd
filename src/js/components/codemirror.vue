@@ -63,6 +63,11 @@
 		return words.length;
 	}
 
+	function countLineBreaks(text) {
+		var lines = text.split("\n");
+		return lines.length;
+	}
+
 	export default {
 		name: 'codemirror',
 		props: {
@@ -201,10 +206,13 @@
 						this.$root.$refs.refNoteFooter.row = c.line;
 						this.$root.$refs.refNoteFooter.column = c.ch;
 						this.$root.$refs.refNoteFooter.selection = sel.length;
-						if (sel.length == 0)
+						if (sel.length == 0) {
 							this.$root.$refs.refNoteFooter.wordscount = countWords(cm.getValue());
-						else
+							this.$root.$refs.refNoteFooter.linebreaks = 0;
+						} else {
 							this.$root.$refs.refNoteFooter.wordscount = countWords(sel);
+							this.$root.$refs.refNoteFooter.linebreaks = countLineBreaks(sel);
+						}
 					}
 				});
 

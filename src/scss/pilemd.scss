@@ -2,11 +2,12 @@ $main-font-size: 14px;
 $main-font-family: "Roboto";
 
 $title-bar-height: 3em;
-$title-bar-border: 1px;
+$title-bar-border: 0.1em;
 
 $address-bar-border-radius: 0.2em;
 
 $action-bar-height: 2em;
+$note-bar-height: 2em;
 
 $tab-selected-margin: 0.3em;
 
@@ -15,6 +16,8 @@ $folder-list-border-radius: 0.2em;
 $splash-border-radius: 0.2em;
 
 $note-list-border-radius: 0.2em;
+
+$outside-note-height: #{ $title-bar-border + $title-bar-height + $note-bar-height*2 };
 
 @font-face {
 	font-family: 'Roboto';

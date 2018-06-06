@@ -104,8 +104,10 @@ function style_object(obj) {
 			".CodeMirror-dialog.CodeMirror-dialog-bottom" : {
 				background: obj["title-bar-background"]
 			},
+			".main-cell-container.note-open" : {
+				backgroundColor: obj["note-container-background-color"],
+			},
 			".main-note-container" : {
-				border: "2px solid "+obj["note-border-color"],
 				backgroundColor: obj["note-background-color"],
 				color: obj["note-text-color"]
 			},
@@ -218,7 +220,7 @@ function style_object(obj) {
 				}
 			},
 			".noteBar" : {
-				"& .properties-dialog, .table-dialog, .headings-dialog" : {
+				"& .properties-dialog, .table-dialog, .headings-dialog, .fontsize-dialog" : {
 					background: obj["note-background-color"],
 					border: "1px solid "+obj["note-bar-text-color"]
 				},
@@ -243,20 +245,21 @@ function style_object(obj) {
 					}
 				},
 				"& nav ul" : {
-					background: obj["note-background-color"],
 					"& li > a, li > div" : {
-						color: obj["note-bar-text-color"]
+						color: obj["note-bar-color"]
 					},
 					"& li hr" : {
-						border: "1px solid "+obj["note-bar-text-color"]
+						border: "1px solid "+obj["note-bar-color"]
 					},
 					"& li ul" : {
-						border: "1px solid "+obj["note-bar-text-color"]
+						border: "1px solid "+obj["note-bar-color"]
 					},
 					"& li:hover > a, li:hover > div" : {
-						background: obj["note-background-color"]+" !important",
-						color: obj["note-text-color"]
-					}
+						color: obj["note-bar-color-hover"]
+					},
+					"& li:hover .dialog span" : {
+						color: obj["note-bar-color"]
+					},
 				}
 			},
 			".my-notes" : {
@@ -338,9 +341,6 @@ function style_object(obj) {
 				"& .tab.selected" : {
 					borderBottom: obj["tab-selected-background"]
 				}
-			},
-			".tabs-open .main-note-container" : {
-				borderTop: "0.15em solid "+obj["note-border-color"]
 			},
 			".title-bar-spacing" : {
 				backgroundColor: obj["resize-panel-handler"]

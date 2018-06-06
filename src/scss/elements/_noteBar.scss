@@ -1,11 +1,7 @@
 .noteBar {
-	position: absolute;
-	top: 0em;
-	right: 0;
-	left: 0;
-	height: 2em;
-	z-index: 5;
-	padding: 0 1px;
+	height: $note-bar-height;
+	position: relative;
+	z-index: 10;
 
 	i.faded {
 		opacity: 0.4;
@@ -72,21 +68,22 @@
 	}
 
 	nav {
-		display: block;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
 		margin: 0 auto;
+		height: $note-bar-height;
 		width: 100%;
 		min-width: 16em;
-		max-width: 70em;
-		font-size: 110%;
+		max-width: 75em;
+		font-size: 100%;
 
 		ul {
-			padding: 0.5em 0 0;
-			margin-left: 0.2em;
-			margin-right: 0.2em;
-			width: calc( 100% - 0.4em );
+			width: 100%;
+			font-size: 110%;
 
 			li {
-				height: 1.7em;
 				float: left;
 
 				i {
@@ -94,7 +91,7 @@
 				}
 
 				> a, > div {
-					padding: 0 0.5em;
+					padding: 0.3em 0.5em 0.3em;
 				}
 
 				ul {
@@ -141,20 +138,21 @@
 		}
 	}
 
-	.my-dropdown-dd ul li {
-		float: none;
-		display: block;
+	.my-dropdown-dd {
+		margin-top: -1.5em;
+
+		ul li {
+			float: none;
+			display: block;
+		}
 	}
 }
 
 .noteBar.footer {
-	top: auto;
-	bottom: 0;
-	height: 1.4em;
 
 	nav {
 		ul {
-			font-size: 75%;
+			font-size: 95%;
 			padding: 0;
 
 			li > div {

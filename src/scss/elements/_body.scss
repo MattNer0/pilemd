@@ -73,11 +73,11 @@
 
 	.main-note-container {
 		position: relative;
-		height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height } - 1em );
+		height: calc( 100vh - #{ $outside-note-height } );
 	}
 
 	.full-note .main-note-container {
-		height: calc( 100vh - #{ $title-bar-border } - #{ $title-bar-height } );
+		height: calc( 100vh - #{ $outside-note-height } );
 	}
 
 	.tabs-open .main-note-container {

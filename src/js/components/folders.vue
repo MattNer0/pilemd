@@ -263,6 +263,14 @@
 						}
 					}));
 					menu.append(new MenuItem({type: 'separator'}));
+				} else {
+					menu.append(new MenuItem({
+						label: 'Select folder',
+						click: () => {
+							this.changeFolder(folder);
+						}
+					}));
+					menu.append(new MenuItem({type: 'separator'}));
 				}
 
 				if (!bucket.trash_bin) {
