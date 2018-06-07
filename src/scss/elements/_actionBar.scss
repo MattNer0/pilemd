@@ -162,6 +162,11 @@ nav > ul {
 
 		input[type=text] {
 			width: 100%;
+			border: 1px solid transparent;
+		}
+
+		input.error[type=text] {
+			border: 1px solid #e65c5c;
 		}
 
 		i {

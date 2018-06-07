@@ -39,7 +39,8 @@ var appVue = new Vue({
 		inputPlaceholder : "",
 		inputDefault     : "",
 		inputRequired    : true,
-		inputButtons     : []
+		inputButtons     : [],
+		closingCallback  : null
 	},
 	components: {
 		'titleBar'      : component_titleBar,
@@ -53,13 +54,14 @@ var appVue = new Vue({
 
 		ipcRenderer.on('open-popup', (event, data) => {
 			if (!data) {
-				self.closingWindow();
+				self.closeWindow();
 			}
 
 			self.currentTheme = data.theme;
 			self.type = data.type;
 			self.title = data.title;
 			self.message = data.message ? data.message : "";
+			self.closingCallback = null;
 
 			switch(data.type) {
 				case "input-text":
@@ -80,11 +82,9 @@ var appVue = new Vue({
 									if (data.input_data.match(regex)) {
 										return false;
 									}
-									// @todo gonna use this to highlight the wrong field in the form
-									return 'pageurl';
+									return 'input_data';
 								},
 								callback(data) {
-									//self.sendFlashMessage(1000, 'info', 'Loading page...');
 									ipcRenderer.send('load-page', {
 										url           : data.input_data,
 										mode          : 'note-from-url',
@@ -98,6 +98,14 @@ var appVue = new Vue({
 							self.inputRequired = true;
 							self.inputPlaceholder = "Bucket Name";
 							self.inputDefault = data.bucket;
+
+							self.closingCallback = function() {
+								ipcRenderer.send('bucket-rename', {
+									name       : null,
+									bucket_uid : data.bucket_uid
+								});
+							};
+
 							self.inputButtons = [{
 								label: "Cancel",
 								type: "close"
@@ -105,14 +113,12 @@ var appVue = new Vue({
 								label: "Ok",
 								type: "submit",
 								validate(form) {
-									if (form.input_data.length > 0) {
+									if (form.input_data.length > 0 && form.input_data.length < 128) {
 										return false;
 									}
-									// @todo gonna use this to highlight the wrong field in the form
-									return 'bucket';
+									return 'input_data';
 								},
 								callback(form) {
-									//self.sendFlashMessage(1000, 'info', 'Loading page...');
 									ipcRenderer.send('bucket-rename', {
 										name       : form.input_data,
 										bucket_uid : data.bucket_uid
@@ -121,7 +127,7 @@ var appVue = new Vue({
 							}];
 							break;
 						default:
-							self.closingWindow();
+							self.closeWindow();
 					}
 					break;
 			}
@@ -132,12 +138,18 @@ var appVue = new Vue({
 			if (quit) {
 				remote.app.quit();
 			} else {
-				var win = remote.getCurrentWindow();
-				win.close();
+				if (this.closingCallback && typeof this.closingCallback == "function") {
+					this.closingCallback();
+				}
+				this.closeWindow();
 			}
 		},
 		inputSubmit(input_text) {
-			this.closingWindow();
+			this.closeWindow();
+		},
+		closeWindow() {
+			var win = remote.getCurrentWindow();
+			win.close();
 		}
 	},
 	watch: {

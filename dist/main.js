@@ -256,22 +256,29 @@ function makePopupWindow(width, height, callback) {
 			backgroundThrottling: true
 		}
 	};
-	
-	switch(height) {
-		case "small":
-			conf.height = Math.max(Math.ceil(wSize[1]*0.2), 200);
-			conf.width = Math.max(Math.ceil(wSize[0]*0.4), 320);
-			break;
-		case "medium":
-			conf.height = Math.max(Math.ceil(wSize[1]*0.2), 250);
-			conf.width = Math.max(Math.ceil(wSize[0]*0.4), 350);
-			break;
-	}
 
-	switch(width) {
-		case "small":
-			conf.width = Math.max(Math.ceil(wSize[0]*0.3), 320);
-			break;
+	if (DEBUG) {
+		conf.height = Math.max(Math.ceil(wSize[1]*0.5), 300);
+		conf.width = Math.max(Math.ceil(wSize[0]*0.5), 500);
+	} else {
+
+		switch(height) {
+			case "small":
+				conf.height = Math.max(Math.ceil(wSize[1]*0.2), 200);
+				conf.width = Math.max(Math.ceil(wSize[0]*0.4), 320);
+				break;
+			case "medium":
+				conf.height = Math.max(Math.ceil(wSize[1]*0.2), 250);
+				conf.width = Math.max(Math.ceil(wSize[0]*0.4), 350);
+				break;
+		}
+	
+		switch(width) {
+			case "small":
+				conf.width = Math.max(Math.ceil(wSize[0]*0.3), 320);
+				break;
+		}
+
 	}
 
 	conf.x = wBounds.x+Math.floor(wBounds.width*0.5)-Math.floor(conf.width*0.5);

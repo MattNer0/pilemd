@@ -408,11 +408,20 @@ var appVue = new Vue({
 		});
 
 		ipcRenderer.on('bucket-rename', (event, data) => {
-			if (data && data.bucket_uid && this.editingBucket && this.editingBucket.uid == data.bucket_uid && data.name) {
-				this.editingBucket.name = data.name;
-				this.editingBucket.saveModel();
-				if (this.selectedBucket != this.editingBucket) this.changeRack(this.editingBucket, true);
-				this.editingBucket = null;
+			if (data && data.bucket_uid && this.editingBucket && this.editingBucket.uid == data.bucket_uid) {
+				if (data.name) {
+					this.editingBucket.name = data.name;
+					this.editingBucket.saveModel();
+					if (this.selectedBucket != this.editingBucket) this.changeRack(this.editingBucket, true);
+					this.editingBucket = null;
+				} else if (this.editingBucket.name.length == 0) {
+					if (this.editingBucket.folders.length > 0) {
+						this.editingBucket.name = "New Bucket";
+					} else {
+						this.removeRack(this.editingBucket);
+						this.editingBucket = null;
+					}
+				}
 			}
 		});
 

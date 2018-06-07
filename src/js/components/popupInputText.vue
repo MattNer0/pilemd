@@ -1,7 +1,7 @@
 <template lang="pug">
 	form(@submit="submitForm($event)")
 		.my-search
-			input#search-bar(v-model="input_data", type="text", :placeholder="placeholder", @keydown.enter.exact.prevent="submitForm($event)")
+			input#search-bar(v-model="input_data", type="text", :placeholder="placeholder", @keydown.enter.exact.prevent="submitForm($event)", ref="input_data")
 			i.coon-x-circle(v-show="input_data", @click="clear_input")
 		.my-buttons
 			.my-button(v-for="button in buttons")
@@ -54,29 +54,32 @@
 			},
 			buttonClick(event, button_obj) {
 				switch(button_obj.type) {
-					case "close":
-						this.$root.closingWindow();
-						break;
 					case "submit":
 						this.submitForm(event);
+						break;
+					default:
+						if (button_obj && typeof button_obj.callback == "function") {
+							button_obj.callback(this.formData);
+						}
+						this.$root.closingWindow();
 						break;
 				}
 				return false;
 			},
-			errorFlash(event, message) {
+			errorFlash(event, element) {
 				if (event) event.preventDefault();
-				console.log(message);
+				this.$refs[element].classList.add("error")
 				return;
 			},
 			submitForm(event) {
 				if (this.required && this.input_data.length == 0) {
-					return this.errorFlash(event, "required");
+					return this.errorFlash(event, "input_data");
 				}
 
 				if (this.submitButton && typeof this.submitButton.validate == "function") {
 					var result = this.submitButton.validate(this.formData);
 					if (result) {
-						return this.errorFlash(event, "not valid "+result);
+						return this.errorFlash(event, result);
 					}
 				}
 
@@ -87,5 +90,10 @@
 				this.$root.inputSubmit(this.formData);
 			},
 		},
+		watch: {
+			input_data() {
+				this.$refs["input_data"].classList.remove("error");
+			}
+		}
 	}
 </script>
